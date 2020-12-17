@@ -18,61 +18,95 @@ WinGetPos, X0, Y0, , , ahk_exe crossfire.exe ;get top left position of the windo
 
 X1 := X0 + 694
 Y1 := Y0
+X2 := X0 + 2
+Y2 := Y0 + 264
 
-Gui, +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
-Gui, Margin, 0, 0
-Gui, Color, 333333
-Gui, Font, s16, Verdana  
-Gui, Add, Text, vMyText c00FF00, 延长显示框长度~
-Gui, Show, x%X1% y%Y1% NoActivate
-SetTimer, ShowMode, 200
-Gosub, ShowMode 
+If (X1 > 0 && Y1 > 0 && X2 > 0 && Y2 > 0)
+{
+    Gui, 1: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, 1: Margin, 0, 0
+    Gui, 1: Color, 333333
+    Gui, 1: Font, s16, Verdana  
+    Gui, 1: Add, Text, vMyText c00FF00, 延长显示框长度~
+    Gui, 1: Show, x%X1% y%Y1% NoActivate
+    SetTimer, ShowMode, 200
+    Gosub, ShowMode 
 
+    Gui, 2: +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, 2: Margin, 0, 0
+    Gui, 2: Color, 333333
+    Gui, 2: Font, s14 c00FF00, Verdana  
+    Gui, 2: add, Text,, ====使用=说明====
+    Gui, 2: add, Text,, 按~启用/暂停脚本..
+    Gui, 2: add, Text,, 按1236JKL选择模式
+    Gui, 2: add, Text,, 按1===步枪模式===
+    Gui, 2: add, Text,, 按2===手枪模式===
+    Gui, 2: add, Text,, 按3===关闭模式===
+    Gui, 2: add, Text,, 按6===机枪模式===
+    Gui, 2: add, Text,, 按J===狙击关镜===
+    Gui, 2: add, Text,, 按K===连发模式===
+    Gui, 2: add, Text,, 按L===速点模式===
+    Gui, 2: add, Text,, 按0===重新加载===
+    WinSet, TransColor, 333333 150
+    Gui, 2: Show, x%X2% y%Y2% NoActivate
+}
+
+~*0::Reload
 ~*`::
     ChangeMode(1)
 return
 
 ~*1::
     ChangeMode(2)
-    RunningMode := "步枪模式"
+    RunningMode := "加载步枪"
     AutoFire(1)
 return
     
 ~*2::
     ChangeMode(2)
-    RunningMode := "手枪模式"
+    RunningMode := "加载手枪"
     AutoFire(0)
 return
 
-~*3::
-    RunningMode := "目前暂无"
+~*J:: ;sniper 1 vs 1 mode
+    ChangeMode(2)
+    RunningMode := "加载狙击"
+    AutoFire(8)
 return
 
-~*J:: ;sniper mode
+~*K:: ;sniper, shotgun
     ChangeMode(2)
-    RunningMode := "狙击模式"
-    AutoFire(8)
+    RunningMode := "加载连发"
+    AutoFire(88)
 return
 
 ~*6:: ;machine gun
     ChangeMode(2)
-    RunningMode := "机枪模式"
+    RunningMode := "加载机枪"
     AutoFire(11)
 return
 
 ~*L:: ;Gatling gun
     ChangeMode(2)
-    RunningMode := "速点模式"
+    RunningMode := "加载速点"
     AutoFire(111)
 return
 
 ChangeMode(qie_huan)
 {
-    global AutoMode
+    global AutoMode, X2, Y2
     Loop, %qie_huan%
     {
         AutoMode := Abs(AutoMode - 1)
         Sleep, 120
+    }
+    If (AutoMode = 1)
+    {
+        Gui, 2: hide
+    }
+    Else
+    {
+        Gui, 2: Show, x%X2% y%Y2% NoActivate
     }
 }
 
@@ -81,32 +115,20 @@ AutoFire(ya_qiang)
     global ;declare global vairable
     WinGetPos, X, Y, , , ahk_exe crossfire.exe ;get top left position of the window
 
-    X1 := X + 694
-    Y1 := Y
-
-    Gui, Destroy
-    Gui, +LastFound +AlwaysOnTop -Caption +ToolWindow  ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
-    Gui, Margin, 0, 0
-    Gui, Color, 333333
-    Gui, Font, s16, Verdana  
-    Gui, Add, Text, vMyText c00FF00, 延长显示框长度~
-    Gui, Show, x%X1% y%Y1% NoActivate
-    SetTimer, ShowMode, 200
-    Gosub, ShowMode  
-    
     PixelGetColor, color_edge, (X + 1130), (Y + 58)
     While, Not (AutoMode = 0 || InStr(PosColor2, color_edge))
     {
-        Var := 770
-        Loop ;detect color in one line where shows the enemy name
+        Var := 798
+        Loop ;detect color in three lines where shows the enemy name
         {
             PixelGetColor, color1, (X + Var), (Y + 538)
             PixelGetColor, color2, (X + Var), (Y + 540)
             PixelGetColor, color3, (X + Var), (Y + 542)
             Var ++
 
-            If (GetKeyState("3", "P"))
+            If (GetKeyState("3", "P") || GetKeyState("4", "P"))
             {
+                RunningMode := "目前暂无"
                 Exit ;exit current thread
             }
 
@@ -116,32 +138,64 @@ AutoFire(ya_qiang)
                 switch ya_qiang
                 {
                     case 1:
-                        SendInput, {Click, Down, Left}
-                        ReduceRecoil(2, 90, 90)
-                        SendInput, {Blind}{Click, Up, Left}
-                        Sleep, (rand + 120)
+                        RunningMode := "步枪模式" ;双重验证
+                        Send, {Click, Down, Left}
+                        ReduceRecoil(3, 90, 90)
+                        Send, {Blind}{Click, Up, Left}
+                        Sleep, (rand + 60)
                     break
                     
                     case 0:
-                        SendInput, {Click}
+                        RunningMode := "手枪模式"
+                        Send, {Click}
                         Sleep, (rand - 80)
                     break
 
                     case 8:
-                        SendInput, {Click}
-                        Sleep, 300
+                        RunningMode := "狙击单挑"
+                        Send, {Click, Right, Down}
+                        Sleep, 5
+                        Send, {Blind}{Click, Right, Up}
+                        Sleep, 5
+                        Send, {Click, Down}
+                        Sleep, 10
+                        Send, {Blind}{Click, Up}
+                        Sleep, 1260 ;awm 
+
+                        PixelGetColor, color4, (X + 1565), (Y + 55)
+                        PixelGetColor, color5, (X + 1565), (Y + 915)
+                        
+                        while (color4 = 0x000000 && color5 = 0x000000)
+                        {
+                            Send, {Click, Right, Down}
+                            Sleep, 10
+                            Send, {Blind}{Click, Right, Up}
+                            Sleep, 75
+                            PixelGetColor, color4, (X + 1565), (Y + 55)
+                            PixelGetColor, color5, (X + 1565), (Y + 915)
+                        }
+                    break
+
+                    case 88:
+                        RunningMode := "连发模式"
+                        Send, {Click, Down}
+                        Sleep, (rand - 60)
+                        Send, {Blind}{Click, Up}
+                        Sleep, (rand - 60)
                     break
 
                     case 11:
-                        SendInput, {Click, Down, Left}
+                        RunningMode := "机枪模式"
+                        Send, {Click, Down, Left}
                         ReduceRecoil(25, 40, 25)
-                        SendInput, {Blind}{Click, Up, Left}
+                        Send, {Blind}{Click, Up, Left}
                     break
 
                     case 111:
-                        SendInput, {Click, Down, Left}
+                        RunningMode := "速点模式"
+                        Send, {Click, Down, Left}
                         Sleep, (rand - 60)
-                        SendInput, {Blind}{Click, Up, Left}
+                        Send, {Blind}{Click, Up, Left}
                         Sleep, (rand - 60)
                     break
                     
@@ -149,7 +203,7 @@ AutoFire(ya_qiang)
                     break
                 }
             }
-        } until ( Var = 830 )
+        } until ( Var = 808 )
     }
     return
 }
@@ -158,12 +212,12 @@ ReduceRecoil(chong_fu, yan_chi, jian_ge)
 {
 	cnt := 0
 	Sleep, yan_chi
-	while, (GetKeyState("LButton", "P") && (cnt < chong_fu))
+    while, (GetKeyState("LButton", "P") && (cnt < chong_fu))
 	{
 		mouseXY(0,1) ;move mouse down 1
-		Sleep, jian_ge
+	    Sleep, jian_ge
 		cnt ++
-	}
+    }
 	return
 }
 
