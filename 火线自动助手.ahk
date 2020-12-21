@@ -110,8 +110,8 @@ return
     AutoFire(111)
 return
 ;══════════════════════════════════════════════════════════════════
-~*W & ~*F:: ;地面连跳蹲
-    cnt:= 0
+~W & ~F:: ;地面连跳蹲
+    cnter:= 0
     Send, {Space}
     Sleep, 6
     Send, {LCtrl Down}
@@ -119,8 +119,8 @@ return
     {
         Send, {Space}
         Sleep, 6
-        cnt ++
-        If (GetKeyState("LButton", "P") || cnt >= 160)
+        cnter ++
+        If (GetKeyState("LButton", "P") || cnter >= 160)
         {
             break
         }
@@ -129,22 +129,22 @@ return
 return
 
 ~*!W:: ;空中连蹲跳 alt+w
-    cnt:= 0
+    cnter:= 0
     Send, {Space}
     Sleep, 240
     Loop
     {
         Send, {Ctrl}
         Sleep, 10
-        cnt ++
-        If (not GetKeyState("W", "P") || cnt >= 20)
+        cnter ++
+        If (not GetKeyState("W", "P") || cnter >= 20)
         {
             break
         }
     }
 return
 
-~*S & ~*F:: ;跳蹲上墙
+~S & ~F:: ;跳蹲上墙
     While, Not (GetKeyState("E") || (GetKeyState("LButton", "P")))
 	{
 		Send, {Space}
@@ -173,11 +173,11 @@ return
     {
         While, Not (GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
 	    {
-		    Random, rand, 58, 62
+		    Random, randVar, 58, 62
 		    Send, {LButton Down}
-		    Sleep, rand
+		    Sleep, randVar
 		    Send, {Blind}{LButton Up}
-		    Sleep, rand
+		    Sleep, randVar
 	    }
 	    Send, {Blind}{LButton Up}
     }
