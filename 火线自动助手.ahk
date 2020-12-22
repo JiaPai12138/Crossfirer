@@ -6,12 +6,14 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #SingleInstance, force
 #IfWinActive ahk_exe crossfire.exe  ; Only active while crossfire is running
 CoordMode, Pixel, Screen
+CoordMode, Mouse, Screen
 Process, Priority, , H
 ;══════════════════════════════════════════════════════════════════
 global PosColor1 := "0x353796 0x353797 0x353798 0x353799 0x343799 0x34379A 0x34389A 0x34389B 0x34389C 0x33389C 0x33389D 0x33389E 0x33389F 0x32389F 0x32399F 0x3239A0 0x3239A1 0x3239A2 0x3139A2 0x3139A3 0x3139A4 0x313AA4 0x313AA5 0x303AA5 0x303AA6 0x303AA7 0x303AA8 0x2F3AA8 0x2F3AA9 0x2F3BA9 0x2F3BAA 0x2F3BAB 0x2E3BAB 0x2E3BAC 0x2E3BAD 0x2E3BAE 0x2E3CAE 0x2D3CAE 0x2D3CAF 0x2D3CB0 0x2D3CB1 0x2C3CB1 0x2C3CB2 0x2C3CB3 0x2C3DB3 0x2C3DB4 0x2B3DB4 0x2B3DB5 0x2B3DB6 0x2B3DB7 0x2A3DB7 0x2A3EB7 0x2A3EB8 0x2A3EB9 0x2A3EBA 0x293EBA 0x293EBB 0x293EBC 0x293FBC 0x293FBC 0x293FBD 0x283FBD 0x283FBE 0x283FBF 0x283FC0 0x273FC0 0x273FC1 0x2740C1 0x2740C2 0x2740C3 0x2640C4 0x2640C5 0x2640C6 0x2641C6 0x2641C7 0x2541C7 0x2541C8 0x2541C9 0x2541CA 0x2441CA 0x2441CB 0x2442CB 0x2442CC 0x2442CD 0x2342CD 0x2342CE 0x2342CF 0x2342D0 0x2343D0 0x2243D0 0x2243D1 0x2243D2 0x2243D3 0x2143D3 0x2143D4 0x2144D4 0x2144D5 0x2144D6 0x2044D6 0x2044D7 0x2044D8 0x2044D9 0x1F44D9 0x1F45D9 0x1F45DA 0x1F45DB 0x1F45DC 0x1E45DC 0x1E45DD 0x1E45DE 0x1E46DE 0x1D46DF 0x1D46E0 0x1D46E1 0x1D46E2 0x1C46E3 0x1C47E3 0x1C47E4 0x1C47E5 0x1B47E5 0x1B47E6 0x1B47E7 0x1B48E8 0x1A48E8 0x1A48E9 0x1A48EA 0x1A48EB 0x1948EC 0x1948ED 0x1949ED 0x1949EE 0x1849EF 0x1849F0 0x1849F1 0x174AF2" ;all detected values of color hex since it is changing
 global PosColor2 := "0x000000 0x232323 0x101010 0x0F0F0F 0x070707 0x2F2F31"
 crosshair = 34-35 10-35 10-36 34-36 34-60 35-60 35-36 59-36 59-35 35-35 35-11 34-11
 global AutoMode := 1 ;on/off switch
+global ExitMode := False
 global RunningMode := "加载脚本"
 
 WinGetPos, X, Y, W, H, ahk_exe crossfire.exe ;get top left position of the window
@@ -23,6 +25,8 @@ global XGui2 := X + 2
 global YGui2 := Y + 264
 global Xch := X + W // 2 - 34
 global Ych := Y + H // 2 - 20
+global cnt
+global color_get := 0xFFFFFF
 
 If (W + H) > 0
 {
@@ -46,7 +50,7 @@ If (W + H) > 0
     Gui, 2: add, Text,, ║按1236JKL选择模式
     Gui, 2: add, Text,, ║按1═══步枪模式═══
     Gui, 2: add, Text,, ║按2═══手枪模式═══
-    Gui, 2: add, Text,, ║按3═══关闭模式═══
+    Gui, 2: add, Text,, ║按3/4═关闭模式═══
     Gui, 2: add, Text,, ║按6═══机枪模式═══
     Gui, 2: add, Text,, ║按J═══狙击关镜═══
     Gui, 2: add, Text,, ║按K═══连发模式═══
@@ -69,75 +73,81 @@ If (W + H) > 0
 }  
 ;══════════════════════════════════════════════════════════════════
 ~*0::Reload
-~*Delete::ExitApp
+~*CapsLock:: ;minimize window
+    press_key("Esc", "60")
+    MouseMove, (X + W - 151), (Y + 16)
+    Sleep, 30
+    press_key("LButton", "30")
+return
 
-;~*$LButton::
-;    ReduceRecoil(0, 30, 30) 
-;return
+~*$LButton::
+    If !GetColorStatus(1130, 58, color_get, PosColor2) && (AutoMode = 1)
+    {
+        ReduceRecoil(0, 30, 30) 
+    }
+return
 
 ~*`::
-    ;Suspend ;挂起热键
     ChangeMode(1)
 return
 
-~*1::
+~*1 Up::
     ChangeMode(2)
     RunningMode := "加载步枪"
     AutoFire(1)
 return
     
-~*2::
+~*2 Up::
     ChangeMode(2)
     RunningMode := "加载手枪"
     AutoFire(0)
 return
 
-~*J:: ;sniper 1 vs 1 mode
+~*J Up:: ;sniper 1 vs 1 mode
     ChangeMode(2)
     RunningMode := "加载狙击"
     AutoFire(8)
 return
 
-~*6:: ;machine gun
+~*6 Up:: ;machine gun
     ChangeMode(2)
     RunningMode := "加载机枪"
     AutoFire(11)
 return
 
-~*L:: ;Gatling gun, sniper gun, shotgun
+~*L Up:: ;Gatling gun, sniper gun, shotgun
     ChangeMode(2)
     RunningMode := "加载速点"
     AutoFire(111)
 return
 ;══════════════════════════════════════════════════════════════════
 ~W & ~F:: ;地面连跳蹲
-    cnter:= 0
-    Send, {Space}
-    Sleep, 6
+    cnt:= 0
+    press_key("space", "10")
+    Sleep, 240
     Send, {LCtrl Down}
     Loop
     {
-        Send, {Space}
-        Sleep, 6
-        cnter ++
-        If (GetKeyState("LButton", "P") || cnter >= 160)
+        press_key("space", "10")
+        ;Sleep, 5
+        cnt += 1
+        If (!GetKeyState("W", "P") || cnt >= 50)
         {
             break
         }
     }
     Send, {Blind}{LCtrl Up}
-return
+return 
 
 ~*!W:: ;空中连蹲跳 alt+w
-    cnter:= 0
-    Send, {Space}
-    Sleep, 240
+    cnt:= 0
+    press_key("space", "30")
+    Sleep, 180
     Loop
     {
-        Send, {Ctrl}
-        Sleep, 10
-        cnter ++
-        If (not GetKeyState("W", "P") || cnter >= 20)
+        press_key("LCtrl", "10")
+        cnt += 1
+        If (!GetKeyState("W", "P") || cnt >= 20)
         {
             break
         }
@@ -145,24 +155,20 @@ return
 return
 
 ~S & ~F:: ;跳蹲上墙
-    While, Not (GetKeyState("E") || (GetKeyState("LButton", "P")))
+    While, !(GetKeyState("E") || (GetKeyState("LButton", "P")))
 	{
-		Send, {Space}
-        Sleep, 20
-        Send, {Ctrl}
-        Sleep, 20
+		press_key("space", "20")
+        press_key("LCtrl", "20")
 	}
 return
 ;══════════════════════════════════════════════════════════════════
 ~*MButton:: ;爆裂者轰炸
 	If (AutoMode = 0)
     {
-        While, Not (GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
+        While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
 	    {
-		    Send, {RButton Down}
-		    Sleep, 10
-		    Send, {Blind}{RButton Up}
-		    Sleep, 60
+		    press_key("RButton", "10")
+		    Sleep, 50
 	    }
 	    Send, {Blind}{RButton Up}
     }
@@ -171,25 +177,22 @@ return
 ~*XButton2:: ;半自动速点
     If (AutoMode = 0)
     {
-        While, Not (GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
 	    {
 		    Random, randVar, 58, 62
-		    Send, {LButton Down}
-		    Sleep, randVar
-		    Send, {Blind}{LButton Up}
-		    Sleep, randVar
+		    press_key("LButton", randVar)
 	    }
 	    Send, {Blind}{LButton Up}
     }
 return
 
-~*K:: ;粉碎者直射
+~*K Up:: ;粉碎者直射
     If (AutoMode = 0)
     {
 	    Send, {Blind}{LButton Up}
-	    Sleep, 10
+	    Sleep, 30
         Send, {LButton Down}
-        While, Not (GetKeyState("R", "P") || GetKeyState("`", "P"))
+        While, !(GetKeyState("R", "P") || GetKeyState("`", "P"))
 	    {
 		    Sleep, 300
 		    If (GetKeyState("3", "P"))
@@ -207,102 +210,93 @@ ChangeMode(qie_huan)
     Loop, %qie_huan%
     {
         AutoMode := Abs(AutoMode - 1)
-        Sleep, 120
+        ExitMode := !ExitMode
+        Sleep, 480
     }
+
     If (AutoMode = 1)
     {
-        Gui, 2: hide
+        Gui, 2: Hide
     }
     Else
     {
         Gui, 2: Show, x%XGui2% y%YGui2% NA
     }
 }
-;══════════════════════════════════════════════════════════════════
+
 AutoFire(ya_qiang)
 {
-    PixelGetColor, color_edge, (X + 1130), (Y + 58)
-    While, Not (AutoMode = 0 || InStr(PosColor2, color_edge))
+    While, !(AutoMode = 0 || GetColorStatus(1130, 58, color_get, PosColor2))
     {
         Var := 798
         Loop ;detect color in three lines where shows the enemy name
         {
-            PixelGetColor, color1, (X + Var), (Y + 538)
-            PixelGetColor, color2, (X + Var), (Y + 540)
-            PixelGetColor, color3, (X + Var), (Y + 542)
-            Var ++
-
             If (GetKeyState("3", "P") || GetKeyState("4", "P"))
             {
                 RunningMode := "目前暂无"
                 Exit ;exit current thread
             }
 
-            PixelGetColor, color4, (X + 1000), (Y + 483)
-            PixelGetColor, color5, (X + 1565), (Y + 915)
-            If (RunningMode = "瞬狙模式" && (color4 = 0x000000 || color5 = 0x000000))
+            If (ExitMode)
             {
-                Send, {RButton Down}
-                Sleep, 10
-                Send, {Blind}{RButton Up}
-                Sleep, 60
+                Exit ;exit current thread
             }
 
-            If (InStr(PosColor1, color1) || InStr(PosColor1, color2) || InStr(PosColor1, color3)) ;if detected color is found in string
+            If (RunningMode = "瞬狙模式" && (GetColorStatus(1000, 483, color_get, PosColor2) || GetColorStatus(1565, 915, color_get, PosColor2)))
+            {
+                press_key("RButton", "30")
+                Sleep, 30
+            }
+            
+            If (GetColorStatus(Var, 538, color_get, PosColor1) || GetColorStatus(Var, 540, color_get, PosColor1) || GetColorStatus(Var, 542, color_get, PosColor1)) ;if detected color is found in string
             {
                 Random, rand, 118, 122 ;set random value trying to avoid VAC
                 switch ya_qiang
                 {
                     case 1:
                         RunningMode := "步枪模式" ;双重验证
-                        Send, {LButton Down}
                         ReduceRecoil(5, 30, 30)
-                        Send, {Blind}{LButton Up}
                         Sleep, (rand + 120)
                     break
                     
                     case 0:
                         RunningMode := "手枪模式"
-                        Send, {LButton Down}
-                        Sleep, (rand - 90)
-                        Send, {LButton Up}
-                        Sleep, (rand - 90)
+                        small_rand := rand - 90
+                        press_key("LButton", small_rand)
                     break
 
                     case 8:
                         RunningMode := "瞬狙模式"
-                        Send, {RButton Down}
-                        Sleep, 5
-                        Send, {Blind}{RButton Up}
-                        Sleep, 5
-                        Send, {LButton Down}
-                        Sleep, 10
-                        Send, {Blind}{LButton Up} 
+                        press_key("RButton", "20")
+                        press_key("LButton", "20")
                         Sleep, 60
                     break
 
                     case 11:
                         RunningMode := "机枪模式"
-                        Send, {LButton Down}
-                        ReduceRecoil(25, 40, 40)
-                        Send, {Blind}{LButton Up}
+                        ReduceRecoil(25, 30, 30)
                     break
 
                     case 111:
                         RunningMode := "连发速点"
-                        Send, {LButton Down}
-                        Sleep, (rand - 60)
-                        Send, {Blind}{LButton Up}
-                        Sleep, (rand - 60)
+                        su_rand := rand - 62
+                        press_key("LButton", su_rand)
                     break
                     
                     Default:
                     break
                 }
             }
+            Var += 1
         } Until ( Var = 808 )
     }
     return
+}
+
+GetColorStatus(CX1, CX2, color_get, color_lib)
+{
+    PixelGetColor, color_get, (X + CX1), (Y + CX2)
+    return InStr(color_lib, color_get)
 }
 
 ReduceRecoil(chong_fu, yan_chi, jian_ge) 
@@ -311,19 +305,25 @@ ReduceRecoil(chong_fu, yan_chi, jian_ge)
     Sleep, yan_chi
     while, (GetKeyState("Lbutton", "P") || (cnt < chong_fu))
 	{
-        Send, {LButton DownTemp}
-        Sleep, jian_ge
+        press_key("Lbutton", jian_ge)
         mouseXY(0, 1.5)
-        Send, {Blind}{LButton Up}
-        Sleep, jian_ge
-		cnt ++
+		cnt += 1
     }
+    Send, {Blind}{LButton Up}
 	return
 }
 
 mouseXY(x1,y1)
 {
     DllCall("mouse_event",uint,1,int,x1,int,y1,uint,0,int,0)
+}
+
+press_key(key, press_time)
+{
+    Send, {%key% DownTemp}
+    Sleep %press_time%
+    Send, {Blind}{%key% up}
+    Sleep %press_time%
 }
 
 ShowMode:
