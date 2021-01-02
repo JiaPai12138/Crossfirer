@@ -10,27 +10,27 @@ CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 ;==================================================================
+/*
 if not A_IsAdmin
 {
     MsgBox,, 警告/Warning, 请以管理员身份运行`nPlease Run As Administrator
-    try
+    try ;compiled program will be detected
     {
-        if A_IsCompiled
-            Run *RunAs "%A_ScriptFullPath%"
-        else
-            Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
+        Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
     }
     catch ; Handles the first error/exception raised by the block above.
     {
         MsgBox,, 错误/Error, 未以管理员身份运行!!!`nNot Run As Administrator!!!
         ExitApp
     }
-}
+} 
+*/
 ;==================================================================
 global PosColor1 := "0x353796 0x353797 0x353798 0x353799 0x343799 0x34379A 0x34389A 0x34389B 0x34389C 0x33389C 0x33389D 0x33389E 0x33389F 0x32389F 0x32399F 0x3239A0 0x3239A1 0x3239A2 0x3139A2 0x3139A3 0x3139A4 0x313AA4 0x313AA5 0x303AA5 0x303AA6 0x303AA7 0x303AA8 0x2F3AA8 0x2F3AA9 0x2F3BA9 0x2F3BAA 0x2F3BAB 0x2E3BAB 0x2E3BAC 0x2E3BAD 0x2E3BAE 0x2E3CAE 0x2D3CAE 0x2D3CAF 0x2D3CB0 0x2D3CB1 0x2C3CB1 0x2C3CB2 0x2C3CB3 0x2C3DB3 0x2C3DB4 0x2B3DB4 0x2B3DB5 0x2B3DB6 0x2B3DB7 0x2A3DB7 0x2A3EB7 0x2A3EB8 0x2A3EB9 0x2A3EBA 0x293EBA 0x293EBB 0x293EBC 0x293FBC 0x293FBC 0x293FBD 0x283FBD 0x283FBE 0x283FBF 0x283FC0 0x273FC0 0x273FC1 0x2740C1 0x2740C2 0x2740C3 0x2640C4 0x2640C5 0x2640C6 0x2641C6 0x2641C7 0x2541C7 0x2541C8 0x2541C9 0x2541CA 0x2441CA 0x2441CB 0x2442CB 0x2442CC 0x2442CD 0x2342CD 0x2342CE 0x2342CF 0x2342D0 0x2343D0 0x2243D0 0x2243D1 0x2243D2 0x2243D3 0x2143D3 0x2143D4 0x2144D4 0x2144D5 0x2144D6 0x2044D6 0x2044D7 0x2044D8 0x2044D9 0x1F44D9 0x1F45D9 0x1F45DA 0x1F45DB 0x1F45DC 0x1E45DC 0x1E45DD 0x1E45DE 0x1E46DE 0x1E46DF 0x1D46DF 0x1D46E0 0x1D46E1 0x1D46E2 0x1C46E2 0x1C46E3 0x1C47E3 0x1C47E4 0x1C47E5 0x1B47E5 0x1B47E6 0x1B47E7 0x1B47E8 0x1B48E8 0x1A48E8 0x1A48E9 0x1A48EA 0x1A48EB 0x1948EB 0x1948EC 0x1948ED 0x1949ED 0x1949EE 0x1849EE 0x1849EF 0x1849F0 0x1849F1 0x174AF2" ;all detected values of color hex since it is changing
 global PosColor2 := "0x232323 0x101010 0x0F0F0F 0x070707 0x2F2F31 0x2A2A2A 0x4C4741 0x4C4841 0x4C4941"
 global PosColor_snipe := "0x000000"
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 35-11 34-11
+global freq, tick, begin_time, t_accuracy := 0.992
 global AutoMode := 0 ;on/off switch
 global ExitMode := True
 global RunningMode := "加载模式"
@@ -38,15 +38,14 @@ global Fcn_Status := "脚本状态"
 global Gun_Using := "暂未选枪械"
 global Gun_Chosen := 0
 global NewText := "自动: " AutoMode "|" RunningMode "|" Fcn_Status "|" Gun_Using
-
-WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
 global X, Y, W, H
-global TempX := X, TempY := Y
 global cnt
 global color_get := 0xFFFFFF
 
-If (W + H) > 0
+if WinExist("ahk_class CrossFire")
 {
+    WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
+    global TempX := X, TempY := Y
     Start:
     SetGuiPosition()
     Gui, 1: +LastFound +AlwaysOnTop -Caption +ToolWindow ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -55,23 +54,26 @@ If (W + H) > 0
     Gui, 1: Font, s16, Verdana  
     Gui, 1: Add, Text, vMyText c00FF00, % NewText
     Gui, 1: Show, x%XGui1% y%YGui1% NA
+    WinSet, ExStyle, +0x20 ; 鼠标穿透
 
     Gui, 2: +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, 2: Margin, 0, 0
     Gui, 2: Color, 333333
     Gui, 2: Font, s12 c00FF00, Microsoft YaHei
-    Gui, 2: add, Text,, ╔====使用==说明===╗`n     按大写锁定开关脚本`n     按34JLTab选择模式`n     按3/4=关闭模式==`n     按J===狙击关镜==`n     按L===速点模式==`n     按Tab键=通用模式=`n================`n     鼠标中间键右键连点`n     鼠标后退键左键连点`n     按W和F==基础鬼跳`n     按W和Alt=空中跳蹲`n     按S和F===跳蹲上墙`n     按-===重新加载==`n╚====使用==说明===╝
+    Gui, 2: add, Text,, ╔====使用==说明===╗`n     按~==开关自火==`n     按34JLTab选择模式`n     按3/4=关闭模式==`n     按J===狙击关镜==`n     按L===速点模式==`n     按Tab键=通用模式=`n================`n     鼠标中间键右键连点`n     鼠标后退键左键连点`n     按W和F==基础鬼跳`n     按W和Alt=空中跳蹲`n     按S和F===跳蹲上墙`n     按-重载~最小化窗口`n╚====使用==说明===╝
     Gui, 2: Show, x%XGui2% y%YGui2% NA
     WinSet, TransColor, 333333 255
+    WinSet, ExStyle, +0x20 ; 鼠标穿透
 
-    Gui, crosshair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +E0x08000000
+    Gui, crosshair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop
     Gui, crosshair: Margin, 0, 0
     Gui, crosshair: Color, 333333
     Gui, crosshair: Add, Progress, x0 y0 w52 h52 c00FFFF -border vCrosshair, 100 ; 
-    Gui, crosshair: Show, x%Xch% y%Ych% 
+    Gui, crosshair: Show, x%Xch% y%Ych%
     WinSet, TransColor, 333333
     WinSet, Region, %crosshair%, A 
     WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x08000000 ;NA
 }  
 
 SetTimer, ShowMode, 100
@@ -163,25 +165,34 @@ ShowMode:
 Return 
 
 UpdateGui: ;Gui 2 will be repositioned while modes changing
-    WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
-    SetGuiPosition()
-    If (!(TempX = X && TempY = Y) && !GetKeyState("LButton", "P") && (W + H) > 0)
+    If WinActive("ahk_class CrossFire")
+    {
+        WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
+        SetGuiPosition()
+        If (!(TempX = X && TempY = Y) && !GetKeyState("LButton", "P"))
+        {
+            Gui, 1: Hide
+            Gui, 1: Show, x%XGui1% y%YGui1% NA
+            Gui, crosshair: Hide
+            Gui, crosshair: Show, x%Xch% y%Ych% NA
+            If !AutoMode
+            {
+                Gui, 2: Hide
+                Gui, 2: Show, x%XGui2% y%YGui2% NA
+            }
+            Else
+            {
+                Gui, 2: Hide
+            }
+            TempX := X
+            TempY := Y
+        }
+    }
+    Else
     {
         Gui, 1: Hide
-        Gui, 1: Show, x%XGui1% y%YGui1% NA
+        Gui, 2: Hide
         Gui, crosshair: Hide
-        Gui, crosshair: Show, x%Xch% y%Ych% NA
-        If !AutoMode
-        {
-            Gui, 2: Hide
-            Gui, 2: Show, x%XGui2% y%YGui2% NA
-        }
-        Else
-        {
-            Gui, 2: Hide
-        }
-        TempX := X
-        TempY := Y
     }
 Return
 ;==================================================================
@@ -189,7 +200,7 @@ Return
 
 ~*CapsLock:: ;minimize window
     press_key("Esc", 60)
-    MouseMove, (X + W - 151), (Y + 16)
+    MouseMove, (X + W - 151), (Y + 16), 1
     HyperSleep(30)
     press_key("LButton", 30)
 Return
@@ -241,17 +252,17 @@ Return
     }
 Return
 ;==================================================================
-~W & ~F:: ;基本鬼跳 间隔600
+~W & ~F:: ;基本鬼跳 间隔600 因t_accuracy=0.992调整
     cnt := 0
     press_key("space", 100)
     Send, {LCtrl Down}
     AssignValue("Temp_Status", Fcn_Status)
     AssignValue("Fcn_Status", "基本鬼跳")
-    HyperSleep(398) ;for 398 + 2 = 400
+    HyperSleep(401) ;398
     While (cnt < 6 && GetKeyState("W", "P"))
     {
         press_key("space", 100)      
-        HyperSleep(400) 
+        HyperSleep(404) ;400
         cnt += 1
     }
     AssignValue("Fcn_Status", Temp_Status)
@@ -280,25 +291,25 @@ Return
     AssignValue("Temp_Status", Fcn_Status)
     AssignValue("Fcn_Status", "跳蹲上墙")
     While, !(GetKeyState("E") || (GetKeyState("LButton", "P")))
-	{
-		press_key("space", 30)
+    {
+        press_key("space", 30)
         press_key("LCtrl", 30)
-	}
+    }
     AssignValue("Fcn_Status", Temp_Status)
 Return
 ;==================================================================
 ~*MButton:: ;爆裂者轰炸
-	If !AutoMode
+    If !AutoMode
     {
         AssignValue("Fcn_Status", "右键连点")
         Fcn_Status := "右键连点"
         While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
-	    {
-		    press_key("RButton", 10)
-		    HyperSleep(50)
-	    }
+        {
+            press_key("RButton", 10)
+            HyperSleep(50)
+        }
         AssignValue("Fcn_Status", "自火关闭")
-	    Send, {Blind}{RButton Up}
+        Send, {Blind}{RButton Up}
     }
 Return
 
@@ -307,12 +318,12 @@ Return
     {
         AssignValue("Fcn_Status", "左键连点")
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
-	    {
-		    Random, randVar, 58, 62
-		    press_key("LButton", randVar)
-	    }
+        {
+            Random, randVar, 58, 62
+            press_key("LButton", randVar)
+        }
         AssignValue("Fcn_Status", "自火关闭")
-	    Send, {Blind}{LButton Up}
+        Send, {Blind}{LButton Up}
     }
 Return
 
@@ -320,13 +331,13 @@ Return
     If !AutoMode
     {
         AssignValue("Fcn_Status", "左键不放")
-	    Send, {Blind}{LButton Up}
-	    HyperSleep(30)
+        Send, {Blind}{LButton Up}
+        HyperSleep(30)
         Send, {LButton Down}
         While, !(GetKeyState("R", "P") || GetKeyState("`", "P") || GetKeyState("3", "P"))
-	    {
-		    HyperSleep(300)
-	    }
+        {
+            HyperSleep(300)
+        }
         AssignValue("Fcn_Status", "自火关闭")
         Send, {Blind}{LButton Up}
     }
@@ -362,7 +373,7 @@ AutoFire(mo_shi)
     While, (AutoMode && !ExitMode)
     {
         Var := 798
-        Fcn_Status := "搜寻敌人" ;war zone, need less hypersleep
+        Fcn_Status := "搜寻敌人" ;war zone, need less HyperSleep
         Loop ;detect color in three lines where shows the enemy name
         {
             If (ExitMode || GetKeyState("3", "P") || GetKeyState("4", "P"))
@@ -415,7 +426,7 @@ AutoFire(mo_shi)
             }
             Var := Var + 1
         } Until, ( Var > 808 )
-        HyperSleep(1) ;trying to avoid vac with hypersleep
+        HyperSleep(1) ;trying to avoid vac with HyperSleep
     }
 }
 
@@ -432,10 +443,11 @@ mouseXY(x1,y1)
 
 press_key(key, press_time)
 {
+	press_time *= t_accuracy
     Send, {%key% DownTemp}
-    HyperSleep(press_time)
+	HyperSleep(press_time)
     Send, {Blind}{%key% up}
-    HyperSleep(press_time)
+	HyperSleep(press_time)
 }
 
 SetGuiPosition()
@@ -450,27 +462,56 @@ SetGuiPosition()
 
 UpdateText(ControlID, NewText) ;Copy From AHK Windows Spy, preventing periodic flickering
 {
-	static OldText := {}
+    static OldText := {}
     AssignValue("NewText", "自动: " AutoMode "|" RunningMode "|" Fcn_Status "|" Gun_Using)
-	if (OldText[ControlID] != NewText)
-	{
-		GuiControl, 1:, % ControlID, % NewText
+    if (OldText[ControlID] != NewText)
+    {
+        GuiControl, 1:, % ControlID, % NewText
         HyperSleep(10)
-		OldText[ControlID] := NewText
-	}
+        OldText[ControlID] := NewText
+    }
 }
 
 AssignValue(target, value) ;due to max speed
 {
-	%target% := value
-	HyperSleep(1)
+    %target% := value
+    HyperSleep(1)
 }
 
-HyperSleep(value) ;相对高精度睡眠
+SystemTime() 
+{	
+	freq := 0, tick := 0
+	if (!freq)
+		DllCall("QueryPerformanceFrequency", "Int64*", freq)
+		DllCall("QueryPerformanceCounter", "Int64*", tick)
+	Return tick / freq * 1000
+} 
+
+HyperSleep(value) 
 {
-	DllCall("Winmm.dll\timeBeginPeriod", UInt, 1)
-    DllCall("Sleep", "UInt", value)
-	DllCall("Winmm.dll\timeEndPeriod", UInt, 1)
+    If value < 10 ;相对高精度睡眠
+    {
+        DllCall("Winmm.dll\timeBeginPeriod", UInt, 1)
+        DllCall("Sleep", "UInt", value)
+        DllCall("Winmm.dll\timeEndPeriod", UInt, 1)
+    }
+    Else ;相对更高精度睡眠
+    {
+        begin_time := SystemTime()
+	    freq := 0, t_current := 0
+	    DllCall("QueryPerformanceFrequency", "Int64*", freq)
+	    t_tmp := (begin_time + value) * freq / 1000 
+	    While (t_current < t_tmp)
+	    {
+		    If (t_tmp - t_current) > 30000
+		    {
+			    DllCall("Sleep", "UInt", 1)
+			    DllCall("QueryPerformanceCounter", "Int64*", t_current)
+		    }
+		    Else
+			    DllCall("QueryPerformanceCounter", "Int64*", t_current)
+	    }
+    }
 }
 ;==================================================================
 ;The end
