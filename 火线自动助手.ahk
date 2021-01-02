@@ -1,10 +1,10 @@
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #Warn  ; Enable warnings to assist with detecting common errors.
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #MenuMaskKey vkFF  ; vkFF is no mapping
 #SingleInstance, force
 #IfWinActive ahk_class CrossFire  ; Only active while crossfire is running
+SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 CoordMode, Pixel, Screen
 CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
@@ -61,7 +61,7 @@ if WinExist("ahk_class CrossFire")
     Gui, 2: Margin, 0, 0
     Gui, 2: Color, 333333
     Gui, 2: Font, s12 c00FF00, Microsoft YaHei
-    Gui, 2: add, Text,, ╔====使用==说明===╗`n     按~==开关自火==`n     按34JLTab选择模式`n     按3/4=关闭模式==`n     按J===狙击关镜==`n     按L===速点模式==`n     按Tab键=通用模式=`n================`n     鼠标中间键右键连点`n     鼠标后退键左键连点`n     按W和F==基础鬼跳`n     按W和Alt=空中跳蹲`n     按S和F===跳蹲上墙`n     按-重载~最小化窗口`n╚====使用==说明===╝
+    Gui, 2: add, Text,, ╔====使用==说明===╗`n     按~==开关自火===`n     按234JLTab选择模式`n     按2===手枪模式==`n     按3/4= 关闭模式==`n     按J===狙击关镜==`n     按L===速点模式==`n     按Tab键=通用模式=`n================`n     鼠标中间键 右键连点`n     鼠标后退键 左键连点`n     按W和F== 基础鬼跳`n     按W和Alt= 空中跳蹲`n     按S和F===跳蹲上墙`n     按- =重新加载本脚本`n     大写锁定 最小化窗口`n╚====使用==说明===╝
     Gui, 2: Show, x%XGui2% y%YGui2% NA
     WinSet, TransColor, 333333 255
     WinSet, ExStyle, +0x20 ; 鼠标穿透
@@ -166,7 +166,7 @@ ShowMode:
 Return 
 
 UpdateGui: ;Gui 2 will be repositioned while modes changing
-    If WinActive("ahk_class CrossFire")
+    If WinExist("ahk_class CrossFire")
     {
         WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
         SetGuiPosition()
@@ -210,6 +210,14 @@ Return
     ChangeMode(1)
 Return
 
+~*2::
+    ChangeMode(2) ;Default mode
+    If (AutoMode && !GetColorStatus(1220, 52, color_get, PosColor2))
+    {
+        AssignValue("RunningMode", "加载手枪")
+        AutoFire(2) 
+    }
+Return
 ~*Tab::
     ChangeMode(2) ;Default mode
     If (AutoMode && !GetColorStatus(1220, 52, color_get, PosColor2))
@@ -252,6 +260,38 @@ Return
         AssignValue("Gun_Chosen", 2)
     }
 Return
+
+~*Left:: ;恶趣味,代替鼠标控制
+    Loop
+    {    
+        mouseXY(-4, 0)
+        HyperSleep(30)
+    } Until !GetKeyState("Left", "P")
+Return
+
+~*Right:: 
+    Loop
+    {
+        mouseXY(4, 0)
+        HyperSleep(30)
+    } Until !GetKeyState("Right", "P")
+Return
+
+~*Up::
+    Loop
+    { 
+        mouseXY(0, -3)
+        HyperSleep(30)
+    } Until !GetKeyState("Up", "P")    
+Return
+
+~*Down:: 
+    Loop
+    {
+        mouseXY(0, 3)
+        HyperSleep(30)
+    } Until !GetKeyState("Down", "P")    
+Return
 ;==================================================================
 ~W & ~F:: ;基本鬼跳 间隔600 因t_accuracy=0.992调整
     cnt := 0
@@ -263,7 +303,7 @@ Return
     While (cnt < 6 && GetKeyState("W", "P"))
     {
         press_key("space", 100)      
-        HyperSleep(404) ;400
+        HyperSleep(406 ) ;400
         cnt += 1
     }
     AssignValue("Fcn_Status", Temp_Status)
@@ -344,6 +384,12 @@ Return
     }
 Return
 ;==================================================================
+ProcessExist(Process_Name)
+{
+    Process, Exist, %Process_Name%
+    Return Errorlevel
+}
+
 ChangeMode(qie_huan)
 {
     Loop, %qie_huan%
@@ -397,6 +443,15 @@ AutoFire(mo_shi)
                 small_rand := rand // 2
                 Switch mo_shi
                 {
+                    Case 2:
+                        press_key("LButton", rand) ;控制usp射速
+                        mouseXY(0, 1)
+                        If (RunningMode != "手枪模式") 
+                        {
+                            RunningMode := "手枪模式"
+                        }
+                    Break
+
                     Case 8:
                         press_key("RButton", small_rand)
                         press_key("LButton", small_rand)
