@@ -8,7 +8,7 @@
 
 #### 使用说明
 
-1.  [安装ahk](https://www.autohotkey.com/download/ahk-install.exe)；穿越火线窗口化并且分辨率为1600*900；鼠标灵敏值设为32；800 DPI
+1.  [安装ahk](https://www.autohotkey.com/download/ahk-install.exe)；[安装教程](https://seujxh.wordpress.com/2018/09/11/ahk%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B/)；穿越火线窗口化并且分辨率为1600*900；鼠标灵敏值设为32；800 DPI
 2.  ~~以管理员模式运行脚本或者右键选择“Run with UI Access”~~ ~~直接双击，按提示选择管理员或者UI Access~~ 直接打开bat文件
 3.  按下“~”键开启、关闭脚本自瞄动开火部分，按Tab或2或J或L切换模式，按3或4暂停模式, 按1重启被暂停的模式
 4.  脚本自动开火部分关闭后可运行鼠标连点，按下滚轮键或鼠标前进键切换模式，按下“~”键退出连点循环，或者按照情况按下“E”、“R”、鼠标左右键退出连点循环
