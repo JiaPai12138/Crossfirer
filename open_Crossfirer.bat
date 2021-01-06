@@ -1,5 +1,6 @@
 @echo off
 echo 正在帮您运行脚本，请稍等............
 echo Help you run the script, please wait............
+timeout /t 1
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer.ps1'"
 echo. & pause
