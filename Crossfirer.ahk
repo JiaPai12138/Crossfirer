@@ -13,7 +13,7 @@ SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调�
 If not (A_IsAdmin || ProcessExist("AutoHotkeyU64_UIA.exe"))
 {
     MsgBox, 4, 警告/Warning, 请问你开启UIA了吗?`nDo you have UIAccess enabled?
-    Try ;compiled program will be detected
+    Try ;compiled program will not be detected
     {
         IfMsgBox Yes
             Run, "%A_ProgramFiles%\AutoHotkey\AutoHotkeyU64_UIA.exe" "%A_ScriptFullPath%"
@@ -27,24 +27,32 @@ If not (A_IsAdmin || ProcessExist("AutoHotkeyU64_UIA.exe"))
     }
 } 
 ;==================================================================
-global PosColor1 := "0xF24A17 0x353796 0x353797 0x353798 0x353799 0x343799 0x34379A 0x34389A 0x34389B 0x34389C 0x33389C 0x33389D 0x33389E 0x33389F 0x32389F 0x32399F 0x3239A0 0x3239A1 0x3239A2 0x3139A2 0x3139A3 0x3139A4 0x313AA4 0x313AA5 0x303AA5 0x303AA6 0x303AA7 0x303AA8 0x2F3AA8 0x2F3AA9 0x2F3BA9 0x2F3BAA 0x2F3BAB 0x2E3BAB 0x2E3BAC 0x2E3BAD 0x2E3BAE 0x2E3CAE 0x2D3CAE 0x2D3CAF 0x2D3CB0 0x2D3CB1 0x2C3CB1 0x2C3CB2 0x2C3CB3 0x2C3DB3 0x2C3DB4 0x2B3DB4 0x2B3DB5 0x2B3DB6 0x2B3DB7 0x2A3DB7 0x2A3EB7 0x2A3EB8 0x2A3EB9 0x2A3EBA 0x293EBA 0x293EBB 0x293EBC 0x293FBC 0x293FBC 0x293FBD 0x283FBD 0x283FBE 0x283FBF 0x283FC0 0x273FC0 0x273FC1 0x2740C1 0x2740C2 0x2740C3 0x2640C4 0x2640C5 0x2640C6 0x2641C6 0x2641C7 0x2541C7 0x2541C8 0x2541C9 0x2541CA 0x2441CA 0x2441CB 0x2442CB 0x2442CC 0x2442CD 0x2342CD 0x2342CE 0x2342CF 0x2342D0 0x2343D0 0x2243D0 0x2243D1 0x2243D2 0x2243D3 0x2143D3 0x2143D4 0x2144D4 0x2144D5 0x2144D6 0x2044D6 0x2044D7 0x2044D8 0x2044D9 0x1F44D9 0x1F45D9 0x1F45DA 0x1F45DB 0x1F45DC 0x1E45DC 0x1E45DD 0x1E45DE 0x1E46DE 0x1E46DF 0x1D46DF 0x1D46E0 0x1D46E1 0x1D46E2 0x1C46E2 0x1C46E3 0x1C47E3 0x1C47E4 0x1C47E5 0x1B47E5 0x1B47E6 0x1B47E7 0x1B47E8 0x1B48E8 0x1A48E8 0x1A48E9 0x1A48EA 0x1A48EB 0x1948EB 0x1948EC 0x1948ED 0x1949ED 0x1949EE 0x1849EE 0x1849EF 0x1849F0 0x1849F1 0x174AF2" ;all detected values of color hex since it is changing
-global PosColor2 := "0x232323 0x101010 0x0F0F0F 0x070707 0x2F2F31 0x2A2A2A 0x4C4741 0x4C4841 0x4C4941"
-global PosColor_snipe := "0x000000 0xA1A6A9" ;0xA9A6A1, wired part
+global PosColor_red := "0x353796 0x353797 0x353798 0x353799 0x343799 0x34379A 0x34389A 0x34389B 0x34389C 0x33389C 0x33389D 0x33389E 0x33389F 0x32389F 0x32399F 0x3239A0 0x3239A1 0x3239A2 0x3139A2 0x3139A3 0x3139A4 0x313AA4 0x313AA5 0x303AA5 0x303AA6 0x303AA7 0x303AA8 0x2F3AA8 0x2F3AA9 0x2F3BA9 0x2F3BAA 0x2F3BAB 0x2E3BAB 0x2E3BAC 0x2E3BAD 0x2E3BAE 0x2E3CAE 0x2D3CAE 0x2D3CAF 0x2D3CB0 0x2D3CB1 0x2C3CB1 0x2C3CB2 0x2C3CB3 0x2C3DB3 0x2C3DB4 0x2B3DB4 0x2B3DB5 0x2B3DB6 0x2B3DB7 0x2A3DB7 0x2A3EB7 0x2A3EB8 0x2A3EB9 0x2A3EBA 0x293EBA 0x293EBB 0x293EBC 0x293FBC 0x293FBC 0x293FBD 0x283FBD 0x283FBE 0x283FBF 0x283FC0 0x273FC0 0x273FC1 0x2740C1 0x2740C2 0x2740C3 0x2640C4 0x2640C5 0x2640C6 0x2641C6 0x2641C7 0x2541C7 0x2541C8 0x2541C9 0x2541CA 0x2441CA 0x2441CB 0x2442CB 0x2442CC 0x2442CD 0x2342CD 0x2342CE 0x2342CF 0x2342D0 0x2343D0 0x2243D0 0x2243D1 0x2243D2 0x2243D3 0x2143D3 0x2143D4 0x2144D4 0x2144D5 0x2144D6 0x2044D6 0x2044D7 0x2044D8 0x2044D9 0x1F44D9 0x1F45D9 0x1F45DA 0x1F45DB 0x1F45DC 0x1E45DC 0x1E45DD 0x1E45DE 0x1E46DE 0x1E46DF 0x1D46DF 0x1D46E0 0x1D46E1 0x1D46E2 0x1C46E2 0x1C46E3 0x1C47E3 0x1C47E4 0x1C47E5 0x1B47E5 0x1B47E6 0x1B47E7 0x1B47E8 0x1B48E8 0x1A48E8 0x1A48E9 0x1A48EA 0x1A48EB 0x1948EB 0x1948EC 0x1948ED 0x1949ED 0x1949EE 0x1849EE 0x1849EF 0x1849F0 0x1849F1 0x174AF2" ;all detected values of color hex since it is changing
+global PosColor_edge := "0x232323 0x101010 0x0F0F0F 0x070707 0x2F2F31 0x2A2A2A 0x4C4741 0x4C4841 0x4C4941"
+global PosColor_ev := "0x000000 0xA1A6A9 0xA9A6A1" ;wired part
+global PosColor_NA_red := "0xF24A17 0x174AF2"
+global PosColor_C4 := "0xE39600 0x0096E3"
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 35-11 34-11
 global freq, tick, begin_time, t_accuracy := 0.992
 global AutoMode := 0 ;on/off switch
 global RunningMode := "加载模式"
 global Fcn_Status := "脚本状态"
 global Gun_Using := "暂未选枪械"
+global C4_Time := 40.0
+global C4_OnOFF := False
+global C4_Start
 global Gun_Chosen := 0
-global NewText := "自动: " AutoMode "|" RunningMode "|" Fcn_Status "|" Gun_Using
+global NewText := "自动: " AutoMode "|" RunningMode "|" Fcn_Status "|" Gun_Using "|" C4_Time
 global X, Y, W, H
 global cnt
 global Temp_Mode := 0
 global Temp_Run := ""
+global game_title
 
 If WinExist("ahk_class CrossFire")
 {
+    WinMinimize, ahk_class ConsoleWindowClass
+    WinGetTitle, game_title, ahk_class CrossFire
     WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
     global TempX := X, TempY := Y
     Start:
@@ -80,10 +88,9 @@ Else
     ExitApp
 }
 
+SetTimer, UpdateC4, 100 ;for performance
 SetTimer, ShowMode, 100
-Gosub, ShowMode 
 SetTimer, UpdateGui, 100
-Gosub, UpdateGui
 ;==================================================================
 Loop ;压枪 正在开发
 {
@@ -160,13 +167,42 @@ Loop ;压枪 正在开发
             StartTime := A_TickCount ;保障新一轮压枪
         }
     }
-    HyperSleep(30) ;just for stability
+    HyperSleep(10) ;just for stability
 }
 Return
 ;==================================================================
 ShowMode:
     UpdateText("MyText", NewText)
 Return 
+
+UpdateC4: ;精度0.1s
+    If GetColorStatus(808, 162, PosColor_C4)
+    {
+        If !C4_OnOFF
+        {
+            C4_OnOFF := True
+            C4_Start := SystemTime()
+        }
+    }
+    Else
+    {
+        If (C4_Time != 40.0)
+            C4_Time := 40.0
+        If (C4_OnOFF)
+            C4_OnOFF := False
+    }
+
+    If (C4_OnOFF = True)
+    { 
+        C4_Time := Format("{:.1f}", (39.9 - (SystemTime() - C4_Start) / 1000))
+        If C4_Time <= 0
+        {
+            C4_OnOFF := False
+            C4_Start := ;release memory
+            C4_Time := 40.0
+        }
+    }
+Return
 
 UpdateGui: ;Gui 2 will be repositioned while modes changing
     If WinExist("ahk_class CrossFire")
@@ -185,30 +221,32 @@ UpdateGui: ;Gui 2 will be repositioned while modes changing
                 Gui, 2: Show, x%XGui2% y%YGui2% NA
             }
             Else
-            {
                 Gui, 2: Hide
-            }
             TempX := X
             TempY := Y
+        }
+        Else If (W < 1600)
+        {
+            Gui, 1: Hide
+            Gui, 2: Hide
+            Gui, cross_hair: Hide
         }
     }
     Else
     {
-        Gui, 1: Hide
-        Gui, 2: Hide
-        Gui, cross_hair: Hide
+        WinClose, ahk_class ConsoleWindowClass
+        ExitApp
     }
 Return
 ;==================================================================
-~*-::Reload
+~*-::
+    WinClose, ahk_class ConsoleWindowClass
+    HyperSleep(10)
+    Run, .\open_Crossfirer.bat
+ExitApp
 
 ~*$CapsLock Up:: ;minimize window 
-    If GetColorStatus(877, 437, PosColor_snipe) < 1
-        press_key("Esc", 60)
-    MouseMove, (X + W - 151), (Y + 16), 5
-    HyperSleep(30)
-    press_key("LButton", 30)
-    press_key("CapsLock", 30)
+    WinMinimize, ahk_class CrossFire
 Return
 
 ~*`::
@@ -216,13 +254,17 @@ Return
 Return
 
 ~*1 Up::
-    If (AutoMode && !GetColorStatus(1220, 52, PosColor2) && RunningMode = "加载模式" && Temp_Run != "")
+    ChangeMode(2) ;Restore mode
+    If (AutoMode && !GetColorStatus(1220, 52, PosColor_edge) && RunningMode = "加载模式" && Temp_Run != "")
+    {
+        AssignValue("RunningMode", Temp_Run)
         AutoFire(Temp_Mode)
+    }
 Return
 
 ~*2 Up::
     ChangeMode(2) ;Pistol mode
-    If (AutoMode && !GetColorStatus(1220, 52, PosColor2))
+    If (AutoMode && !GetColorStatus(1220, 52, PosColor_edge))
     {
         AssignValue("RunningMode", "加载手枪")
         AutoFire(2) 
@@ -231,27 +273,33 @@ Return
 
 ~*Tab Up::
     ChangeMode(2) ;Default mode
-    If (AutoMode && !GetColorStatus(1220, 52, PosColor2))
+    If (AutoMode && !GetColorStatus(1220, 52, PosColor_edge))
     {
+        AssignValue("Temp_Mode", 0)
         AssignValue("RunningMode", "加载通用")
+        AssignValue("Temp_Run", RunningMode)
         AutoFire(0) 
     }  
 Return
 
 ~*J Up:: ;sniper 1 vs 1 mode
     ChangeMode(2)
-    If (AutoMode && !GetColorStatus(1220, 52, PosColor2))
+    If (AutoMode && !GetColorStatus(1220, 52, PosColor_edge))
     {
+        AssignValue("Temp_Mode", 8)
         AssignValue("RunningMode", "加载狙击")
+        AssignValue("Temp_Run", RunningMode)
         AutoFire(8)
     }
 Return
 
 ~*L Up:: ;Gatling gun, sniper gun, shotgun
     ChangeMode(2)   
-    If (AutoMode && !GetColorStatus(1220, 52, PosColor2))
+    If (AutoMode && !GetColorStatus(1220, 52, PosColor_edge))
     {
+        AssignValue("Temp_Mode", 111)
         AssignValue("RunningMode", "加载速点")
+        AssignValue("Temp_Run", RunningMode)
         AutoFire(111)
     }  
 Return
@@ -275,7 +323,7 @@ Return
 ~*Left:: ;恶趣味,代替鼠标控制
     Loop
     {    
-        mouseXY(-4, 0)
+        mouseXY(-1.2, 0)
         HyperSleep(30)
     } Until !GetKeyState("Left", "P")
 Return
@@ -283,7 +331,7 @@ Return
 ~*Right:: 
     Loop
     {
-        mouseXY(4, 0)
+        mouseXY(1.2, 0)
         HyperSleep(30)
     } Until !GetKeyState("Right", "P")
 Return
@@ -291,7 +339,7 @@ Return
 ~*Up::
     Loop
     { 
-        mouseXY(0, -3)
+        mouseXY(0, -0.9)
         HyperSleep(30)
     } Until !GetKeyState("Up", "P")    
 Return
@@ -299,7 +347,7 @@ Return
 ~*Down:: 
     Loop
     {
-        mouseXY(0, 3)
+        mouseXY(0, 0.9)
         HyperSleep(30)
     } Until !GetKeyState("Down", "P")    
 Return
@@ -313,15 +361,14 @@ Return
     HyperSleep(298) ;398
     Loop 
     {
-        press_key("space", 10) ;100    
-        ;HyperSleep(450) ;400
+        press_key("space", 10) ;100 ;HyperSleep(450) 400   
         cnt += 1
     } Until (!GetKeyState("W", "P") || cnt > 140)
     AssignValue("Fcn_Status", Temp_Status)
     Send, {Blind}{LCtrl Up}
 Return 
 
-~W & ~Alt:: ;空中连蹲跳 alt+w
+~W & ~Alt:: ;空中连蹲跳 w+alt
     cnt:= 0
     press_key("space", 30)
     AssignValue("Temp_Status", Fcn_Status)
@@ -354,7 +401,6 @@ Return
     If !AutoMode
     {
         AssignValue("Fcn_Status", "右键连点")
-        Fcn_Status := "右键连点"
         While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
         {
             press_key("RButton", 10)
@@ -406,7 +452,7 @@ ChangeMode(qie_huan)
     Loop, %qie_huan%
     {
         AssignValue("AutoMode", Abs(AutoMode - 1))
-        HyperSleep(500)
+        HyperSleep(300)
     }
 
     If (AutoMode)
@@ -434,14 +480,12 @@ AutoFire(mo_shi)
         {
             If (ExitMode() || GetKeyState("3", "P") || GetKeyState("4", "P"))
             {
-                Temp_Run := RunningMode
-                Temp_Mode := mo_shi
                 AssignValue("RunningMode", "加载模式")
                 AssignValue("Fcn_Status", "自火开启")
                 Exit ;exit current thread 
             }
 
-            If (RunningMode = "瞬狙模式" && (GetColorStatus(955, 483, PosColor_snipe) && GetColorStatus(804, 600, PosColor_snipe)))
+            If (RunningMode = "瞬狙模式" && (GetColorStatus(955, 483, PosColor_ev) && GetColorStatus(804, 600, PosColor_ev)))
             {
                 Random, rand, 58, 62
                 press_key("RButton", rand)
@@ -491,11 +535,10 @@ AutoFire(mo_shi)
 
 Shoot_Time(Var)
 {
-    WinGetTitle, game_title
     If game_title = CROSSFIRE
-        Return (GetColorStatus(Var, 528, PosColor1) || GetColorStatus(Var, 530, PosColor1) || GetColorStatus(Var, 532, PosColor1))
+        Return (GetColorStatus(Var, 528, PosColor_NA_red) || GetColorStatus(Var, 530, PosColor_NA_red) || GetColorStatus(Var, 532, PosColor_NA_red))
     Else If game_title = 穿越火线
-        Return (GetColorStatus(Var, 538, PosColor1) || GetColorStatus(Var, 540, PosColor1) || GetColorStatus(Var, 542, PosColor1))
+        Return (GetColorStatus(Var, 538, PosColor_red) || GetColorStatus(Var, 540, PosColor_red) || GetColorStatus(Var, 542, PosColor_red))
 }
 
 ExitMode()
@@ -525,7 +568,7 @@ press_key(key, press_time)
 
 SetGuiPosition()
 {
-    global XGui1 := X + 568
+    global XGui1 := X + 519
     global YGui1 := Y
     global XGui2 := X + 2
     global YGui2 := Y + 264
@@ -536,7 +579,7 @@ SetGuiPosition()
 UpdateText(ControlID, NewText) ;Copy From AHK Windows Spy, preventing periodic flickering
 {
     static OldText := {}
-    AssignValue("NewText", "自动: " AutoMode "|" RunningMode "|" Fcn_Status "|" Gun_Using)
+    AssignValue("NewText", NewText := "自动: " AutoMode "|" RunningMode "|" Fcn_Status "|" Gun_Using "|" C4_Time)
     if (OldText[ControlID] != NewText)
     {
         GuiControl, 1:, % ControlID, % NewText
@@ -552,7 +595,7 @@ AssignValue(target, value) ;due to max speed
 }
 
 SystemTime() 
-{	
+{
 	freq := 0, tick := 0
 	if (!freq)
 		DllCall("QueryPerformanceFrequency", "Int64*", freq)
