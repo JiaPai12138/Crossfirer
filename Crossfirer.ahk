@@ -92,96 +92,27 @@ SetTimer, UpdateC4, 100 ;for performance
 SetTimer, ShowMode, 100
 SetTimer, UpdateGui, 100
 ;==================================================================
-Loop ;压枪 正在开发
-{
-    If (!AutoMode && Gun_Chosen > 0)
-    {
-        AssignValue("Fcn_Status", "手动开火")
-        If GetKeyState("LButton", "P") 
-        {
-            StartTime := A_TickCount
-            EndTime := A_TickCount - StartTime
-            Switch Gun_Chosen
-            {
-                Case 1:
-                    While, EndTime < 100 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(50)
-                        mouseXY(0, 1)
-                        EndTime := A_TickCount - StartTime
-                    }
-                    While, EndTime >= 100 && EndTime < 300 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(30)
-                        mouseXY(0, 2)
-                        EndTime := A_TickCount - StartTime
-                    }
-                    While, EndTime >= 300 && EndTime < 500 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(40)
-                        mouseXY(0, 3)
-                        EndTime := A_TickCount - StartTime
-                    }
-                    While, EndTime >= 300 && EndTime < 500 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(30)
-                        mouseXY(0, 3)
-                        EndTime := A_TickCount - StartTime 
-                    }
-                    While, EndTime >= 500 && EndTime < 800 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(30)
-                        mouseXY(0, 1)
-                        EndTime := A_TickCount - StartTime
-                    }
-                    While, EndTime >= 800 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(30)
-                        EndTime := A_TickCount - StartTime 
-                    }
-
-                Case 2:
-                    While, EndTime < 90 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(10)
-                        EndTime := A_TickCount - StartTime
-                    }
-                    While, EndTime >= 90 && EndTime < 530 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(36)
-                        mouseXY(0, 2)
-                        EndTime := A_TickCount - StartTime 
-                    }
-                    While, EndTime >= 530 && GetKeyState("LButton", "P")
-                    {
-                        HyperSleep(30)
-                        EndTime := A_TickCount - StartTime
-                    }
-                
-                Default:
-                    HyperSleep(10)
-            }
-        }
-        Else If !GetKeyState("LButton", "P")
-        {
-            StartTime := A_TickCount ;保障新一轮压枪
-        }
-    }
-    HyperSleep(10) ;just for stability
-}
-Return
-;==================================================================
 ShowMode:
     UpdateText("MyText", NewText)
 Return 
 
 UpdateC4: ;精度0.1s
-    If GetColorStatus(808, 162, PosColor_C4)
+    If Is_C4_Time()
     {
         If !C4_OnOFF
         {
             C4_OnOFF := True
             C4_Start := SystemTime()
+        }
+        Else
+        {
+            C4_Time := Format("{:.1f}", (40.0 - (SystemTime() - C4_Start) / 1000))
+            If C4_Time <= 0
+            {
+                C4_OnOFF := False
+                C4_Start := ;release memory
+                C4_Time := 40.0
+            }
         }
     }
     Else
@@ -190,17 +121,6 @@ UpdateC4: ;精度0.1s
             C4_Time := 40.0
         If (C4_OnOFF)
             C4_OnOFF := False
-    }
-
-    If (C4_OnOFF = True)
-    { 
-        C4_Time := Format("{:.1f}", (39.9 - (SystemTime() - C4_Start) / 1000))
-        If C4_Time <= 0
-        {
-            C4_OnOFF := False
-            C4_Start := ;release memory
-            C4_Time := 40.0
-        }
     }
 Return
 
@@ -245,8 +165,78 @@ Return
     Run, .\open_Crossfirer.bat
 ExitApp
 
-~*$CapsLock Up:: ;minimize window 
+~*CapsLock Up:: ;minimize window 
     WinMinimize, ahk_class CrossFire
+Return
+
+~*LButton:: ;压枪 正在开发
+    If (!AutoMode && Gun_Chosen > 0)
+    {
+        AssignValue("Fcn_Status", "手动开火")
+        If GetKeyState("LButton", "P") 
+        {
+            StartTime := SystemTime()
+            EndTime := SystemTime() - StartTime
+            Switch Gun_Chosen
+            {
+                Case 1:
+                    While, EndTime < 100 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(40)
+                        mouseXY(0, 1)
+                        EndTime := SystemTime() - StartTime
+                    }
+                    While, EndTime >= 100 && EndTime < 300 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(28)
+                        mouseXY(0, 2)
+                        EndTime := SystemTime() - StartTime
+                    }
+                    While, EndTime >= 300 && EndTime < 500 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(36)
+                        mouseXY(0, 3)
+                        EndTime := SystemTime() - StartTime
+                    }
+                    While, EndTime >= 500 && EndTime < 800 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(30)
+                        mouseXY(0, 1)
+                        EndTime := SystemTime() - StartTime
+                    }
+                    While, EndTime >= 800 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(30)
+                        EndTime := SystemTime() - StartTime 
+                    }
+
+                Case 2:
+                    While, EndTime < 90 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(10)
+                        EndTime := SystemTime() - StartTime
+                    }
+                    While, EndTime >= 90 && EndTime < 530 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(35)
+                        mouseXY(0, 2)
+                        EndTime := SystemTime() - StartTime 
+                    }
+                    While, EndTime >= 530 && GetKeyState("LButton", "P")
+                    {
+                        HyperSleep(30)
+                        EndTime := SystemTime() - StartTime
+                    }
+                Default:
+                    HyperSleep(30)
+            }
+        }
+    }
+Return
+
+~*Lbutton Up:: ;保障新一轮压枪
+    StartTime := 
+    EndTime := 
 Return
 
 ~*`::
@@ -389,7 +379,7 @@ Return
 ~S & ~F:: ;跳蹲上墙
     AssignValue("Temp_Status", Fcn_Status)
     AssignValue("Fcn_Status", "跳蹲上墙")
-    While, !(GetKeyState("E") || (GetKeyState("LButton", "P")))
+    While, !(GetKeyState("E") || GetKeyState("LButton", "P"))
     {
         press_key("space", 30)
         press_key("LCtrl", 30)
@@ -467,6 +457,7 @@ ChangeMode(qie_huan)
         global XGui2, YGui2
         Gui, 2: Show, x%XGui2% y%YGui2% NA
         AssignValue("Fcn_Status", "自火关闭")
+        AssignValue("RunningMode", "加载模式")
     }
 }
 
@@ -541,9 +532,14 @@ Shoot_Time(Var)
         Return (GetColorStatus(Var, 538, PosColor_red) || GetColorStatus(Var, 540, PosColor_red) || GetColorStatus(Var, 542, PosColor_red))
 }
 
+Is_C4_Time()
+{
+    Return (GetColorStatus(773, 161, PosColor_C4) || GetColorStatus(773, 162, PosColor_C4) || GetColorStatus(775, 166, PosColor_C4) || GetColorStatus(779, 162, PosColor_C4) || GetColorStatus(797, 164, PosColor_C4) || GetColorStatus(808, 162, PosColor_C4) || GetColorStatus(817, 162, PosColor_C4) || GetColorStatus(820, 162, PosColor_C4)) 
+}
+
 ExitMode()
 {
-    Return (GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("J", "P") || GetKeyState("L", "P"))
+    Return (GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("J", "P") || GetKeyState("L", "P"))
 }
 
 GetColorStatus(CX1, CX2, color_lib)
