@@ -12,15 +12,20 @@ SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调�
 ;==================================================================
 If not (A_IsAdmin || ProcessExist("AutoHotkeyU64_UIA.exe"))
 {
-    MsgBox, 4, 警告/Warning, 请问你开启UIA了吗?`nDo you have UIAccess enabled?
-    Try ;compiled program will not be detected
+    Try
     {
-        IfMsgBox Yes
-            Run, "%A_ProgramFiles%\AutoHotkey\AutoHotkeyU64_UIA.exe" "%A_ScriptFullPath%"
-        Else
+        If A_IsCompiled
             Run, *RunAs "%A_ScriptFullPath%"
+        Else
+        {
+            MsgBox, 4, 警告/Warning, 请问你开启UIA了吗?`nDo you have UIAccess enabled?
+            IfMsgBox Yes
+                Run, "%A_ProgramFiles%\AutoHotkey\AutoHotkeyU64_UIA.exe" "%A_ScriptFullPath%"
+            Else
+                Run, *RunAs "%A_ScriptFullPath%"
+        }
     }
-    Catch ;Handles the first error/exception raised by the block above.
+    Catch
     {
         MsgBox,, 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
         ExitApp
@@ -31,23 +36,26 @@ global PosColor_red := "0x353796 0x353797 0x353798 0x353799 0x343799 0x34379A 0x
 global PosColor_edge := "0x232323 0x101010 0x0F0F0F 0x070707 0x2F2F31 0x2A2A2A 0x4C4741 0x4C4841 0x4C4941"
 global PosColor_ev := "0x000000 0xA1A6A9 0xA9A6A1" ;wired part
 global PosColor_NA_red := "0xF24A17 0x174AF2"
-global PosColor_C4 := "0xE39600 0x0096E3"
+global PosColor_C4 := "0xE39600 0x0096E3 0xE6A11A 0x1AA1E6 0xFBEFD8 0xD8EFFB 0x926000 0x006092 0x523600 0x003652"
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 35-11 34-11
 global freq, tick, begin_time, t_accuracy := 0.992
 global AutoMode := 0 ;on/off switch
 global RunningMode := "加载模式"
 global Fcn_Status := "脚本状态"
 global Gun_Using := "暂未选枪械"
-global C4_Time := 40.0
+global Need_Help := False
+global C4_Time := 40
 global C4_OnOFF := False
-global C4_Start
+global C4_Start :=
 global Gun_Chosen := 0
 global NewText := "自动: " AutoMode "|" RunningMode "|" Fcn_Status "|" Gun_Using "|" C4_Time
 global X, Y, W, H
-global cnt
+global cnt :=
 global Temp_Mode := 0
 global Temp_Run := ""
-global game_title
+global game_title :=
+global KX := -34 ;for crosshair
+global KY := -20 ;for crosshair
 
 If WinExist("ahk_class CrossFire")
 {
@@ -56,30 +64,35 @@ If WinExist("ahk_class CrossFire")
     WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
     global TempX := X, TempY := Y
     Start:
-    SetGuiPosition()
-    Gui, 1: +LastFound +AlwaysOnTop -Caption +ToolWindow ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, 1: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, 1: Margin, 0, 0
     Gui, 1: Color, 333333
     Gui, 1: Font, s16, Verdana  
-    Gui, 1: Add, Text, vMyText c00FF00, % NewText
-    Gui, 1: Show, x%XGui1% y%YGui1% NA
+    Gui, 1: Add, Text, hwndGui_1 vMyText c00FF00, % NewText
+    GuiControlGet, P1, Pos, %Gui_1%
+    global P1W ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 000000 255
     WinSet, ExStyle, +0x20 ; 鼠标穿透
 
-    Gui, 2: +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, 2: +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, 2: Margin, 0, 0
     Gui, 2: Color, 333333
     Gui, 2: Font, s12 c00FF00, Microsoft YaHei
-    Gui, 2: add, Text,, ╔====使用==说明===╗`n     按~==开关自火===`n     按234JLTab选择模式`n     按2===手枪模式==`n     按3/4= 关闭模式==`n     按J===狙击关镜==`n     按L===速点模式==`n     按Tab键=通用模式=`n================`n     鼠标中间键 右键连点`n     鼠标后退键 左键连点`n     按W和F== 基础鬼跳`n     按W和Alt= 空中跳蹲`n     按S和F===跳蹲上墙`n     按- =重新加载本脚本`n     大写锁定 最小化窗口`n╚====使用==说明===╝
-    Gui, 2: Show, x%XGui2% y%YGui2% NA
+    Gui, 2: add, Text, hwndGui_2, ╔====使用==说明===╗`n     按~==开关自火===`n     按234JLTab选择模式`n     按2===手枪模式==`n     按3/4= 关闭模式==`n     按J===狙击关镜==`n     按L===速点模式==`n     按Tab键=通用模式=`n================`n     鼠标中间键 右键连点`n     鼠标后退键 左键连点`n     按W和F== 基础鬼跳`n     按W和Alt= 空中跳蹲`n     按S和F===跳蹲上墙`n     按- =重新加载本脚本`n     大写锁定 最小化窗口`n╚====使用==说明===╝
+    GuiControlGet, P2, Pos, %Gui_2%
+    global P2H ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 333333 255
     WinSet, ExStyle, +0x20 ; 鼠标穿透
+    
+    Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale
+    Gui, cross_hair: Color, FFFF00
 
-    Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndhwnd
-    Gui, cross_hair: Color, 00FFFF
-    Gui, cross_hair: Show, x%Xch% y%Ych% w52 h52 NA
-    WinSet, Region, %crosshair%, ahk_id %hwnd%
-    WinSet, Transparent, 255, ahk_id %hwnd%
+    SetGuiPosition()
+    Gui, 1: Show, x%XGui1% y%YGui1% NA
+    ShowHelp() ;Gui, 2: Show, x%XGui2% y%YGui2% NA
+    Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+    WinSet, Region, %crosshair%, ahk_id %cr%
+    WinSet, Transparent, 255, ahk_id %cr%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
 } 
 Else 
@@ -88,7 +101,7 @@ Else
     ExitApp
 }
 
-SetTimer, UpdateC4, 100 ;for performance
+SetTimer, UpdateC4, 100, 1 ;for higher priority
 SetTimer, ShowMode, 100
 SetTimer, UpdateGui, 100
 ;==================================================================
@@ -96,7 +109,7 @@ ShowMode:
     UpdateText("MyText", NewText)
 Return 
 
-UpdateC4: ;精度0.1s
+UpdateC4: ;精度0.1s 卡住时切换武器刷新
     If Is_C4_Time()
     {
         If !C4_OnOFF
@@ -105,21 +118,15 @@ UpdateC4: ;精度0.1s
             C4_Start := SystemTime()
         }
         Else
-        {
-            C4_Time := Format("{:.1f}", (40.0 - (SystemTime() - C4_Start) / 1000))
-            If C4_Time <= 0
-            {
-                C4_OnOFF := False
-                C4_Start := ;release memory
-                C4_Time := 40.0
-            }
-        }
+            C4_Time := Format("{:.0f}", (40 - (SystemTime() - C4_Start) / 1000))
     }
     Else
     {
-        If (C4_Time != 40.0)
-            C4_Time := 40.0
-        If (C4_OnOFF)
+        If C4_Start > 0
+            C4_Start := ;release memory
+        If C4_Time != 40
+            C4_Time := 40
+        If C4_OnOFF
             C4_OnOFF := False
     }
 Return
@@ -129,27 +136,30 @@ UpdateGui: ;Gui 2 will be repositioned while modes changing
     {
         WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
         SetGuiPosition()
+        ShowHelp()
         If !(TempX = X && TempY = Y)
         {
             Gui, 1: Hide
             Gui, 1: Show, x%XGui1% y%YGui1% NA
+            Gui, 2: Hide
+            ShowHelp()
             Gui, cross_hair: Hide
-            Gui, cross_hair: Show, x%Xch% y%Ych% w52 h52 NA
-            If !AutoMode
-            {
-                Gui, 2: Hide
-                Gui, 2: Show, x%XGui2% y%YGui2% NA
-            }
-            Else
-                Gui, 2: Hide
+            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
             TempX := X
             TempY := Y
         }
-        Else If (W < 1600)
+        
+        If !InStr("加载模式", RunningMode)
         {
-            Gui, 1: Hide
-            Gui, 2: Hide
             Gui, cross_hair: Hide
+            Gui, cross_hair: Color, 00FFFF
+            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+        }
+        Else If InStr("加载模式", RunningMode)
+        {
+            Gui, cross_hair: Hide
+            Gui, cross_hair: Color, FFFF00
+            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
         }
     }
     Else
@@ -245,7 +255,7 @@ Return
 
 ~*1 Up::
     ChangeMode(2) ;Restore mode
-    If (AutoMode && !GetColorStatus(1220, 52, PosColor_edge) && RunningMode = "加载模式" && Temp_Run != "")
+    If (AutoMode && !GetColorStatus(1220, 52, PosColor_edge) && StrLen(Temp_Run) > 0)
     {
         AssignValue("RunningMode", Temp_Run)
         AutoFire(Temp_Mode)
@@ -294,6 +304,10 @@ Return
     }  
 Return
 
+~*Numpad0::
+    Need_Help := !Need_Help
+Return
+
 ~*Numpad1::
     If !AutoMode
     {
@@ -310,36 +324,20 @@ Return
     }
 Return
 
-~*Left:: ;恶趣味,代替鼠标控制
-    Loop
-    {    
-        mouseXY(-1.2, 0)
-        HyperSleep(30)
-    } Until !GetKeyState("Left", "P")
+~^Left:: ;reposition crosshair
+    KX -= 1
 Return
 
-~*Right:: 
-    Loop
-    {
-        mouseXY(1.2, 0)
-        HyperSleep(30)
-    } Until !GetKeyState("Right", "P")
+~^Right:: 
+    KX += 1
 Return
 
-~*Up::
-    Loop
-    { 
-        mouseXY(0, -0.9)
-        HyperSleep(30)
-    } Until !GetKeyState("Up", "P")    
+~^Up::
+    KY -= 1   
 Return
 
-~*Down:: 
-    Loop
-    {
-        mouseXY(0, 0.9)
-        HyperSleep(30)
-    } Until !GetKeyState("Down", "P")    
+~^Down:: 
+    Ky += 1
 Return
 ;==================================================================
 ~W & ~F:: ;基本鬼跳 间隔600 因t_accuracy=0.992调整
@@ -368,12 +366,8 @@ Return
     {
         press_key("LCtrl", 15)
         cnt += 1
-        If (!GetKeyState("W", "P") || cnt >= 15)
-        {
-            AssignValue("Fcn_Status", Temp_Status)
-            Break
-        }
-    }
+    } Until (!GetKeyState("W", "P") || cnt >= 15)
+    AssignValue("Fcn_Status", Temp_Status)
 Return
 
 ~S & ~F:: ;跳蹲上墙
@@ -431,6 +425,15 @@ Return
     }
 Return
 ;==================================================================
+ShowHelp()
+{
+    global XGui2, YGui2
+    If Need_Help
+        Gui, 2: Show, x%XGui2% y%YGui2% NA
+    Else
+        Gui, 2: Hide
+}
+
 ProcessExist(Process_Name)
 {
     Process, Exist, %Process_Name%
@@ -445,17 +448,14 @@ ChangeMode(qie_huan)
         HyperSleep(300)
     }
 
-    If (AutoMode)
+    If AutoMode
     {
-        Gui, 2: Hide
         AssignValue("Fcn_Status", "自火开启")
         AssignValue("Gun_Using", "暂未选枪械")
         AssignValue("Gun_Chosen", 0)
     }
     Else
     {
-        global XGui2, YGui2
-        Gui, 2: Show, x%XGui2% y%YGui2% NA
         AssignValue("Fcn_Status", "自火关闭")
         AssignValue("RunningMode", "加载模式")
     }
@@ -465,7 +465,7 @@ AutoFire(mo_shi)
 {
     While, (AutoMode)
     {
-        Var := 798
+        Var := W / 2 - 5 ;798
         Fcn_Status := "搜寻敌人" ;war zone, need less HyperSleep
         Loop ;detect color in three lines where shows the enemy name
         {
@@ -476,7 +476,7 @@ AutoFire(mo_shi)
                 Exit ;exit current thread 
             }
 
-            If (RunningMode = "瞬狙模式" && (GetColorStatus(955, 483, PosColor_ev) && GetColorStatus(804, 600, PosColor_ev)))
+            If (InStr("瞬狙模式", RunningMode)  && (GetColorStatus(955, 483, PosColor_ev) && GetColorStatus(804, 600, PosColor_ev)))
             {
                 Random, rand, 58, 62
                 press_key("RButton", rand)
@@ -492,34 +492,34 @@ AutoFire(mo_shi)
                     Case 2:
                         press_key("LButton", rand) ;控制usp射速
                         mouseXY(0, 1)
-                        If (RunningMode != "手枪模式") 
+                        If !InStr("手枪模式", RunningMode) 
                             RunningMode := "手枪模式"
                     Break
 
                     Case 8:
                         press_key("RButton", small_rand)
                         press_key("LButton", small_rand)
-                        If (RunningMode != "瞬狙模式")
+                        If !InStr("瞬狙模式", RunningMode)
                             RunningMode := "瞬狙模式"
                         HyperSleep(rand)
                     Break
 
                     Case 111:
                         press_key("LButton", rand)
-                        If (RunningMode != "连发速点")
+                        If !InStr("连发速点", RunningMode)
                             RunningMode := "连发速点"
                     Break
                     
                     Default:
                         press_key("LButton", small_rand)
                         mouseXY(0, 1)
-                        If (RunningMode != "通用模式")
+                        If !InStr("通用模式", RunningMode)
                             RunningMode := "通用模式"
                     Break
                 }
             }
-            Var := Var + 1
-        } Until, ( Var > 808 )
+            Var += 1
+        } Until, Var > (W / 2 + 5) ;808
         HyperSleep(1) ;trying to avoid vac with HyperSleep
     }
 }
@@ -534,12 +534,12 @@ Shoot_Time(Var)
 
 Is_C4_Time()
 {
-    Return (GetColorStatus(773, 161, PosColor_C4) || GetColorStatus(773, 162, PosColor_C4) || GetColorStatus(775, 166, PosColor_C4) || GetColorStatus(779, 162, PosColor_C4) || GetColorStatus(797, 164, PosColor_C4) || GetColorStatus(808, 162, PosColor_C4) || GetColorStatus(817, 162, PosColor_C4) || GetColorStatus(820, 162, PosColor_C4)) 
+    Return (GetColorStatus(773, 161, PosColor_C4) || GetColorStatus(774, 161, PosColor_C4) || GetColorStatus(818, 162, PosColor_C4) || GetColorStatus(819, 162, PosColor_C4) || GetColorStatus(803, 155, PosColor_C4) || GetColorStatus(803, 166, PosColor_C4) || GetColorStatus(803, 162, PosColor_C4) || GetColorStatus(803, 174, PosColor_C4)) ;more points to ensure
 }
 
 ExitMode()
 {
-    Return (GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("J", "P") || GetKeyState("L", "P"))
+    Return (GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("J", "P") || GetKeyState("L", "P")) 
 }
 
 GetColorStatus(CX1, CX2, color_lib)
@@ -564,12 +564,12 @@ press_key(key, press_time)
 
 SetGuiPosition()
 {
-    global XGui1 := X + 519
+    global XGui1 := X + (W - P1W) // 2
     global YGui1 := Y
     global XGui2 := X + 2
-    global YGui2 := Y + 264
-    global Xch := X + W // 2 - 34
-    global Ych := Y + H // 2 - 20
+    global YGui2 := Y + (H - P2H) // 2
+    global Xch := X + W // 2 + KX
+    global Ych := Y + H // 2 + KY
 }
 
 UpdateText(ControlID, NewText) ;Copy From AHK Windows Spy, preventing periodic flickering
