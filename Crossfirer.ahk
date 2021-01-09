@@ -101,7 +101,7 @@ Else
     ExitApp
 }
 
-SetTimer, UpdateC4, 100, 1 ;for higher priority
+SetTimer, UpdateC4, 100 ;for higher priority
 SetTimer, ShowMode, 100
 SetTimer, UpdateGui, 100
 ;==================================================================
