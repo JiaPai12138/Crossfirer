@@ -56,6 +56,7 @@ global Temp_Run := ""
 global game_title :=
 global KX := -34 ;for crosshair
 global KY := -20 ;for crosshair
+global XGui1, YGui1, XGui2, YGui2, Xch, Ych
 
 If WinExist("ahk_class CrossFire")
 {
@@ -101,72 +102,12 @@ Else
     ExitApp
 }
 
-SetTimer, UpdateC4, 100 ;for higher priority
+#Persistent
+SetTimer, UpdateC4, 100 
+HyperSleep(33.3) ;separate
 SetTimer, ShowMode, 100
+HyperSleep(33.3)
 SetTimer, UpdateGui, 100
-;==================================================================
-ShowMode:
-    UpdateText("MyText", NewText)
-Return 
-
-UpdateC4: ;精度0.1s 卡住时切换武器刷新
-    If Is_C4_Time()
-    {
-        If !C4_OnOFF
-        {
-            C4_OnOFF := True
-            C4_Start := SystemTime()
-        }
-        Else
-            C4_Time := Format("{:.0f}", (40 - (SystemTime() - C4_Start) / 1000))
-    }
-    Else
-    {
-        If C4_Start > 0
-            C4_Start := ;release memory
-        If C4_Time != 40
-            C4_Time := 40
-        If C4_OnOFF
-            C4_OnOFF := False
-    }
-Return
-
-UpdateGui: ;Gui 2 will be repositioned while modes changing
-    If WinExist("ahk_class CrossFire")
-    {
-        WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
-        SetGuiPosition()
-        ShowHelp()
-        If !(TempX = X && TempY = Y)
-        {
-            Gui, 1: Hide
-            Gui, 1: Show, x%XGui1% y%YGui1% NA
-            Gui, 2: Hide
-            ShowHelp()
-            Gui, cross_hair: Hide
-            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
-            TempX := X
-            TempY := Y
-        }
-        
-        If !InStr("加载模式", RunningMode)
-        {
-            Gui, cross_hair: Hide
-            Gui, cross_hair: Color, 00FFFF
-            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
-        }
-        Else If InStr("加载模式", RunningMode)
-        {
-            Gui, cross_hair: Hide
-            Gui, cross_hair: Color, FFFF00
-            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
-        }
-    }
-    Else
-    {
-        WinClose, ahk_class ConsoleWindowClass
-        ExitApp
-    }
 Return
 ;==================================================================
 ~*-::
@@ -245,8 +186,11 @@ Return
 Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
-    StartTime := 
-    EndTime := 
+    If (StartTime > 0 || EndTime > 0)
+    {
+        StartTime := 
+        EndTime := 
+    }
 Return
 
 ~*`::
@@ -351,7 +295,7 @@ Return
     {
         press_key("space", 10) ;100 ;HyperSleep(450) 400   
         cnt += 1
-    } Until (!GetKeyState("W", "P") || cnt > 140)
+    } Until, (!GetKeyState("W", "P") || cnt > 140)
     AssignValue("Fcn_Status", Temp_Status)
     Send, {Blind}{LCtrl Up}
 Return 
@@ -366,18 +310,18 @@ Return
     {
         press_key("LCtrl", 15)
         cnt += 1
-    } Until (!GetKeyState("W", "P") || cnt >= 15)
+    } Until, (!GetKeyState("W", "P") || cnt >= 15)
     AssignValue("Fcn_Status", Temp_Status)
 Return
 
 ~S & ~F:: ;跳蹲上墙
     AssignValue("Temp_Status", Fcn_Status)
     AssignValue("Fcn_Status", "跳蹲上墙")
-    While, !(GetKeyState("E") || GetKeyState("LButton", "P"))
+    Loop
     {
         press_key("space", 30)
         press_key("LCtrl", 30)
-    }
+    } Until, (GetKeyState("E", "P") || GetKeyState("LButton", "P"))
     AssignValue("Fcn_Status", Temp_Status)
 Return
 ;==================================================================
@@ -401,7 +345,7 @@ Return
         AssignValue("Fcn_Status", "左键连点")
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
         {
-            Random, randVar, 58, 62
+            Random, randVar, 60, 62
             press_key("LButton", randVar)
         }
         AssignValue("Fcn_Status", "自火关闭")
@@ -425,6 +369,73 @@ Return
     }
 Return
 ;==================================================================
+ShowMode()
+{
+    UpdateText("MyText", NewText)
+}
+
+UpdateC4() ;精度0.1s 卡住时切换武器刷新
+{ 
+    If Is_C4_Time()
+    {
+        If !C4_OnOFF
+        {
+            C4_OnOFF := True
+            C4_Start := SystemTime()
+        }
+        Else
+            C4_Time := Format("{:.0f}", (40 - (SystemTime() - C4_Start) / 1000))
+    }
+    Else
+    {
+        If C4_Start > 0
+            C4_Start := ;release memory
+        If C4_Time != 40
+            C4_Time := 40
+        If C4_OnOFF
+            C4_OnOFF := False
+    }
+}
+
+UpdateGui() ;Gui 2 will be repositioned while modes changing
+{    
+    If WinExist("ahk_class CrossFire")
+    {
+        WinGetPos, X, Y, W, H, ahk_class CrossFire ;get top left position of the window
+        SetGuiPosition()
+        ShowHelp()
+        If !(TempX = X && TempY = Y)
+        {
+            Gui, 1: Hide
+            Gui, 1: Show, x%XGui1% y%YGui1% NA
+            Gui, 2: Hide
+            ShowHelp()
+            Gui, cross_hair: Hide
+            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+            TempX := X
+            TempY := Y
+        }
+        
+        If !InStr("加载模式", RunningMode)
+        {
+            Gui, cross_hair: Hide
+            Gui, cross_hair: Color, 00FFFF
+            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+        }
+        Else If InStr("加载模式", RunningMode)
+        {
+            Gui, cross_hair: Hide
+            Gui, cross_hair: Color, FFFF00
+            Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+        }
+    }
+    Else
+    {
+        WinClose, ahk_class ConsoleWindowClass
+        ExitApp
+    }
+}
+
 ShowHelp()
 {
     global XGui2, YGui2
@@ -465,7 +476,7 @@ AutoFire(mo_shi)
 {
     While, (AutoMode)
     {
-        Var := W / 2 - 5 ;798
+        Var := W // 2 - 5 ;798
         Fcn_Status := "搜寻敌人" ;war zone, need less HyperSleep
         Loop ;detect color in three lines where shows the enemy name
         {
@@ -490,7 +501,7 @@ AutoFire(mo_shi)
                 Switch mo_shi
                 {
                     Case 2:
-                        press_key("LButton", rand) ;控制usp射速
+                        press_key("LButton", (rand - 10)) ;控制usp射速
                         mouseXY(0, 1)
                         If !InStr("手枪模式", RunningMode) 
                             RunningMode := "手枪模式"
@@ -610,19 +621,20 @@ HyperSleep(value)
     Else ;相对更高精度睡眠
     {
         begin_time := SystemTime()
-	    freq := 0, t_current := 0
-	    DllCall("QueryPerformanceFrequency", "Int64*", freq)
+        freq := 0, t_current := 0
+        DllCall("QueryPerformanceFrequency", "Int64*", freq)
 	    t_tmp := (begin_time + value) * freq / 1000 
-	    While (t_current < t_tmp)
-	    {
-		    If (t_tmp - t_current) > 30000
-		    {
-			    DllCall("Sleep", "UInt", 1)
-			    DllCall("QueryPerformanceCounter", "Int64*", t_current)
-		    }
-		    Else
-			    DllCall("QueryPerformanceCounter", "Int64*", t_current)
-	    }
+        While (t_current < t_tmp)
+        {
+            If (t_tmp - t_current) > 30000
+            {
+                DllCall("Sleep", "UInt", 1)
+                DllCall("QueryPerformanceCounter", "Int64*", t_current)
+            }
+            Else
+                DllCall("QueryPerformanceCounter", "Int64*", t_current)
+        }
+        begin_time := , freq := , t_tmp := , t_current := ;free memory
     }
 }
 ;==================================================================
