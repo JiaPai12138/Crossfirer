@@ -10,7 +10,7 @@ CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 ;Please install Color Highlight extension in VScode, easier to observe colors
-;Detect colors all all inverted as you see, I don't know if it is bug...
+;Detect colors are all inverted as you see, I don't know if it is bug...
 ;==================================================================================
 If not (A_IsAdmin || ProcessExist("AutoHotkeyU64_UIA.exe"))
 {
