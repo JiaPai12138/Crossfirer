@@ -1,0 +1,1 @@
+The development of Crossfirer v1.x is finalized. Crossfirer v2.x has been started.
