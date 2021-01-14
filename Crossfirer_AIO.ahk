@@ -97,9 +97,9 @@ Else
 }
 
 #Persistent
-SetTimer, UpdateC4, 100 
+;SetTimer, UpdateC4, 100 
 HyperSleep(33.3) ;separate
-SetTimer, ShowMode, 100
+;SetTimer, ShowMode, 100
 HyperSleep(33.3)
 SetTimer, UpdateGui, 100
 Return
@@ -294,7 +294,7 @@ Return
     Send, {Blind}{LCtrl Up}
 Return 
 
-~W & ~Alt:: ;空中连蹲跳 w+alt
+~W & ~LAlt:: ;空中连蹲跳 w+alt
     cnt:= 0
     press_key("space", 30, 30)
     AssignValue("Temp_Status", Fcn_Status)
@@ -469,6 +469,7 @@ ChangeMode(qie_huan)
 AutoFire(mo_shi)
 {
     static PosColor_snipe := "0x000000" ;wired part
+    ;show color in editor: #000000
     While, (AutoMode)
     {
         Var := W // 2 - 5 ;798
@@ -517,7 +518,7 @@ AutoFire(mo_shi)
                     Break
                     
                     Default:
-                        press_key("LButton", small_rand, rand)
+                        press_key("LButton", small_rand, small_rand)
                         mouseXY(0, 1)
                         If !InStr("通用模式", RunningMode)
                             RunningMode := "通用模式"
