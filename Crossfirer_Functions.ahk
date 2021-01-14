@@ -105,7 +105,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             press_key("LButton", small_rand, small_rand)
 
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
-                        HyperSleep(3 * rand)
+                        HyperSleep(rand)
                     Break
 
                     Case 111:
