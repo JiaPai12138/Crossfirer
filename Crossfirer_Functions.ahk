@@ -85,7 +85,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
             While Shoot_Time(X1, Y1, Var, game_title) ;if detected color is found in string
             {
                 UpdateText(Gui_Number2, StatusID, "发现敌人", XGui2, YGui2)
-                Random, rand, 60.0, 64.0 ;set random value trying to avoid VAC
+                Random, rand, 60.4, 62.0 ;set random value trying to avoid VAC
                 small_rand := rand / 2
                 Switch mo_shi
                 {
@@ -109,7 +109,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                     Break
 
                     Case 111:
-                        press_key("LButton", 62.0, 32.0)
+                        press_key("LButton", 60.4, 30.2)
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
                     Break
                     

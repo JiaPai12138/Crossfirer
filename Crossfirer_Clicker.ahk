@@ -61,8 +61,21 @@ Return
         UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
         {
-            press_key("LButton", 62, 32)
+            press_key("LButton", 60.4, 30.2)
             ;press_key("LButton", 50.0, 50.0) ;For click test
+        }
+        UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+        Send, {Blind}{LButton Up}
+    }
+Return
+
+~*XButton1:: ;半自动速点,适合加特林快速,不适合USP
+    If !Not_In_Game()
+    {
+        UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
+        {
+            press_key("LButton", 30.2, 30.2)
         }
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
         Send, {Blind}{LButton Up}
