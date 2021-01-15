@@ -1,4 +1,4 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #Warn  ; Enable warnings to assist with detecting common errors.
 #MenuMaskKey vkFF  ; vkFF is no mapping
 #SingleInstance, force
@@ -13,6 +13,10 @@ SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调�
 CheckPermission()
 ;==================================================================================
 Gun_Chosen := 0
+Radius := 30
+Vertices := 40
+Angle := 8 * ATan(1) / Vertices
+Hole = 
 
 If WinExist("ahk_class CrossFire")
 {
@@ -37,6 +41,20 @@ If WinExist("ahk_class CrossFire")
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui6, YGui6, "H", 300, 0)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
+
+    Gui, circle: +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale
+    Gui, circle: Color, FFFF00 ;#FFFF00
+    SetGuiPosition(XGui7, YGui7, "C", 0, 0)
+    Gui, circle: Show, x%XGui7% y%YGui7% w1606 h935 NA, Listening
+    WinSet, Transparent, 63, ahk_id %cc%
+    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    Xcc := 803, Ycc := 483
+    Loop, %Vertices%
+        Hole .= Floor(Xcc + Radius * Cos(A_Index * Angle)) "-" Floor(Ycc + Radius * Sin(A_Index * Angle)) " "
+    Hole .= Floor(Xcc + Radius * Cos(Angle)) "-" Floor(Ycc + Radius * Sin(Angle))
+    WinSet, Region, %Hole%, ahk_id %cc% 
+    Hole = ;free memory
+    Gui, circle: Show, Hide, Listening
 }
 Else 
 {
@@ -54,9 +72,11 @@ Return
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA, Listening
     SetGuiPosition(XGui6, YGui6, "H", 300, 0)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
+    SetGuiPosition(XGui7, YGui7, "C", 0, 0)
 Return
 
 ~*LButton:: ;压枪 正在开发
+    Gui, circle: Show, x%XGui7% y%YGui7% w1606 h935 NA
     If (!Not_In_Game() && Gun_Chosen > 0)
     {
         UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)
@@ -65,6 +85,7 @@ Return
 Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
+    Gui, circle: Show, Hide, Listening
     If !Not_In_Game()
         UpdateText("recoil_mode", "ModeClick", "压枪准备", XGui5, YGui5)
 Return
