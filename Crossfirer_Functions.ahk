@@ -258,12 +258,12 @@ mouseXY(x1,y1) ;ok
 press_key(key, press_time, sleep_time) ;ok
 {
     static t_accuracy := 0.991
-	press_time *= t_accuracy
+    press_time *= t_accuracy
     sleep_time *= t_accuracy
     Send, {%key% DownTemp}
-	HyperSleep(press_time)
+    HyperSleep(press_time)
     Send, {Blind}{%key% up}
-	HyperSleep(sleep_time)
+    HyperSleep(sleep_time)
 }
 
 SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY) ;ok
@@ -304,11 +304,11 @@ UpdateText(Gui_Number, ControlID, NewText, X, Y) ;ok
 
 SystemTime() ;ok
 {
-	freq := 0, tick := 0
-	if (!freq)
-		DllCall("QueryPerformanceFrequency", "Int64*", freq)
-	DllCall("QueryPerformanceCounter", "Int64*", tick)
-	Return tick / freq * 1000
+    freq := 0, tick := 0
+    if (!freq)
+        DllCall("QueryPerformanceFrequency", "Int64*", freq)
+    DllCall("QueryPerformanceCounter", "Int64*", tick)
+    Return tick / freq * 1000
 } 
 
 HyperSleep(value) ;ok
@@ -340,13 +340,13 @@ HyperSleep(value) ;ok
 
 ReceiveMessage(Message) 
 {
-	if Message = 1
-	ExitApp
+    if Message = 1
+    ExitApp
 }
 
 PostMessage(Receiver, Message) 
 {
-	SetTitleMatchMode, 3
-	DetectHiddenWindows, on
-	PostMessage, 0x1001, %Message%,,, %Receiver% ahk_class AutoHotkeyGUI
+    SetTitleMatchMode, 3
+    DetectHiddenWindows, on
+    PostMessage, 0x1001, %Message%,,, %Receiver% ahk_class AutoHotkeyGUI
 }
