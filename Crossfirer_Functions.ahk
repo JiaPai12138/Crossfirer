@@ -1,4 +1,4 @@
-﻿;Functions for Crossfirer
+;Functions for Crossfirer
 ;==================================================================================
 CheckPermission() ;ok
 {
@@ -178,7 +178,7 @@ Is_C4_Time(X, Y) ;ok
 
 ExitMode() ;ok
 {
-    Return (GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P")) 
+    Return (Not_In_Game() || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P")) 
 }
 
 GetColorStatus(X, Y, CX1, CX2, color_lib) ;ok
@@ -283,6 +283,11 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY) ;ok
     {
         XGui := X1 + W1 // 2 + OffsetX
         YGui := Y1 + (H1 + 35) // 2 + OffsetY
+    }
+    Else If InStr("C", GuiPosition)
+    {
+        XGui := X1 + OffsetX
+        YGui := Y1 + OffsetY
     }
 }
 
