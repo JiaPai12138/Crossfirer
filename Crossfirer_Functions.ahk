@@ -271,7 +271,7 @@ mouseXY(x1,y1)
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
 press_key(key, press_time, sleep_time)
 {
-    static t_accuracy := 0.991
+    static t_accuracy := 0.991 ;本机精度测试
     press_time *= t_accuracy
     sleep_time *= t_accuracy
     Send, {%key% DownTemp}
