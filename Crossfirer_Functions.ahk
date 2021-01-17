@@ -71,7 +71,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     WinGetPos, X1, Y1, W1, H1, ahk_class CrossFire
     static PosColor_snipe := "0x000000"
     ;show color in editor: #000000
-    While, (True)
+    While, (!Not_In_Game())
     {
         Var := W1 // 2 - 5 ;798
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
@@ -88,7 +88,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                 Exit ;退出自动开火循环
             }
             
-            While Shoot_Time(X1, Y1, W1, H1, Var, game_title) ;当红名被扫描到时射击
+            If Shoot_Time(X1, Y1, W1, H1, Var, game_title) ;当红名被扫描到时射击
             {
                 UpdateText(Gui_Number2, StatusID, "发现敌人", XGui2, YGui2)
                 Random, rand, 60.4, 62.0 ;设定随机值减少被检测概率
@@ -99,7 +99,6 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         press_key("LButton", (rand - 10), (rand - 10)) ;控制USP射速
                         mouseXY(0, 1)
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
-                    Break
 
                     Case 8:
                         If Not (GetColorStatus(X1, Y1, 955, 483, PosColor_snipe) || GetColorStatus(X1, Y1, 804, 600, PosColor_snipe)) ;检测狙击镜准心
@@ -112,18 +111,15 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         ;开镜瞬狙或连狙
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
                         HyperSleep(rand)
-                    Break
 
                     Case 111:
                         press_key("LButton", 60.4, 30.2) ;用定值保证加特林速点稳定
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
-                    Break
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         press_key("LButton", small_rand, small_rand)
                         mouseXY(0, 1)
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
-                    Break
                 }
             }
             Var += 1
