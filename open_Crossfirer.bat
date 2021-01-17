@@ -5,15 +5,15 @@ title Crossfirer Starter
 CLS
 echo 正在帮您运行脚本，请稍等............
 echo Help you run the script, please wait............
-echo         ╔═══════════════════════════╗
-echo         ║  [1]Run All Scripts       ║
-echo         ║  [2]Run Shooter only      ║
-echo         ║  [3]Run C4 Timer only     ║
-echo         ║  [4]Run Bhop only         ║
-echo         ║  [5]Run Clicker only      ║
-echo         ║  [6]Run Recoilless only   ║
-echo         ╚═══════════════════════════╝
-choice /C 123456 /M ">        Choose a menu option:    "
+echo         ╔════════════════════════════════════╗
+echo         ║  [1]Run All Scripts     运行所有脚本  
+echo         ║  [2]Run Shooter only    运行自火脚本  
+echo         ║  [3]Run C4 Timer only   运行炸弹计时  
+echo         ║  [4]Run Bhop only       运行基础身法  
+echo         ║  [5]Run Clicker only    运行连点脚本  
+echo         ║  [6]Run Recoilless only 运行压枪脚本  
+echo         ╚════════════════════════════════════╝
+choice /C 123456 /M ">        Choose a menu option 请选择:    "
 
 :: Note - list ERRORLEVELS in decreasing order
 IF ERRORLEVEL 6 GOTO Run_RCL
