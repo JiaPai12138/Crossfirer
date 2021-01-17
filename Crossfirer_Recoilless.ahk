@@ -27,6 +27,7 @@ Radius := 30
 Vertices := 40
 Angle := 8 * ATan(1) / Vertices
 Hole = 
+WinGetPos, ValueX, ValueY, ValueW, ValueH, ahk_class CrossFire
 
 If WinExist("ahk_class CrossFire")
 {
@@ -55,10 +56,10 @@ If WinExist("ahk_class CrossFire")
     Gui, circle: +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale
     Gui, circle: Color, FFFF00 ;#FFFF00
     SetGuiPosition(XGui7, YGui7, "C", 0, 0)
-    Gui, circle: Show, x%XGui7% y%YGui7% w1606 h935 NA, Listening
+    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
     WinSet, Transparent, 63, ahk_id %cc%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    Xcc := 803, Ycc := 483
+    Xcc := ValueW / 2, Ycc := ValueH / 2 + 15 ;483
     Loop, %Vertices%
         Hole .= Floor(Xcc + Radius * Cos(A_Index * Angle)) "-" Floor(Ycc + Radius * Sin(A_Index * Angle)) " "
     Hole .= Floor(Xcc + Radius * Cos(Angle)) "-" Floor(Ycc + Radius * Sin(Angle))
@@ -86,7 +87,7 @@ Return
 Return
 
 ~*LButton:: ;压枪 正在开发
-    Gui, circle: Show, x%XGui7% y%YGui7% w1606 h935 NA
+    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA
     If (!Not_In_Game() && Gun_Chosen > 0)
     {
         UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)

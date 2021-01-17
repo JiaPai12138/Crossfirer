@@ -150,7 +150,7 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     ;show color in editor: #F24A17 #174AF2
     If game_title = CROSSFIRE ;检测客户端标题来确定检测位置和颜色库
     {
-        PixelSearch, ColorX, ColorY, X + W / 2 - 50, 526, X + W / 2 + 50, 544, %PosColor_NA_red%, 0, Fast
+        PixelSearch, ColorX, ColorY, X + W / 2 - 50, Y + H / 2, X + W / 2 + 50, Y + H / 2 + 100, %PosColor_NA_red%, 0, Fast
         Return !ErrorLevel
     }
     Else If game_title = 穿越火线
@@ -187,7 +187,7 @@ Is_C4_Time(X, Y, W, H)
     static PosColor_C4 := "0x0096E3" ;"0xE39600 0x0096E3 0xE6A11A 0x1AA1E6 0xFBEFD8 0xD8EFFB 0x926000 0x006092 0x523600 0x003652"
     ;show color in editor: #E39600 #0096E3 #E6A11A #1AA1E6 #FBEFD8 #D8EFFB #926000 #006092 #523600 #003652
     ;Return (GetColorStatus(X, Y, 773, 161, PosColor_C4) || GetColorStatus(X, Y, 774, 161, PosColor_C4) || GetColorStatus(X, Y, 818, 162, PosColor_C4) || GetColorStatus(X, Y, 819, 162, PosColor_C4) || GetColorStatus(X, Y, 803, 155, PosColor_C4) || GetColorStatus(X, Y, 803, 166, PosColor_C4) || GetColorStatus(X, Y, 803, 162, PosColor_C4) || GetColorStatus(X, Y, 803, 174, PosColor_C4)) ;用更多点位保证检测到
-    PixelSearch, ColorX, ColorY, X + W / 2 - 40, 154, X + W / 2 + 40, 175, %PosColor_C4%, 0, Fast
+    PixelSearch, ColorX, ColorY, X + W / 2 - 40, Y, X + W / 2 + 40, Y + H / 4, %PosColor_C4%, 0, Fast
     Return !ErrorLevel
 }
 ;==================================================================================
