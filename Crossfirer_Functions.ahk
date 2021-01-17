@@ -150,7 +150,7 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     ;show color in editor: #F24A17 #174AF2
     If game_title = CROSSFIRE ;检测客户端标题来确定检测位置和颜色库
     {
-        PixelSearch, ColorX, ColorY, X1 + W1 / 2 - 50, 526, X1 + W1 / 2 + 50, 544, %PosColor_NA_red%, 0, Fast
+        PixelSearch, ColorX, ColorY, X + W / 2 - 50, 526, X + W / 2 + 50, 544, %PosColor_NA_red%, 0, Fast
         Return !ErrorLevel
     }
     Else If game_title = 穿越火线
