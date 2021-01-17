@@ -41,7 +41,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn c00FF00, 加载模式 ;#00FF00
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui1, YGui1, "H", -400, 0)
+    SetGuiPosition(XGui1, YGui1, "H", -300, 0)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
 
     Gui, fcn_status: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -51,7 +51,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun c00FF00, 自火开启
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui2, YGui2, "H", -250, 0)
+    SetGuiPosition(XGui2, YGui2, "H", -150, 0)
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
 
     Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale
@@ -74,8 +74,8 @@ Return
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui1, YGui1, "H", -400, 0)
-    SetGuiPosition(XGui2, YGui2, "H", -250, 0)
+    SetGuiPosition(XGui1, YGui1, "H", -300, 0)
+    SetGuiPosition(XGui2, YGui2, "H", -150, 0)
     SetGuiPosition(Xch, Ych, "M", -34, -38)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
@@ -87,7 +87,7 @@ Return
 Return
 
 ~*1 Up::
-    If (AutoMode && !Not_In_Game() && StrLen(Temp_Run) > 0)
+    If (AutoMode && !Not_In_Game(game_title) && StrLen(Temp_Run) > 0)
     {
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
         AutoFire(Temp_Mode, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
@@ -95,7 +95,7 @@ Return
 Return
 
 ~*2 Up::
-    If (AutoMode && !Not_In_Game())
+    If (AutoMode && !Not_In_Game(game_title))
     {
         UpdateText("fcn_mode", "ModeOfFcn", "加载手枪", XGui1, YGui1)
         AutoFire(2, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
@@ -103,7 +103,7 @@ Return
 Return
 
 ~*Tab Up::
-    If (AutoMode && !Not_In_Game())
+    If (AutoMode && !Not_In_Game(game_title))
     {
         Temp_Mode := 0
         Temp_Run := "加载通用"
@@ -113,7 +113,7 @@ Return
 Return
 
 ~*J Up:: ;sniper 1 vs 1 mode
-    If (AutoMode && !Not_In_Game())
+    If (AutoMode && !Not_In_Game(game_title))
     {
         Temp_Mode := 8
         Temp_Run := "加载狙击"
@@ -123,7 +123,7 @@ Return
 Return
 
 ~*L Up:: ;Gatling gun, sniper gun, shotgun
-    If (AutoMode && !Not_In_Game())
+    If (AutoMode && !Not_In_Game(game_title))
     {
         Temp_Mode := 111
         Temp_Run := "加载速点"

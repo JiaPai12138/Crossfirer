@@ -71,7 +71,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     WinGetPos, X1, Y1, W1, H1, ahk_class CrossFire
     static PosColor_snipe := "0x000000"
     ;show color in editor: #000000
-    While, (!Not_In_Game())
+    While, (!Not_In_Game(game_title))
     {
         Var := W1 // 2 - 5 ;798
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
@@ -79,7 +79,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
         Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
         Loop
         {
-            If ExitMode()
+            If ExitMode(game_title)
             {
                 UpdateText(Gui_Number2, StatusID, "自火暂停", XGui2, YGui2)
                 UpdateText(Gui_Number1, ModeID, "加载模式", XGui1, YGui1)
@@ -101,7 +101,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
 
                     Case 8:
-                        If Not (GetColorStatus(X1, Y1, 955, 483, PosColor_snipe) || GetColorStatus(X1, Y1, 804, 600, PosColor_snipe)) ;检测狙击镜准心
+                        If Not (GetColorStatus(X1, Y1, W1 / 2 + 100, H1 // 2 + 16, PosColor_snipe) || GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 100, PosColor_snipe)) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
                             press_key("LButton", small_rand, small_rand)
@@ -129,12 +129,19 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
 }
 ;==================================================================================
 ;检测是否不再游戏中
-Not_In_Game() 
+Not_In_Game(game_title) 
 {
     WinGetPos, X1, Y1,,, ahk_class CrossFire
     static PosColor_edge := "0x232323 0x101010 0x0F0F0F 0x070707 0x2F2F31 0x2A2A2A 0x4C4741 0x4C4841 0x4C4941"
     ;show color in editor: #232323 #101010 #0F0F0F #070707 #2F2F31 #2A2A2A #4C4741 #4C4841 #4C4941
-    Return GetColorStatus(X1, Y1, 1220, 52, PosColor_edge)
+    If game_title = 穿越火线
+        Return GetColorStatus(X1, Y1, 1220, 52, PosColor_edge)
+    Else If game_title = CROSSFIRE
+    {
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 35, X1 + 100, Y1 + 100, 0x8D9498, 0, Fast
+        ;show color in editor: #98948D #8D9498
+        Return !ErrorLevel
+    }
 }
 ;==================================================================================
 ;检测开火时机,既扫描红名位置
@@ -180,17 +187,16 @@ C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
 ;循环检测C4提示图标
 Is_C4_Time(X, Y, W, H)
 {
-    static PosColor_C4 := "0x0096E3" ;"0xE39600 0x0096E3 0xE6A11A 0x1AA1E6 0xFBEFD8 0xD8EFFB 0x926000 0x006092 0x523600 0x003652"
-    ;show color in editor: #E39600 #0096E3 #E6A11A #1AA1E6 #FBEFD8 #D8EFFB #926000 #006092 #523600 #003652
-    ;Return (GetColorStatus(X, Y, 773, 161, PosColor_C4) || GetColorStatus(X, Y, 774, 161, PosColor_C4) || GetColorStatus(X, Y, 818, 162, PosColor_C4) || GetColorStatus(X, Y, 819, 162, PosColor_C4) || GetColorStatus(X, Y, 803, 155, PosColor_C4) || GetColorStatus(X, Y, 803, 166, PosColor_C4) || GetColorStatus(X, Y, 803, 162, PosColor_C4) || GetColorStatus(X, Y, 803, 174, PosColor_C4)) ;用更多点位保证检测到
+    static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3
+    ;show color in editor: #E39600 #0096E3
     PixelSearch, ColorX, ColorY, X + W / 2 - 40, Y, X + W / 2 + 40, Y + H / 4, %PosColor_C4%, 0, Fast
     Return !ErrorLevel
 }
 ;==================================================================================
 ;检测是否退出模式,由按键触发
-ExitMode()
+ExitMode(game_title)
 {
-    Return (Not_In_Game() || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P")) 
+    Return (Not_In_Game(game_title) || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
 }
 ;==================================================================================
 ;检测点位颜色状态(颜色是否在颜色库中)

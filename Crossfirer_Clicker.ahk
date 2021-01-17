@@ -25,6 +25,7 @@ CheckPermission()
 If WinExist("ahk_class CrossFire")
 {
     WinMinimize, ahk_class ConsoleWindowClass
+    WinGetTitle, game_title, ahk_class CrossFire
     Start:
     Gui, click_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, click_mode: Margin, 0, 0
@@ -53,7 +54,7 @@ Return
 Return
 
 ~*MButton:: ;爆裂者轰炸
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("click_mode", "ModeClick", "右键连点", XGui3, YGui3)
         While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
@@ -66,7 +67,7 @@ Return
 Return
 
 ~*XButton2:: ;半自动速点 
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
@@ -80,7 +81,7 @@ Return
 Return
 
 ~*XButton1:: ;半自动速点,适合加特林快速,不适合USP
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
@@ -93,7 +94,7 @@ Return
 Return
 
 ~*K:: ;粉碎者直射
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("click_mode", "ModeClick", "左键不放", XGui3, YGui3)
         Send, {Blind}{LButton Up}

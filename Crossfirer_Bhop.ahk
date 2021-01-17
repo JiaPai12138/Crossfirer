@@ -25,6 +25,7 @@ CheckPermission()
 If WinExist("ahk_class CrossFire")
 {
     WinMinimize, ahk_class ConsoleWindowClass
+    WinGetTitle, game_title, ahk_class CrossFire
     Start:
     Gui, jump_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, jump_mode: Margin, 0, 0
@@ -53,7 +54,7 @@ Return
 Return
 
 ~W & ~F:: ;基本鬼跳 间隔600 因t_accuracy=0.991调整
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         cnt := 0
         UpdateText("jump_mode", "ModeJump", "基本鬼跳", XGui4, YGui4)
@@ -71,7 +72,7 @@ Return
 Return 
 
 ~W & ~Alt:: ;空中连蹲跳 w+alt
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
         cnt:= 0
@@ -87,7 +88,7 @@ Return
 Return
 
 ~S & ~F:: ;跳蹲上墙
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("jump_mode", "ModeJump", "跳蹲上墙", XGui4, YGui4)
         Loop

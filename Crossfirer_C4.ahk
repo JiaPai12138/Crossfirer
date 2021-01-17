@@ -30,6 +30,7 @@ global C4_Start := 0
 If WinExist("ahk_class CrossFire")
 {
     WinMinimize, ahk_class ConsoleWindowClass
+    WinGetTitle, game_title, ahk_class CrossFire
     Start:
     Gui, C4: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
@@ -60,7 +61,7 @@ ExitApp
 Return
 
 ~C & ~4::
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         SetTimer, UpdateC4, 100
         Gui, C4: Show, x%XGuiC% y%YGuiC% NA, Listening
@@ -68,7 +69,7 @@ Return
 Return
 
 ~C & ~5::
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         SetTimer, UpdateC4, off
         Gui, C4: Show, Hide, Listening

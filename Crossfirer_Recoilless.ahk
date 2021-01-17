@@ -32,6 +32,7 @@ WinGetPos, ValueX, ValueY, ValueW, ValueH, ahk_class CrossFire
 If WinExist("ahk_class CrossFire")
 {
     WinMinimize, ahk_class ConsoleWindowClass
+    WinGetTitle, game_title, ahk_class CrossFire
     Start:
     Gui, recoil_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
@@ -40,7 +41,7 @@ If WinExist("ahk_class CrossFire")
     Gui, recoil_mode: Add, Text, hwndGui_5 vModeClick c00FF00, 压枪准备 ;#00FF00
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui5, YGui5, "H", 150, 0)
+    SetGuiPosition(XGui5, YGui5, "H", 50, 0)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA, Listening
 
     Gui, gun_sel: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -50,7 +51,7 @@ If WinExist("ahk_class CrossFire")
     Gui, gun_sel: Add, Text, hwndGui_5 vModeGun c00FF00, 暂未选枪械 ;#00FF00
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui6, YGui6, "H", 300, 0)
+    SetGuiPosition(XGui6, YGui6, "H", 200, 0)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
 
     Gui, circle: +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale
@@ -79,16 +80,16 @@ Return
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui5, YGui5, "H", 150, 0)
+    SetGuiPosition(XGui5, YGui5, "H", 50, 0)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA, Listening
-    SetGuiPosition(XGui6, YGui6, "H", 300, 0)
+    SetGuiPosition(XGui6, YGui6, "H", 200, 0)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
     SetGuiPosition(XGui7, YGui7, "C", 0, 0)
 Return
 
 ~*LButton:: ;压枪 正在开发
     Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA
-    If (!Not_In_Game() && Gun_Chosen > 0)
+    If (!Not_In_Game(game_title) && Gun_Chosen > 0)
     {
         UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)
         Recoilless(Gun_Chosen)
@@ -97,20 +98,20 @@ Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
     Gui, circle: Show, Hide, Listening
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
         UpdateText("recoil_mode", "ModeClick", "压枪准备", XGui5, YGui5)
 Return
 
 ~*Numpad0::
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
-        ;UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
+        UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
         Gun_Chosen := 0
     }
 Return
 
 ~*Numpad1::
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("gun_sel", "ModeGun", "AK英雄级", XGui6, YGui6)
         Gun_Chosen := 1
@@ -118,7 +119,7 @@ Return
 Return
 
 ~*Numpad2::
-    If !Not_In_Game()
+    If !Not_In_Game(game_title)
     {
         UpdateText("gun_sel", "ModeGun", "M4英雄级", XGui6, YGui6)
         Gun_Chosen := 2
