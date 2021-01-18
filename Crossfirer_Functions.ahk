@@ -72,7 +72,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     static PosColor_snipe := "0x000000"
     ;show color in editor: #000000
     Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
-    While, (!Not_In_Game(game_title))
+    While, !Not_In_Game()
     {
         Var := W1 // 2 - 5 ;798
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
@@ -80,7 +80,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
         Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
         Loop
         {
-            If ExitMode(game_title)
+            If ExitMode()
             {
                 UpdateText(Gui_Number2, StatusID, "自火暂停", XGui2, YGui2)
                 UpdateText(Gui_Number1, ModeID, "加载模式", XGui1, YGui1)
@@ -129,20 +129,13 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     }
 }
 ;==================================================================================
-;检测是否不再游戏中
-Not_In_Game(game_title) 
+;检测是否不再游戏中,目标为界面左上角火焰状字样
+Not_In_Game() 
 {
     WinGetPos, X1, Y1,,, ahk_class CrossFire
-    static PosColor_edge := "0x232323 0x101010 0x0F0F0F 0x070707 0x2F2F31 0x2A2A2A 0x4C4741 0x4C4841 0x4C4941"
-    ;show color in editor: #232323 #101010 #0F0F0F #070707 #2F2F31 #2A2A2A #4C4741 #4C4841 #4C4941
-    If game_title = 穿越火线
-        Return GetColorStatus(X1, Y1, 1220, 52, PosColor_edge)
-    Else If game_title = CROSSFIRE
-    {
-        PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 35, X1 + 100, Y1 + 100, 0x8D9498, 0, Fast
-        ;show color in editor: #98948D #8D9498
-        Return !ErrorLevel
-    }
+    PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 35, X1 + 220, Y1 + 100, 0x3054FF, 5, Fast
+    ;show color in editor: #3054FF #FF5430
+    Return !ErrorLevel
 }
 ;==================================================================================
 ;检测开火时机,既扫描红名位置
@@ -195,9 +188,9 @@ Is_C4_Time(X, Y, W, H)
 }
 ;==================================================================================
 ;检测是否退出模式,由按键触发
-ExitMode(game_title)
+ExitMode()
 {
-    Return (Not_In_Game(game_title) || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
+    Return (Not_In_Game() || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
 }
 ;==================================================================================
 ;检测点位颜色状态(颜色是否在颜色库中)

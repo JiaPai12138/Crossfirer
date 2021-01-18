@@ -87,7 +87,7 @@ Return
 Return
 
 ~*1 Up::
-    If (AutoMode && !Not_In_Game(game_title) && StrLen(Temp_Run) > 0)
+    If (AutoMode && !Not_In_Game() && StrLen(Temp_Run) > 0)
     {
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
         AutoFire(Temp_Mode, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
@@ -95,7 +95,7 @@ Return
 Return
 
 ~*2 Up::
-    If (AutoMode && !Not_In_Game(game_title))
+    If (AutoMode && !Not_In_Game())
     {
         UpdateText("fcn_mode", "ModeOfFcn", "加载手枪", XGui1, YGui1)
         AutoFire(2, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
@@ -103,7 +103,7 @@ Return
 Return
 
 ~*Tab Up::
-    If (AutoMode && !Not_In_Game(game_title))
+    If (AutoMode && !Not_In_Game())
     {
         Temp_Mode := 0
         Temp_Run := "加载通用"
@@ -113,7 +113,7 @@ Return
 Return
 
 ~*J Up:: ;sniper 1 vs 1 mode
-    If (AutoMode && !Not_In_Game(game_title))
+    If (AutoMode && !Not_In_Game())
     {
         Temp_Mode := 8
         Temp_Run := "加载狙击"
@@ -123,7 +123,7 @@ Return
 Return
 
 ~*L Up:: ;Gatling gun, sniper gun, shotgun
-    If (AutoMode && !Not_In_Game(game_title))
+    If (AutoMode && !Not_In_Game())
     {
         Temp_Mode := 111
         Temp_Run := "加载速点"

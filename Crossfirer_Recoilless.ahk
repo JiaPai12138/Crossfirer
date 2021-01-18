@@ -31,7 +31,6 @@ Hole =
 If WinExist("ahk_class CrossFire")
 {
     WinMinimize, ahk_class ConsoleWindowClass
-    WinGetTitle, game_title, ahk_class CrossFire
     WinGetPos, ValueX, ValueY, ValueW, ValueH, ahk_class CrossFire
     Start:
     Gui, recoil_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -89,7 +88,7 @@ Return
 
 ~*LButton:: ;压枪 正在开发
     Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA
-    If (!Not_In_Game(game_title) && Gun_Chosen > 0)
+    If (!Not_In_Game() && Gun_Chosen > 0)
     {
         UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)
         Recoilless(Gun_Chosen)
@@ -98,12 +97,12 @@ Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
     Gui, circle: Show, Hide, Listening
-    If !Not_In_Game(game_title)
+    If !Not_In_Game()
         UpdateText("recoil_mode", "ModeClick", "压枪准备", XGui5, YGui5)
 Return
 
 ~*Numpad0::
-    If !Not_In_Game(game_title)
+    If !Not_In_Game()
     {
         UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
         Gun_Chosen := 0
@@ -111,7 +110,7 @@ Return
 Return
 
 ~*Numpad1::
-    If !Not_In_Game(game_title)
+    If !Not_In_Game()
     {
         UpdateText("gun_sel", "ModeGun", "AK英雄级", XGui6, YGui6)
         Gun_Chosen := 1
@@ -119,7 +118,7 @@ Return
 Return
 
 ~*Numpad2::
-    If !Not_In_Game(game_title)
+    If !Not_In_Game()
     {
         UpdateText("gun_sel", "ModeGun", "M4英雄级", XGui6, YGui6)
         Gun_Chosen := 2

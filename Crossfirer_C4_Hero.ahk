@@ -23,7 +23,6 @@ SetControlDelay, -1
 CheckPermission()
 ;==================================================================
 Xe := , Ye := , We := , He := 
-game_title := 
 C4_Time := 40
 C4_Start := 0
 Be_Hero := False
@@ -31,7 +30,6 @@ Be_Hero := False
 If WinExist("ahk_class CrossFire")
 {
     WinMinimize, ahk_class ConsoleWindowClass
-    WinGetTitle, game_title, ahk_class CrossFire
     WinGetPos, Xe, Ye, We, He, ahk_class CrossFire
     Start:
     Gui, C4: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -48,7 +46,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Human_Hero: Margin, 0, 0
     Gui, Human_Hero: Color, 00FF00 ;#333333
     Gui, Human_Hero: Font, s15, Microsoft YaHei
-    Gui, Human_Hero: Add, Text, hwndhero, [] ;#00FF00
+    Gui, Human_Hero: Add, Text, hwndhero, _ ;#00FF00
     GuiControlGet, P1, Pos, %hero%
     WinSet, ExStyle, +0x20
 } 
@@ -70,6 +68,7 @@ Return
     If Be_Hero
     {
         SetTimer, UpdateHero, 50
+        SetTimer, UpdateC4, off
         SetGuiPosition(XGui8, YGui8, "H", -P1W / 2, 0)
         Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA, Listening
     }
@@ -89,15 +88,16 @@ Return
 Return
 
 ~C & ~4::
-    If !Not_In_Game(game_title)
+    If !Not_In_Game()
     {
         SetTimer, UpdateC4, 50
+        SetTimer, UpdateHero, off
         Gui, C4: Show, x%XGuiC% y%YGuiC% NA, Listening
     }
 Return
 
 ~C & ~5::
-    If !Not_In_Game(game_title)
+    If !Not_In_Game()
     {
         SetTimer, UpdateC4, off
         Gui, C4: Show, Hide, Listening
@@ -113,8 +113,16 @@ UpdateC4() ;精度0.1s 卡住时切换武器刷新
 UpdateHero() ;精度0.1s 卡住时切换武器刷新
 {
     global Xe, Ye, We, He, Be_Hero
-    PixelSearch, HeroX, HeroY, Xe + We / 2 - 100, Ye + 70, Xe + We / 2 + 100, Ye + He / 4, 0xFFFFFF, 0, Fast ;#FFFFFF
-    If (!ErrorLevel && Be_Hero)
+    PixelSearch, HeroX1, HeroY1, Xe + We / 2 - 50, Ye + He / 3 * 2, Xe + We / 2 + 50, Ye + He / 11 * 8, 0x088BCE, 1, Fast ;#CE8B08 #088BCE
+    If (!ErrorLevel && Be_Hero && !Not_In_Game())
+    {
         press_key("E", 30, 30)
+        PixelSearch, HeroX1, HeroY1, Xe + We / 2 - 50, Ye + He / 3 * 2, Xe + We / 2 + 50, Ye + He / 11 * 8, 0x088BCE, 1, Fast ;#CE8B08 #088BCE
+        If ErrorLevel
+        {
+            SetTimer, UpdateHero, off
+            Gui, Human_Hero: Show, Hide, Listening
+        }
+    }
 }
 ;==================================================================================

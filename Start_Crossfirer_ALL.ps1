@@ -1,5 +1,5 @@
 [System.Diagnostics.Process]::Start("C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe", ".\Crossfirer_Shooter.ahk")
-[System.Diagnostics.Process]::Start("C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe", ".\Crossfirer_C4.ahk")
+[System.Diagnostics.Process]::Start("C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe", ".\Crossfirer_C4_Hero.ahk")
 [System.Diagnostics.Process]::Start("C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe", ".\Crossfirer_Bhop.ahk")
 [System.Diagnostics.Process]::Start("C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe", ".\Crossfirer_Clicker.ahk")
 [System.Diagnostics.Process]::Start("C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe", ".\Crossfirer_Recoilless.ahk")
