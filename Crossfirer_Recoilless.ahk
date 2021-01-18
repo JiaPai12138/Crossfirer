@@ -27,12 +27,12 @@ Radius := 30
 Vertices := 40
 Angle := 8 * ATan(1) / Vertices
 Hole = 
-WinGetPos, ValueX, ValueY, ValueW, ValueH, ahk_class CrossFire
 
 If WinExist("ahk_class CrossFire")
 {
     WinMinimize, ahk_class ConsoleWindowClass
     WinGetTitle, game_title, ahk_class CrossFire
+    WinGetPos, ValueX, ValueY, ValueW, ValueH, ahk_class CrossFire
     Start:
     Gui, recoil_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0

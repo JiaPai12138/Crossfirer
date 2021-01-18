@@ -8,7 +8,7 @@ CheckPermission()
     { ;缺点是当另一个脚本以UI Access运行时,该检查机制会被跳过
         Try
         {
-            If A_IsCompiled
+            If A_IsCompiled ;实际会被侦测,所以别编译...
                 Run, *RunAs "%A_ScriptFullPath%" ;管理员权限运行
             Else
             {
@@ -71,6 +71,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     WinGetPos, X1, Y1, W1, H1, ahk_class CrossFire
     static PosColor_snipe := "0x000000"
     ;show color in editor: #000000
+    Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     While, (!Not_In_Game(game_title))
     {
         Var := W1 // 2 - 5 ;798
@@ -96,7 +97,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                 Switch mo_shi
                 {
                     Case 2:
-                        press_key("LButton", (rand - 10), (rand - 10)) ;控制USP射速
+                        press_key("LButton", (rand - 10), (rand - 10 - Color_Delay)) ;控制USP射速
                         mouseXY(0, 1)
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
 
@@ -104,20 +105,20 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         If Not (GetColorStatus(X1, Y1, W1 / 2 + 100, H1 // 2 + 16, PosColor_snipe) || GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 100, PosColor_snipe)) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
-                            press_key("LButton", small_rand, small_rand)
+                            press_key("LButton", small_rand, small_rand - Color_Delay)
                         }
                         Else
-                            press_key("LButton", small_rand, small_rand)
+                            press_key("LButton", small_rand, small_rand - Color_Delay)
                         ;开镜瞬狙或连狙
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
                         HyperSleep(rand)
 
                     Case 111:
-                        press_key("LButton", 60.4, 30.2) ;用定值保证加特林速点稳定
+                        press_key("LButton", 60.4, 30.2 - Color_Delay) ;用定值保证加特林速点稳定
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
                     
                     Default: ;通用模式不适合射速高的冲锋枪
-                        press_key("LButton", small_rand, small_rand)
+                        press_key("LButton", small_rand, small_rand - Color_Delay)
                         mouseXY(0, 1)
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
                 }
