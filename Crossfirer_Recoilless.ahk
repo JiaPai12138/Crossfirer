@@ -23,7 +23,7 @@ SetControlDelay, -1
 CheckPermission()
 ;==================================================================================
 Gun_Chosen := 0
-Radius := 30
+Radius := 50
 Vertices := 40
 Angle := 8 * ATan(1) / Vertices
 Hole = 
@@ -57,7 +57,7 @@ If WinExist("ahk_class CrossFire")
     Gui, circle: Color, FFFF00 ;#FFFF00
     SetGuiPosition(XGui7, YGui7, "C", 0, 0)
     Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
-    WinSet, Transparent, 63, ahk_id %cc%
+    WinSet, Transparent, 31, ahk_id %cc%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     Xcc := ValueW / 2, Ycc := ValueH / 2 + 15 ;483
     Loop, %Vertices%
@@ -99,6 +99,14 @@ Return
     Gui, circle: Show, Hide, Listening
     If !Not_In_Game()
         UpdateText("recoil_mode", "ModeClick", "压枪准备", XGui5, YGui5)
+Return
+
+~*RButton:: ;压枪 正在开发
+    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA
+Return
+
+~*Rbutton Up:: ;保障新一轮压枪
+    Gui, circle: Show, Hide, Listening
 Return
 
 ~*Numpad0::

@@ -165,6 +165,12 @@ C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
         Else If C4_Start > 0
         {
             C4_Time := SubStr("00" . Format("{:.0f}", (40 - (SystemTime() - C4_Start) / 1000)), -1) ;强行显示两位数
+            If (C4_Time < 31 && C4_Time >= 11)
+                GuiControl, %Gui_Number%: +cFFFF00 +Redraw, %ControlID% ;#FFFF00
+            Else If C4_Time < 11
+                GuiControl, %Gui_Number%: +cFF0000 +Redraw, %ControlID% ;#FF0000
+            Else
+                GuiControl, %Gui_Number%: +c00FF00 +Redraw, %ControlID% ;#00FF00
             UpdateText(Gui_Number, ControlID, C4_Time, XGuiC, YGuiC)
         }
     }
@@ -183,7 +189,7 @@ Is_C4_Time(X, Y, W, H)
 {
     static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3
     ;show color in editor: #E39600 #0096E3
-    PixelSearch, ColorX, ColorY, X + W / 2 - 40, Y, X + W / 2 + 40, Y + H / 4, %PosColor_C4%, 0, Fast
+    PixelSearch, ColorX, ColorY, X + W / 2 - 40, Y, X + W / 2 + 40, Y + H / 4, %PosColor_C4%, 1, Fast
     Return !ErrorLevel
 }
 ;==================================================================================
