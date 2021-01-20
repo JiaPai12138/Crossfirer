@@ -50,7 +50,7 @@ UpdateGui() ;Gui 2 will be repositioned while modes changing
         WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
         Loop
         {
-            PostMessage("Listening", 1)
+            PostMessage("Listening", 125638)
             WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
             HyperSleep(30) ;just for stability
         } Until Not Gui_Title

@@ -169,8 +169,6 @@ C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
                 GuiControl, %Gui_Number%: +cFFFF00 +Redraw, %ControlID% ;#FFFF00
             Else If C4_Time < 11
                 GuiControl, %Gui_Number%: +cFF0000 +Redraw, %ControlID% ;#FF0000
-            Else
-                GuiControl, %Gui_Number%: +c00FF00 +Redraw, %ControlID% ;#00FF00
             UpdateText(Gui_Number, ControlID, C4_Time, XGuiC, YGuiC)
         }
     }
@@ -180,6 +178,7 @@ C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
             C4_Start := 0
         If C4_Time != 40
             C4_Time := 40
+        GuiControl, %Gui_Number%: +c00FF00 +Redraw, %ControlID% ;#00FF00
         UpdateText(Gui_Number, ControlID, C4_Time, XGuiC, YGuiC)
     }
 }
@@ -367,7 +366,7 @@ HyperSleep(value)
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,接受信息
 ReceiveMessage(Message) 
 {
-    if Message = 1
+    if Message = 125638
         ExitApp ;退出当前脚本,未来可加其他动作
 }
 ;==================================================================================

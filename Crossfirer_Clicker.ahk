@@ -99,7 +99,7 @@ Return
         Send, {Blind}{LButton Up}
         HyperSleep(30)
         Send, {LButton Down}
-        While, !(GetKeyState("R", "P") || GetKeyState("`", "P") || GetKeyState("3", "P"))
+        While, !(GetKeyState("R", "P") || GetKeyState("`", "P") || GetKeyState("RButton", "P"))
         {
             HyperSleep(100)
         }

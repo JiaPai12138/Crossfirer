@@ -48,7 +48,10 @@ If WinExist("ahk_class CrossFire")
     Gui, Human_Hero: Font, s15, Microsoft YaHei
     Gui, Human_Hero: Add, Text, hwndhero, _ ;#00FF00
     GuiControlGet, P1, Pos, %hero%
+    WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20
+    SetGuiPosition(XGui8, YGui8, "H", -P1W / 2, 0)
+    Gui, Human_Hero: Show, Hide, Listening
 } 
 Else 
 {
@@ -65,12 +68,11 @@ Return
     If WinActive("ahk_class CrossFire")
         Be_Hero := !Be_Hero
     
-    If Be_Hero
+    If (Be_Hero && !Not_In_Game())
     {
         SetTimer, UpdateHero, 60
         SetTimer, UpdateC4, off
         Gui, C4: Show, Hide, Listening
-        SetGuiPosition(XGui8, YGui8, "H", -P1W / 2, 0)
         Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA, Listening
     }
     Else
@@ -83,7 +85,7 @@ Return
 ~*RAlt::
     WinGetPos, Xe, Ye, We, He, ahk_class CrossFire
     SetGuiPosition(XGuiC, YGuiC, "M", -14, 50)
-    SetGuiPosition(XGui, YGui, "H", -P1W / 2, 0)
+    SetGuiPosition(XGui8, YGui8, "H", -P1W / 2, 0)
     Gui, C4: Show, Hide, Listening
     Gui, Human_Hero: Show, Hide, Listening
 Return
@@ -114,13 +116,15 @@ UpdateC4() ;精度0.1s 卡住时切换武器刷新
 
 UpdateHero() ;精度0.1s
 {
-    global Xe, Ye, We, He, Be_Hero
+    global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE
     If (Be_Hero && !Not_In_Game())
     {
-        PixelSearch, HeroX2, HeroY2, Xe + We / 2 - 150, Ye + 35 + (He - 35) / 3 - 5, Xe + We / 2 + 150, Ye + 35 + (He - 35) / 3, 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
+        PixelSearch, HeroX1, HeroY1, Xe + We / 2 - 150, Ye + 35 + He / 8, Xe + We / 2 + 150, Ye + 35 + He / 13 * 2, 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
         If !ErrorLevel
         {
-            press_key("E", 20, 20)
+            PixelSearch, HeroX2, HeroY2, Xe + We / 2 - 150, Ye + 35 + (He - 35) / 3 - 5, Xe + We / 2 + 150, Ye + 35 + (He - 35) / 3, 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
+            If !ErrorLevel
+                press_key("E", 20, 10)
         }
     }
 }
