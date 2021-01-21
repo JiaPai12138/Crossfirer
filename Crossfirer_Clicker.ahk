@@ -85,7 +85,7 @@ Return
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
         {
-            press_key("LButton", 30.2, 30.2)
+            press_key("LButton", 30.2, 30.1)
         }
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
         Send, {Blind}{LButton Up}
