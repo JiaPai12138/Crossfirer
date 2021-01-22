@@ -11,8 +11,8 @@ ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 CoordMode, Pixel, Screen
-;CoordMode, Mouse, Screen
-Process, Priority, , A  ;进程略高优先级
+CoordMode, Mouse, Screen
+Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 SetKeyDelay, -1, -1
 SetMouseDelay, -1
@@ -30,7 +30,6 @@ Hole =
 
 If WinExist("ahk_class CrossFire")
 {
-    WinMinimize, ahk_class ConsoleWindowClass
     WinGetPos, ValueX, ValueY, ValueW, ValueH, ahk_class CrossFire
     Start:
     Gui, recoil_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -69,7 +68,7 @@ If WinExist("ahk_class CrossFire")
 }
 Else 
 {
-    MsgBox,, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
+    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
     ExitApp
 }
 

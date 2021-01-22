@@ -12,7 +12,7 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 CoordMode, Pixel, Screen
 ;CoordMode, Mouse, Screen
-Process, Priority, , A  ;进程略高优先级
+Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 SetKeyDelay, -1, -1
 SetMouseDelay, -1
@@ -24,7 +24,6 @@ CheckPermission()
 ;==================================================================================
 If WinExist("ahk_class CrossFire")
 {
-    WinMinimize, ahk_class ConsoleWindowClass
     Start:
     Gui, click_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, click_mode: Margin, 0, 0
@@ -38,7 +37,7 @@ If WinExist("ahk_class CrossFire")
 } 
 Else 
 {
-    MsgBox,, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
+    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
     ExitApp
 }
 
@@ -65,27 +64,28 @@ Return
     }
 Return
 
-~*XButton2:: ;半自动速点 
+~*XButton2:: ;半自动速点,适合救世主步枪
     If !Not_In_Game()
     {
-        UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
+        ;UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
         {
-            press_key("LButton", 60.4, 30.2)
+            press_key("LButton", 42.8, 42.8) ;FAL CAMO射速700
             ;press_key("LButton", 50.0, 50.0) ;For click test
+            ;press_key("LButton", 43.8, 43.75) ;M4A1射速685
         }
-        UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+        ;UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
         Send, {Blind}{LButton Up}
     }
 Return
 
-~*XButton1:: ;半自动速点,适合加特林快速,不适合USP
+~*XButton1:: ;半自动速点,适合加特林速点,不适合USP
     If !Not_In_Game()
     {
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
         {
-            press_key("LButton", 30.2, 30.1)
+            press_key("LButton", 30.0, 29.75)
         }
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
         Send, {Blind}{LButton Up}

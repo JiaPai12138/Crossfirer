@@ -12,7 +12,7 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 CoordMode, Pixel, Screen
 CoordMode, Mouse, Screen
-Process, Priority, , A  ;进程略高优先级
+Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 SetKeyDelay, -1, -1
 SetMouseDelay, -1
@@ -30,7 +30,6 @@ game_title :=
 
 If WinExist("ahk_class CrossFire")
 {
-    WinMinimize, ahk_class ConsoleWindowClass
     WinGetTitle, game_title, ahk_class CrossFire
     ;global TempX := X, TempY := Y
     Start:
@@ -61,10 +60,20 @@ If WinExist("ahk_class CrossFire")
     WinSet, Region, %crosshair%, ahk_id %cr%
     WinSet, Transparent, 255, ahk_id %cr%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
+
+    If game_title = CROSSFIRE 
+        GamePing := Test_Game_Ping("172.217.1.142") + Test_Game_Ping("172.217.9.168")
+    Else If game_title = 穿越火线
+        GamePing := Test_Game_Ping("203.205.239.243")
+        
+    If GamePing = 0 ;延迟大于300或者连接不上就没有玩的必要
+        ExitApp
+    ;MsgBox, , , %GamePing%
+    WinActivate, ahk_class CrossFire ;激活该窗口
 } 
 Else 
 {
-    MsgBox,, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
+    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
     ExitApp
 }
 
@@ -90,7 +99,7 @@ Return
     If (AutoMode && !Not_In_Game() && StrLen(Temp_Run) > 0)
     {
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
-        AutoFire(Temp_Mode, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
+        AutoFire(Temp_Mode, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
 Return
 
@@ -98,7 +107,7 @@ Return
     If (AutoMode && !Not_In_Game())
     {
         UpdateText("fcn_mode", "ModeOfFcn", "加载手枪", XGui1, YGui1)
-        AutoFire(2, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
+        AutoFire(2, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
 Return
 
@@ -108,7 +117,7 @@ Return
         Temp_Mode := 0
         Temp_Run := "加载通用"
         UpdateText("fcn_mode", "ModeOfFcn", "加载通用", XGui1, YGui1)
-        AutoFire(0, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
+        AutoFire(0, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }  
 Return
 
@@ -118,7 +127,7 @@ Return
         Temp_Mode := 8
         Temp_Run := "加载狙击"
         UpdateText("fcn_mode", "ModeOfFcn", "加载狙击", XGui1, YGui1)
-        AutoFire(8, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
+        AutoFire(8, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
 Return
 
@@ -128,7 +137,7 @@ Return
         Temp_Mode := 111
         Temp_Run := "加载速点"
         UpdateText("fcn_mode", "ModeOfFcn", "加载速点", XGui1, YGui1)
-        AutoFire(111, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
+        AutoFire(111, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }  
 Return
 ;==================================================================================

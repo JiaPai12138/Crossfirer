@@ -1,5 +1,6 @@
 ﻿;Functions for Crossfirer;CF娱乐助手函数集合
 ;Please read https://www.autohotkey.com/docs/commands/PixelGetColor.htm for RGB vs. BGR format
+;https://clickspeedtest.com/ For click speed test
 ;==================================================================================
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission()
@@ -21,7 +22,7 @@ CheckPermission()
         }
         Catch
         {
-            MsgBox,, 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
+            MsgBox, , 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
             ExitApp
         }
     }
@@ -66,13 +67,14 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
 }
 ;==================================================================================
 ;自动开火函数,通过检测红名实现
-AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych)
+AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych, GamePing)
 {
     WinGetPos, X1, Y1, W1, H1, ahk_class CrossFire
-    static PosColor_snipe := "0x000000"
-    ;show color in editor: #000000
-    Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
-    While, !Not_In_Game()
+    static PosColor_snipe := "0x000000" ;#000000
+    static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
+    Random, rand, 60.0, 62.0 ;设定随机值减少被检测概率
+    small_rand := rand / 2
+    While, WinExist("ahk_class CrossFire")
     {
         Var := W1 // 2 - 5 ;798
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
@@ -88,16 +90,14 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                 Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
                 Exit ;退出自动开火循环
             }
-            
+
             If Shoot_Time(X1, Y1, W1, H1, Var, game_title) ;当红名被扫描到时射击
             {
                 UpdateText(Gui_Number2, StatusID, "发现敌人", XGui2, YGui2)
-                Random, rand, 60.4, 62.0 ;设定随机值减少被检测概率
-                small_rand := rand / 2
                 Switch mo_shi
                 {
                     Case 2:
-                        press_key("LButton", (rand - 10), (rand - 10 - Color_Delay)) ;控制USP射速
+                        press_key("LButton", rand, (rand - 3 * Color_Delay)) ;控制USP射速
                         mouseXY(0, 1)
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
 
@@ -105,21 +105,43 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         If Not (GetColorStatus(X1, Y1, W1 / 2 + 100, H1 // 2 + 16, PosColor_snipe) || GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 100, PosColor_snipe)) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
-                            press_key("LButton", small_rand, small_rand - Color_Delay)
+                            press_key("LButton", small_rand, small_rand)
                         }
                         Else
-                            press_key("LButton", small_rand, small_rand - Color_Delay)
+                            press_key("LButton", small_rand, small_rand)
                         ;开镜瞬狙或连狙
+
+                        If (GamePing <= 80) ;如果延迟低,允许切枪减少换弹时间
+                        {
+                            Send, {3 DownTemp}
+                            HyperSleep(2 * rand)
+                            Send, {1 DownTemp}
+                            
+                            If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹
+                            {
+                                Send, {Blind}{3 Up}
+                                Send, {Blind}{1 Up}
+                                Loop
+                                {
+                                    press_key("RButton", small_rand, small_rand - Color_Delay)
+                                } Until, GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe)
+
+                                Loop
+                                {
+                                    press_key("RButton", small_rand, small_rand - Color_Delay)
+                                } Until, !GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe)
+                            }
+                        }
+
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
-                        HyperSleep(rand)
 
                     Case 111:
-                        press_key("LButton", 60.4, 30.2 - Color_Delay) ;用定值保证加特林速点稳定
+                        press_key("LButton", 2 * rand, small_rand - 3 * Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
                     
                     Default: ;通用模式不适合射速高的冲锋枪
-                        press_key("LButton", small_rand, small_rand - Color_Delay)
-                        mouseXY(0, 1)
+                        press_key("LButton", small_rand, rand - 3 * Color_Delay) ;靠近M4A1射速
+                        mouseXY(0, 2) ;小小压枪
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
                 }
             }
@@ -129,13 +151,20 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     }
 }
 ;==================================================================================
-;检测是否不再游戏中,目标为界面左上角火焰状字样
+;检测是否不再游戏中,目标为界面左上角火焰状字样以及附近的黑暗阴影
 Not_In_Game() 
 {
     WinGetPos, X1, Y1,,, ahk_class CrossFire
     PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 35, X1 + 220, Y1 + 100, 0x3054FF, 5, Fast
     ;show color in editor: #3054FF #FF5430
-    Return !ErrorLevel
+    If !ErrorLevel
+    {
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 35, X1 + 220, Y1 + 100, 0x010101, 1, Fast
+        ;show color in editor: #010101
+        Return !ErrorLevel
+    }
+    Else
+        Return False
 }
 ;==================================================================================
 ;检测开火时机,既扫描红名位置
@@ -278,7 +307,7 @@ mouseXY(x1,y1)
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
 press_key(key, press_time, sleep_time)
 {
-    static t_accuracy := 0.991 ;本机精度测试
+    static t_accuracy := 0.990 ;本机精度测试,网站https://clickspeedtest.com/
     press_time *= t_accuracy
     sleep_time *= t_accuracy
     Send, {%key% DownTemp}
@@ -366,7 +395,7 @@ HyperSleep(value)
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,接受信息
 ReceiveMessage(Message) 
 {
-    if Message = 125638
+    If Message = 125638
         ExitApp ;退出当前脚本,未来可加其他动作
 }
 ;==================================================================================
@@ -375,7 +404,21 @@ PostMessage(Receiver, Message) ;接受方为GUI标题
 {
     SetTitleMatchMode, 3
     DetectHiddenWindows, on
-    PostMessage, 0x1001, %Message%,,, %Receiver% ahk_class AutoHotkeyGUI
+    PostMessage, 0x1001, %Message%, , , %Receiver% ahk_class AutoHotkeyGUI
+}
+;==================================================================================
+;测试ping值
+Test_Game_Ping(URL_Or_Ping)
+{
+    Runwait, %comspec% /c ping -w 500 -n 5 %URL_Or_Ping% >ping.log, , ;执行cmd ping
+    FileRead, StrTemp, ping.log
+    If RegExMatch(StrTemp, "Average = (\d+)", result)
+        speed := (SubStr(result, 11) > 300 ? 0 : SubStr(result, 11))
+    Else
+        speed := 0
+
+    FileDelete, .\ping.log
+    Return speed
 }
 ;==================================================================================
 ;End
