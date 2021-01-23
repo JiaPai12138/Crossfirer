@@ -55,7 +55,7 @@ UpdateGui() ;Gui 2 will be repositioned while modes changing
         {
             PostMessage("Listening", 125638)
             HyperSleep(30) ;just for stability
-        } Until, Not (WinExist("Crossfirer_Shooter.ahk") || WinExist("Crossfirer_C4_Hero.ahk") || WinExist("Crossfirer_Bhop.ahk") || WinExist("Crossfirer_Clicker.ahk") || WinExist("Crossfirer_Recoilless.ahk"))
+        } Until, Not (WinExist("Crossfirer_Shooter.ahk") && WinExist("Crossfirer_C4_Hero.ahk") && WinExist("Crossfirer_Bhop.ahk") && WinExist("Crossfirer_Clicker.ahk") && WinExist("Crossfirer_Recoilless.ahk"))
         ExitApp
     }
 }

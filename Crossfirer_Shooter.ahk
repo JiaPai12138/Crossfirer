@@ -22,7 +22,7 @@ SetControlDelay, -1
 ;==================================================================================
 CheckPermission()
 ;==================================================================================
-AutoMode := True
+AutoMode := False
 XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
 Temp_Mode := "", Temp_Run := ""
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
@@ -55,7 +55,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
 
     Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale
-    Gui, cross_hair: Color, 00FF00 ;#00FF00
+    Gui, cross_hair: Color, FFFF00 ;#FFFF00
     SetGuiPosition(Xch, Ych, "M", -34, -38)
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA, Listening
     WinSet, Region, %crosshair%, ahk_id %cr%

@@ -114,7 +114,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         If (GamePing <= 60) ;如果延迟低,允许切枪减少换弹时间
                         {
                             Send, {3 DownTemp}
-                            HyperSleep(2 * rand)
+                            HyperSleep(rand + small_rand)
                             Send, {1 DownTemp}
                             
                             If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹
@@ -124,12 +124,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe)
+                                } Until, (GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, !GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe)
+                                } Until, (!GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
                             }
                         }
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)

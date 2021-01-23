@@ -107,13 +107,13 @@ Return
     }
 Return
 ;==================================================================================
-UpdateC4() ;精度0.1s 卡住时切换武器刷新
+UpdateC4() ;精度0.1s
 {
     global XGuiC, YGuiC, C4_Start, C4_Time, C4Status
     C4Timer(XGuiC, YGuiC, C4_Start, C4_Time, "C4", "C4Status")
 }
 
-UpdateHero() ;精度0.1s
+UpdateHero() ;精度0.06s
 {
     global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE
     If (Be_Hero && !Not_In_Game())
@@ -123,7 +123,7 @@ UpdateHero() ;精度0.1s
         {
             PixelSearch, HeroX2, HeroY2, Xe + We / 2 - 150, Ye + 35 + (He - 35) / 3 - 5, Xe + We / 2 + 150, Ye + 35 + (He - 35) / 3, 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
             If !ErrorLevel
-                press_key("E", 20, 10)
+                press_key("E", 10, 10)
         }
     }
 }
