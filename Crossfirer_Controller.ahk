@@ -50,7 +50,6 @@ UpdateGui() ;Gui 2 will be repositioned while modes changing
     If !WinExist("ahk_class CrossFire")
     {
         WinClose, ahk_class ConsoleWindowClass
-        WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
         Loop
         {
             PostMessage("Listening", 125638)
