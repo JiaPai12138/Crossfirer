@@ -42,7 +42,7 @@ ShowHelp(ByRef Need_Help, XGui, YGui, Gui_Number)
 ProcessExist(Process_Name)
 {
     Process, Exist, %Process_Name%
-    Return Errorlevel
+    Return ErrorLevel
 }
 ;==================================================================================
 ;切换自火开/关
@@ -111,7 +111,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             press_key("LButton", small_rand, small_rand)
                         ;开镜瞬狙或连狙
 
-                        If (GamePing <= 80) ;如果延迟低,允许切枪减少换弹时间
+                        If (GamePing <= 60) ;如果延迟低,允许切枪减少换弹时间
                         {
                             Send, {3 DownTemp}
                             HyperSleep(2 * rand)
@@ -132,7 +132,6 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                                 } Until, !GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe)
                             }
                         }
-
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
 
                     Case 111:
@@ -407,10 +406,10 @@ PostMessage(Receiver, Message) ;接受方为GUI标题
     PostMessage, 0x1001, %Message%, , , %Receiver% ahk_class AutoHotkeyGUI
 }
 ;==================================================================================
-;测试ping值
+;测试ping值,但会被游戏加速器干扰,且游戏内已经提供ping查询,因此弃用但保留本函数
 Test_Game_Ping(URL_Or_Ping)
 {
-    Runwait, %comspec% /c ping -w 500 -n 5 %URL_Or_Ping% >ping.log, , ;执行cmd ping
+    Runwait, %comspec% /c ping -w 500 -n 3 %URL_Or_Ping% >ping.log, ,Hide ;后台执行cmd ping
     FileRead, StrTemp, ping.log
     If RegExMatch(StrTemp, "Average = (\d+)", result)
         speed := (SubStr(result, 11) > 300 ? 0 : SubStr(result, 11))

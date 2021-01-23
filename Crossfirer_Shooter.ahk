@@ -27,6 +27,7 @@ XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
 Temp_Mode := "", Temp_Run := ""
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
 game_title := 
+GamePing :=
 
 If WinExist("ahk_class CrossFire")
 {
@@ -61,19 +62,44 @@ If WinExist("ahk_class CrossFire")
     WinSet, Transparent, 255, ahk_id %cr%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
 
-    If game_title = CROSSFIRE 
-        GamePing := Test_Game_Ping("172.217.1.142") + Test_Game_Ping("172.217.9.168")
-    Else If game_title = 穿越火线
-        GamePing := Test_Game_Ping("203.205.239.243")
+    ;If game_title = CROSSFIRE 
+    ;    GamePing := Test_Game_Ping("172.217.1.142") + Test_Game_Ping("172.217.9.168")
+    ;Else If game_title = 穿越火线
+    ;    GamePing := Test_Game_Ping("203.205.239.243")
         
-    If GamePing = 0 ;延迟大于300或者连接不上就没有玩的必要
-        ExitApp
-    ;MsgBox, , , %GamePing%
+    ;If GamePing = 0 ;延迟大于300或者连接不上就没有玩的必要
+    ;    ExitApp
+    Loop
+    {
+        InputBox, GamePing, Ping, 请输入稳定延迟(ping)`nPlease enter ping value, , 200, 150
+        If ErrorLevel
+            MsgBox, 您按了取消键`nCANCEL was pressed
+        Else
+        {
+            If !GamePing
+            {
+                MsgBox, 您输入了啥玩意`nInput has no value
+                ErrorLevel = True, Return ErrorLevel
+            }
+            Else If GamePing Is Not Integer
+            {
+                MsgBox, 输入内容不正确`nInput is not valid
+                ErrorLevel = True, Return ErrorLevel
+            }
+            Else If SubStr(GamePing, 1, 1) = 0 ;不存在0延迟
+            {
+                MsgBox, 输入内容不正确`nInput is not valid
+                ErrorLevel = True, Return ErrorLevel
+            }
+            Else
+                MsgBox, 您输入了%GamePing%`nYou entered %GamePing%
+        }
+    } Until, !ErrorLevel
     WinActivate, ahk_class CrossFire ;激活该窗口
-} 
+}
 Else 
 {
-    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
+    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 5
     ExitApp
 }
 

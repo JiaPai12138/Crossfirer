@@ -37,7 +37,7 @@ If WinExist("ahk_class CrossFire")
 } 
 Else 
 {
-    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!
+    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 5
     ExitApp
 }
 
@@ -102,6 +102,8 @@ Return
         While, !(GetKeyState("R", "P") || GetKeyState("`", "P") || GetKeyState("RButton", "P"))
         {
             HyperSleep(100)
+            If !GetKeyState("LButton")
+                Send, {LButton Down}
         }
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
         Send, {Blind}{LButton Up}

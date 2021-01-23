@@ -13,6 +13,8 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 CoordMode, Pixel, Screen
 CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
+DetectHiddenWindows, On
+SetTitleMatchMode, 2
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 SetKeyDelay, -1, -1
 SetMouseDelay, -1
@@ -52,9 +54,8 @@ UpdateGui() ;Gui 2 will be repositioned while modes changing
         Loop
         {
             PostMessage("Listening", 125638)
-            WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
             HyperSleep(30) ;just for stability
-        } Until Not Gui_Title
+        } Until, Not (WinExist("Crossfirer_Shooter.ahk") || WinExist("Crossfirer_C4_Hero.ahk") || WinExist("Crossfirer_Bhop.ahk") || WinExist("Crossfirer_Clicker.ahk") || WinExist("Crossfirer_Recoilless.ahk"))
         ExitApp
     }
 }
