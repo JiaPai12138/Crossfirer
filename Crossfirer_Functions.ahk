@@ -29,13 +29,20 @@ CheckPermission()
 }
 ;==================================================================================
 ;通过按下快捷键显示/隐藏提示
-ShowHelp(ByRef Need_Help, XGui, YGui, Gui_Number)
+ShowHelp(ByRef Need_Help, XGui1, YGui1, Gui_Number1, XGui2, YGui2, Gui_Number2, Changer)
 {
-    Need_Help := !Need_Help
+    If Changer = 1
+        Need_Help := !Need_Help
     If Need_Help
-        Gui, %Gui_Number%: Show, x%XGui% y%YGui% NA
+    {
+        Gui, %Gui_Number1%: Show, x%XGui1% y%YGui1% NA
+        Gui, %Gui_Number2%: Show, Hide
+    }
     Else
-        Gui, %Gui_Number%: Hide
+    {
+        Gui, %Gui_Number1%: Show, Hide
+        Gui, %Gui_Number2%: Show, x%XGui2% y%YGui2% NA
+    }
 } 
 ;==================================================================================
 ;检查进程是否存在
@@ -53,7 +60,7 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
     If AutoMode
     {
         UpdateText(Gui_Number1, ModeID, "加载模式", XGui1, YGui1)
-        UpdateText(Gui_Number2, StatusID, "自火开启", XGui2, YGui2)
+        UpdateText(Gui_Number2, StatusID, "自火暂停", XGui2, YGui2)
         Gui, %CrID%: Color, 00FF00 ;#00FF00
         Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
     }
@@ -326,7 +333,7 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
     }
     Else If InStr("V", GuiPosition) ;左侧一栏纵向
     {
-        XGui := X1 + 2 + OffsetX
+        XGui := X1 + 3 + OffsetX
         YGui := Y1 + H1 // 2 + OffsetY
     }
     Else If InStr("M", GuiPosition) ;居中显示

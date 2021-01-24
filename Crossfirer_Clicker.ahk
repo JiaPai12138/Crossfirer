@@ -29,7 +29,7 @@ If WinExist("ahk_class CrossFire")
     Gui, click_mode: Margin, 0, 0
     Gui, click_mode: Color, 333333 ;#333333
     Gui, click_mode: Font, s15, Microsoft YaHei
-    Gui, click_mode: Add, Text, hwndGui_4 vModeClick c00FF00, 连点准备 ;#00FF00
+    Gui, click_mode: Add, Text, hwndGui_5 vModeClick c00FF00, 连点准备 ;#00FF00
     WinSet, TransColor, 333333 155 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui3, YGui3, "M", -50, 200)

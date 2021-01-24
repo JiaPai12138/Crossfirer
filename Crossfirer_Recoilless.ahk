@@ -36,7 +36,7 @@ If WinExist("ahk_class CrossFire")
     Gui, recoil_mode: Margin, 0, 0
     Gui, recoil_mode: Color, 333333 ;#333333
     Gui, recoil_mode: Font, s15, Microsoft YaHei
-    Gui, recoil_mode: Add, Text, hwndGui_5 vModeClick c00FF00, 压枪准备 ;#00FF00
+    Gui, recoil_mode: Add, Text, hwndGui_6 vModeClick c00FF00, 压枪准备 ;#00FF00
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui5, YGui5, "H", 50, 0)
@@ -46,7 +46,7 @@ If WinExist("ahk_class CrossFire")
     Gui, gun_sel: Margin, 0, 0
     Gui, gun_sel: Color, 333333 ;#333333
     Gui, gun_sel: Font, s15, Microsoft YaHei
-    Gui, gun_sel: Add, Text, hwndGui_5 vModeGun c00FF00, 暂未选枪械 ;#00FF00
+    Gui, gun_sel: Add, Text, hwndGui_7 vModeGun c00FF00, 暂未选枪械 ;#00FF00
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui6, YGui6, "H", 200, 0)
@@ -86,7 +86,7 @@ Return
 Return
 
 ~*LButton:: ;压枪 正在开发
-    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA
+    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
     If (!Not_In_Game() && Gun_Chosen > 0)
     {
         UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)
@@ -101,7 +101,7 @@ Return
 Return
 
 ~*RButton:: ;压枪 正在开发
-    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA
+    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
 Return
 
 ~*Rbutton Up:: ;保障新一轮压枪

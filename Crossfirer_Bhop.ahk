@@ -69,11 +69,11 @@ Return
     }
 Return 
 
-~W & ~Alt:: ;空中连蹲跳 w+alt
+~W & ~LAlt:: ;空中连蹲跳 w+alt
     If !Not_In_Game()
     {
         UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
-        cnt:= 0
+        cnt := 0
         press_key("space", 30, 30)
         HyperSleep(140)
         Loop

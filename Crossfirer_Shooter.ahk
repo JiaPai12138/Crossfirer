@@ -38,7 +38,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_mode: Margin, 0, 0
     Gui, fcn_mode: Color, 333333 ;#333333
     Gui, fcn_mode: Font, s15, Microsoft YaHei
-    Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn c00FF00, 加载模式 ;#00FF00
+    Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn c00FF00, 暂停加载 ;#00FF00
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui1, YGui1, "H", -300, 0)
@@ -48,7 +48,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_status: Margin, 0, 0
     Gui, fcn_status: Color, 333333 ;#333333
     Gui, fcn_status: Font, s15, Microsoft YaHei
-    Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun c00FF00, 自火开启
+    Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun c00FF00, 自火关闭
     WinSet, TransColor, 000000 255 ;#000000
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui2, YGui2, "H", -150, 0)
