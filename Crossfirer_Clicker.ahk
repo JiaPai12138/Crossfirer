@@ -55,7 +55,7 @@ Return
     If !Not_In_Game()
     {
         UpdateText("click_mode", "ModeClick", "右键连点", XGui3, YGui3)
-        While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
+        While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
         {
             press_key("RButton", 10.0, 60.0)
         }
@@ -67,14 +67,14 @@ Return
 ~*XButton2:: ;半自动速点,适合救世主步枪
     If !Not_In_Game()
     {
-        ;UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
+        UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
         {
             press_key("LButton", 42.8, 42.8) ;FAL CAMO射速700
             ;press_key("LButton", 50.0, 50.0) ;For click test
             ;press_key("LButton", 43.8, 43.75) ;M4A1射速685
         }
-        ;UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+        UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
         Send, {Blind}{LButton Up}
     }
 Return
@@ -83,7 +83,7 @@ Return
     If !Not_In_Game()
     {
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P"))
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
         {
             press_key("LButton", 30.0, 29.75)
         }
@@ -99,7 +99,7 @@ Return
         Send, {Blind}{LButton Up}
         HyperSleep(30)
         Send, {LButton Down}
-        While, !(GetKeyState("R", "P") || GetKeyState("`", "P") || GetKeyState("RButton", "P"))
+        While, !(GetKeyState("R", "P") || GetKeyState("`", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
         {
             HyperSleep(100)
             If !GetKeyState("LButton")

@@ -142,7 +142,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
 
                     Case 111:
-                        press_key("LButton", 2 * rand, small_rand - 3 * Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
+                        press_key("LButton", 2 * rand, rand - 3 * Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
                     
                     Default: ;通用模式不适合射速高的冲锋枪

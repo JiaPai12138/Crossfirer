@@ -43,7 +43,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Hint: Margin, 0, 0
     Gui, Hint: Color, 333333 ;#333333
     Gui, Hint: Font, s12 c00FF00, Microsoft YaHei ;#00FF00
-    Gui, Hint: add, Text, hwndGui_9, 按`n右`nC`nt`nr`nl`n键`n开`n关`n帮`n助
+    Gui, Hint: add, Text, hwndGui_9, 按`n右`n c`n t`n r`n l`n键`n开`n关`n帮`n助
     GuiControlGet, P3, Pos, %Gui_9%
     global P3H ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 333333 255 ;#333333

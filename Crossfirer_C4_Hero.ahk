@@ -26,6 +26,7 @@ Xe := , Ye := , We := , He :=
 C4_Time := 40
 C4_Start := 0
 Be_Hero := False
+C4_On := False
 
 If WinExist("ahk_class CrossFire")
 {
@@ -69,6 +70,7 @@ Return
     
     If (Be_Hero && !Not_In_Game())
     {
+        C4_On := False
         SetTimer, UpdateHero, 60
         SetTimer, UpdateC4, off
         Gui, C4: Show, Hide, Listening
@@ -85,13 +87,29 @@ Return
     WinGetPos, Xe, Ye, We, He, ahk_class CrossFire
     SetGuiPosition(XGuiC, YGuiC, "M", -14, 50)
     SetGuiPosition(XGui8, YGui8, "H", -P1W / 2, 0)
-    Gui, C4: Show, Hide, Listening
-    Gui, Human_Hero: Show, Hide, Listening
+    If Be_Hero
+    {
+        Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA, Listening
+        Gui, C4: Show, Hide, Listening
+    }
+    Else
+        Gui, Human_Hero: Show, Hide, Listening
+
+    If C4_On
+    {
+        Gui, C4: Show, x%XGuiC% y%YGuiC% NA, Listening
+        Gui, Human_Hero: Show, Hide, Listening
+    }
+    Else
+        Gui, C4: Show, Hide, Listening
+    
 Return
 
 ~C & ~4::
     If !Not_In_Game()
     {
+        Be_Hero := False
+        C4_On := True
         SetTimer, UpdateC4, 100
         SetTimer, UpdateHero, off
         Gui, C4: Show, x%XGuiC% y%YGuiC% NA, Listening
@@ -102,6 +120,7 @@ Return
 ~C & ~5::
     If !Not_In_Game()
     {
+        C4_On := False
         SetTimer, UpdateC4, off
         Gui, C4: Show, Hide, Listening
     }
