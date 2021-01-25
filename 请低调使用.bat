@@ -1,5 +1,6 @@
 @echo off 
 title Crossfirer Starter
+CHCP 65001
 
 :Start
 CLS
