@@ -58,7 +58,7 @@ If WinExist("ahk_class CrossFire")
     Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
     WinSet, Transparent, 31, ahk_id %cc%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    Xcc := ValueW / 2, Ycc := ValueH / 2 + 15 ;483
+    Xcc := ValueW // 2, Ycc := ValueH // 2 + 15 ;483
     Loop, %Vertices%
         Hole .= Floor(Xcc + Radius * Cos(A_Index * Angle)) "-" Floor(Ycc + Radius * Sin(A_Index * Angle)) " "
     Hole .= Floor(Xcc + Radius * Cos(Angle)) "-" Floor(Ycc + Radius * Sin(Angle))

@@ -50,7 +50,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P1, Pos, %hero%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20
-    SetGuiPosition(XGui8, YGui8, "H", -P1W / 2, 0)
+    SetGuiPosition(XGui8, YGui8, "H", -P1W // 2, 0)
     Gui, Human_Hero: Show, Hide, Listening
 } 
 Else 
@@ -137,10 +137,10 @@ UpdateHero() ;精度0.06s
     global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE
     If (Be_Hero && !Not_In_Game())
     {
-        PixelSearch, HeroX1, HeroY1, Xe + We / 2 - 150, Ye + 35 + He / 8, Xe + We / 2 + 150, Ye + 35 + He / 13 * 2, 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
+        PixelSearch, HeroX1, HeroY1, Xe + We // 2 - 150, Ye + 35 + He // 8, Xe + We // 2 + 150, Ye + 35 + He // 13 * 2, 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
         If !ErrorLevel
         {
-            PixelSearch, HeroX2, HeroY2, Xe + We / 2 - 150, Ye + 35 + (He - 35) / 3 - 5, Xe + We / 2 + 150, Ye + 35 + (He - 35) / 3, 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
+            PixelSearch, HeroX2, HeroY2, Xe + We // 2 - 150, Ye + 35 + (He - 35) // 3 - 5, Xe + We // 2 + 150, Ye + 35 + (He - 35) // 3, 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
             If !ErrorLevel
                 press_key("E", 10, 10)
         }
