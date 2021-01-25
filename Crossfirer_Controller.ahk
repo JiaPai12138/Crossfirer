@@ -4,7 +4,7 @@
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #SingleInstance, force
-#IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+;#IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
 #Include Crossfirer_Functions.ahk  
 #KeyHistory 0
 ListLines Off
@@ -25,6 +25,7 @@ SetControlDelay, -1
 CheckPermission()
 ;==================================================================================
 Need_Help := False
+Need_Hide := False
 
 If WinExist("ahk_class CrossFire")
 {
@@ -55,7 +56,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Helper: Show, Hide
 
     WinMinimize, ahk_class ConsoleWindowClass
-    SetTimer, UpdateGui, 100
+    SetTimer, UpdateGui, 1000 ;不需要太频繁
 } 
 Else 
 {
@@ -83,13 +84,16 @@ Return
     ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
 Return
 
-CapsLock:: ;minimize window and replace origin use
-    If WinActive("ahk_class CrossFire")
+~*CapsLock:: ;minimize window and replace origin use
+    Need_Hide := !Need_Hide
+    If (WinActive("ahk_class CrossFire") && Need_Hide)
     {
         WinMinimize, ahk_class CrossFire
         HyperSleep(100)
         MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
     }
+    Else If (!WinActive("ahk_class CrossFire") && !Need_Hide)
+        WinActivate, ahk_class CrossFire ;激活该窗口
 Return
 
 UpdateGui()

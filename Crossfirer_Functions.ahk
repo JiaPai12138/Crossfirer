@@ -109,7 +109,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
 
                     Case 8:
-                        If Not (GetColorStatus(X1, Y1, W1 / 2 + 100, H1 // 2 + 16, PosColor_snipe) || GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 100, PosColor_snipe)) ;检测狙击镜准心
+                        If Not (GetColorStatus(X1, Y1, W1 // 2 + 100, H1 // 2 + 16, PosColor_snipe) || GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + 100, PosColor_snipe)) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
                             press_key("LButton", small_rand, small_rand)
@@ -131,12 +131,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 / 2 + 1, H1 / 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
                             }
                         }
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
@@ -161,11 +161,11 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
 Not_In_Game() 
 {
     WinGetPos, X1, Y1,,, ahk_class CrossFire
-    PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 35, X1 + 220, Y1 + 100, 0x3054FF, 5, Fast
+    PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 32, X1 + 220, Y1 + 100, 0x3054FF, 5, Fast
     ;show color in editor: #3054FF #FF5430
     If !ErrorLevel
     {
-        PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 35, X1 + 220, Y1 + 100, 0x010101, 1, Fast
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 32, X1 + 220, Y1 + 100, 0x010101, 1, Fast
         ;show color in editor: #010101
         Return !ErrorLevel
     }
@@ -182,11 +182,12 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     ;show color in editor: #F24A17 #174AF2
     If game_title = CROSSFIRE ;检测客户端标题来确定检测位置和颜色库
     {
-        PixelSearch, ColorX, ColorY, X + W / 2 - 50, Y + H / 2, X + W / 2 + 50, Y + H / 2 + 100, %PosColor_NA_red%, 0, Fast
+        PixelSearch, ColorX, ColorY, X + W // 2 - 50, Y + H // 2, X + W // 2 + 50, Y + H // 2 + 100, %PosColor_NA_red%, 0, Fast
         Return !ErrorLevel
     }
     Else If game_title = 穿越火线
-        Return (GetColorStatus(X, Y, Var, 538, PosColor_red) || GetColorStatus(X, Y, Var, 540, PosColor_red) || GetColorStatus(X, Y, Var, 542, PosColor_red))
+        ;Return (GetColorStatus(X, Y, Var, 538, PosColor_red) || GetColorStatus(X, Y, Var, 540, PosColor_red) || GetColorStatus(X, Y, Var, 542, PosColor_red))
+        Return GetColorStatus(X, Y, Var, Round((H - 35) / 5 * 3), PosColor_red)
 }
 ;==================================================================================
 ;C4倒计时辅助,精度0.1s
@@ -199,7 +200,7 @@ C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
             C4_Start := SystemTime()
         Else If C4_Start > 0
         {
-            C4_Time := SubStr("00" . Format("{:.0f}", (40 - (SystemTime() - C4_Start) / 1000)), -1) ;强行显示两位数
+            C4_Time := SubStr("00" . Format("{:.0f}", (40.5 - (SystemTime() - C4_Start) / 1000)), -1) ;强行显示两位数,00起爆
             If (C4_Time < 31 && C4_Time >= 11)
                 GuiControl, %Gui_Number%: +cFFFF00 +Redraw, %ControlID% ;#FFFF00
             Else If C4_Time < 11
@@ -223,7 +224,7 @@ Is_C4_Time(X, Y, W, H)
 {
     static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3
     ;show color in editor: #E39600 #0096E3
-    PixelSearch, ColorX, ColorY, X + W / 2 - 40, Y, X + W / 2 + 40, Y + H / 4, %PosColor_C4%, 1, Fast
+    PixelSearch, ColorX, ColorY, X + W // 2 - 40, Y, X + W // 2 + 40, Y + H // 4, %PosColor_C4%, 1, Fast
     Return !ErrorLevel
 }
 ;==================================================================================
@@ -339,7 +340,7 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
     Else If InStr("M", GuiPosition) ;居中显示
     {
         XGui := X1 + W1 // 2 + OffsetX
-        YGui := Y1 + (H1 + 35) // 2 + OffsetY
+        YGui := Y1 + (H1 + 29) // 2 + OffsetY
     }
     Else ;从左上角为基准显示
     {

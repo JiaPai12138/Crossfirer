@@ -39,7 +39,7 @@ If WinExist("ahk_class CrossFire")
     Gui, C4: Add, Text, hwndGui_3 vC4Status, %C4_Time% ;#00FF00
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGuiC, YGuiC, "M", -14, 50)
+    SetGuiPosition(XGuiC, YGuiC, "M", -14, 60)
     Gui, C4: Show, Hide, Listening
 
     Gui, Human_Hero: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -85,8 +85,8 @@ Return
 
 ~*RAlt::
     WinGetPos, Xe, Ye, We, He, ahk_class CrossFire
-    SetGuiPosition(XGuiC, YGuiC, "M", -14, 50)
-    SetGuiPosition(XGui8, YGui8, "H", -P1W / 2, 0)
+    SetGuiPosition(XGuiC, YGuiC, "M", -14, 60)
+    SetGuiPosition(XGui8, YGui8, "H", -P1W // 2, 0)
     If Be_Hero
     {
         Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA, Listening
@@ -137,10 +137,10 @@ UpdateHero() ;精度0.06s
     global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE
     If (Be_Hero && !Not_In_Game())
     {
-        PixelSearch, HeroX1, HeroY1, Xe + We // 2 - 150, Ye + 35 + He // 8, Xe + We // 2 + 150, Ye + 35 + He // 13 * 2, 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
+        PixelSearch, HeroX1, HeroY1, Xe + We // 2 - 150, Ye + 32 + Round(He / 8), Xe + We // 2 + 150, Ye + 32 + Round(He / 13 * 2), 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
         If !ErrorLevel
         {
-            PixelSearch, HeroX2, HeroY2, Xe + We // 2 - 150, Ye + 35 + (He - 35) // 3 - 5, Xe + We // 2 + 150, Ye + 35 + (He - 35) // 3, 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
+            PixelSearch, HeroX2, HeroY2, Xe + We // 2 - 150, Ye + 32 + Round((He - 35) / 3) - 5, Xe + We // 2 + 150, Ye + 32 + Round((He - 35) / 3), 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
             If !ErrorLevel
                 press_key("E", 10, 10)
         }

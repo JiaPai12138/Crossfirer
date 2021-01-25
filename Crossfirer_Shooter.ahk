@@ -56,7 +56,7 @@ If WinExist("ahk_class CrossFire")
 
     Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale
     Gui, cross_hair: Color, FFFF00 ;#FFFF00
-    SetGuiPosition(Xch, Ych, "M", -34, -38)
+    SetGuiPosition(Xch, Ych, "M", -34, -35)
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA, Listening
     WinSet, Region, %crosshair%, ahk_id %cr%
     WinSet, Transparent, 255, ahk_id %cr%
@@ -83,12 +83,12 @@ If WinExist("ahk_class CrossFire")
             }
             Else If GamePing Is Not Integer
             {
-                MsgBox, 输入内容不正确`nInput is not valid
+                MsgBox, 输入内容非数字`nInput is not valid
                 ErrorLevel = True, Return ErrorLevel
             }
             Else If SubStr(GamePing, 1, 1) = 0 ;不存在0延迟
             {
-                MsgBox, 输入内容不正确`nInput is not valid
+                MsgBox, 输入数字不正确`nInput is not valid
                 ErrorLevel = True, Return ErrorLevel
             }
             Else
@@ -111,7 +111,7 @@ Return
 ~*RAlt::
     SetGuiPosition(XGui1, YGui1, "H", -300, 0)
     SetGuiPosition(XGui2, YGui2, "H", -150, 0)
-    SetGuiPosition(Xch, Ych, "M", -34, -38)
+    SetGuiPosition(Xch, Ych, "M", -34, -35)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA, Listening
