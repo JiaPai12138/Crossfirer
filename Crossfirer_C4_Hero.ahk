@@ -52,15 +52,14 @@ If WinExist("ahk_class CrossFire")
     WinSet, ExStyle, +0x20
     SetGuiPosition(XGui8, YGui8, "H", -P1W // 2, 0)
     Gui, Human_Hero: Show, Hide, Listening
+    OnMessage(0x1001, "ReceiveMessage")
+    Return
 } 
 Else 
 {
     MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
 }
-
-OnMessage(0x1001, "ReceiveMessage")
-Return
 ;==================================================================================
 ~*-::ExitApp
 

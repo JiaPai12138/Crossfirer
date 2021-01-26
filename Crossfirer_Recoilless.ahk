@@ -65,15 +65,14 @@ If WinExist("ahk_class CrossFire")
     WinSet, Region, %Hole%, ahk_id %cc% 
     Hole = ;free memory
     Gui, circle: Show, Hide, Listening
+    OnMessage(0x1001, "ReceiveMessage")
+    Return
 }
 Else 
 {
     MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
 }
-
-OnMessage(0x1001, "ReceiveMessage")
-Return
 ;==================================================================================
 ~*-::ExitApp
 

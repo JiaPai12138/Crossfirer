@@ -62,6 +62,8 @@ If WinExist("ahk_class CrossFire")
     WinSet, Transparent, 255, ahk_id %cr%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
 
+    OnMessage(0x1001, "ReceiveMessage")
+
     ;If game_title = CROSSFIRE 
     ;    GamePing := Test_Game_Ping("172.217.1.142") + Test_Game_Ping("172.217.9.168")
     ;Else If game_title = 穿越火线
@@ -96,15 +98,13 @@ If WinExist("ahk_class CrossFire")
         }
     } Until, !ErrorLevel
     WinActivate, ahk_class CrossFire ;激活该窗口
+    Return
 }
 Else 
 {
     MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
 }
-
-OnMessage(0x1001, "ReceiveMessage")
-Return
 ;==================================================================================
 ~*-::ExitApp
 
