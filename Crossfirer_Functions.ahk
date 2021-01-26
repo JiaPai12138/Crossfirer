@@ -81,12 +81,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     Random, rand, 60.0, 62.0 ;设定随机值减少被检测概率
     small_rand := rand / 2
+    Gui, %CrID%: Color, 00FFFF ;#00FFFF
+    Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
     While, WinExist("ahk_class CrossFire")
     {
-        Var := W1 // 2 - 5 ;798
+        Var := W1 // 2 - 15 ;788
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
-        Gui, %CrID%: Color, 00FFFF ;#00FFFF
-        Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
         Loop
         {
             If ExitMode()
@@ -152,7 +152,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                 }
             }
             Var += 1
-        } Until, Var > (W1 // 2 + 5) ;808
+        } Until, Var > (W1 // 2 + 15) ;818
         ;HyperSleep(1) ;减少工作频率,但似乎不需要
     }
 }
@@ -187,7 +187,7 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     }
     Else If game_title = 穿越火线
         ;Return (GetColorStatus(X, Y, Var, 538, PosColor_red) || GetColorStatus(X, Y, Var, 540, PosColor_red) || GetColorStatus(X, Y, Var, 542, PosColor_red))
-        Return GetColorStatus(X, Y, Var, Round((H - 35) / 5 * 3), PosColor_red)
+        Return GetColorStatus(X, Y, Var, 32 + H // 2 + Round((H - 35) / 59 * 4), PosColor_red) ;title + half + crosshair_to_red_name
 }
 ;==================================================================================
 ;C4倒计时辅助,精度0.1s
