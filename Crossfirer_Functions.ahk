@@ -194,7 +194,7 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     }
     Else If game_title = 穿越火线
         ;Return (GetColorStatus(X, Y, Var, 538, PosColor_red) || GetColorStatus(X, Y, Var, 540, PosColor_red) || GetColorStatus(X, Y, Var, 542, PosColor_red))
-        Return GetColorStatus(X, Y, Var, 32 + H // 2 + Round((H - 35) / 59 * 4), PosColor_red) ;title + half + crosshair_to_red_name
+        Return GetColorStatus(X, Y, Var, 32 + (H - 35) // 2 + Round((H - 35) / 59 * 4), PosColor_red) ;title + half + crosshair_to_red_name
 }
 ;==================================================================================
 ;C4倒计时辅助,精度0.1s
