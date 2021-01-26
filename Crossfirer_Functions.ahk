@@ -5,6 +5,13 @@
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission()
 {
+    WinGetPos, , , CFW, CFH, ahk_class CrossFire
+    If (CFW >= A_ScreenWidth && CFH >= A_ScreenHeight)
+    {
+        MsgBox, , 错误/Error, 请退出全屏模式!!!`nPlease Exit Full Screen!!!
+        ExitApp
+    }
+
     If Not (A_IsAdmin || ProcessExist("AutoHotkeyU64_UIA.exe"))
     { ;缺点是当另一个脚本以UI Access运行时,该检查机制会被跳过
         Try
@@ -224,7 +231,7 @@ Is_C4_Time(X, Y, W, H)
 {
     static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3
     ;show color in editor: #E39600 #0096E3
-    PixelSearch, ColorX, ColorY, X + W // 2 - 40, Y, X + W // 2 + 40, Y + H // 4, %PosColor_C4%, 1, Fast
+    PixelSearch, ColorX, ColorY, X + W // 2 - 40, Y, X + W // 2 + 40, Y + H / 4, %PosColor_C4%, 1, Fast
     Return !ErrorLevel
 }
 ;==================================================================================
