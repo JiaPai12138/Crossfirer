@@ -25,7 +25,7 @@ CheckPermission()
 If WinExist("ahk_class CrossFire")
 {
     Start:
-    Gui, jump_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, jump_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, jump_mode: Margin, 0, 0
     Gui, jump_mode: Color, 333333 ;#333333
     Gui, jump_mode: Font, s15, Microsoft YaHei

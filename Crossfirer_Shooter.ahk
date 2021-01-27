@@ -34,7 +34,7 @@ If WinExist("ahk_class CrossFire")
     WinGetTitle, game_title, ahk_class CrossFire
     ;global TempX := X, TempY := Y
     Start:
-    Gui, fcn_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
     Gui, fcn_mode: Color, 333333 ;#333333
     Gui, fcn_mode: Font, s15, Microsoft YaHei
@@ -44,7 +44,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui1, YGui1, "H", -300, 0)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
 
-    Gui, fcn_status: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_status: Margin, 0, 0
     Gui, fcn_status: Color, 333333 ;#333333
     Gui, fcn_status: Font, s15, Microsoft YaHei

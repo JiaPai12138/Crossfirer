@@ -32,7 +32,7 @@ If WinExist("ahk_class CrossFire")
 {
     WinGetPos, Xe, Ye, We, He, ahk_class CrossFire
     Start:
-    Gui, C4: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
     Gui, C4: Color, 333333 ;#333333
     Gui, C4: Font, s15 c00FF00, Microsoft YaHei
@@ -42,7 +42,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGuiC, YGuiC, "M", -14, 60)
     Gui, C4: Show, Hide, Listening
 
-    Gui, Human_Hero: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Human_Hero: Margin, 0, 0
     Gui, Human_Hero: Color, 00FF00 ;#333333
     Gui, Human_Hero: Font, s15, Microsoft YaHei

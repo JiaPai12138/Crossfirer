@@ -22,10 +22,11 @@ SetControlDelay, -1
 ;==================================================================================
 CheckPermission()
 ;==================================================================================
+
 If WinExist("ahk_class CrossFire")
 {
     Start:
-    Gui, click_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, click_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, click_mode: Margin, 0, 0
     Gui, click_mode: Color, 333333 ;#333333
     Gui, click_mode: Font, s15, Microsoft YaHei

@@ -16,7 +16,7 @@ CheckPermission()
     { ;缺点是当另一个脚本以UI Access运行时,该检查机制会被跳过
         Try
         {
-            If A_IsCompiled ;实际会被侦测,所以别编译...
+            If A_IsCompiled ;实际用自带编译器会被侦测,所以要加壳
                 Run, *RunAs "%A_ScriptFullPath%" ;管理员权限运行
             Else
             {
@@ -32,6 +32,14 @@ CheckPermission()
             MsgBox, , 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
             ExitApp
         }
+    }
+
+    If (A_IsAdmin && A_IsCompiled) ;编译好的文件管理员运行后端
+    {
+        Loop
+        {
+            HyperSleep(3000)
+        } Until WinExist("ahk_class CrossFire")
     }
 }
 ;==================================================================================

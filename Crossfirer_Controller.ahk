@@ -30,7 +30,7 @@ Need_Hide := False
 If WinExist("ahk_class CrossFire")
 {
     Start:
-    Gui, Helper: +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Helper: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Helper: Margin, 0, 0
     Gui, Helper: Color, 333333 ;#333333
     Gui, Helper: Font, s12 c00FF00, Microsoft YaHei ;#00FF00
@@ -40,7 +40,7 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
 
-    Gui, Hint: +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Hint: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Hint: Margin, 0, 0
     Gui, Hint: Color, 333333 ;#333333
     Gui, Hint: Font, s12 c00FF00, Microsoft YaHei ;#00FF00

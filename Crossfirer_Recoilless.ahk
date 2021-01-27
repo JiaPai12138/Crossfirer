@@ -32,7 +32,7 @@ If WinExist("ahk_class CrossFire")
 {
     WinGetPos, ValueX, ValueY, ValueW, ValueH, ahk_class CrossFire
     Start:
-    Gui, recoil_mode: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
     Gui, recoil_mode: Color, 333333 ;#333333
     Gui, recoil_mode: Font, s15, Microsoft YaHei
@@ -42,7 +42,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui5, YGui5, "H", 50, 0)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA, Listening
 
-    Gui, gun_sel: +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, gun_sel: Margin, 0, 0
     Gui, gun_sel: Color, 333333 ;#333333
     Gui, gun_sel: Font, s15, Microsoft YaHei
@@ -52,7 +52,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui6, YGui6, "H", 200, 0)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
 
-    Gui, circle: +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale
+    Gui, circle: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale
     Gui, circle: Color, FFFF00 ;#FFFF00
     SetGuiPosition(XGui7, YGui7, "C", 0, 0)
     Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
