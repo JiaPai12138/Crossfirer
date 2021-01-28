@@ -33,8 +33,12 @@ CheckPermission()
             ExitApp
         }
     }
-
-    If (A_IsAdmin && A_IsCompiled) ;编译好的文件管理员运行后端
+}
+;==================================================================================
+;检查运行权限以及是否编译
+CheckCompile()
+{
+    If A_IsAdmin && A_IsCompiled ;编译好的文件管理员运行后端
     {
         Loop
         {
@@ -355,7 +359,7 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
     Else If InStr("M", GuiPosition) ;居中显示
     {
         XGui := X1 + W1 // 2 + OffsetX
-        YGui := Y1 + (H1 + 29) // 2 + OffsetY
+        YGui := Y1 + (H1 + 29) // 2 + OffsetY ;Title 32 - Buttom 3
     }
     Else ;从左上角为基准显示
     {

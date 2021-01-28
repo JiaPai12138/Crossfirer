@@ -21,6 +21,7 @@ SetWinDelay, -1
 SetControlDelay, -1
 ;==================================================================================
 CheckPermission()
+CheckCompile()
 ;==================================================================================
 If WinExist("ahk_class CrossFire")
 {
@@ -37,7 +38,7 @@ If WinExist("ahk_class CrossFire")
     OnMessage(0x1001, "ReceiveMessage")
     Return
 } 
-Else 
+Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
     MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp

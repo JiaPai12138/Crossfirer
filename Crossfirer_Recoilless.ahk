@@ -21,9 +21,11 @@ SetWinDelay, -1
 SetControlDelay, -1
 ;==================================================================================
 CheckPermission()
+CheckCompile()
 ;==================================================================================
 Gun_Chosen := 0
 Radius := 50
+Diameter := 2 * Radius
 Vertices := 40
 Angle := 8 * ATan(1) / Vertices
 Hole = 
@@ -54,11 +56,11 @@ If WinExist("ahk_class CrossFire")
 
     Gui, circle: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale
     Gui, circle: Color, FFFF00 ;#FFFF00
-    SetGuiPosition(XGui7, YGui7, "C", 0, 0)
-    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
+    SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
+    Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA, Listening
     WinSet, Transparent, 31, ahk_id %cc%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    Xcc := ValueW // 2, Ycc := ValueH // 2 + 15 ;483
+    Xcc := Radius, Ycc := Radius
     Loop, %Vertices%
         Hole .= Floor(Xcc + Radius * Cos(A_Index * Angle)) "-" Floor(Ycc + Radius * Sin(A_Index * Angle)) " "
     Hole .= Floor(Xcc + Radius * Cos(Angle)) "-" Floor(Ycc + Radius * Sin(Angle))
@@ -68,7 +70,7 @@ If WinExist("ahk_class CrossFire")
     OnMessage(0x1001, "ReceiveMessage")
     Return
 }
-Else 
+Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
     MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
@@ -81,11 +83,11 @@ Else
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA, Listening
     SetGuiPosition(XGui6, YGui6, "H", 200, 0)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
-    SetGuiPosition(XGui7, YGui7, "C", 0, 0)
+    SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
 Return
 
 ~*LButton:: ;压枪 正在开发
-    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
+    Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA, Listening
     If (!Not_In_Game() && Gun_Chosen > 0)
     {
         UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)
@@ -100,7 +102,7 @@ Return
 Return
 
 ~*RButton:: ;压枪 正在开发
-    Gui, circle: Show, x%XGui7% y%YGui7% w%ValueW% h%ValueH% NA, Listening
+    Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA, Listening
 Return
 
 ~*Rbutton Up:: ;保障新一轮压枪

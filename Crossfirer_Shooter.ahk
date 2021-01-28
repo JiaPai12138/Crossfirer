@@ -21,6 +21,7 @@ SetWinDelay, -1
 SetControlDelay, -1
 ;==================================================================================
 CheckPermission()
+CheckCompile()
 ;==================================================================================
 AutoMode := False
 XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
@@ -100,7 +101,7 @@ If WinExist("ahk_class CrossFire")
     WinActivate, ahk_class CrossFire ;激活该窗口
     Return
 }
-Else 
+Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
     MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
