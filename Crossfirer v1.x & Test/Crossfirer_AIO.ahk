@@ -97,9 +97,9 @@ Else
 }
 
 #Persistent
-;SetTimer, UpdateC4, 100 
+SetTimer, UpdateC4, 100 
 HyperSleep(33.3) ;separate
-;SetTimer, ShowMode, 100
+SetTimer, ShowMode, 100
 HyperSleep(33.3)
 SetTimer, UpdateGui, 100
 Return
