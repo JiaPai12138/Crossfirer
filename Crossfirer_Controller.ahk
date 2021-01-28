@@ -70,7 +70,14 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
     If WinActive("ahk_class CrossFire")
     {
         WinClose, ahk_class ConsoleWindowClass
-        Run, .\请低调使用.bat
+        Try
+        {
+            Run, .\请低调使用.bat
+        }
+        Catch
+        {
+            Run, .\双击我启动助手!!!.exe
+        }
         ExitApp
     }
 Return
