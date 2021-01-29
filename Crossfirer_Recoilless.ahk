@@ -26,8 +26,8 @@ CheckCompile()
 Gun_Chosen := 0
 XGui5 := 0, YGui5 := 0, XGui6 := 0, YGui6 := 0, XGui7 := 0, YGui7 := 0
 Vertices := 40
-global Radius := 
-global Diameter := 
+Radius := 0
+Diameter := 2 * Radius
 Angle := 8 * ATan(1) / Vertices
 Hole = 
 
