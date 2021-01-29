@@ -33,26 +33,28 @@ GamePing :=
 If WinExist("ahk_class CrossFire")
 {
     WinGetTitle, game_title, ahk_class CrossFire
-    ;global TempX := X, TempY := Y
+    CheckPosition(ValueX, ValueY, ValueW, ValueH, Offset1Up, Offset1Down)
     Start:
     Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
     Gui, fcn_mode: Color, 333333 ;#333333
     Gui, fcn_mode: Font, s15, Microsoft YaHei
-    Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn c00FF00, 暂停加载 ;#00FF00
-    WinSet, TransColor, 000000 255 ;#000000
+    Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn cFFFF00, 暂停加载 ;#FFFF00
+    GuiControlGet, P1, Pos, %Gui_1%
+    WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui1, YGui1, "H", -300, 0)
+    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round((ValueH - Offset1Up - Offset1Down) / 9) - P1H // 2)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
 
     Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_status: Margin, 0, 0
     Gui, fcn_status: Color, 333333 ;#333333
     Gui, fcn_status: Font, s15, Microsoft YaHei
-    Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun c00FF00, 自火关闭
-    WinSet, TransColor, 000000 255 ;#000000
+    Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun cFFFF00, 自火关闭 ;#FFFF00
+    GuiControlGet, P2, Pos, %Gui_2%
+    WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui2, YGui2, "H", -150, 0)
+    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round((ValueH - Offset1Up - Offset1Down) / 6) - P2H // 2)
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
 
     Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale
@@ -110,8 +112,8 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui1, YGui1, "H", -300, 0)
-    SetGuiPosition(XGui2, YGui2, "H", -150, 0)
+    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round((ValueH - Offset1Up - Offset1Down) / 9) - P1H // 2)
+    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round((ValueH - Offset1Up - Offset1Down) / 6) - P2H // 2)
     SetGuiPosition(Xch, Ych, "M", -34, -35)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
@@ -125,6 +127,7 @@ Return
 ~*1 Up::
     If (AutoMode && !Not_In_Game() && StrLen(Temp_Run) > 0)
     {
+        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
         AutoFire(Temp_Mode, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
@@ -133,6 +136,7 @@ Return
 ~*2 Up::
     If (AutoMode && !Not_In_Game())
     {
+        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载手枪", XGui1, YGui1)
         AutoFire(2, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
@@ -143,6 +147,7 @@ Return
     {
         Temp_Mode := 0
         Temp_Run := "加载通用"
+        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载通用", XGui1, YGui1)
         AutoFire(0, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }  
@@ -153,6 +158,7 @@ Return
     {
         Temp_Mode := 8
         Temp_Run := "加载狙击"
+        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载狙击", XGui1, YGui1)
         AutoFire(8, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
@@ -163,6 +169,7 @@ Return
     {
         Temp_Mode := 111
         Temp_Run := "加载速点"
+        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载速点", XGui1, YGui1)
         AutoFire(111, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }  

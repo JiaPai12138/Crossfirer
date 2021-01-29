@@ -25,15 +25,17 @@ CheckCompile()
 ;==================================================================================
 If WinExist("ahk_class CrossFire")
 {
+    CheckPosition(Xe, Ye, We, He, Offset1Up, Offset1Down)
     Start:
     Gui, jump_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, jump_mode: Margin, 0, 0
     Gui, jump_mode: Color, 333333 ;#333333
     Gui, jump_mode: Font, s15, Microsoft YaHei
     Gui, jump_mode: Add, Text, hwndGui_4 vModeJump c00FF00, 跳蹲准备 ;#00FF00
-    WinSet, TransColor, 333333 155 ;#333333
+    GuiControlGet, P4, Pos, %Gui_4%
+    WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui4, YGui4, "M", -50, 250)
+    SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.5) - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA, Listening
     OnMessage(0x1001, "ReceiveMessage")
     Return
@@ -47,7 +49,7 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui4, YGui4, "M", -50, 250)
+    SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.5) - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA, Listening
 Return
 
@@ -55,6 +57,7 @@ Return
     If !Not_In_Game()
     {
         cnt := 0
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "基本鬼跳", XGui4, YGui4)
         press_key("space", 100, 100)
         Send, {LCtrl Down}
@@ -64,6 +67,7 @@ Return
             press_key("space", 10, 10)   
             cnt += 1
         } Until, (!GetKeyState("W", "P") || cnt >= 140)
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
         Send, {Blind}{LCtrl Up}
     }
@@ -72,6 +76,7 @@ Return
 ~W & ~LAlt:: ;空中连蹲跳 w+alt
     If !Not_In_Game()
     {
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
         cnt := 0
         press_key("space", 30, 30)
@@ -81,6 +86,7 @@ Return
             press_key("LCtrl", 15, 15)
             cnt += 1
         } Until, (!GetKeyState("W", "P") || cnt >= 15)
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
 Return
@@ -88,12 +94,14 @@ Return
 ~S & ~F:: ;跳蹲上墙
     If !Not_In_Game()
     {
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "跳蹲上墙", XGui4, YGui4)
         Loop
         {
             press_key("space", 30, 30)
             press_key("LCtrl", 30, 30)
         } Until, (GetKeyState("E", "P") || GetKeyState("LButton", "P"))
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
 Return

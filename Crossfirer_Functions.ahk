@@ -5,13 +5,6 @@
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission()
 {
-    WinGetPos, , , CFW, CFH, ahk_class CrossFire
-    If (CFW >= A_ScreenWidth && CFH >= A_ScreenHeight)
-    {
-        MsgBox, , 错误/Error, 请退出全屏模式!!!`nPlease Exit Full Screen!!!
-        ExitApp
-    }
-
     If Not (A_IsAdmin || ProcessExist("AutoHotkeyU64_UIA.exe"))
     { ;缺点是当另一个脚本以UI Access运行时,该检查机制会被跳过
         Try
@@ -44,6 +37,23 @@ CheckCompile()
         {
             HyperSleep(3000)
         } Until WinExist("ahk_class CrossFire")
+    }
+    HyperSleep(3000) ;等待客户端完整出现
+}
+;==================================================================================
+;检查游戏界面位置
+CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, ByRef OffsetUp, ByRef OffsetDown)
+{
+    WinGetPos, Xcp, Ycp, Wcp, Hcp, ahk_class CrossFire
+    If Wcp >= A_ScreenWidth && Hcp >= A_ScreenHeight
+    {
+        Xcp := 0, Ycp := 0, OffsetUp := 0, OffsetDown := 0
+        Wcp := A_ScreenWidth, Hcp := A_ScreenHeight
+    }
+    Else
+    {
+        OffsetUp := 32
+        OffsetDown := 3
     }
 }
 ;==================================================================================
@@ -78,6 +88,8 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
 
     If AutoMode
     {
+        GuiControl, %Gui_Number1%: +c00FF00 +Redraw, %ModeID% ;#00FF00
+        GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
         UpdateText(Gui_Number1, ModeID, "加载模式", XGui1, YGui1)
         UpdateText(Gui_Number2, StatusID, "自火暂停", XGui2, YGui2)
         Gui, %CrID%: Color, 00FF00 ;#00FF00
@@ -85,6 +97,8 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
     }
     Else
     {
+        GuiControl, %Gui_Number1%: +cFFFF00 +Redraw, %ModeID% ;#FFFF00
+        GuiControl, %Gui_Number2%: +cFFFF00 +Redraw, %StatusID% ;#FFFF00
         UpdateText(Gui_Number1, ModeID, "暂停加载", XGui1, YGui1)
         UpdateText(Gui_Number2, StatusID, "自火关闭", XGui2, YGui2)
         Gui, %CrID%: Color, FFFF00 ;#FFFF00
@@ -95,7 +109,7 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
 ;自动开火函数,通过检测红名实现
 AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych, GamePing)
 {
-    WinGetPos, X1, Y1, W1, H1, ahk_class CrossFire
+    CheckPosition(X1, Y1, W1, H1, OffsetUp, OffsetDown)
     static PosColor_snipe := "0x000000" ;#000000
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     Random, rand, 60.0, 62.0 ;设定随机值减少被检测概率
@@ -105,30 +119,36 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     While, WinExist("ahk_class CrossFire")
     {
         Var := W1 // 2 - 15 ;788
+        GuiControl, %Gui_Number2%: +c00FFFF +Redraw, %StatusID% ;#00FFFF
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
         Loop
         {
             If ExitMode()
             {
+                GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
                 UpdateText(Gui_Number2, StatusID, "自火暂停", XGui2, YGui2)
+                GuiControl, %Gui_Number1%: +c00FF00 +Redraw, %ModeID% ;#00FF00
                 UpdateText(Gui_Number1, ModeID, "加载模式", XGui1, YGui1)
                 Gui, %CrID%: Color, 00FF00 ;#00FF00
                 Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
                 Exit ;退出自动开火循环
             }
 
-            If Shoot_Time(X1, Y1, W1, H1, Var, game_title) ;当红名被扫描到时射击
+            If Shoot_Time(X1, Y1, W1, H1, Var, game_title, OffsetUp, OffsetDown) ;当红名被扫描到时射击
             {
+                GuiControl, %Gui_Number1%: +c00FFFF +Redraw, %ModeID% ;#00FFFF
+                GuiControl, %Gui_Number2%: +cFF0000 +Redraw, %StatusID% ;#FF0000
                 UpdateText(Gui_Number2, StatusID, "发现敌人", XGui2, YGui2)
                 Switch mo_shi
                 {
                     Case 2:
+                        UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
                         press_key("LButton", rand, (rand - 3 * Color_Delay)) ;控制USP射速
                         mouseXY(0, 1)
-                        UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
 
                     Case 8:
-                        If Not (GetColorStatus(X1, Y1, W1 // 2 + 100, H1 // 2 + 16, PosColor_snipe) || GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + 100, PosColor_snipe)) ;检测狙击镜准心
+                        UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
+                        If Not GetColorStatus(X1, Y1, W1 // 2 + 1, (H1 + OffsetUp - OffsetDown) // 2 + Round(H1 / 9 * 2), PosColor_snipe) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
                             press_key("LButton", small_rand, small_rand)
@@ -137,54 +157,54 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             press_key("LButton", small_rand, small_rand)
                         ;开镜瞬狙或连狙
 
-                        If (GamePing <= 60) ;如果延迟低,允许切枪减少换弹时间
+                        If (GamePing <= 50) ;如果延迟低,允许切枪减少换弹时间
                         {
+                            GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
+                            UpdateText(Gui_Number2, StatusID, "双切换弹", XGui2, YGui2)
                             Send, {3 DownTemp}
-                            HyperSleep(rand + small_rand)
+                            HyperSleep(rand + small_rand + 10)
                             Send, {1 DownTemp}
                             
                             If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹
                             {
                                 Send, {Blind}{3 Up}
                                 Send, {Blind}{1 Up}
-                                Loop
+                                Loop ;确保物理按1退出
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, (H1 + OffsetUp - OffsetDown) // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("1", "P"))
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + 150, PosColor_snipe) || GetKeyState("3", "P"))
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, (H1 + OffsetUp - OffsetDown) // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("1", "P"))
                             }
                         }
-                        UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
 
                     Case 111:
-                        press_key("LButton", 2 * rand, rand - 3 * Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
+                        press_key("LButton", 2 * rand, rand - 3 * Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                     
                     Default: ;通用模式不适合射速高的冲锋枪
+                        UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
                         press_key("LButton", small_rand, rand - 3 * Color_Delay) ;靠近M4A1射速
                         mouseXY(0, 2) ;小小压枪
-                        UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
                 }
             }
             Var += 1
-        } Until, Var > (W1 // 2 + 15) ;818
-        ;HyperSleep(1) ;减少工作频率,但似乎不需要
+        } Until, Var > (W1 // 2 + 15) ;文字受缩放率影响不大，因此用定值
     }
 }
 ;==================================================================================
 ;检测是否不再游戏中,目标为界面左上角火焰状字样以及附近的黑暗阴影
 Not_In_Game() 
 {
-    WinGetPos, X1, Y1,,, ahk_class CrossFire
-    PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 32, X1 + 220, Y1 + 100, 0x3054FF, 5, Fast
+    CheckPosition(X1, Y1, W1, H1, OffsetUp, OffsetDown)
+    PixelSearch, OutputVarX, OutputVarY, X1, Y1 + OffsetUp, X1 + Round(W1 / 9 * 2), Y1 + Round((H1 - OffsetUp - OffsetDown) / 9), 0x3054FF, 5, Fast
     ;show color in editor: #3054FF #FF5430
     If !ErrorLevel
     {
-        PixelSearch, OutputVarX, OutputVarY, X1, Y1 + 32, X1 + 220, Y1 + 100, 0x010101, 1, Fast
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1 + OffsetUp, X1 + Round(W1 / 9 * 2), Y1 + Round((H1 - OffsetUp - OffsetDown) / 9), 0x010101, 1, Fast
         ;show color in editor: #010101
         Return !ErrorLevel
     }
@@ -193,7 +213,7 @@ Not_In_Game()
 }
 ;==================================================================================
 ;检测开火时机,既扫描红名位置
-Shoot_Time(X, Y, W, H, Var, game_title) 
+Shoot_Time(X, Y, W, H, Var, game_title, OffsetUp, OffsetDown) 
 {
     static PosColor_red := "0x353796 0x353797 0x353798 0x353799 0x343799 0x34379A 0x34389A 0x34389B 0x34389C 0x33389C 0x33389D 0x33389E 0x33389F 0x32389F 0x32399F 0x3239A0 0x3239A1 0x3239A2 0x3139A2 0x3139A3 0x3139A4 0x313AA4 0x313AA5 0x303AA5 0x303AA6 0x303AA7 0x303AA8 0x2F3AA8 0x2F3AA9 0x2F3BA9 0x2F3BAA 0x2F3BAB 0x2E3BAB 0x2E3BAC 0x2E3BAD 0x2E3BAE 0x2E3CAE 0x2D3CAE 0x2D3CAF 0x2D3CB0 0x2D3CB1 0x2C3CB1 0x2C3CB2 0x2C3CB3 0x2C3DB3 0x2C3DB4 0x2B3DB4 0x2B3DB5 0x2B3DB6 0x2B3DB7 0x2A3DB7 0x2A3EB7 0x2A3EB8 0x2A3EB9 0x2A3EBA 0x293EBA 0x293EBB 0x293EBC 0x293FBC 0x293FBC 0x293FBD 0x283FBD 0x283FBE 0x283FBF 0x283FC0 0x273FC0 0x273FC1 0x2740C1 0x2740C2 0x2740C3 0x2640C4 0x2640C5 0x2640C6 0x2641C6 0x2641C7 0x2541C7 0x2541C8 0x2541C9 0x2541CA 0x2441CA 0x2441CB 0x2442CB 0x2442CC 0x2442CD 0x2342CD 0x2342CE 0x2342CF 0x2342D0 0x2343D0 0x2243D0 0x2243D1 0x2243D2 0x2243D3 0x2143D3 0x2143D4 0x2144D4 0x2144D5 0x2144D6 0x2044D6 0x2044D7 0x2044D8 0x2044D9 0x1F44D9 0x1F45D9 0x1F45DA 0x1F45DB 0x1F45DC 0x1E45DC 0x1E45DD 0x1E45DE 0x1E46DE 0x1E46DF 0x1D46DF 0x1D46E0 0x1D46E1 0x1D46E2 0x1C46E2 0x1C46E3 0x1C47E3 0x1C47E4 0x1C47E5 0x1B47E5 0x1B47E6 0x1B47E7 0x1B47E8 0x1B48E8 0x1A48E8 0x1A48E9 0x1A48EA 0x1A48EB 0x1948EB 0x1948EC 0x1948ED 0x1949ED 0x1949EE 0x1849EE 0x1849EF 0x1849F0 0x1849F1 0x174AF2" ;国内版的红名显示随时间变化,这里记录了几乎所有的颜色元素
     ;show color in editor: #353796 #353797 #353798 #353799 #343799 #34379A #34389A #34389B #34389C #33389C #33389D #33389E #33389F #32389F #32399F #3239A0 #3239A1 #3239A2 #3139A2 #3139A3 #3139A4 #313AA4 #313AA5 #303AA5 #303AA6 #303AA7 #303AA8 #2F3AA8 #2F3AA9 #2F3BA9 #2F3BAA #2F3BAB #2E3BAB #2E3BAC #2E3BAD #2E3BAE #2E3CAE #2D3CAE #2D3CAF #2D3CB0 #2D3CB1 #2C3CB1 #2C3CB2 #2C3CB3 #2C3DB3 #2C3DB4 #2B3DB4 #2B3DB5 #2B3DB6 #2B3DB7 #2A3DB7 #2A3EB7 #2A3EB8 #2A3EB9 #2A3EBA #293EBA #293EBB #293EBC #293FBC #293FBC #293FBD #283FBD #283FBE #283FBF #283FC0 #273FC0 #273FC1 #2740C1 #2740C2 #2740C3 #2640C4 #2640C5 #2640C6 #2641C6 #2641C7 #2541C7 #2541C8 #2541C9 #2541CA #2441CA #2441CB #2442CB #2442CC #2442CD #2342CD #2342CE #2342CF #2342D0 #2343D0 #2243D0 #2243D1 #2243D2 #2243D3 #2143D3 #2143D4 #2144D4 #2144D5 #2144D6 #2044D6 #2044D7 #2044D8 #2044D9 #1F44D9 #1F45D9 #1F45DA #1F45DB #1F45DC #1E45DC #1E45DD #1E45DE #1E46DE #1E46DF #1D46DF #1D46E0 #1D46E1 #1D46E2 #1C46E2 #1C46E3 #1C47E3 #1C47E4 #1C47E5 #1B47E5 #1B47E6 #1B47E7 #1B47E8 #1B48E8 #1A48E8 #1A48E9 #1A48EA #1A48EB #1948EB #1948EC #1948ED #1949ED #1949EE #1849EE #1849EF #1849F0 #1849F1 #174AF2 
@@ -201,19 +221,18 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     ;show color in editor: #F24A17 #174AF2
     If game_title = CROSSFIRE ;检测客户端标题来确定检测位置和颜色库
     {
-        PixelSearch, ColorX, ColorY, X + W // 2 - 50, Y + H // 2, X + W // 2 + 50, Y + H // 2 + 100, %PosColor_NA_red%, 0, Fast
+        PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + (H - OffsetUp - OffsetDown) // 2, X + W // 2 + Round(W / 20), Y + (H - OffsetUp - OffsetDown) // 2 + Round((H - OffsetUp - OffsetDown) / 15 * 2), %PosColor_NA_red%, 0, Fast
         Return !ErrorLevel
     }
     Else If game_title = 穿越火线
-        ;Return (GetColorStatus(X, Y, Var, 538, PosColor_red) || GetColorStatus(X, Y, Var, 540, PosColor_red) || GetColorStatus(X, Y, Var, 542, PosColor_red))
-        Return GetColorStatus(X, Y, Var, 32 + (H - 35) // 2 + Round((H - 35) / 59 * 4), PosColor_red) ;title + half + crosshair_to_red_name
+        Return GetColorStatus(X, Y, Var, OffsetUp + (H - OffsetUp - OffsetDown) // 2 + Round((H - OffsetUp - OffsetDown) / 15), PosColor_red) ;标题栏厚度+图形界面一半+到红名的距离, 542 对应 1600*900
 }
 ;==================================================================================
 ;C4倒计时辅助,精度0.1s
 C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
 {
-    WinGetPos, X1, Y1, W1, H1, ahk_class CrossFire
-    If Is_C4_Time(X1, Y1, W1, H1)
+    CheckPosition(X1, Y1, W1, H1, OffsetUp, OffsetDown)
+    If Is_C4_Time(X1, Y1, W1, H1, OffsetUp, OffsetDown)
     {
         If C4_Start = 0
             C4_Start := SystemTime()
@@ -239,11 +258,11 @@ C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
 }
 ;==================================================================================
 ;循环检测C4提示图标
-Is_C4_Time(X, Y, W, H)
+Is_C4_Time(X, Y, W, H, OffsetUp, OffsetDown)
 {
     static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3
     ;show color in editor: #E39600 #0096E3
-    PixelSearch, ColorX, ColorY, X + W // 2 - 40, Y, X + W // 2 + 40, Y + H / 4, %PosColor_C4%, 1, Fast
+    PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + OffsetUp + Round((H - OffsetUp - OffsetDown) / 8), X + W // 2 + Round(W / 20), Y + OffsetUp + Round((H - OffsetUp - OffsetDown) / 4), %PosColor_C4%, 1, Fast
     Return !ErrorLevel
 }
 ;==================================================================================
@@ -318,7 +337,7 @@ Recoilless(Gun_Chosen)
                     EndTime := SystemTime() - StartTime
                 }
             Default:
-                HyperSleep(30)
+                HyperSleep(30) ;无用代码
         }
     }
     Return ;复原StartTime
@@ -345,7 +364,7 @@ press_key(key, press_time, sleep_time)
 ;设置图形界面位置
 SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
 {
-    WinGetPos, X1, Y1, W1, H1, ahk_class CrossFire
+    CheckPosition(X1, Y1, W1, H1, OffsetUp, OffsetDown)
     If InStr("H", GuiPosition) ;顶部一栏横向
     {
         XGui := X1 + W1 // 2 + OffsetX
@@ -353,13 +372,13 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
     }
     Else If InStr("V", GuiPosition) ;左侧一栏纵向
     {
-        XGui := X1 + 3 + OffsetX
-        YGui := Y1 + H1 // 2 + OffsetY
+        XGui := X1 + OffsetDown + OffsetX
+        YGui := Y1 + (H1 - OffsetUp - OffsetDown) // 2 + OffsetY
     }
     Else If InStr("M", GuiPosition) ;居中显示
     {
         XGui := X1 + W1 // 2 + OffsetX
-        YGui := Y1 + (H1 + 29) // 2 + OffsetY ;Title 32 - Buttom 3
+        YGui := Y1 + (H1 + OffsetUp - OffsetDown) // 2 + OffsetY
     }
     Else ;从左上角为基准显示
     {
@@ -393,7 +412,7 @@ SystemTime()
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
 {
-    If value < 5 ;相对高精度睡眠
+    If value < 5 ;相对高精度睡眠,数值小对精度影响微乎其微
     {
         DllCall("Winmm.dll\timeBeginPeriod", UInt, 1)
         DllCall("Sleep", "UInt", value)
@@ -436,7 +455,7 @@ PostMessage(Receiver, Message) ;接受方为GUI标题
 ;测试ping值,但会被游戏加速器干扰,且游戏内已经提供ping查询,因此弃用但保留本函数
 Test_Game_Ping(URL_Or_Ping)
 {
-    Runwait, %comspec% /c ping -w 500 -n 3 %URL_Or_Ping% >ping.log, ,Hide ;后台执行cmd ping
+    Runwait, %comspec% /c ping -w 500 -n 3 %URL_Or_Ping% >ping.log, ,Hide ;后台执行cmd ping三次,每次最多等待500毫秒
     FileRead, StrTemp, ping.log
     If RegExMatch(StrTemp, "Average = (\d+)", result)
         speed := (SubStr(result, 11) > 300 ? 0 : SubStr(result, 11))

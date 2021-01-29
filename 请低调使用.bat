@@ -32,7 +32,7 @@ GOTO End
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_SHT.ps1'"
 GOTO End
 
-:Run_C4T
+:Run_C4H
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_C4H.ps1'"
 GOTO End
 
