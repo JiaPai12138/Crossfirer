@@ -35,7 +35,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P4, Pos, %Gui_4%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.5) - P4H // 2)
+    SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.7) - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA, Listening
     OnMessage(0x1001, "ReceiveMessage")
     Return
@@ -49,7 +49,7 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.5) - P4H // 2)
+    SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.7) - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA, Listening
 Return
 
