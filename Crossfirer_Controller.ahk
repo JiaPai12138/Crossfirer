@@ -115,7 +115,10 @@ UpdateGui()
             HyperSleep(100) ;just for stability
         }
         If ProcessExist("GameLoader.exe")
+        {
             Runwait, *RunAs %Comspec% /C taskkill /IM GameLoader.exe /F ;关闭游戏残留进程
+            Runwait, *RunAs %Comspec% /C taskkill /IM TQMCenter.exe /F ;关闭游戏残留进程
+        }
         ExitApp
     }
 }
