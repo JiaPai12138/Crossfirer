@@ -22,7 +22,7 @@ CheckPermission()
         }
         Catch
         {
-            MsgBox, , 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
+            MsgBox, 16, 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
             ExitApp
         }
     }
@@ -44,8 +44,11 @@ CheckCompile()
 ;检查游戏界面位置
 CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, ByRef OffsetUp, ByRef OffsetDown)
 {
+    WinGet, CFID, ID, ahk_class CrossFire
+    ;GetClientSize(CFID, Wcp, Hcp)
     WinGetPos, Xcp, Ycp, Wcp, Hcp, ahk_class CrossFire
-    If Wcp >= A_ScreenWidth && Hcp >= A_ScreenHeight
+    WinGet, Is_FullScreen, MinMax, ahk_class CrossFire
+    If Is_FullScreen = 1
     {
         Xcp := 0, Ycp := 0, OffsetUp := 0, OffsetDown := 0
         Wcp := A_ScreenWidth, Hcp := A_ScreenHeight
@@ -368,12 +371,12 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
     If InStr("H", GuiPosition) ;顶部一栏横向
     {
         XGui := X1 + W1 // 2 + OffsetX
-        YGui := Y1 + OffsetY
+        YGui := Y1 + OffsetUp + OffsetY
     }
     Else If InStr("V", GuiPosition) ;左侧一栏纵向
     {
         XGui := X1 + OffsetDown + OffsetX
-        YGui := Y1 + (H1 - OffsetUp - OffsetDown) // 2 + OffsetY
+        YGui := Y1 + OffsetUp + (H1 - OffsetUp - OffsetDown) // 2 + OffsetY
     }
     Else If InStr("M", GuiPosition) ;居中显示
     {
@@ -464,6 +467,28 @@ Test_Game_Ping(URL_Or_Ping)
 
     FileDelete, .\ping.log
     Return speed
+}
+;==================================================================================
+;检测ping值输入是否合乎规范
+Ping_Is_Valid(someping)
+{
+    If !someping
+        Return False
+    Else If someping Is Not Integer
+        Return False
+    Else If SubStr(someping, 1, 1) = 0 ;不存在0延迟
+        Return False
+	Else
+		Return True
+}
+;==================================================================================
+;复制自AHK自带的Windows Spy脚本,检测窗口纯客户端长宽,不包括边缘和标题栏长度
+GetClientSize(hwndID, ByRef w := "", ByRef h := "")
+{
+	VarSetCapacity(rect, 16)
+	DllCall("GetClientRect", "ptr", hwndID, "ptr", &rect)
+	w := NumGet(rect, 8, "int")
+	h := NumGet(rect, 12, "int")
 }
 ;==================================================================================
 ;End

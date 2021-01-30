@@ -19,10 +19,11 @@ SetMouseDelay, -1
 SetDefaultMouseSpeed, 0
 SetWinDelay, -1
 SetControlDelay, -1
-;==================================================================
+;==================================================================================
+global C4H_Service_On := False
 CheckPermission()
 CheckCompile()
-;==================================================================
+;==================================================================================
 Xe := , Ye := , We := , He := , Offset1Up := , Offset1Down :=
 C4_Time := 40
 C4_Start := 0
@@ -33,7 +34,7 @@ If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, Offset1Up, Offset1Down)
     Start:
-    Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
     Gui, C4: Color, 333333 ;#333333
     Gui, C4: Font, s15 c00FF00, Microsoft YaHei
@@ -42,9 +43,9 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - P3H // 2) ;避开狙击枪秒准线确认点
-    Gui, C4: Show, Hide, Listening
+    Gui, C4: Show, Hide
 
-    Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Human_Hero: Margin, 0, 0
     Gui, Human_Hero: Color, 333333 ;333333
     Gui, Human_Hero: Font, s15 c00FF00, Microsoft YaHei ;#00FF00
@@ -53,76 +54,82 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20
     SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - PHH // 2) ;避开狙击枪秒准线确认点
-    Gui, Human_Hero: Show, Hide, Listening
+    Gui, Human_Hero: Show, Hide
     OnMessage(0x1001, "ReceiveMessage")
+    C4H_Service_On := True
     Return
 } 
 Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
-    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
+    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
 }
 ;==================================================================================
 ~*-::ExitApp
 
 ~*=::
-    If WinActive("ahk_class CrossFire")
-        Be_Hero := !Be_Hero
+    If C4H_Service_On
+    {
+        If WinActive("ahk_class CrossFire")
+            Be_Hero := !Be_Hero
     
-    If (Be_Hero && !Not_In_Game())
-    {
-        C4_On := False
-        SetTimer, UpdateHero, 60
-        SetTimer, UpdateC4, off
-        Gui, C4: Show, Hide, Listening
-        Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA, Listening
-    }
-    Else
-    {
-        SetTimer, UpdateHero, off
-        Gui, Human_Hero: Show, Hide, Listening
+        If (Be_Hero && !Not_In_Game())
+        {
+            C4_On := False
+            SetTimer, UpdateHero, 60
+            SetTimer, UpdateC4, off
+            Gui, C4: Show, Hide
+            Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+        }
+        Else
+        {
+            SetTimer, UpdateHero, off
+            Gui, Human_Hero: Show, Hide
+        }
     }
 Return
 
 ~*RAlt::
-    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - P3H // 2)
-    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - PHH // 2)
-    If Be_Hero
+    If C4H_Service_On
     {
-        Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA, Listening
-        Gui, C4: Show, Hide, Listening
-    }
-    Else
-        Gui, Human_Hero: Show, Hide, Listening
+        SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - P3H // 2)
+        SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - PHH // 2)
+        If Be_Hero
+        {
+            Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+            Gui, C4: Show, Hide
+        }
+        Else
+            Gui, Human_Hero: Show, Hide
 
-    If C4_On
-    {
-        Gui, C4: Show, x%XGuiC% y%YGuiC% NA, Listening
-        Gui, Human_Hero: Show, Hide, Listening
+        If C4_On
+        {
+            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+            Gui, Human_Hero: Show, Hide
+        }
+        Else
+            Gui, C4: Show, Hide
     }
-    Else
-        Gui, C4: Show, Hide, Listening
-    
 Return
 
 ~C & ~4::
-    If !Not_In_Game()
+    If !Not_In_Game() && C4H_Service_On
     {
         Be_Hero := False
         C4_On := True
         SetTimer, UpdateC4, 100
         SetTimer, UpdateHero, off
-        Gui, C4: Show, x%XGuiC% y%YGuiC% NA, Listening
-        Gui, Human_Hero: Show, Hide, Listening
+        Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+        Gui, Human_Hero: Show, Hide
     }
 Return
 
 ~C & ~5::
-    If !Not_In_Game()
+    If !Not_In_Game() && C4H_Service_On
     {
         C4_On := False
         SetTimer, UpdateC4, off
-        Gui, C4: Show, Hide, Listening
+        Gui, C4: Show, Hide
     }
 Return
 ;==================================================================================

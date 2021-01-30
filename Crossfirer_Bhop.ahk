@@ -20,6 +20,7 @@ SetDefaultMouseSpeed, 0
 SetWinDelay, -1
 SetControlDelay, -1
 ;==================================================================================
+global BHP_Service_On := False
 CheckPermission()
 CheckCompile()
 ;==================================================================================
@@ -27,7 +28,7 @@ If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, Offset1Up, Offset1Down)
     Start:
-    Gui, jump_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, jump_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, jump_mode: Margin, 0, 0
     Gui, jump_mode: Color, 333333 ;#333333
     Gui, jump_mode: Font, s15, Microsoft YaHei
@@ -36,25 +37,29 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.7) - P4H // 2)
-    Gui, jump_mode: Show, x%XGui4% y%YGui4% NA, Listening
+    Gui, jump_mode: Show, x%XGui4% y%YGui4% NA
     OnMessage(0x1001, "ReceiveMessage")
+    BHP_Service_On := True
     Return
 } 
 Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
-    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
+    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
 }
 ;==================================================================================
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.7) - P4H // 2)
-    Gui, jump_mode: Show, x%XGui4% y%YGui4% NA, Listening
+    If BHP_Service_On
+    {
+        SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round((He - Offset1Up - Offset1Down) / 2.7) - P4H // 2)
+        Gui, jump_mode: Show, x%XGui4% y%YGui4% NA
+    }
 Return
 
 ~W & ~F:: ;基本鬼跳 间隔600 因t_accuracy=0.991调整
-    If !Not_In_Game()
+    If !Not_In_Game() && BHP_Service_On
     {
         cnt := 0
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
@@ -74,7 +79,7 @@ Return
 Return 
 
 ~W & ~LAlt:: ;空中连蹲跳 w+alt
-    If !Not_In_Game()
+    If !Not_In_Game() && BHP_Service_On
     {
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
@@ -92,7 +97,7 @@ Return
 Return
 
 ~S & ~F:: ;跳蹲上墙
-    If !Not_In_Game()
+    If !Not_In_Game() && BHP_Service_On
     {
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "跳蹲上墙", XGui4, YGui4)

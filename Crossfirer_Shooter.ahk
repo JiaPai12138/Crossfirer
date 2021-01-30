@@ -20,6 +20,7 @@ SetDefaultMouseSpeed, 0
 SetWinDelay, -1
 SetControlDelay, -1
 ;==================================================================================
+global SHT_Service_On := False
 CheckPermission()
 CheckCompile()
 ;==================================================================================
@@ -35,7 +36,7 @@ If WinExist("ahk_class CrossFire")
     WinGetTitle, game_title, ahk_class CrossFire
     CheckPosition(ValueX, ValueY, ValueW, ValueH, Offset1Up, Offset1Down)
     Start:
-    Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
     Gui, fcn_mode: Color, 333333 ;#333333
     Gui, fcn_mode: Font, s15, Microsoft YaHei
@@ -44,9 +45,9 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round((ValueH - Offset1Up - Offset1Down) / 9) - P1H // 2)
-    Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
+    Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
 
-    Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_status: Margin, 0, 0
     Gui, fcn_status: Color, 333333 ;#333333
     Gui, fcn_status: Font, s15, Microsoft YaHei
@@ -55,12 +56,12 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round((ValueH - Offset1Up - Offset1Down) / 6) - P2H // 2)
-    Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
+    Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
 
-    Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale
+    Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale, Listening
     Gui, cross_hair: Color, FFFF00 ;#FFFF00
     SetGuiPosition(Xch, Ych, "M", -34, -35)
-    Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA, Listening
+    Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
     WinSet, Region, %crosshair%, ahk_id %cr%
     WinSet, Transparent, 255, ahk_id %cr%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
@@ -74,58 +75,38 @@ If WinExist("ahk_class CrossFire")
         
     ;If GamePing = 0 ;延迟大于300或者连接不上就没有玩的必要
     ;    ExitApp
-    Loop
-    {
-        InputBox, GamePing, Ping, 请输入稳定延迟(ping)`nPlease enter ping value, , 200, 150
-        If ErrorLevel
-            MsgBox, 您按了取消键`nCANCEL was pressed
-        Else
-        {
-            If !GamePing
-            {
-                MsgBox, 您输入了啥玩意`nInput has no value
-                ErrorLevel = True, Return ErrorLevel
-            }
-            Else If GamePing Is Not Integer
-            {
-                MsgBox, 输入内容非数字`nInput is not valid
-                ErrorLevel = True, Return ErrorLevel
-            }
-            Else If SubStr(GamePing, 1, 1) = 0 ;不存在0延迟
-            {
-                MsgBox, 输入数字不正确`nInput is not valid
-                ErrorLevel = True, Return ErrorLevel
-            }
-            Else
-                MsgBox, 您输入了%GamePing%`nYou entered %GamePing%
-        }
-    } Until, !ErrorLevel
+    FuncPing()
+    SHT_Service_On := True
     WinActivate, ahk_class CrossFire ;激活该窗口
     Return
 }
 Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
-    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
+    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
 }
 ;==================================================================================
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round((ValueH - Offset1Up - Offset1Down) / 9) - P1H // 2)
-    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round((ValueH - Offset1Up - Offset1Down) / 6) - P2H // 2)
-    SetGuiPosition(Xch, Ych, "M", -34, -35)
-    Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA, Listening
-    Gui, fcn_status: Show, x%XGui2% y%YGui2% NA, Listening
-    Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA, Listening
+    If SHT_Service_On
+    {
+        SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round((ValueH - Offset1Up - Offset1Down) / 9) - P1H // 2)
+        SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round((ValueH - Offset1Up - Offset1Down) / 6) - P2H // 2)
+        SetGuiPosition(Xch, Ych, "M", -34, -35)
+        Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
+        Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
+        Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+    }
 Return
 
 ~*` Up::
-    ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
+    If SHT_Service_On
+        ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
-~*1 Up::
-    If (AutoMode && !Not_In_Game() && StrLen(Temp_Run) > 0)
+~*1 Up:: ;还原模式
+    If (SHT_Service_On && AutoMode && !Not_In_Game() && StrLen(Temp_Run) > 0)
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
@@ -133,8 +114,8 @@ Return
     }
 Return
 
-~*2 Up::
-    If (AutoMode && !Not_In_Game())
+~*2 Up:: ;手枪模式
+    If (SHT_Service_On && AutoMode && !Not_In_Game())
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载手枪", XGui1, YGui1)
@@ -142,8 +123,8 @@ Return
     }
 Return
 
-~*Tab Up::
-    If (AutoMode && !Not_In_Game())
+~*Tab Up:: ;通用模式
+    If (SHT_Service_On && AutoMode && !Not_In_Game())
     {
         Temp_Mode := 0
         Temp_Run := "加载通用"
@@ -153,8 +134,8 @@ Return
     }  
 Return
 
-~*J Up:: ;sniper 1 vs 1 mode
-    If (AutoMode && !Not_In_Game())
+~*J Up:: ;瞬狙模式,M200效果上佳
+    If (SHT_Service_On && AutoMode && !Not_In_Game())
     {
         Temp_Mode := 8
         Temp_Run := "加载狙击"
@@ -164,8 +145,8 @@ Return
     }
 Return
 
-~*L Up:: ;Gatling gun, sniper gun, shotgun
-    If (AutoMode && !Not_In_Game())
+~*L Up:: ;连点模式
+    If (SHT_Service_On && AutoMode && !Not_In_Game())
     {
         Temp_Mode := 111
         Temp_Run := "加载速点"
@@ -174,4 +155,30 @@ Return
         AutoFire(111, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }  
 Return
+;==================================================================================
+FuncPing()
+{
+	Gui, Ping_Ev: New, +LastFound +AlwaysOnTop -DPIScale
+    Gui, Ping_Ev: Font, s12, Microsoft YaHei
+    Gui, Ping_Ev: Add, Text, , 请输入游戏稳定延迟(ping值)
+	Gui, Ping_Ev: Add, Edit, vPing_Input w255
+	Gui, Ping_Ev: Add, Button, gPingCheck w255, 提交/Submit
+	Gui, Ping_Ev: Show, Center, Ping
+}
+
+PingCheck() 
+{
+	global Ping_Input, GamePing
+	Gui, Ping_Ev: Submit
+	If !Ping_Is_Valid(Ping_Input)
+	{
+		MsgBox, 16, 错误输入/Invalid Input, %Ping_Input%
+		FuncPing()
+	}
+    Else
+    {
+        Gui, Ping_Ev: Destroy
+        GamePing := Ping_Input
+    }
+}
 ;==================================================================================

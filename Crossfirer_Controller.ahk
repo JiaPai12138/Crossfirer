@@ -22,16 +22,18 @@ SetDefaultMouseSpeed, 0
 SetWinDelay, -1
 SetControlDelay, -1
 ;==================================================================================
+global CTL_Service_On := False
 CheckPermission()
 CheckCompile()
 ;==================================================================================
 Need_Help := False
 Need_Hide := False
+global Title_Blank := 0
 
 If WinExist("ahk_class CrossFire")
 {
     Start:
-    Gui, Helper: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Helper: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Helper: Margin, 0, 0
     Gui, Helper: Color, 333333 ;#333333
     Gui, Helper: Font, s12 c00FF00, Microsoft YaHei ;#00FF00
@@ -41,7 +43,7 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
 
-    Gui, Hint: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Hint: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Hint: Margin, 0, 0
     Gui, Hint: Color, 333333 ;#333333
     Gui, Hint: Font, s12 c00FF00, Microsoft YaHei ;#00FF00
@@ -58,16 +60,17 @@ If WinExist("ahk_class CrossFire")
 
     WinMinimize, ahk_class ConsoleWindowClass
     SetTimer, UpdateGui, 1000 ;不需要太频繁
+    CTL_Service_On := True
 } 
 Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
-    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
+    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     WinClose, ahk_class ConsoleWindowClass
     ExitApp
 }
 ;==================================================================================
 ~*-::
-    If WinActive("ahk_class CrossFire")
+    If WinActive("ahk_class CrossFire") && CTL_Service_On
     {
         WinClose, ahk_class ConsoleWindowClass
         Try
@@ -83,37 +86,48 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 Return
 
 ~*RAlt::
-    SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
-    SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
-    ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
+    If CTL_Service_On
+    {
+        SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
+        SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
+        ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
+    }
 Return
 
 ~*RCtrl::
-    ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
+    If CTL_Service_On
+        ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
 Return
 
 ~*CapsLock:: ;minimize window and replace origin use
-    Need_Hide := !Need_Hide
-    If (WinActive("ahk_class CrossFire") && Need_Hide)
+    If CTL_Service_On
     {
-        WinMinimize, ahk_class CrossFire
-        HyperSleep(100)
-        MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
+        Need_Hide := !Need_Hide
+        If (WinActive("ahk_class CrossFire") && Need_Hide)
+        {
+            WinMinimize, ahk_class CrossFire
+            HyperSleep(100)
+            MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
+        }
+        Else If (!WinActive("ahk_class CrossFire") && !Need_Hide)
+            WinActivate, ahk_class CrossFire ;激活该窗口
     }
-    Else If (!WinActive("ahk_class CrossFire") && !Need_Hide)
-        WinActivate, ahk_class CrossFire ;激活该窗口
 Return
-
+;==================================================================================
 UpdateGui()
 {
     If !WinExist("ahk_class CrossFire")
     {
         WinClose, ahk_class ConsoleWindowClass
-        Loop, 10
+        Loop ;, 10
         {
             PostMessage("Listening", 125638)
+            WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
+            ;MsgBox, , , %Gui_Title%
+            If StrLen(Gui_Title) < 4
+                Title_Blank += 1
             HyperSleep(100) ;just for stability
-        }
+        } Until Title_Blank > 3
         If ProcessExist("GameLoader.exe")
         {
             Runwait, *RunAs %Comspec% /C taskkill /IM GameLoader.exe /F ;关闭游戏残留进程
@@ -122,3 +136,4 @@ UpdateGui()
         ExitApp
     }
 }
+;==================================================================================

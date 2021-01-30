@@ -10,7 +10,7 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-CoordMode, Pixel, Screen
+CoordMode, Pixel, Screen ;Client
 CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
@@ -20,6 +20,7 @@ SetDefaultMouseSpeed, 0
 SetWinDelay, -1
 SetControlDelay, -1
 ;==================================================================================
+global RCL_Service_On := False
 CheckPermission()
 CheckCompile()
 ;==================================================================================
@@ -37,7 +38,7 @@ If WinExist("ahk_class CrossFire")
     Radius := Round((Hrs - Offset1Up - Offset1Down) / 18)
     Diameter := 2 * Radius
     Start:
-    Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
     Gui, recoil_mode: Color, 333333 ;#333333
     Gui, recoil_mode: Font, s15, Microsoft YaHei
@@ -46,9 +47,9 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round((Hrs - Offset1Up - Offset1Down) / 9) - P6H // 2)
-    Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA, Listening
+    Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
 
-    Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, gun_sel: Margin, 0, 0
     Gui, gun_sel: Color, 333333 ;#333333
     Gui, gun_sel: Font, s15, Microsoft YaHei
@@ -57,12 +58,12 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round((Hrs - Offset1Up - Offset1Down) / 6) - P7H // 2)
-    Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
+    Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
 
-    Gui, circle: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale
+    Gui, circle: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale, Listening
     Gui, circle: Color, FFFF00 ;#FFFF00
     SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
-    Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA, Listening
+    Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
     WinSet, Transparent, 31, ahk_id %cc%
     WinSet, ExStyle, +0x20 ; 鼠标穿透
     Xcc := Radius, Ycc := Radius
@@ -71,56 +72,70 @@ If WinExist("ahk_class CrossFire")
     Hole .= Floor(Xcc + Radius * Cos(Angle)) "-" Floor(Ycc + Radius * Sin(Angle))
     WinSet, Region, %Hole%, ahk_id %cc% 
     Hole = ;free memory
-    Gui, circle: Show, Hide, Listening
+    Gui, circle: Show, Hide
     OnMessage(0x1001, "ReceiveMessage")
+    RCL_Service_On := True
     Return
 }
 Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 {
-    MsgBox, , 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
+    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
     ExitApp
 }
 ;==================================================================================
 ~*-::ExitApp
 
 ~*RAlt::
-    SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round((Hrs - Offset1Up - Offset1Down) / 9) - P6H // 2)
-    Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA, Listening
-    SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round((Hrs - Offset1Up - Offset1Down) / 6) - P7H // 2)
-    Gui, gun_sel: Show, x%XGui6% y%YGui6% NA, Listening
+    If RCL_Service_On
+    {
+        SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round((Hrs - Offset1Up - Offset1Down) / 9) - P6H // 2)
+        Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
+        SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round((Hrs - Offset1Up - Offset1Down) / 6) - P7H // 2)
+        Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
+    }
 Return
 
 ~*LButton:: ;压枪 正在开发
-    SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
-    Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA, Listening
-    If (!Not_In_Game() && Gun_Chosen > 0)
+    If RCL_Service_On
     {
-        GuiControl, recoil_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
-        UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)
-        Recoilless(Gun_Chosen)
+        SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
+        Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
+        If (!Not_In_Game() && Gun_Chosen > 0 && RCL_Service_On)
+        {
+            GuiControl, recoil_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
+            UpdateText("recoil_mode", "ModeClick", "自动压枪", XGui5, YGui5)
+            Recoilless(Gun_Chosen)
+        }
     }
 Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
-    Gui, circle: Show, Hide, Listening
-    If !Not_In_Game()
+    If RCL_Service_On
     {
-        GuiControl, recoil_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
-        UpdateText("recoil_mode", "ModeClick", "压枪准备", XGui5, YGui5)
+        Gui, circle: Show, Hide
+        If !Not_In_Game()
+        {
+            GuiControl, recoil_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
+            UpdateText("recoil_mode", "ModeClick", "压枪准备", XGui5, YGui5)
+        }
     }
 Return
 
 ~*RButton:: ;压枪 正在开发
-    SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
-    Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA, Listening
+    If RCL_Service_On
+    {
+        SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
+        Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
+    }
 Return
 
 ~*Rbutton Up:: ;保障新一轮压枪
-    Gui, circle: Show, Hide, Listening
+    If RCL_Service_On
+        Gui, circle: Show, Hide
 Return
 
 ~*Numpad0::
-    If !Not_In_Game()
+    If !Not_In_Game() && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
         UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
@@ -129,7 +144,7 @@ Return
 Return
 
 ~*Numpad1::
-    If !Not_In_Game()
+    If !Not_In_Game() && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "AK47-B 系", XGui6, YGui6)
@@ -138,10 +153,11 @@ Return
 Return
 
 ~*Numpad2::
-    If !Not_In_Game()
+    If !Not_In_Game() && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "M4A1-S 系", XGui6, YGui6)
         Gun_Chosen := 2
     }
 Return
+;==================================================================================
