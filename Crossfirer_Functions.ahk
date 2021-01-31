@@ -5,8 +5,8 @@
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission()
 {
-    If Not (A_IsAdmin || ProcessExist("AutoHotkeyU64_UIA.exe"))
-    { ;缺点是当另一个脚本以UI Access运行时,该检查机制会被跳过
+    If Not (A_IsAdmin || CheckUIA())
+    {
         Try
         {
             If A_IsCompiled ;实际用自带编译器会被侦测,所以要加壳
@@ -26,19 +26,32 @@ CheckPermission()
             ExitApp
         }
     }
-}
-;==================================================================================
-;检查运行权限以及是否编译
-CheckCompile()
-{
-    If A_IsAdmin && A_IsCompiled ;编译好的文件管理员运行后端
+    Else
     {
         Loop
         {
             HyperSleep(3000)
         } Until WinExist("ahk_class CrossFire")
+        HyperSleep(3000) ;等待客户端完整出现
     }
-    HyperSleep(3000) ;等待客户端完整出现
+}
+;==================================================================================
+;检查是否存在指定的UIA权限辅助
+CheckUIA()
+{
+    If ProcessExist("AutoHotkeyU64_UIA.exe")
+    {
+        DetectHiddenWindows, On
+        WinGetTitle, AHK_Title, ahk_exe AutoHotkeyU64_UIA.exe
+        WinGet, Process_Num, Count, ahk_exe AutoHotkeyU64_UIA.exe
+        DetectHiddenWindows, Off
+        If InStr(AHK_Title, "Crossfirer_") && Process_Num >= 2
+            Return True
+        Else
+            Return False
+    }
+    Else
+        Return False
 }
 ;==================================================================================
 ;检查游戏界面位置
@@ -216,13 +229,17 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
 Not_In_Game() 
 {
     CheckPosition(X1, Y1, W1, H1)
-    PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 9 * 2), Y1 + Round(H1 / 9), 0x3054FF, 5, Fast
-    ;show color in editor: #3054FF #FF5430
+    PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x3054FF, 5, Fast ;show color in editor: #3054FF #FF5430
     If !ErrorLevel
     {
-        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 9 * 2), Y1 + Round(H1 / 9), 0x010101, 1, Fast
-        ;show color in editor: #010101
-        Return !ErrorLevel
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x010101, 1, Fast ;show color in editor: #010101
+        If !ErrorLevel
+        {
+            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0xFFFFFF, 0, Fast ;show color in editor: #FFFFFF
+            Return !ErrorLevel
+        }
+        Else
+            Return False
     }
     Else
         Return False
@@ -277,10 +294,15 @@ C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
 ;循环检测C4提示图标
 Is_C4_Time(X, Y, W, H)
 {
-    static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3
-    ;show color in editor: #E39600 #0096E3
-    PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + Round(H / 8), X + W // 2 + Round(W / 20), Y + Round(H / 4), %PosColor_C4%, 1, Fast
-    Return !ErrorLevel
+    static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3 ;show color in editor: #E39600 #0096E3
+    PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + Round(H / 8), X + W // 2 + Round(W / 20), Y + Round(H / 4), %PosColor_C4%, 0, Fast
+    If !ErrorLevel
+    {
+        PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + Round(H / 8), X + W // 2 + Round(W / 20), Y + Round(H / 4), 0xFFFFFF, 0, Fast ;show color in editor: #FFFFFF
+        Return !ErrorLevel
+    }
+    Else
+        Return False
 }
 ;==================================================================================
 ;检测是否退出模式,由按键触发

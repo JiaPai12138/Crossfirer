@@ -24,7 +24,6 @@ SetControlDelay, -1
 ;==================================================================================
 global CTL_Service_On := False
 CheckPermission()
-CheckCompile()
 ;==================================================================================
 Need_Help := False
 Need_Hide := False
@@ -62,12 +61,6 @@ If WinExist("ahk_class CrossFire")
     SetTimer, UpdateGui, 1000 ;不需要太频繁
     CTL_Service_On := True
 } 
-Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
-{
-    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
-    WinClose, ahk_class ConsoleWindowClass
-    ExitApp
-}
 ;==================================================================================
 ~*-::
     If WinActive("ahk_class CrossFire") && CTL_Service_On

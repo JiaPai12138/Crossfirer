@@ -22,7 +22,6 @@ SetControlDelay, -1
 ;==================================================================================
 global RCL_Service_On := False
 CheckPermission()
-CheckCompile()
 ;==================================================================================
 Gun_Chosen := 0
 XGui5 := 0, YGui5 := 0, XGui6 := 0, YGui6 := 0, XGui7 := 0, YGui7 := 0
@@ -76,11 +75,6 @@ If WinExist("ahk_class CrossFire")
     OnMessage(0x1001, "ReceiveMessage")
     RCL_Service_On := True
     Return
-}
-Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
-{
-    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
-    ExitApp
 }
 ;==================================================================================
 ~*-::ExitApp
@@ -156,7 +150,7 @@ Return
     If !Not_In_Game() && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
-        UpdateText("gun_sel", "ModeGun", "M4A1-S 系", XGui6, YGui6)
+        UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
         Gun_Chosen := 2
     }
 Return

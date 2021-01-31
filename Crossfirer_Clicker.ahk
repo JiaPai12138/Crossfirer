@@ -22,15 +22,13 @@ SetControlDelay, -1
 ;==================================================================================
 global CLK_Service_On := False
 CheckPermission()
-CheckCompile()
 SysGet, Mouse_Buttons, 43 ;检测鼠标按键数量
 If Mouse_Buttons < 5
 {
-    MsgBox, 262144, 鼠标按键数量不足/Not enough buttons on mouse, 请考虑更换鼠标,不然无法使用本连点辅助/Please consider getting a new mouse, or you will not able to use this aux.
-    ExitApp
+    MsgBox, 262144, 鼠标按键数量不足/Not enough buttons on mouse, 请考虑更换鼠标,不然无法使用本连点辅助/Please consider getting a new mouse, or you will not able to use this auto clicker
+    ;ExitApp
 }
 ;==================================================================================
-
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He)
@@ -48,11 +46,6 @@ If WinExist("ahk_class CrossFire")
     OnMessage(0x1001, "ReceiveMessage")
     CLK_Service_On := True
     Return
-} 
-Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
-{
-    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
-    ExitApp
 }
 ;==================================================================================
 ~*-::ExitApp

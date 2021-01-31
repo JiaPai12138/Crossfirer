@@ -22,7 +22,6 @@ SetControlDelay, -1
 ;==================================================================================
 global SHT_Service_On := False
 CheckPermission()
-CheckCompile()
 ;==================================================================================
 AutoMode := False
 XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
@@ -79,11 +78,6 @@ If WinExist("ahk_class CrossFire")
     SHT_Service_On := True
     WinActivate, ahk_class CrossFire ;激活该窗口
     Return
-}
-Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
-{
-    MsgBox, 16, 错误/Error, CF未运行!脚本将退出!!`nCrossfire is not running!The script will exit!!, 3
-    ExitApp
 }
 ;==================================================================================
 ~*-::ExitApp
