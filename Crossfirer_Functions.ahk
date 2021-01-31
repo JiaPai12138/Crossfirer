@@ -32,7 +32,7 @@ CheckPermission()
         {
             HyperSleep(3000)
         } Until WinExist("ahk_class CrossFire")
-        HyperSleep(3000) ;等待客户端完整出现
+        HyperSleep(5000) ;等待客户端完整出现
     }
 }
 ;==================================================================================
