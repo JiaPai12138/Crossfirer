@@ -10,7 +10,7 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-CoordMode, Pixel, Screen
+;CoordMode, Pixel, Screen ;Client 
 CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
@@ -34,7 +34,7 @@ GamePing :=
 If WinExist("ahk_class CrossFire")
 {
     WinGetTitle, game_title, ahk_class CrossFire
-    CheckPosition(ValueX, ValueY, ValueW, ValueH, Offset1Up, Offset1Down)
+    CheckPosition(ValueX, ValueY, ValueW, ValueH)
     Start:
     Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
@@ -44,7 +44,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P1, Pos, %Gui_1%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round((ValueH - Offset1Up - Offset1Down) / 9) - P1H // 2)
+    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round(ValueH / 9) - P1H // 2)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
 
     Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -55,7 +55,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P2, Pos, %Gui_2%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round((ValueH - Offset1Up - Offset1Down) / 6) - P2H // 2)
+    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round(ValueH / 6) - P2H // 2)
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
 
     Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale, Listening
@@ -91,8 +91,8 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 ~*RAlt::
     If SHT_Service_On
     {
-        SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round((ValueH - Offset1Up - Offset1Down) / 9) - P1H // 2)
-        SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round((ValueH - Offset1Up - Offset1Down) / 6) - P2H // 2)
+        SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round(ValueH / 9) - P1H // 2)
+        SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round(ValueH / 6) - P2H // 2)
         SetGuiPosition(Xch, Ych, "M", -34, -35)
         Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
         Gui, fcn_status: Show, x%XGui2% y%YGui2% NA

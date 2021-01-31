@@ -10,7 +10,7 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-CoordMode, Pixel, Screen
+;CoordMode, Pixel, Screen ;Client 
 ;CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
@@ -24,7 +24,7 @@ global C4H_Service_On := False
 CheckPermission()
 CheckCompile()
 ;==================================================================================
-Xe := , Ye := , We := , He := , Offset1Up := , Offset1Down :=
+Xe := , Ye := , We := , He := 
 C4_Time := 40
 C4_Start := 0
 Be_Hero := False
@@ -32,7 +32,7 @@ C4_On := False
 
 If WinExist("ahk_class CrossFire")
 {
-    CheckPosition(Xe, Ye, We, He, Offset1Up, Offset1Down)
+    CheckPosition(Xe, Ye, We, He)
     Start:
     Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
@@ -42,7 +42,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P3, Pos, %Gui_3%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - P3H // 2) ;避开狙击枪秒准线确认点
+    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 7.5) - P3H // 2) ;避开狙击枪秒准线确认点
     Gui, C4: Show, Hide
 
     Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -53,7 +53,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, PH, Pos, %hero%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20
-    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - PHH // 2) ;避开狙击枪秒准线确认点
+    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 7.5) - PHH // 2) ;避开狙击枪秒准线确认点
     Gui, Human_Hero: Show, Hide
     OnMessage(0x1001, "ReceiveMessage")
     C4H_Service_On := True
@@ -92,8 +92,8 @@ Return
 ~*RAlt::
     If C4H_Service_On
     {
-        SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - P3H // 2)
-        SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round((He - Offset1Up - Offset1Down) / 7.5) - PHH // 2)
+        SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 7.5) - P3H // 2)
+        SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 7.5) - PHH // 2)
         If Be_Hero
         {
             Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
@@ -141,16 +141,16 @@ UpdateC4() ;精度0.1s
 
 UpdateHero() ;精度0.06s
 {
-    global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE, Offset1Up, Offset1Down, XGui8, YGui8
-    CheckPosition(Xe, Ye, We, He, Offset1Up, Offset1Down)
+    global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE, XGui8, YGui8
+    CheckPosition(Xe, Ye, We, He)
     GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
     UpdateText("Human_Hero", "IMHero", "猎手", XGui8, YGui8)
     If (Be_Hero && !Not_In_Game())
     {
-        PixelSearch, HeroX1, HeroY1, Xe + We // 2 - Round(We / 32 * 3), Ye + Offset1Up + Round((He - Offset1Up - Offset1Down) / 8.5), Xe + We // 2 + Round(We / 32 * 3), Ye + Offset1Up + Round((He - Offset1Up - Offset1Down) / 6.5), 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
+        PixelSearch, HeroX1, HeroY1, Xe + We // 2 - Round(We / 32 * 3), Ye + Round(He / 8.5), Xe + We // 2 + Round(We / 32 * 3), Ye + Round(He / 6.5), 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
         If !ErrorLevel
         {
-            PixelSearch, HeroX2, HeroY2, Xe + We // 2 - Round(We / 32 * 3), Ye + Offset1Up + Round((He - Offset1Up - Offset1Down) / 3) - 5, Xe + We // 2 + Round(We / 32 * 3), Ye + Offset1Up + Round((He - Offset1Up - Offset1Down) / 3), 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
+            PixelSearch, HeroX2, HeroY2, Xe + We // 2 - Round(We / 32 * 3), Ye + Round(He / 3) - 5, Xe + We // 2 + Round(We / 32 * 3), Ye + Round(He / 3), 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
             If !ErrorLevel
             {
                 press_key("E", 10, 10)

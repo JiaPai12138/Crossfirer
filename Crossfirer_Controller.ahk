@@ -10,7 +10,7 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-CoordMode, Pixel, Screen
+;CoordMode, Pixel, Screen ;Client 
 CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 DetectHiddenWindows, On

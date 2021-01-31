@@ -10,7 +10,7 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-CoordMode, Pixel, Screen
+;CoordMode, Pixel, Screen ;Client 
 ;CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
@@ -23,11 +23,17 @@ SetControlDelay, -1
 global CLK_Service_On := False
 CheckPermission()
 CheckCompile()
+SysGet, Mouse_Buttons, 43 ;检测鼠标按键数量
+If Mouse_Buttons < 5
+{
+    MsgBox, 262144, 鼠标按键数量不足/Not enough buttons on mouse, 请考虑更换鼠标,不然无法使用本连点辅助/Please consider getting a new mouse, or you will not able to use this aux.
+    ExitApp
+}
 ;==================================================================================
 
 If WinExist("ahk_class CrossFire")
 {
-    CheckPosition(Xe, Ye, We, He, Offset1Up, Offset1Down)
+    CheckPosition(Xe, Ye, We, He)
     Start:
     Gui, click_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, click_mode: Margin, 0, 0
@@ -37,7 +43,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P5, Pos, %Gui_5%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round((He - Offset1Up - Offset1Down) / 3) - P5H // 2)
+    SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round(He / 3) - P5H // 2)
     Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     OnMessage(0x1001, "ReceiveMessage")
     CLK_Service_On := True
@@ -54,7 +60,7 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 ~*RAlt::
     If CLK_Service_On
     {
-        SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round((He - Offset1Up - Offset1Down) / 3) - P5H // 2)
+        SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round(He / 3) - P5H // 2)
         Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     }
 Return

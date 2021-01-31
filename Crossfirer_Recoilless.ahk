@@ -10,7 +10,7 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-CoordMode, Pixel, Screen ;Client
+;CoordMode, Pixel, Screen ;Client 
 CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
@@ -34,8 +34,8 @@ Hole =
 
 If WinExist("ahk_class CrossFire")
 {
-    CheckPosition(Xrs, Yrs, Wrs, Hrs, Offset1Up, Offset1Down)
-    Radius := Round((Hrs - Offset1Up - Offset1Down) / 18)
+    CheckPosition(Xrs, Yrs, Wrs, Hrs)
+    Radius := Round(Hrs / 18)
     Diameter := 2 * Radius
     Start:
     Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -46,7 +46,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P6, Pos, %Gui_6%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round((Hrs - Offset1Up - Offset1Down) / 9) - P6H // 2)
+    SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round(Hrs / 9) - P6H // 2)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
 
     Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -57,7 +57,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P7, Pos, %Gui_7%
     WinSet, TransColor, 333333 191 ;#333333
     WinSet, ExStyle, +0x20 ; 鼠标穿透
-    SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round((Hrs - Offset1Up - Offset1Down) / 6) - P7H // 2)
+    SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round(Hrs / 6) - P7H // 2)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
 
     Gui, circle: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale, Listening
@@ -88,9 +88,9 @@ Else If !WinExist("ahk_class CrossFire") && !A_IsCompiled
 ~*RAlt::
     If RCL_Service_On
     {
-        SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round((Hrs - Offset1Up - Offset1Down) / 9) - P6H // 2)
+        SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round(Hrs / 9) - P6H // 2)
         Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
-        SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round((Hrs - Offset1Up - Offset1Down) / 6) - P7H // 2)
+        SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round(Hrs / 6) - P7H // 2)
         Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
     }
 Return
