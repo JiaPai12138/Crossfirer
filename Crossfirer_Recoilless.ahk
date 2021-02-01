@@ -10,8 +10,6 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-;CoordMode, Pixel, Screen ;Client 
-CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 SetKeyDelay, -1, -1
@@ -154,4 +152,68 @@ Return
         Gun_Chosen := 2
     }
 Return
+;==================================================================================
+;压枪函数,对相应枪械,均能在中近距离上基本压成一条线
+Recoilless(Gun_Chosen)
+{
+    If GetKeyState("LButton", "P") 
+    {
+        StartTime := SystemTime()
+        EndTime := SystemTime() - StartTime
+        Switch Gun_Chosen
+        {
+            Case 1: ;AK47英雄级
+                While, EndTime < 100 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(40)
+                    mouseXY(0, 1)
+                    EndTime := SystemTime() - StartTime
+                }
+                While, EndTime >= 100 && EndTime < 300 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(28)
+                    mouseXY(0, 2)
+                    EndTime := SystemTime() - StartTime
+                }
+                While, EndTime >= 300 && EndTime < 500 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(36)
+                    mouseXY(0, 3)
+                    EndTime := SystemTime() - StartTime
+                }
+                While, EndTime >= 500 && EndTime < 800 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(30)
+                    mouseXY(0, 1)
+                    EndTime := SystemTime() - StartTime
+                }
+                While, EndTime >= 800 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(30)
+                    EndTime := SystemTime() - StartTime 
+                }
+
+            Case 2: ;M4A1英雄级
+                While, EndTime < 90 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(10)
+                    EndTime := SystemTime() - StartTime
+                }
+                While, EndTime >= 90 && EndTime < 530 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(35)
+                    mouseXY(0, 2)
+                    EndTime := SystemTime() - StartTime 
+                }
+                While, EndTime >= 530 && GetKeyState("LButton", "P")
+                {
+                    HyperSleep(30)
+                    EndTime := SystemTime() - StartTime
+                }
+            Default:
+                HyperSleep(30) ;无用代码
+        }
+    }
+    Return ;复原StartTime
+}
 ;==================================================================================

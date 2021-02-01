@@ -10,8 +10,6 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-;CoordMode, Pixel, Screen ;Client 
-;CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
 SetKeyDelay, -1, -1
@@ -132,7 +130,7 @@ UpdateC4() ;精度0.1s
     global XGuiC, YGuiC, C4_Start, C4_Time, C4Status
     C4Timer(XGuiC, YGuiC, C4_Start, C4_Time, "C4", "C4Status")
 }
-
+;==================================================================================
 UpdateHero() ;精度0.06s
 {
     global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE, XGui8, YGui8
@@ -153,5 +151,48 @@ UpdateHero() ;精度0.06s
             }
         }
     }
+}
+;==================================================================================
+;C4倒计时辅助,精度0.1s
+C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
+{
+    CheckPosition(X1, Y1, W1, H1)
+    If Is_C4_Time(X1, Y1, W1, H1)
+    {
+        If C4_Start = 0
+            C4_Start := SystemTime()
+        Else If C4_Start > 0
+        {
+            C4_Time := SubStr("00" . Format("{:.0f}", (40.5 - (SystemTime() - C4_Start) / 1000)), -1) ;强行显示两位数,00起爆
+            If (C4_Time < 31 && C4_Time >= 11)
+                GuiControl, %Gui_Number%: +cFFFF00 +Redraw, %ControlID% ;#FFFF00
+            Else If C4_Time < 11
+                GuiControl, %Gui_Number%: +cFF0000 +Redraw, %ControlID% ;#FF0000
+            UpdateText(Gui_Number, ControlID, C4_Time, XGuiC, YGuiC)
+        }
+    }
+    Else
+    {
+        If C4_Start > 0
+            C4_Start := 0
+        If C4_Time != 40
+            C4_Time := 40
+        GuiControl, %Gui_Number%: +c00FF00 +Redraw, %ControlID% ;#00FF00
+        UpdateText(Gui_Number, ControlID, C4_Time, XGuiC, YGuiC)
+    }
+}
+;==================================================================================
+;循环检测C4提示图标
+Is_C4_Time(X, Y, W, H)
+{
+    static PosColor_C4 := "0x0096E3" ;0xE39600 0x0096E3 ;show color in editor: #E39600 #0096E3
+    PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + Round(H / 8), X + W // 2 + Round(W / 20), Y + Round(H / 4), %PosColor_C4%, 0, Fast
+    If !ErrorLevel
+    {
+        PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + Round(H / 8), X + W // 2 + Round(W / 20), Y + Round(H / 4), 0xFFFFFF, 0, Fast ;show color in editor: #FFFFFF
+        Return !ErrorLevel
+    }
+    Else
+        Return False
 }
 ;==================================================================================

@@ -10,8 +10,6 @@
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-;CoordMode, Pixel, Screen ;Client 
-CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 DetectHiddenWindows, On
 SetTitleMatchMode, 2
@@ -107,7 +105,7 @@ Return
     }
 Return
 ;==================================================================================
-UpdateGui()
+UpdateGui() ;精度1s
 {
     If !WinExist("ahk_class CrossFire")
     {
@@ -127,6 +125,23 @@ UpdateGui()
             Runwait, *RunAs %Comspec% /C taskkill /IM TQMCenter.exe /F ;关闭游戏残留进程
         }
         ExitApp
+    }
+}
+;==================================================================================
+;通过按下快捷键显示/隐藏提示
+ShowHelp(ByRef Need_Help, XGui1, YGui1, Gui_Number1, XGui2, YGui2, Gui_Number2, Changer)
+{
+    If Changer = 1
+        Need_Help := !Need_Help
+    If Need_Help
+    {
+        Gui, %Gui_Number1%: Show, x%XGui1% y%YGui1% NA
+        Gui, %Gui_Number2%: Show, Hide
+    }
+    Else
+    {
+        Gui, %Gui_Number1%: Show, Hide
+        Gui, %Gui_Number2%: Show, x%XGui2% y%YGui2% NA
     }
 }
 ;==================================================================================
