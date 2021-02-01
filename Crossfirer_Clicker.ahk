@@ -63,7 +63,7 @@ Return
         UpdateText("click_mode", "ModeClick", "右键连点", XGui3, YGui3)
         While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
         {
-            press_key("RButton", 10.0, 60.0)
+            press_key("RButton", 30.0, 30.0)
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
@@ -78,9 +78,8 @@ Return
         UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
         {
-            press_key("LButton", 42.8, 42.8) ;FAL CAMO射速700
-            ;press_key("LButton", 50.0, 50.0) ;For click test
-            ;press_key("LButton", 43.8, 43.75) ;M4A1射速685
+            ;press_key("LButton", 42.8, 42.8) ;FAL CAMO射速700
+            press_key("LButton", 60.0, 60.0)
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
@@ -95,7 +94,7 @@ Return
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
         {
-            press_key("LButton", 30.0, 29.75)
+            press_key("LButton", 30.0, 30.0)
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)

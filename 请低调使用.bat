@@ -4,8 +4,10 @@ CHCP 65001
 
 :Start
 CLS
-echo 正在帮您运行脚本，请稍等............
-echo Help you run the script, please wait............
+echo 请先仔细阅读说明!!!!!!!!!!!!!!!!!!!
+echo. & pause
+
+echo       请选择需要运行的脚本/Please select an option
 echo         ╔════════════════════════════════════╗
 echo         ║  [1]Run All Scripts     运行所有脚本  
 echo         ║  [2]Run Shooter only    运行自火脚本  
@@ -14,7 +16,7 @@ echo         ║  [4]Run Bhop only       运行基础身法
 echo         ║  [5]Run Clicker only    运行连点脚本  
 echo         ║  [6]Run Recoilless only 运行压枪脚本  
 echo         ╚════════════════════════════════════╝
-choice /C 123456 /M ">        Choose a menu option 请选择:    "
+choice /C 123456 /M ">        请选择/Choose a menu option:    "
 
 :: Note - list ERRORLEVELS in decreasing order
 IF ERRORLEVEL 6 GOTO Run_RCL
@@ -50,6 +52,6 @@ GOTO End
 
 :End
 echo.
-echo        Keep cmd.exe running......
+echo        请保持命令指示符运行/Keep cmd.exe running......
 echo.
 echo. & pause
