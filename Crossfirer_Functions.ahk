@@ -1,6 +1,6 @@
 ﻿;Functions for Crossfirer;CF娱乐助手函数集合
 ;Please read https://www.autohotkey.com/docs/commands/PixelGetColor.htm for RGB vs. BGR format
-;https://clickspeedtest.com/ For click speed test
+;https://github.com/JacobHu0723/cps.github.io For click speed test
 ;==================================================================================
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission()
