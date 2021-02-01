@@ -57,6 +57,7 @@ If WinExist("ahk_class CrossFire")
 
     WinMinimize, ahk_class ConsoleWindowClass
     SetTimer, UpdateGui, 1000 ;不需要太频繁
+    DPI_Initial := A_ScreenDPI
     CTL_Service_On := True
 } 
 ;==================================================================================
@@ -107,6 +108,9 @@ Return
 ;==================================================================================
 UpdateGui() ;精度1s
 {
+    global DPI_Initial
+    If !InStr(A_ScreenDPI, DPI_Initial)
+        MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
     If !WinExist("ahk_class CrossFire")
     {
         WinClose, ahk_class ConsoleWindowClass

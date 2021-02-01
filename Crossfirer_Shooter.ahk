@@ -166,7 +166,7 @@ PingCheck()
 	Gui, Ping_Ev: Submit
 	If !Ping_Is_Valid(Ping_Input)
 	{
-		MsgBox, 16, 错误输入/Invalid Input, %Ping_Input%
+		MsgBox, 262160, 错误输入/Invalid Input, %Ping_Input%
 		FuncPing()
 	}
     Else
@@ -234,12 +234,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     CheckPosition(X1, Y1, W1, H1)
     static PosColor_snipe := "0x000000" ;#000000
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
-    Random, rand, 60.0, 62.0 ;设定随机值减少被检测概率
-    small_rand := rand / 2
     Gui, %CrID%: Color, 00FFFF ;#00FFFF
     Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
     While, WinExist("ahk_class CrossFire")
     {
+        Random, rand, 58.0, 62.0 ;设定随机值减少被检测概率
+        small_rand := rand / 2
         Var := W1 // 2 - 15 ;788
         GuiControl, %Gui_Number2%: +c00FFFF +Redraw, %StatusID% ;#00FFFF
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
@@ -309,7 +309,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
-                        press_key("LButton", small_rand, rand - 3 * Color_Delay) ;靠近M4A1射速
+                        press_key("LButton", small_rand, rand + 10 - 3 * Color_Delay) ;靠近600发每分的射速
                         mouseXY(0, 2) ;小小压枪
                 }
             }

@@ -13,7 +13,7 @@ CheckPermission()
                 Run, *RunAs "%A_ScriptFullPath%" ;管理员权限运行
             Else
             {
-                MsgBox, 4, 警告/Warning, 请问你开启UIA了吗?`nDo you have UIAccess enabled?
+                MsgBox, 262148, 警告/Warning, 请问你开启UIA了吗?`nDo you have UIAccess enabled?
                 IfMsgBox Yes
                     Run, "%A_ProgramFiles%\AutoHotkey\AutoHotkeyU64_UIA.exe" "%A_ScriptFullPath%"
                 Else
@@ -22,7 +22,7 @@ CheckPermission()
         }
         Catch
         {
-            MsgBox, 16, 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
+            MsgBox, 262160, 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
             ExitApp
         }
     }
