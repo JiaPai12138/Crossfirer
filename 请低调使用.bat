@@ -4,9 +4,14 @@ CHCP 65001
 
 :Start
 CLS
-echo 请先仔细阅读说明!!!!!!!!!!!!!!!!!!!
-echo. & pause
+echo         请先仔细阅读说明!!!!!!!!!!!!!!!!!!!!!!!!
+echo.
+echo.
+echo         请按任意键继续/Press any key to continue...
+pause >nul
 
+echo.
+echo.
 echo       请选择需要运行的脚本/Please select an option
 echo         ╔════════════════════════════════════╗
 echo         ║  [1]Run All Scripts     运行所有脚本  
@@ -52,6 +57,7 @@ GOTO End
 
 :End
 echo.
-echo        请保持命令指示符运行/Keep cmd.exe running......
+echo         请保持命令指示符运行/Keep cmd.exe running......
 echo.
-echo. & pause
+echo         请按任意键继续/Press any key to continue...
+pause >nul
