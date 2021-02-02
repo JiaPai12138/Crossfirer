@@ -114,6 +114,7 @@ Return
             press_key("LCtrl", 30, 30)
             cnt += 1
         } Until, (!GetKeyState("W", "P") || cnt >= 8)
+        press_key("LCtrl", 270, 30)
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
