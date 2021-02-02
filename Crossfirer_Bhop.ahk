@@ -50,7 +50,7 @@ If WinExist("ahk_class CrossFire")
     }
 Return
 
-~W & ~F:: ;基本鬼跳 间隔600 因t_accuracy=0.991调整
+~W & ~F:: ;基本鬼跳
     If !Not_In_Game() && BHP_Service_On
     {
         cnt := 0
@@ -58,17 +58,48 @@ Return
         UpdateText("jump_mode", "ModeJump", "基本鬼跳", XGui4, YGui4)
         press_key("space", 100, 100)
         Send, {LCtrl Down}
-        HyperSleep(300)
+        HyperSleep(100)
         Loop 
         {
             press_key("space", 10, 10)   
             cnt += 1
-        } Until, (!GetKeyState("W", "P") || cnt >= 140)
+        } Until, (!GetKeyState("W", "P") || cnt >= 160)
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
         Send, {Blind}{LCtrl Up}
     }
 Return 
+
+~W & ~C:: ;前进上箱子
+    If !Not_In_Game() && BHP_Service_On
+    {
+        cnt := 0
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "前跳跳蹲", XGui4, YGui4)
+        Loop 
+        {
+            press_key("space", 10, 10)   
+            cnt += 1
+        } Until, (cnt >= 40)
+        press_key("LCtrl", 100, 100)
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return
+
+~W & ~Space:: ;连跳,落地不掉血
+    If !Not_In_Game() && BHP_Service_On
+    {
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
+        Loop 
+        {
+            press_key("Space", 10, 10)   
+        } Until, !GetKeyState("Space", "P")
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return
 
 ~W & ~LAlt:: ;空中连蹲跳 w+alt
     If !Not_In_Game() && BHP_Service_On
@@ -76,28 +107,93 @@ Return
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
         cnt := 0
-        press_key("space", 30, 30)
+        press_key("Space", 30, 30)
         HyperSleep(140)
         Loop
         {
-            press_key("LCtrl", 15, 15)
+            press_key("LCtrl", 30, 30)
             cnt += 1
-        } Until, (!GetKeyState("W", "P") || cnt >= 15)
+        } Until, (!GetKeyState("W", "P") || cnt >= 8)
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
 Return
 
-~S & ~F:: ;跳蹲上墙
+~S & ~F:: ;跳蹲上坡
     If !Not_In_Game() && BHP_Service_On
     {
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
-        UpdateText("jump_mode", "ModeJump", "跳蹲上墙", XGui4, YGui4)
+        UpdateText("jump_mode", "ModeJump", "跳蹲上坡", XGui4, YGui4)
         Loop
         {
-            press_key("space", 30, 30)
+            press_key("Space", 30, 30)
             press_key("LCtrl", 30, 30)
         } Until, (GetKeyState("E", "P") || GetKeyState("LButton", "P"))
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return
+
+~S & ~C:: ;后退上箱子
+    If !Not_In_Game() && BHP_Service_On
+    {
+        cnt := 0
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "后跳跳蹲", XGui4, YGui4)
+        Loop 
+        {
+            press_key("Space", 10, 10)   
+            cnt += 1
+        } Until, (cnt >= 40)
+        press_key("LCtrl", 100, 100)
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return
+
+~Z & ~X:: ;单纯滑步
+    If !Not_In_Game() && BHP_Service_On
+    {
+        cnt := 0
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "前后滑步", XGui4, YGui4)
+        Loop 
+        {
+            press_key("W", 30, 60)
+            press_key("S", 30, 60)
+            cnt += 1
+        } Until, (cnt >= 20)
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return 
+
+~Z & ~C:: ;超级跳 未完成
+    If !Not_In_Game() && BHP_Service_On
+    {
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "超级跳箱", XGui4, YGui4)
+        Send, {S Down}
+        HyperSleep(100)
+        Send, {W Down}
+        Loop, 3
+        {
+            press_key("Space", 100, 300)
+            press_key("LCtrl", 100, 100)
+            HyperSleep(700)
+        }
+        Send, {Blind}{W Up}
+        HyperSleep(100)
+        cnt := 0
+        Loop 
+        {
+            press_key("Space", 10, 10)
+            cnt += 1
+        } Until, (cnt >= 40)
+        press_key("LCtrl", 100, 100)
+        HyperSleep(100)
+        Send, {Blind}{S Up}
+        
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
