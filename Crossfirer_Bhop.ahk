@@ -90,11 +90,11 @@ Return
 ~W & ~Space:: ;连跳,落地不掉血
     If !Not_In_Game() && BHP_Service_On
     {
-        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
-        UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
         HyperSleep(200)
         While GetKeyState("Space", "P")
         {
+            GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+            UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
             press_key("Space", 10, 10)   
         }
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
