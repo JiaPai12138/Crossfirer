@@ -81,7 +81,7 @@ Return
             press_key("space", 10, 10)   
             cnt += 1
         } Until, (cnt >= 40)
-        press_key("LCtrl", 100, 100)
+        press_key("LCtrl", 100, 20)
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
@@ -145,7 +145,7 @@ Return
             press_key("Space", 10, 10)   
             cnt += 1
         } Until, (cnt >= 40)
-        press_key("LCtrl", 100, 100)
+        press_key("LCtrl", 100, 20)
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
@@ -159,8 +159,8 @@ Return
         UpdateText("jump_mode", "ModeJump", "前后滑步", XGui4, YGui4)
         Loop 
         {
-            press_key("W", 30, 60)
-            press_key("S", 30, 60)
+            press_key("w", 30, 60)
+            press_key("s", 30, 60)
             cnt += 1
         } Until, (cnt >= 20)
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
@@ -168,31 +168,31 @@ Return
     }
 Return 
 
-~Z & ~C:: ;六级跳 未完成
+~Z & ~C:: ;六级跳 需要特定角度和条件
     If !Not_In_Game() && BHP_Service_On
     {
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
-        UpdateText("jump_mode", "ModeJump", "超级跳箱", XGui4, YGui4)
-        Send, {S Down}
+        UpdateText("jump_mode", "ModeJump", "六级跳箱", XGui4, YGui4)
+        Send, {s Down}
         HyperSleep(100)
-        Send, {W Down}
+        Send, {w Down}
         Loop, 3
         {
-            press_key("Space", 100, 300)
+            press_key("Space", 100, 200)
             press_key("LCtrl", 100, 100)
             HyperSleep(700)
         }
-        Send, {Blind}{W Up}
         HyperSleep(100)
+        Send, {Blind}{w Up}
         cnt := 0
         Loop 
         {
             press_key("Space", 10, 10)
             cnt += 1
         } Until, (cnt >= 40)
-        press_key("LCtrl", 100, 100)
-        HyperSleep(100)
-        Send, {Blind}{S Up}
+        press_key("LCtrl", 100, 20)
+        press_key("Space", 10, 10)
+        Send, {Blind}{s Up}
         
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
