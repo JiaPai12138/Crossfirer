@@ -168,7 +168,7 @@ Return
     }
 Return 
 
-~Z & ~C:: ;超级跳 未完成
+~Z & ~C:: ;六级跳 未完成
     If !Not_In_Game() && BHP_Service_On
     {
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
