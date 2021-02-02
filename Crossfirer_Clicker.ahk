@@ -94,7 +94,7 @@ Return
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
         {
-            press_key("LButton", 30.0, 30.0)
+            press_key("LButton", 30.0, 20.0)
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
