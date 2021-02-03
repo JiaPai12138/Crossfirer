@@ -31,7 +31,7 @@ GamePing :=
 If WinExist("ahk_class CrossFire")
 {
     WinGetTitle, game_title, ahk_class CrossFire
-    CheckPosition(ValueX, ValueY, ValueW, ValueH)
+    CheckPosition(ValueX, ValueY, ValueW, ValueH, "CrossFire")
     Start:
     Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
@@ -231,7 +231,7 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
 ;自动开火函数,通过检测红名实现
 AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych, GamePing)
 {
-    CheckPosition(X1, Y1, W1, H1)
+    CheckPosition(X1, Y1, W1, H1, "CrossFire")
     static PosColor_snipe := "0x000000" ;#000000
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     Gui, %CrID%: Color, 00FFFF ;#00FFFF
@@ -279,12 +279,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             press_key("LButton", small_rand, small_rand)
                         ;开镜瞬狙或连狙
 
-                        If (GamePing <= 50) ;如果延迟低,允许切枪减少换弹时间
+                        If (GamePing <= 300) ;允许切枪减少换弹时间
                         {
                             GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
                             UpdateText(Gui_Number2, StatusID, "双切换弹", XGui2, YGui2)
                             Send, {3 DownTemp}
-                            HyperSleep(rand + small_rand + 10)
+                            HyperSleep(GamePing * 2.1)
                             Send, {1 DownTemp}
                             
                             If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹

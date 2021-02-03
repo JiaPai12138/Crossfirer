@@ -66,13 +66,9 @@ If WinExist("ahk_class CrossFire")
     {
         WinClose, ahk_class ConsoleWindowClass
         Try
-        {
             Run, .\请低调使用.bat
-        }
         Catch
-        {
             Run, .\双击我启动助手!!!.exe
-        }
         ExitApp
     }
 Return
@@ -122,12 +118,9 @@ UpdateGui() ;精度1s
             If StrLen(Gui_Title) < 4
                 Title_Blank += 1
             HyperSleep(100) ;just for stability
-        } Until Title_Blank > 3
+        } Until Title_Blank > 4
         If ProcessExist("GameLoader.exe")
-        {
-            Runwait, *RunAs %Comspec% /C taskkill /IM GameLoader.exe /F ;关闭游戏残留进程
-            Runwait, *RunAs %Comspec% /C taskkill /IM TQMCenter.exe /F ;关闭游戏残留进程
-        }
+            Run, *RunAs .\关闭TX残留进程.bat, , Hide
         ExitApp
     }
 }

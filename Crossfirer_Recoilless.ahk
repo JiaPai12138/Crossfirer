@@ -31,7 +31,7 @@ Hole =
 
 If WinExist("ahk_class CrossFire")
 {
-    CheckPosition(Xrs, Yrs, Wrs, Hrs)
+    CheckPosition(Xrs, Yrs, Wrs, Hrs, "CrossFire")
     Radius := Round(Hrs / 18)
     Diameter := 2 * Radius
     Start:

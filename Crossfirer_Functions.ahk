@@ -45,7 +45,7 @@ CheckUIA()
         WinGetTitle, AHK_Title, ahk_exe AutoHotkeyU64_UIA.exe
         WinGet, Process_Num, Count, ahk_exe AutoHotkeyU64_UIA.exe
         DetectHiddenWindows, Off
-        If InStr(AHK_Title, "Crossfirer_") && Process_Num >= 2
+        If InStr(AHK_Title, "Crossfirer_") && Process_Num > 1
             Return True
         Else
             Return False
@@ -55,29 +55,31 @@ CheckUIA()
 }
 ;==================================================================================
 ;检查游戏界面真正位置,不包括标题栏和边缘等等
-CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp)
+CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, class_name)
 {
-    WinGet, CFID, ID, ahk_class CrossFire
+    WinGet, CFID, ID, ahk_class %class_name%
 
     VarSetCapacity(rect, 16)
-    DllCall("GetClientRect", "ptr", CFID, "ptr", &rect)
+    DllCall("GetClientRect", "ptr", CFID, "ptr", &rect) ;内在宽高
     Wcp := NumGet(rect, 8, "int")
     Hcp := NumGet(rect, 12, "int")
 
     VarSetCapacity(WINDOWINFO, 60, 0)
-    DllCall("GetWindowInfo", "ptr", CFID, "ptr", &WINDOWINFO)
+    DllCall("GetWindowInfo", "ptr", CFID, "ptr", &WINDOWINFO) ;内在XY
     Xcp := NumGet(WINDOWINFO, 20, "Int")
     Ycp := NumGet(WINDOWINFO, 24, "Int")
 
-    VarSetCapacity(Screen_Info, 156)
-    DllCall("EnumDisplaySettingsA", Ptr, 0, UInt, -1, UInt, &Screen_Info)
-	Mon_Width := NumGet(Screen_Info, 108, "int")
-	Mon_Hight := NumGet(Screen_Info, 112, "int")
-
-    If (Wcp >= Mon_Width) || (Hcp >= Mon_Hight) ;全屏检测,未适应UHD不放大
-        CoordMode, Pixel, Client
-    Else
-        CoordMode, Pixel, Screen
+    If InStr(class_name, "CrossFire")
+    {
+        VarSetCapacity(Screen_Info, 156)
+        DllCall("EnumDisplaySettingsA", Ptr, 0, UInt, -1, UInt, &Screen_Info) ;真实分辨率
+        Mon_Width := NumGet(Screen_Info, 108, "int")
+        Mon_Hight := NumGet(Screen_Info, 112, "int")
+        If (Wcp >= Mon_Width) || (Hcp >= Mon_Hight) ;全屏检测,未知是否适应UHD不放大
+            CoordMode, Pixel, Client
+        Else
+            CoordMode, Pixel, Screen
+    }
 }
 ;==================================================================================
 ;检查进程是否存在
@@ -90,7 +92,7 @@ ProcessExist(Process_Name)
 ;检测是否不再游戏中,目标为界面左上角火焰状字样以及附近的黑暗阴影
 Not_In_Game() 
 {
-    CheckPosition(X1, Y1, W1, H1)
+    CheckPosition(X1, Y1, W1, H1, "CrossFire")
     PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x3054FF, 5, Fast ;show color in editor: #3054FF #FF5430
     If !ErrorLevel
     {
@@ -138,11 +140,11 @@ press_key(key, press_time, sleep_time)
 ;设置图形界面位置
 SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
 {
-    CheckPosition(X1, Y1, W1, H1)
+    CheckPosition(X1, Y1, W1, H1, "CrossFire")
     If InStr("H", GuiPosition) ;顶部一栏横向
     {
         XGui := X1 + W1 // 2 + OffsetX
-        YGui := Y1 + OffsetUp + OffsetY
+        YGui := Y1 + OffsetY
     }
     Else If InStr("V", GuiPosition) ;左侧一栏纵向
     {

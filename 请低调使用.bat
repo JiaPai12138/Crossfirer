@@ -20,10 +20,12 @@ echo         ║  [3]Run C4 Hero only    运行炸弹计时
 echo         ║  [4]Run Bhop only       运行基础身法  
 echo         ║  [5]Run Clicker only    运行连点脚本  
 echo         ║  [6]Run Recoilless only 运行压枪脚本  
+echo         ║  [7]Run NetBlocker only 运行限速脚本  
 echo         ╚════════════════════════════════════╝
-choice /C 123456 /M ">        请选择/Choose a menu option:    "
+choice /C 1234567 /M ">        请选择/Choose a menu option:    "
 
 :: Note - list ERRORLEVELS in decreasing order
+IF ERRORLEVEL 7 GOTO Run_NBK
 IF ERRORLEVEL 6 GOTO Run_RCL
 IF ERRORLEVEL 5 GOTO Run_CLK
 IF ERRORLEVEL 4 GOTO Run_BHP
@@ -53,6 +55,10 @@ GOTO End
 
 :Run_RCL
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_RCL.ps1'"
+GOTO End
+
+:Run_NBK
+PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_NBK.ps1'"
 GOTO End
 
 :End

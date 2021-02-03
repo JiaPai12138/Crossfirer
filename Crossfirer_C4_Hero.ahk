@@ -21,7 +21,6 @@ SetControlDelay, -1
 global C4H_Service_On := False
 CheckPermission()
 ;==================================================================================
-Xe := , Ye := , We := , He := 
 C4_Time := 40
 C4_Start := 0
 Be_Hero := False
@@ -29,7 +28,7 @@ C4_On := False
 
 If WinExist("ahk_class CrossFire")
 {
-    CheckPosition(Xe, Ye, We, He)
+    CheckPosition(Xe, Ye, We, He, "CrossFire")
     Start:
     Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
@@ -69,13 +68,13 @@ If WinExist("ahk_class CrossFire")
         {
             C4_On := False
             SetTimer, UpdateHero, 60
-            SetTimer, UpdateC4, off
+            SetTimer, UpdateC4, Off
             Gui, C4: Show, Hide
             Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
         }
         Else
         {
-            SetTimer, UpdateHero, off
+            SetTimer, UpdateHero, Off
             Gui, Human_Hero: Show, Hide
         }
     }
@@ -110,7 +109,7 @@ Return
         Be_Hero := False
         C4_On := True
         SetTimer, UpdateC4, 100
-        SetTimer, UpdateHero, off
+        SetTimer, UpdateHero, Off
         Gui, C4: Show, x%XGuiC% y%YGuiC% NA
         Gui, Human_Hero: Show, Hide
     }
@@ -120,7 +119,7 @@ Return
     If !Not_In_Game() && C4H_Service_On
     {
         C4_On := False
-        SetTimer, UpdateC4, off
+        SetTimer, UpdateC4, Off
         Gui, C4: Show, Hide
     }
 Return
@@ -134,7 +133,7 @@ UpdateC4() ;精度0.1s
 UpdateHero() ;精度0.06s
 {
     global Xe, Ye, We, He, Be_Hero, XGuiE, YGuiE, XGui8, YGui8
-    CheckPosition(Xe, Ye, We, He)
+    CheckPosition(Xe, Ye, We, He, "CrossFire")
     GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
     UpdateText("Human_Hero", "IMHero", "猎手", XGui8, YGui8)
     If (Be_Hero && !Not_In_Game())
@@ -156,7 +155,7 @@ UpdateHero() ;精度0.06s
 ;C4倒计时辅助,精度0.1s
 C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
 {
-    CheckPosition(X1, Y1, W1, H1)
+    CheckPosition(X1, Y1, W1, H1, "CrossFire")
     If Is_C4_Time(X1, Y1, W1, H1)
     {
         If C4_Start = 0
