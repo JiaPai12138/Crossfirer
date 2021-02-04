@@ -5,6 +5,12 @@
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission()
 {
+    If A_OSVersion in WIN_NT4, WIN_95, WIN_98, WIN_ME, WIN_2000, WIN_2003, WIN_XP, WIN_VISTA   ;检测操作系统
+    {
+        MsgBox, 262160, 错误/Error, 此辅助需要Win 7及以上操作系统!!!`nThis program requires Windows 7 or later!!!
+        ExitApp
+    }
+
     If Not (A_IsAdmin || CheckUIA())
     {
         Try
@@ -22,7 +28,7 @@ CheckPermission()
         }
         Catch
         {
-            MsgBox, 262160, 错误/Error, 未正确运行!脚本将退出!!`nUnable to start correctly!The script will exit!!
+            MsgBox, 262160, 错误/Error, 未正确运行!辅助将退出!!`nUnable to start correctly!The script will exit!!
             ExitApp
         }
     }
