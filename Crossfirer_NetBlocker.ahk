@@ -36,6 +36,7 @@ Net_Text := "一键断天涯|"Net_Time
 CheckPermission()
 If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
 {
+    WinActivate, ahk_exe NLClientApp.exe
     启用规则1 := Create_Limit_net_1_bmp()
     启用规则2 := Create_Limit_net_2_bmp()
     禁用规则1 := Create_Restore_net_1_bmp()
@@ -74,6 +75,7 @@ If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
 }
 Else If WinExist("ahk_class Q360NetFosClass")
 {
+    WinActivate, ahk_class Q360NetFosClass
     CheckPosition(X360, Y360, W360, H360, "Q360NetFosClass")
     clickx := Round(W360 / 5), clicky := Round(H360 / 2.8) ;右键位置
     MsgBox, 360版一键限速已就绪!`n360 version of onekey-bandwidth-limiter is ready!
