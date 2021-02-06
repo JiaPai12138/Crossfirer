@@ -218,7 +218,9 @@ Net_Timer(XGui9, YGui9, ByRef Net_On, ByRef Net_Start, ByRef Net_Time, ByRef Net
         Else
         {
             Net_Time := Round(6.5 - (SystemTime() - Net_Start) / 1000)
-            If (Net_Time <= 5 && Net_Time >= 3)
+            If Net_Time = 6
+                GuiControl, %Gui_Number%: +c00FFFF +Redraw, %ControlID% ;#00FFFF
+            Else If (Net_Time <= 5 && Net_Time >= 3)
                 GuiControl, %Gui_Number%: +cFFFF00 +Redraw, %ControlID% ;#FFFF00
             Else If (Net_Time < 3 && Net_Time > 0)
                 GuiControl, %Gui_Number%: +cFF0000 +Redraw, %ControlID% ;#FF0000
