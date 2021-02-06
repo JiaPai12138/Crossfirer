@@ -28,7 +28,7 @@ CheckPermission()
         }
         Catch
         {
-            MsgBox, 262160, 错误/Error, 未正确运行!辅助将退出!!`nUnable to start correctly!The script will exit!!
+            MsgBox, 262160, 错误/Error, 未正确运行!辅助将退出!!`nUnable to start correctly!The program will exit!!
             ExitApp
         }
     }
