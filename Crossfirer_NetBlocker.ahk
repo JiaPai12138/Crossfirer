@@ -145,7 +145,6 @@ Return
             Gui, net_status: Show, Hide
             Gui, net_count: Show, Hide
         }
-
     }
     Else If NBK_Service_On && (hwnd360 := WinExist("ahk_class Q360NetFosClass"))
     {
