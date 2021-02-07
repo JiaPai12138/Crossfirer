@@ -265,18 +265,18 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                 {
                     Case 2:
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
-                        press_key("LButton", rand, (rand - 3 * Color_Delay)) ;控制USP射速
+                        press_key("LButton", 10, small_rand + rand - 3 * Color_Delay) ;控制USP射速
                         mouseXY(0, 1)
 
                     Case 8:
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式", XGui1, YGui1)
                         If Not GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) ;检测狙击镜准心
                         {
-                            press_key("RButton", small_rand, small_rand)
-                            press_key("LButton", small_rand, small_rand)
+                            press_key("RButton", small_rand, small_rand - Color_Delay)
+                            press_key("LButton", small_rand, small_rand - 3 * Color_Delay)
                         }
                         Else
-                            press_key("LButton", small_rand, small_rand)
+                            press_key("LButton", small_rand, small_rand - 4 * Color_Delay)
                         ;开镜瞬狙或连狙
 
                         If (GamePing <= 300) ;允许切枪减少换弹时间
@@ -294,12 +294,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                                 Loop ;确保物理按1退出
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("1", "P"))
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P"))
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("1", "P"))
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P"))
                             }
                         }
 
@@ -309,7 +309,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
-                        press_key("LButton", small_rand, rand + 10 - 3 * Color_Delay) ;靠近600发每分的射速
+                        press_key("LButton", 10, small_rand + rand - 3 * Color_Delay) ;靠近600发每分的射速
                         mouseXY(0, 2) ;小小压枪
                 }
             }

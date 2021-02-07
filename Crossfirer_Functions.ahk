@@ -135,11 +135,11 @@ mouseXY(x1,y1)
 }
 ;==================================================================================
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
-press_key(key, press_time, sleep_time)
+press_key(key_name, press_time, sleep_time)
 {
-    Send, {%key% DownTemp}
+    Send, {Blind}{%key_name% DownTemp}
     HyperSleep(press_time)
-    Send, {Blind}{%key% up}
+    Send, {Blind}{%key_name% up}
     HyperSleep(sleep_time)
 }
 ;==================================================================================
@@ -173,7 +173,7 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
 UpdateText(Gui_Number, ControlID, NewText, X, Y)
 {
     static OldText := {}
-    if (OldText[ControlID] != NewText)
+    If (OldText[ControlID] != NewText)
     {
         GuiControl, %Gui_Number%: Text, %ControlID%, %NewText%
         OldText[ControlID] := NewText
@@ -185,7 +185,7 @@ UpdateText(Gui_Number, ControlID, NewText, X, Y)
 SystemTime()
 {
     freq := 0, tick := 0
-    if (!freq)
+    If (!freq)
         DllCall("QueryPerformanceFrequency", "Int64*", freq)
     DllCall("QueryPerformanceCounter", "Int64*", tick)
     Return tick / freq * 1000
