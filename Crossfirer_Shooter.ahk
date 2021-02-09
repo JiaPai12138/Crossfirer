@@ -79,6 +79,7 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
+~*Enter::Suspend, Toggle ;输入聊天时不受影响
 
 ~*RAlt::
     If SHT_Service_On
@@ -309,7 +310,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
-                        press_key("LButton", 10, small_rand + rand - 4 * Color_Delay) ;靠近600发每分的射速
+                        press_key("LButton", small_rand, 10 + rand - 4 * Color_Delay) ;靠近600发每分的射速
                         mouseXY(0, 2) ;小小压枪
                 }
             }

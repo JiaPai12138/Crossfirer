@@ -77,6 +77,7 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
+~*Enter::Suspend, Toggle ;输入聊天时不受影响
 
 ~*RAlt::
     If RCL_Service_On
@@ -178,6 +179,7 @@ Recoilless(Gun_Chosen)
 {
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     StartTime := SystemTime()
+    Ammo_Count := 0
     Loop
     {
         EndTime := Floor(SystemTime() - StartTime + 3 * Color_Delay) ;确保非浮点
@@ -198,52 +200,58 @@ Recoilless(Gun_Chosen)
 
         Case 1: ;AK47英雄级
             Ammo_Delay := 100
-            If (EndTime < Ammo_Delay)
+            Ammo_Count := EndTime // Ammo_Delay ;确保每一发都压到
+            If (Ammo_Count < 1)
             {
-                mouseXY(0, 2)
+                mouseXY(0, 3)
                 HyperSleep(Ammo_Delay - 3 * Color_Delay)
             }
             Else
             {
-                If In(Ammo_Delay, EndTime, 2 * Ammo_Delay)
+                If In(1, Ammo_Count, 3)
+                {
+                    mouseXY(0, 7)
+                }
+                Else If In(3, Ammo_Count, 4)
+                {
+                    mouseXY(0, 9)
+                }
+                Else If In(4, Ammo_Count, 6)
+                {
+                    mouseXY(0, 6)
+                }
+                Else If In(6, Ammo_Count, 10)
                 {
                     mouseXY(0, 2)
                 }
-                Else If In(2 * Ammo_Delay, EndTime, 9 * Ammo_Delay)
-                {
-                    mouseXY(0, 5)
-                }
-                Else If In(9 * Ammo_Delay, EndTime, 11 * Ammo_Delay)
-                {
-                    mouseXY(0, 2)
-                }
-                Else If EndTime >= 11 * Ammo_Delay
+                Else If Ammo_Count >= 10
                     mouseXY(0, 0) ;其实无用
                 HyperSleep(Ammo_Delay)
             }
 
         Case 2: ;M4A1英雄级
             Ammo_Delay := 87.6
-            If (EndTime < Ammo_Delay)
+            Ammo_Count := EndTime // Ammo_Delay ;确保每一发都压到
+            If (Ammo_Count < 1)
             {
-                mouseXY(0, 2)
+                mouseXY(0, 1)
                 HyperSleep(Ammo_Delay - 3 * Color_Delay)
             }
             Else
             {
-                If In(Ammo_Delay, EndTime, 2 * Ammo_Delay)
-                {
-                    mouseXY(0, 1)
-                }
-                Else If In(2 * Ammo_Delay, EndTime, 9 * Ammo_Delay)
+                If In(1, Ammo_Count, 3)
                 {
                     mouseXY(0, 3)
                 }
-                Else If In(9 * Ammo_Delay, EndTime, 11 * Ammo_Delay)
+                Else If In(3, Ammo_Count, 6)
+                {
+                    mouseXY(0, 5)
+                }
+                Else If In(6, Ammo_Count, 10)
                 {
                     mouseXY(0, 1)
                 }
-                Else If EndTime >= 11 * Ammo_Delay
+                Else If Ammo_Count >= 10
                     mouseXY(0, 0) ;其实无用
                 HyperSleep(Ammo_Delay)
             }

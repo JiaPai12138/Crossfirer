@@ -62,16 +62,14 @@ If WinExist("ahk_class CrossFire")
 } 
 ;==================================================================================
 ~*-::
-    If WinActive("ahk_class CrossFire") && CTL_Service_On
-    {
-        WinClose, ahk_class ConsoleWindowClass
-        Try
-            Run, .\请低调使用.bat
-        Catch
-            Run, .\双击我启动助手!!!.exe
-        ExitApp
-    }
-Return
+    WinClose, ahk_class ConsoleWindowClass
+    Try
+        Run, .\请低调使用.bat
+    Catch
+        Run, .\双击我启动助手!!!.exe
+ExitApp
+
+~*Enter::Suspend, Toggle ;输入聊天时不受影响
 
 ~*RAlt::
     If CTL_Service_On

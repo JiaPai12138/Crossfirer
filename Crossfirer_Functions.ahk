@@ -230,4 +230,15 @@ PostMessage(Receiver, Message) ;接受方为GUI标题
     PostMessage, 0x1001, %Message%, , , %Receiver% ahk_class AutoHotkeyGUI
 }
 ;==================================================================================
+;释放所有按键,来自于https://www.autohotkey.com/boards/viewtopic.php?t=60762
+Release_All_Keys()
+{
+    Loop, 0xFF
+    {
+        Key := Format("VK{:02X}", A_Index)
+        If GetKeyState(Key)
+            Send, {Blind}{%Key% Up}
+    }
+}
+;==================================================================================
 ;End

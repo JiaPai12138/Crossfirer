@@ -108,6 +108,7 @@ If (WinExist("ahk_class CrossFire"))
 }
 ;==================================================================================
 ~*-::ExitApp
+~*Enter::Suspend, Toggle ;输入聊天时不受影响
 
 ~*RAlt::
     If NBK_Service_On
@@ -128,24 +129,32 @@ Return
         {
             Gui, net_status: Show, x%XGui9% y%YGui9% NA
             WinMinimize, ahk_exe NLClientApp.exe
+            Release_All_Keys()
+            BlockInput, On
             WinMinimize, ahk_class CrossFire
             HyperSleep(10)
             WinActivate, ahk_exe NLClientApp.exe
             HyperSleep(10)
             MouseClick, Left, Block_nbClickX, Block_nbClickY
+            HyperSleep(10)
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+            BlockInput, Off
             SetTimer, UpdateNet, 100
         }
         Else
         {
             SetTimer, UpdateNet, Off
             WinMinimize, ahk_exe NLClientApp.exe
+            Release_All_Keys()
+            BlockInput, On
             WinMinimize, ahk_class CrossFire
             HyperSleep(10)
             WinActivate, ahk_exe NLClientApp.exe
             HyperSleep(10)
             MouseClick, Left, Allow_nbClickX, Allow_nbClickY
+            HyperSleep(10)
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+            BlockInput, Off
             Net_Start := 0, Net_Time := 6
             Gui, net_status: Show, Hide
             Gui, net_count: Show, Hide
@@ -157,6 +166,8 @@ Return
         If !Net_On
         {
             Gui, net_status: Show, x%XGui9% y%YGui9% NA
+            Release_All_Keys()
+            BlockInput, On
             WinMinimize, ahk_class CrossFire
             DllCall("SwitchToThisWindow", "UInt", hwnd360, "UInt", 1)
             ControlClick, x%clickx% y%clicky%, ahk_class Q360NetFosClass, , Right, , NA
@@ -164,11 +175,14 @@ Return
             press_key("Down", 10, 10)
             press_key("Enter", 10, 10)
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+            BlockInput, Off
             SetTimer, UpdateNet, 100
         }
         Else
         {
             SetTimer, UpdateNet, Off
+            Release_All_Keys()
+            BlockInput, On
             WinMinimize, ahk_class CrossFire
             DllCall("SwitchToThisWindow", "UInt", hwnd360, "UInt", 1)
             ControlClick, x%clickx% y%clicky%, ahk_class Q360NetFosClass, , Right, , NA
@@ -177,6 +191,7 @@ Return
             press_key("Down", 10, 10)
             press_key("Enter", 10, 10)
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+            BlockInput, Off
             Net_Start := 0, Net_Time := 6
             Gui, net_status: Show, Hide
             Gui, net_count: Show, Hide
@@ -195,13 +210,21 @@ UpdateNet() ;精度0.1s
         If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
         {
             WinMinimize, ahk_exe NLClientApp.exe
+            Release_All_Keys()
+            BlockInput, On
             WinMinimize, ahk_class CrossFire
+            HyperSleep(10)
             WinActivate, ahk_exe NLClientApp.exe
+            HyperSleep(10)
             MouseClick, Left, Allow_nbClickX, Allow_nbClickY
+            HyperSleep(10)
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+            BlockInput, Off
         }
         Else If WinExist("ahk_class Q360NetFosClass")
         {
+            Release_All_Keys()
+            BlockInput, On
             WinMinimize, ahk_class CrossFire
             DllCall("SwitchToThisWindow", "UInt", hwnd360, "UInt", 1)
             ControlClick, x%clickx% y%clicky%, ahk_class Q360NetFosClass, , Right, , NA
@@ -210,6 +233,7 @@ UpdateNet() ;精度0.1s
             press_key("Down", 10, 10)
             press_key("Enter", 10, 10)
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+            BlockInput, Off
         }
     }
 }
@@ -223,7 +247,7 @@ Net_Timer(XGui9, YGui9, ByRef Net_On, ByRef Net_Start, ByRef Net_Time, ByRef Net
             Net_Start := SystemTime()
         Else
         {
-            Net_Time := Floor(6.0 - (SystemTime() - Net_Start) / 1000)
+            Net_Time := Round(6.5 - (SystemTime() - Net_Start) / 1000)
             If Net_Time = 6
                 GuiControl, %Gui_Number%: +c00FFFF +Redraw, %ControlID% ;#00FFFF
             Else If (Net_Time <= 5 && Net_Time >= 3)
