@@ -95,7 +95,7 @@ Return
         {
             GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
             UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
-            press_key("Space", 1, 1) ;冒险
+            press_key("Space", 10, 10)
         }
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
