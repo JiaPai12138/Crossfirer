@@ -1,5 +1,5 @@
 ﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-;#Warn  ; Enable warnings to assist with detecting common errors.
+#Warn  ; Enable warnings to assist with detecting common errors.
 #MenuMaskKey vkFF  ; vkFF is no mapping
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
@@ -34,6 +34,7 @@ nb_block := False
 nb_allow := False
 Net_Text := "一键断天涯|"Net_Time
 CheckPermission()
+hwndcf := WinExist("ahk_class CrossFire")
 If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
 {
     WinActivate, ahk_exe NLClientApp.exe
@@ -71,7 +72,7 @@ If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
     Block_nbClickX += 31, Block_nbClickY += 12, Allow_nbClickX += 31, Allow_nbClickY += 12
     MouseClick, Left, Allow_nbClickX, Allow_nbClickY ;初始化状态
     MsgBox, NetLimiter版一键限速已就绪!`nNetLimiter version of onekey-bandwidth-limiter is ready!
-    ;MsgBox, %Block_nbClickX%x%Block_nbClickY% %Allow_nbClickX%x%Allow_nbClickY%
+    DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
 }
 Else If WinExist("ahk_class Q360NetFosClass")
 {
@@ -86,7 +87,7 @@ Else
     Exitapp
 }
 ;==================================================================================
-If (hwndcf := WinExist("ahk_class CrossFire"))
+If (WinExist("ahk_class CrossFire"))
 {
     CheckPosition(X3e, Y3e, W3e, H3e, "CrossFire")
     Start:
@@ -185,7 +186,7 @@ Return
 ;==================================================================================
 UpdateNet() ;精度0.1s
 {
-    global XGui9, YGui9, Net_Start, Net_Time, clickx, clicky, Allow_nbClickX, Allow_nbClickY, hwndcf, hwnd360, H360
+    global XGui9, YGui9, Net_Start, Net_Time, clickx, clicky, Allow_nbClickX, Allow_nbClickY, hwndcf, hwnd360, H360, Net_Text
     Net_Timer(XGui9, YGui9, Net_On, Net_Start, Net_Time, Net_Text, "net_status", "NetBlock")
     If Net_On
     {
