@@ -128,7 +128,9 @@ Return
             Gui, net_status: Show, x%XGui9% y%YGui9% NA
             WinMinimize, ahk_exe NLClientApp.exe
             WinMinimize, ahk_class CrossFire
+            HyperSleep(10)
             WinActivate, ahk_exe NLClientApp.exe
+            HyperSleep(10)
             MouseClick, Left, Block_nbClickX, Block_nbClickY
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
             SetTimer, UpdateNet, 100
@@ -138,7 +140,9 @@ Return
             SetTimer, UpdateNet, Off
             WinMinimize, ahk_exe NLClientApp.exe
             WinMinimize, ahk_class CrossFire
+            HyperSleep(10)
             WinActivate, ahk_exe NLClientApp.exe
+            HyperSleep(10)
             MouseClick, Left, Allow_nbClickX, Allow_nbClickY
             DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
             Net_Start := 0, Net_Time := 6
@@ -218,7 +222,7 @@ Net_Timer(XGui9, YGui9, ByRef Net_On, ByRef Net_Start, ByRef Net_Time, ByRef Net
             Net_Start := SystemTime()
         Else
         {
-            Net_Time := Round(6.5 - (SystemTime() - Net_Start) / 1000)
+            Net_Time := Floor(6.0 - (SystemTime() - Net_Start) / 1000)
             If Net_Time = 6
                 GuiControl, %Gui_Number%: +c00FFFF +Redraw, %ControlID% ;#00FFFF
             Else If (Net_Time <= 5 && Net_Time >= 3)

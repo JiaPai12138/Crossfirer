@@ -88,8 +88,7 @@ If WinExist("ahk_class CrossFire")
     }
 Return
 
-*$LButton:: ;压枪 正在开发
-    ;PixelGetColor, Set_Point, Xrs + Wrs // 2, Yrs + Round(Hrs / 4)
+~*$LButton:: ;压枪 正在开发
     If RCL_Service_On
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
@@ -101,21 +100,10 @@ Return
             UpdateText("recoil_mode", "ModeClick", RCL_Text, XGui5, YGui5)
             Recoilless(Gun_Chosen)
         }
-        Else
-        {
-            Send, {Blind}{LButton Down}
-            Loop
-            {
-                HyperSleep(10)
-            } Until !GetKeyState("LButton", "P")
-            Send, {Blind}{LButton Up}
-        } 
     }
 Return
 
-*Lbutton Up:: ;保障新一轮压枪
-    Left_Point := 
-    Right_Point := 
+~*Lbutton Up:: ;保障新一轮压枪
     If RCL_Service_On
     {
         Gui, circle: Show, Hide
@@ -141,7 +129,8 @@ Return
 Return
 
 ~*NumpadAdd:: ;按级别压枪
-    RCL_Down := Mod(RCL_Down + 1, 3)
+    If RCL_Service_On
+        RCL_Down := Mod(RCL_Down + 1, 4)
 Return
 
 ~*NumpadIns::
@@ -188,81 +177,87 @@ Return
 Recoilless(Gun_Chosen)
 {
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
-    global RCL_Down, Set_Point, Xrs, Yrs, Wrs, Hrs
-    If GetKeyState("LButton", "P") 
+    StartTime := SystemTime()
+    Loop
     {
-        StartTime := SystemTime()
-        EndTime := SystemTime() - StartTime
+        EndTime := Floor(SystemTime() - StartTime + 3 * Color_Delay) ;确保非浮点
         Switch Gun_Chosen
         {
         Case 0: ;通用啥都压系列
-            While, GetKeyState("LButton", "P")
-            {
-                press_key("LButton", 10, 90) ;600发/分标准射速
-                If RCL_Down
-                    mouseXY(0, RCL_Down)
-                ;PixelSearch, Set_Zone, , Xrs + Wrs // 2 - Round(Wrs / 114), Yrs + Round(Hrs / 8), Xrs + Wrs // 2 + Round(Wrs / 114), Yrs + Round(Hrs / 8 * 3), ;Set_Point, 0, Fast
-                ;Aim_Offset := Set_Zone - (Xrs + Wrs // 2)
-                ;MoveX := -Floor((Aim_Offset ** (1/3)))
-                ;mouseXY(MoveX, 0)
-            }
+            global RCL_Down
+            If !GetKeyState("LButton")
+                Send, {Blind}{LButton Down}
+            If EndTime < 100
+                HyperSleep(30 - 3 * Color_Delay)
+            Else
+                HyperSleep(30)
+            Send, {Blind}{LButton Up}
+            HyperSleep(70) ;600发/分标准射速
+            If RCL_Down && EndTime < 1200
+                mouseXY(0, RCL_Down)
 
         Case 1: ;AK47英雄级
-            While, EndTime < 100 && GetKeyState("LButton", "P")
+            Ammo_Delay := 100
+            If (EndTime < Ammo_Delay)
             {
-                HyperSleep(40)
-                mouseXY(0, 1)
-                EndTime := SystemTime() - StartTime
-            }
-            While, EndTime >= 100 && EndTime < 300 && GetKeyState("LButton", "P")
-            {
-                HyperSleep(28)
                 mouseXY(0, 2)
-                EndTime := SystemTime() - StartTime
+                HyperSleep(Ammo_Delay - 3 * Color_Delay)
             }
-            While, EndTime >= 300 && EndTime < 500 && GetKeyState("LButton", "P")
+            Else
             {
-                HyperSleep(36)
-                mouseXY(0, 3)
-                EndTime := SystemTime() - StartTime
-            }
-            While, EndTime >= 500 && EndTime < 800 && GetKeyState("LButton", "P")
-            {
-                HyperSleep(30)
-                mouseXY(0, 1)
-                EndTime := SystemTime() - StartTime
-            }
-            While, EndTime >= 800 && GetKeyState("LButton", "P")
-            {
-                HyperSleep(30)
-                EndTime := SystemTime() - StartTime 
+                If In(Ammo_Delay, EndTime, 2 * Ammo_Delay)
+                {
+                    mouseXY(0, 2)
+                }
+                Else If In(2 * Ammo_Delay, EndTime, 9 * Ammo_Delay)
+                {
+                    mouseXY(0, 5)
+                }
+                Else If In(9 * Ammo_Delay, EndTime, 11 * Ammo_Delay)
+                {
+                    mouseXY(0, 2)
+                }
+                Else If EndTime >= 11 * Ammo_Delay
+                    mouseXY(0, 0) ;其实无用
+                HyperSleep(Ammo_Delay)
             }
 
-            Case 2: ;M4A1英雄级
-            While, EndTime < 90 && GetKeyState("LButton", "P")
+        Case 2: ;M4A1英雄级
+            Ammo_Delay := 87.6
+            If (EndTime < Ammo_Delay)
             {
-                HyperSleep(10)
-                EndTime := SystemTime() - StartTime
-            }
-            While, EndTime >= 90 && EndTime < 530 && GetKeyState("LButton", "P")
-            {
-                HyperSleep(35)
                 mouseXY(0, 2)
-                EndTime := SystemTime() - StartTime 
+                HyperSleep(Ammo_Delay - 3 * Color_Delay)
             }
-            While, EndTime >= 530 && GetKeyState("LButton", "P")
+            Else
             {
-                HyperSleep(30)
-                EndTime := SystemTime() - StartTime
-            }
-
-        Default:
-            While, GetKeyState("LButton", "P")
-            {
-                HyperSleep(30) ;无用代码
+                If In(Ammo_Delay, EndTime, 2 * Ammo_Delay)
+                {
+                    mouseXY(0, 1)
+                }
+                Else If In(2 * Ammo_Delay, EndTime, 9 * Ammo_Delay)
+                {
+                    mouseXY(0, 3)
+                }
+                Else If In(9 * Ammo_Delay, EndTime, 11 * Ammo_Delay)
+                {
+                    mouseXY(0, 1)
+                }
+                Else If EndTime >= 11 * Ammo_Delay
+                    mouseXY(0, 0) ;其实无用
+                HyperSleep(Ammo_Delay)
             }
         }
-    }
+    } Until !GetKeyState("LButton", "P") 
     Return ;复原StartTime
+}
+;==================================================================================
+;将指定数据与一个范围比较,有点多此一举
+In(Min, x, Max) 
+{
+    If (x >= Min) && (x < Max)
+        Return True
+    Else
+        Return False
 }
 ;==================================================================================

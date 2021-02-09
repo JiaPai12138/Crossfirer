@@ -91,11 +91,11 @@ Return
     If !Not_In_Game() && BHP_Service_On
     {
         HyperSleep(200)
-        While GetKeyState("Space", "P")
+        While, GetKeyState("Space", "P")
         {
             GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
             UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
-            press_key("Space", 10, 10)   
+            press_key("Space", 1, 1) ;冒险
         }
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)

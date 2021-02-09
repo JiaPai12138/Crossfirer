@@ -99,13 +99,13 @@ ProcessExist(Process_Name)
 Not_In_Game() 
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
-    PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x3054FF, 5, Fast ;show color in editor: #3054FF #FF5430
+    PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x3054FF, 5, Fast ;show color in editor: #3054FF #FF5430
     If !ErrorLevel
     {
-        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x010101, 1, Fast ;show color in editor: #010101
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x010101, 1, Fast ;show color in editor: #010101
         If !ErrorLevel
         {
-            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0xFFFFFF, 0, Fast ;show color in editor: #FFFFFF
+            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0xFFFFFF, 0, Fast ;show color in editor: #FFFFFF
             Return !ErrorLevel
         }
         Else
@@ -194,19 +194,19 @@ SystemTime()
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
 {
-	t_accuracy := 0.984 ;本机精度测试结果,通过JacobHu0723的CPS测试项目得出
-	value *= t_accuracy
-	s_begin_time := SystemTime()
-	freq := 0, t_current := 0
+    t_accuracy := 0.984 ;本机精度测试结果,通过JacobHu0723的CPS测试项目得出
+    value *= t_accuracy
+    s_begin_time := SystemTime()
+    freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
-	s_end_time := (s_begin_time + value) * freq / 1000 
-    While (t_current <= s_end_time)
+    s_end_time := (s_begin_time + value) * freq / 1000 
+    While, (t_current <= s_end_time)
     {
         If (s_end_time - t_current) > 30000 ;大于三毫秒时不暴力轮询,以减少CPU占用
         {
             DllCall("Winmm.dll\timeBeginPeriod", UInt, 1)
-			DllCall("Sleep", "UInt", 1)
-			DllCall("Winmm.dll\timeEndPeriod", UInt, 1)
+            DllCall("Sleep", "UInt", 1)
+            DllCall("Winmm.dll\timeEndPeriod", UInt, 1)
             ;以上三行代码为相对ahk自带sleep函数稍高精度的睡眠
             DllCall("QueryPerformanceCounter", "Int64*", t_current)
         }
