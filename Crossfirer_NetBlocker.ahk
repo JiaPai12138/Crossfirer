@@ -4,7 +4,7 @@
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #SingleInstance, force
-;#IfWinActive ahk_class Q360NetFosClass  ; Chrome_WidgetWin_1 CrossFire
+#IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
 #Include Crossfirer_Functions.ahk  
 #KeyHistory 0
 #Include Create_Limit_net_1_bmp.ahk
@@ -13,8 +13,6 @@
 #Include Create_Restore_net_2_bmp.ahk
 DetectHiddenWindows, On
 SetTitleMatchMode, Regex
-CoordMode, Pixel, Client
-CoordMode, Mouse, Client
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
@@ -28,12 +26,17 @@ SetControlDelay, -1
 ;==================================================================================
 global NBK_Service_On := False
 global Net_On := True
-Net_Time := 6
 Net_Start := 0
 nb_block := False
 nb_allow := False
-Net_Text := "一键断天涯|"Net_Time
 CheckPermission()
+WinGetTitle, CF_Title, ahk_class CrossFire
+If CF_Title = CROSSFIRE
+    Net_Time := 6
+Else If CF_Title = 穿越火线
+    Net_Time := 8
+Net_Allowed := Net_Time
+Net_Text := "一键断天涯|"Net_Time
 hwndcf := WinExist("ahk_class CrossFire")
 If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
 {
@@ -45,6 +48,7 @@ If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
     Loop
     {
         CheckPosition(Xnb, Ynb, Wnb, Hnb, "HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
+        CoordMode, Pixel, Client
         ImageSearch, Block_nbClickX, Block_nbClickY, Xnb, Ynb, Wnb, Hnb, *63 *TransFFFFFF HBITMAP:*%启用规则1%
         If !ErrorLevel
             nb_block := True
@@ -70,6 +74,7 @@ If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
     DllCall("DeleteObject", "ptr", 禁用规则1) ;free memory
     DllCall("DeleteObject", "ptr", 禁用规则2) ;free memory
     Block_nbClickX += 31, Block_nbClickY += 12, Allow_nbClickX += 31, Allow_nbClickY += 12
+    CoordMode, Mouse, Client
     MouseClick, Left, Allow_nbClickX, Allow_nbClickY ;初始化状态
     MsgBox, NetLimiter版一键限速已就绪!`nNetLimiter version of onekey-bandwidth-limiter is ready!
     DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
@@ -98,10 +103,9 @@ If (WinExist("ahk_class CrossFire"))
     Gui, net_status: Add, Text, hwndGui_9 vNetBlock c00FFFF, %Net_Text% ;#00FFFF
     GuiControlGet, P9, Pos, %Gui_9%
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
     Gui, net_status: Show, Hide ;x%XGui9% y%YGui9% NA
-
     OnMessage(0x1001, "ReceiveMessage")
     NBK_Service_On := True
     Return
@@ -121,41 +125,22 @@ If (WinExist("ahk_class CrossFire"))
     }
 Return
 
-~*H::
+~*H Up::
     If NBK_Service_On && WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
     {
         Net_On := !Net_On
+        Gui, net_status: Show, x%XGui9% y%YGui9% NA
+        Release_All_Keys()
         If !Net_On
-        {
-            Gui, net_status: Show, x%XGui9% y%YGui9% NA
-            WinMinimize, ahk_exe NLClientApp.exe
-            Release_All_Keys()
-            BlockInput, On
-            WinMinimize, ahk_class CrossFire
-            HyperSleep(10)
-            WinActivate, ahk_exe NLClientApp.exe
-            HyperSleep(10)
-            MouseClick, Left, Block_nbClickX, Block_nbClickY
-            HyperSleep(10)
-            DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
-            BlockInput, Off
+            FlashClick(Block_nbClickX, Block_nbClickY, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
+        Else
+            FlashClick(Allow_nbClickX, Allow_nbClickY, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
+        If !Net_On
             SetTimer, UpdateNet, 100
-        }
         Else
         {
             SetTimer, UpdateNet, Off
-            WinMinimize, ahk_exe NLClientApp.exe
-            Release_All_Keys()
-            BlockInput, On
-            WinMinimize, ahk_class CrossFire
-            HyperSleep(10)
-            WinActivate, ahk_exe NLClientApp.exe
-            HyperSleep(10)
-            MouseClick, Left, Allow_nbClickX, Allow_nbClickY
-            HyperSleep(10)
-            DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
-            BlockInput, Off
-            Net_Start := 0, Net_Time := 6
+            Net_Start := 0, Net_Time := Net_Allowed
             Gui, net_status: Show, Hide
             Gui, net_count: Show, Hide
         }
@@ -163,36 +148,16 @@ Return
     Else If NBK_Service_On && (hwnd360 := WinExist("ahk_class Q360NetFosClass"))
     {
         Net_On := !Net_On
+        
+        Gui, net_status: Show, x%XGui9% y%YGui9% NA
+        Release_All_Keys()
+        FlashPress(clickx, clicky, "ahk_class Q360NetFosClass", "ahk_class #32768")
         If !Net_On
-        {
-            Gui, net_status: Show, x%XGui9% y%YGui9% NA
-            Release_All_Keys()
-            BlockInput, On
-            WinMinimize, ahk_class CrossFire
-            DllCall("SwitchToThisWindow", "UInt", hwnd360, "UInt", 1)
-            ControlClick, x%clickx% y%clicky%, ahk_class Q360NetFosClass, , Right, , NA
-            HyperSleep(50)
-            press_key("Down", 10, 10)
-            press_key("Enter", 10, 10)
-            DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
-            BlockInput, Off
             SetTimer, UpdateNet, 100
-        }
         Else
         {
             SetTimer, UpdateNet, Off
-            Release_All_Keys()
-            BlockInput, On
-            WinMinimize, ahk_class CrossFire
-            DllCall("SwitchToThisWindow", "UInt", hwnd360, "UInt", 1)
-            ControlClick, x%clickx% y%clicky%, ahk_class Q360NetFosClass, , Right, , NA
-            HyperSleep(50)
-            press_key("Down", 10, 10)
-            press_key("Down", 10, 10)
-            press_key("Enter", 10, 10)
-            DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
-            BlockInput, Off
-            Net_Start := 0, Net_Time := 6
+            Net_Start := 0, Net_Time := Net_Allowed
             Gui, net_status: Show, Hide
             Gui, net_count: Show, Hide
         }
@@ -209,31 +174,13 @@ UpdateNet() ;精度0.1s
         SetTimer, UpdateNet, Off
         If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
         {
-            WinMinimize, ahk_exe NLClientApp.exe
             Release_All_Keys()
-            BlockInput, On
-            WinMinimize, ahk_class CrossFire
-            HyperSleep(10)
-            WinActivate, ahk_exe NLClientApp.exe
-            HyperSleep(10)
-            MouseClick, Left, Allow_nbClickX, Allow_nbClickY
-            HyperSleep(10)
-            DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
-            BlockInput, Off
+            FlashClick(Allow_nbClickX, Allow_nbClickY, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
         }
         Else If WinExist("ahk_class Q360NetFosClass")
         {
             Release_All_Keys()
-            BlockInput, On
-            WinMinimize, ahk_class CrossFire
-            DllCall("SwitchToThisWindow", "UInt", hwnd360, "UInt", 1)
-            ControlClick, x%clickx% y%clicky%, ahk_class Q360NetFosClass, , Right, , NA
-            HyperSleep(50)
-            press_key("Down", 10, 10)
-            press_key("Down", 10, 10)
-            press_key("Enter", 10, 10)
-            DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
-            BlockInput, Off
+            FlashPress(clickx, clicky, "ahk_class Q360NetFosClass", "ahk_class #32768")
         }
     }
 }
@@ -241,18 +188,19 @@ UpdateNet() ;精度0.1s
 ;断网计时器
 Net_Timer(XGui9, YGui9, ByRef Net_On, ByRef Net_Start, ByRef Net_Time, ByRef Net_Text, Gui_Number, ControlID)
 {
+    global Net_Allowed
     If !Net_On
     {
         If Net_Start = 0
             Net_Start := SystemTime()
         Else
         {
-            Net_Time := Round(6.5 - (SystemTime() - Net_Start) / 1000)
-            If Net_Time = 6
+            Net_Time := Round(Net_Allowed + 0.5 - (SystemTime() - Net_Start) / 1000)
+            If Net_Time >= 6
                 GuiControl, %Gui_Number%: +c00FFFF +Redraw, %ControlID% ;#00FFFF
-            Else If (Net_Time <= 5 && Net_Time >= 3)
+            Else If (Net_Time <= 5 && Net_Time > 2)
                 GuiControl, %Gui_Number%: +cFFFF00 +Redraw, %ControlID% ;#FFFF00
-            Else If (Net_Time < 3 && Net_Time > 0)
+            Else If (Net_Time <= 2 && Net_Time > 0)
                 GuiControl, %Gui_Number%: +cFF0000 +Redraw, %ControlID% ;#FF0000
             Else If Net_Time <= 0
             {
@@ -264,5 +212,46 @@ Net_Timer(XGui9, YGui9, ByRef Net_On, ByRef Net_Start, ByRef Net_Time, ByRef Net
             UpdateText(Gui_Number, ControlID, Net_Text, XGui9, YGui9)
         }
     }
+}
+;==================================================================================
+;模拟点击界面指定位置,代替controlclick
+FlashClick(clickx1, clicky1, winID)
+{
+    global hwndcf, Xnb, Ynb, Wnb, Hnb
+    CheckPosition(Xnb, Ynb, Wnb, Hnb, winID)
+    BlockInput, On
+    WinMinimize, ahk_class CrossFire
+    lParam := clickx1 & 0xFFFF | (clicky1 & 0xFFFF) << 16
+    WinActivate, %winID%
+    If hwndnt4 := WinExist(winID) ;确保窗口置顶...
+        DllCall("SwitchToThisWindow", "UInt", hwndnt4, "UInt", 1)
+    WinSet, ExStyle, +0x8, %winID% ;确保窗口置顶...
+    CoordMode, Mouse, Screen
+    MouseClick, Left, Xnb + Wnb - 10, Ynb + Hnb - 10 ;确保窗口置顶...
+    CoordMode, Mouse, Client
+    PostMessage, 0x201, 1, %lParam%, , %winID% ;WM_RBUTTONDOWN
+    PostMessage, 0x202, 0, %lParam%, , %winID% ;WM_LBUTTONUP
+    ControlSend, , {Enter}, %winiD%
+    DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+    BlockInput, Off
+}
+;==================================================================================
+;模拟指定界面按键
+FlashPress(clickx1, clicky1, winID, menuID)
+{
+    global Net_On, hwndcf
+    BlockInput, On
+    WinActivate, %winID%
+    ControlClick, x%clickx1% y%clicky1%, %winID%, , Right, , NA
+    Loop
+    {
+        HyperSleep(1)
+    } Until WinExist(menuID)
+    ControlSend, , {Down}, %menuID%
+    If Net_On
+        ControlSend, , {Down}, %menuID%
+    ControlSend, , {Enter}, %menuID%
+    DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+    BlockInput, Off
 }
 ;==================================================================================

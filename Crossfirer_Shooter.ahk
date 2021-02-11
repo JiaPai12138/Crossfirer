@@ -4,7 +4,7 @@
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #SingleInstance, force
-#IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+#IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
 #Include Crossfirer_Functions.ahk  
 #KeyHistory 0
 ListLines Off
@@ -40,7 +40,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn cFFFF00, 暂停加载 ;#FFFF00
     GuiControlGet, P1, Pos, %Gui_1%
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round(ValueH / 9) - P1H // 2)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
 
@@ -51,7 +51,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun cFFFF00, 自火关闭 ;#FFFF00
     GuiControlGet, P2, Pos, %Gui_2%
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round(ValueH / 6) - P2H // 2)
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
 
@@ -61,7 +61,7 @@ If WinExist("ahk_class CrossFire")
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
     WinSet, Region, %crosshair%, ahk_id %cr%
     WinSet, Transparent, 255, ahk_id %cr%
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
     OnMessage(0x1001, "ReceiveMessage")
 

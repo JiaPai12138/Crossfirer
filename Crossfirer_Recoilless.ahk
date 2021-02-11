@@ -4,7 +4,7 @@
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #SingleInstance, force
-#IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+#IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
 #Include Crossfirer_Functions.ahk  
 #KeyHistory 0
 ListLines Off
@@ -43,7 +43,7 @@ If WinExist("ahk_class CrossFire")
     Gui, recoil_mode: Add, Text, hwndGui_6 vModeClick c00FF00, 压枪准备中 ;#00FF00
     GuiControlGet, P6, Pos, %Gui_6%
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round(Hrs / 9) - P6H // 2)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
 
@@ -54,7 +54,7 @@ If WinExist("ahk_class CrossFire")
     Gui, gun_sel: Add, Text, hwndGui_7 vModeGun c00FF00, 暂未选枪械 ;#00FF00
     GuiControlGet, P7, Pos, %Gui_7%
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round(Hrs / 6) - P7H // 2)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
 
@@ -63,7 +63,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
     Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
     WinSet, Transparent, 31, ahk_id %cc%
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     Xcc := Radius, Ycc := Radius
     Loop, %Vertices%
         Hole .= Floor(Xcc + Radius * Cos(A_Index * Angle)) "-" Floor(Ycc + Radius * Sin(A_Index * Angle)) " "
@@ -208,19 +208,19 @@ Recoilless(Gun_Chosen)
             }
             Else
             {
-                If In(1, Ammo_Count, 3)
+                If InRange(1, Ammo_Count, 3)
                 {
                     mouseXY(0, 7)
                 }
-                Else If In(3, Ammo_Count, 4)
+                Else If InRange(3, Ammo_Count, 4)
                 {
                     mouseXY(0, 9)
                 }
-                Else If In(4, Ammo_Count, 6)
+                Else If InRange(4, Ammo_Count, 6)
                 {
                     mouseXY(0, 6)
                 }
-                Else If In(6, Ammo_Count, 10)
+                Else If InRange(6, Ammo_Count, 10)
                 {
                     mouseXY(0, 2)
                 }
@@ -239,15 +239,15 @@ Recoilless(Gun_Chosen)
             }
             Else
             {
-                If In(1, Ammo_Count, 3)
+                If InRange(1, Ammo_Count, 3)
                 {
                     mouseXY(0, 3)
                 }
-                Else If In(3, Ammo_Count, 6)
+                Else If InRange(3, Ammo_Count, 6)
                 {
                     mouseXY(0, 5)
                 }
-                Else If In(6, Ammo_Count, 10)
+                Else If InRange(6, Ammo_Count, 10)
                 {
                     mouseXY(0, 1)
                 }
@@ -261,7 +261,7 @@ Recoilless(Gun_Chosen)
 }
 ;==================================================================================
 ;将指定数据与一个范围比较,有点多此一举
-In(Min, x, Max) 
+InRange(Min, x, Max) 
 {
     If (x >= Min) && (x < Max)
         Return True

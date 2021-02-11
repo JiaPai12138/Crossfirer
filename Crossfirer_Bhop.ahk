@@ -4,7 +4,7 @@
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #SingleInstance, force
-#IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+#IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
 #Include Crossfirer_Functions.ahk  
 #KeyHistory 0
 ListLines Off
@@ -32,7 +32,7 @@ If WinExist("ahk_class CrossFire")
     Gui, jump_mode: Add, Text, hwndGui_4 vModeJump c00FF00, 跳蹲准备 ;#00FF00
     GuiControlGet, P4, Pos, %Gui_4%
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round(He / 2.7) - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA
     OnMessage(0x1001, "ReceiveMessage")

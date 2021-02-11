@@ -4,7 +4,7 @@
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #SingleInstance, force
-;#IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+#IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
 #Include Crossfirer_Functions.ahk  
 #KeyHistory 0
 ListLines Off
@@ -38,7 +38,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P8, Pos, %Gui_8%
     global P8H ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
     Gui, Hint: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Hint: Margin, 0, 0
@@ -48,7 +48,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P9, Pos, %Gui_9%
     global P9H ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 333333 191 ;#333333
-    WinSet, ExStyle, +0x20 ; 鼠标穿透
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
