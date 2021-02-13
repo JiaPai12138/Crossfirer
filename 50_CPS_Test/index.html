@@ -132,16 +132,15 @@
     }
     var tableToExcel = (function() {
         var uri = 'data:application/vnd.ms-excel;base64,',
-                template = '<html><head><meta charset="UTF-8"></head><body><table  border="1">{table}</table></body></html>',
-                base64 = function(
-                        s) {
-                    return window.btoa(unescape(encodeURIComponent(s)))
-                },
-                format = function(s, c) {
-                    return s.replace(/{(\w+)}/g, function(m, p) {
-                        return c[p];
-                    })
-                }
+            template = '<html><head><meta charset="UTF-8"></head><body><table  border="1">{table}</table></body></html>',
+            base64 = function(s) {
+                return window.btoa(unescape(encodeURIComponent(s)))
+            },
+            format = function(s, c) {
+                return s.replace(/{(\w+)}/g, function(m, p) {
+                    return c[p];
+                })
+            }
         return function(table, name) {
             if(!table.nodeType)
                 table = document.getElementById(table)
@@ -160,7 +159,7 @@
 
 
 </div>
-<script>
+    <script>
         $(function(){   // width > 900 ? 菜单隐藏 : null
             $(window).resize(function(){
                 var height = $(window).height();
@@ -215,7 +214,7 @@
             }
             if(cpsTest.testing){
                 cpsTest.counter++;
-                var totalClick = cpsTest.temp2 + cpsTest.counter;
+                var totalClick = cpsTest.temp2 + cpsTest.counter - 1; //第一次点的不算
                 $('#click-times').text('你一共点击了: ' + totalClick + '次');
             }
         };
@@ -344,7 +343,7 @@
             }
         }
         }catch(e){
-             console.log(e);
+            console.log(e);
         }
     </script>
 	<a href="http://www.cpstest.cr.cx/" target="_blank">>本网站引自其他网站，仅作学习使用，点击转到原网站</a></body>

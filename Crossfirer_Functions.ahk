@@ -95,21 +95,15 @@ ProcessExist(Process_Name)
     Return ErrorLevel
 }
 ;==================================================================================
-;检测是否不再游戏中,目标为界面左上角火焰状字样以及附近的黑暗阴影
+;检测是否不再游戏中,目标为界面左上角火焰状字样黄色部分以及附近的灰色灰色边框
 Not_In_Game() 
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
-    PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x3054FF, 5, Fast ;show color in editor: #3054FF #FF5430
+    PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x72FFFF, 0, Fast ;show color in editor: #FFFF72 #72FFFF
     If !ErrorLevel
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0x010101, 1, Fast ;show color in editor: #010101
-        If !ErrorLevel
-        {
-            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4.5), Y1 + Round(H1 / 9), 0xFFFFFF, 0, Fast ;show color in editor: #FFFFFF
-            Return !ErrorLevel
-        }
-        Else
-            Return False
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x474747, 0, Fast ;show color in editor: #474747
+        Return !ErrorLevel
     }
     Else
         Return False

@@ -112,7 +112,7 @@ If (WinExist("ahk_class CrossFire"))
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Enter::Suspend, Toggle ;输入聊天时不受影响
+~*Right::Suspend, Toggle ;输入聊天时不受影响
 
 ~*RAlt::
     If NBK_Service_On
@@ -205,7 +205,7 @@ Net_Timer(XGui9, YGui9, ByRef Net_On, ByRef Net_Start, ByRef Net_Time, ByRef Net
             Else If Net_Time <= 0
             {
                 Net_Start := 0
-                Net_Time := 6
+                Net_Time := Net_Allowed
                 Net_On := !Net_On
             }
             Net_Text := "一键断天涯|"Net_Time

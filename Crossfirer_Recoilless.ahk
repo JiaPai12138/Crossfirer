@@ -77,7 +77,7 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Enter::Suspend, Toggle ;输入聊天时不受影响
+~*Right::Suspend, Toggle ;输入聊天时不受影响
 
 ~*RAlt::
     If RCL_Service_On
