@@ -92,7 +92,6 @@ Return
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "左键不放", XGui3, YGui3)
         Send, {Blind}{LButton Up}
-        HyperSleep(30)
         Send, {LButton Down}
         While, !(GetKeyState("R", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
         {
