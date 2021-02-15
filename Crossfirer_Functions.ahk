@@ -3,24 +3,17 @@
 ;https://github.com/JacobHu0723/cps.github.io For click speed test
 ;==================================================================================
 ;预设参数
-Preset(VarP)
+Preset()
 {
     #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-    ;#Warn  ; Enable warnings to assist with detecting common errors.
+    #Warn  ; Enable warnings to assist with detecting common errors.
     #MenuMaskKey vkFF  ; vkFF is no mapping
     #MaxHotkeysPerInterval 99000000
     #HotkeyInterval 99000000
     #SingleInstance, Force
-    If VarP
-    {
-        #IfWinExist, ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
-    }
-    Else
-    {
-        #IfWinActive, ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
-    }
-    ;#KeyHistory 0
-    ;ListLines Off
+    #IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+    #KeyHistory 0
+    ListLines Off
     SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
     SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
     Process, Priority, , H  ;进程高优先级

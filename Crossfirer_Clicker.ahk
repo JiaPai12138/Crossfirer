@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset(0)
+Preset()
 ;==================================================================================
 global CLK_Service_On := False
 CheckPermission()
@@ -129,7 +129,7 @@ Return
         UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("XButton1", "P") || !WinActive("ahk_class CrossFire")) ;炼狱速点时结束
         {
-            press_key("LButton", 10.0, 110.0)
+            press_key("LButton", 10.0, 50.0)
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)

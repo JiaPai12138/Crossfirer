@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset(0)
+Preset()
 ;==================================================================================
 global C4H_Service_On := False
 CheckPermission()

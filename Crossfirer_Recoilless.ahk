@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset(0)
+Preset()
 ;==================================================================================
 global RCL_Service_On := False
 RCL_Down := 0

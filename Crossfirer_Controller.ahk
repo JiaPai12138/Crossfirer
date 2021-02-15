@@ -1,5 +1,6 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset(1)
+#IfWinExist ahk_class CrossFire
+Preset()
 ;==================================================================================
 global CTL_Service_On := False
 CheckPermission()

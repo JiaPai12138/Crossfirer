@@ -3,7 +3,8 @@
 #Include Create_Limit_net_2_bmp.ahk
 #Include Create_Restore_net_1_bmp.ahk
 #Include Create_Restore_net_2_bmp.ahk
-Preset(1)
+#IfWinExist ahk_class CrossFire
+Preset()
 DetectHiddenWindows, On
 SetTitleMatchMode, Regex
 ;==================================================================================

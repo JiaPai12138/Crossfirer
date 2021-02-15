@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset(0)
+Preset()
 ;==================================================================================
 global SHT_Service_On := False
 CheckPermission()
@@ -278,12 +278,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                                 Loop ;确保物理按1退出
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire")
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire")
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
                             }
                         }
 
