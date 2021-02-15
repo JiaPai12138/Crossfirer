@@ -1,22 +1,5 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-#Warn  ; Enable warnings to assist with detecting common errors.
-#MenuMaskKey vkFF  ; vkFF is no mapping
-#MaxHotkeysPerInterval 99000000
-#HotkeyInterval 99000000
-#SingleInstance, force
-#IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
-#Include Crossfirer_Functions.ahk  
-#KeyHistory 0
-ListLines Off
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-Process, Priority, , H  ;进程高优先级
-SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
-SetKeyDelay, -1, -1
-SetMouseDelay, -1
-SetDefaultMouseSpeed, 0
-SetWinDelay, -1
-SetControlDelay, -1
+﻿#Include Crossfirer_Functions.ahk
+Preset(0)
 ;==================================================================================
 global CLK_Service_On := False
 CheckPermission()
@@ -62,7 +45,7 @@ Return
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "右键连点", XGui3, YGui3)
-        While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
+        While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire")) ;避免切换窗口时影响
         {
             press_key("RButton", 10.0, 50.0)
         }
@@ -77,7 +60,7 @@ Return
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
         {
             ;press_key("LButton", 42.8, 42.8) ;FAL CAMO射速700
             press_key("LButton", 50.0, 50.0)
@@ -93,9 +76,9 @@ Return
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("`", "P") || !WinActive("ahk_class CrossFire"))
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
         {
-            press_key("LButton", 30.0, 30.0)
+            press_key("LButton", 30.0, 30.0) ;炼狱射速1000/分
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
@@ -111,11 +94,42 @@ Return
         Send, {Blind}{LButton Up}
         HyperSleep(30)
         Send, {LButton Down}
-        While, !(GetKeyState("R", "P") || GetKeyState("`", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
+        While, !(GetKeyState("R", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
         {
             If !GetKeyState("LButton")
                 Send, {LButton Down}
             HyperSleep(100)
+        }
+        GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
+        UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+        Send, {Blind}{LButton Up}
+    }
+Return
+
+~RButton & ~C:: ;炼狱连刺
+    If !Not_In_Game() && CLK_Service_On
+    {
+        GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
+        UpdateText("click_mode", "ModeClick", "炼狱连刺", XGui3, YGui3)
+        While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
+        {
+            press_key("RButton", 10.0, 270.0) ;炼狱右键
+            press_key("LButton", 10.0, 10.0) ;炼狱左键枪刺归位
+        }
+        GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
+        UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+        Send, {Blind}{LButton Up}
+    }
+Return
+
+~LButton & ~C:: ;炼狱热管
+    If !Not_In_Game() && CLK_Service_On
+    {
+        GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
+        UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("XButton1", "P") || !WinActive("ahk_class CrossFire")) ;炼狱速点时结束
+        {
+            press_key("LButton", 10.0, 110.0)
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)

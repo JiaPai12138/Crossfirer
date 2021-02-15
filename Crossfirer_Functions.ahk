@@ -2,6 +2,36 @@
 ;Please read https://www.autohotkey.com/docs/commands/PixelGetColor.htm for RGB vs. BGR format
 ;https://github.com/JacobHu0723/cps.github.io For click speed test
 ;==================================================================================
+;预设参数
+Preset(VarP)
+{
+    #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+    ;#Warn  ; Enable warnings to assist with detecting common errors.
+    #MenuMaskKey vkFF  ; vkFF is no mapping
+    #MaxHotkeysPerInterval 99000000
+    #HotkeyInterval 99000000
+    #SingleInstance, Force
+    If VarP
+    {
+        #IfWinExist, ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+    }
+    Else
+    {
+        #IfWinActive, ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+    }
+    ;#KeyHistory 0
+    ;ListLines Off
+    SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+    SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+    Process, Priority, , H  ;进程高优先级
+    SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
+    SetKeyDelay, -1, -1
+    SetMouseDelay, -1
+    SetDefaultMouseSpeed, 0
+    SetWinDelay, -1
+    SetControlDelay, -1
+}
+;==================================================================================
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission()
 {
@@ -95,14 +125,14 @@ ProcessExist(Process_Name)
     Return ErrorLevel
 }
 ;==================================================================================
-;检测是否不再游戏中,目标为界面左上角火焰状字样黄色部分以及附近的灰色灰色边框
+;检测是否不再游戏中,目标为界面左上角火焰状字样黄色部分以及附近的黑色阴影
 Not_In_Game() 
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
     PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x72FFFF, 0, Fast ;show color in editor: #FFFF72 #72FFFF
     If !ErrorLevel
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x474747, 0, Fast ;show color in editor: #474747
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x000000, 0, Fast ;show color in editor: #000000
         Return !ErrorLevel
     }
     Else
@@ -188,15 +218,15 @@ SystemTime()
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
 {
-    t_accuracy := 0.984 ;本机精度测试结果,通过JacobHu0723的CPS测试项目得出
+    t_accuracy := 0.99 ;本机精度测试结果,通过JacobHu0723的CPS测试项目得出
     value *= t_accuracy
     s_begin_time := SystemTime()
     freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
     s_end_time := (s_begin_time + value) * freq / 1000 
-    While, (t_current <= s_end_time)
+    While, (t_current < s_end_time)
     {
-        If (s_end_time - t_current) > 30000 ;大于三毫秒时不暴力轮询,以减少CPU占用
+        If (s_end_time - t_current) > 20000 ;大于二毫秒时不暴力轮询,以减少CPU占用
         {
             DllCall("Winmm.dll\timeBeginPeriod", UInt, 1)
             DllCall("Sleep", "UInt", 1)
@@ -220,7 +250,7 @@ ReceiveMessage(Message)
 PostMessage(Receiver, Message) ;接受方为GUI标题
 {
     SetTitleMatchMode, 3
-    DetectHiddenWindows, on
+    DetectHiddenWindows, On
     PostMessage, 0x1001, %Message%, , , %Receiver% ahk_class AutoHotkeyGUI
 }
 ;==================================================================================
@@ -233,6 +263,19 @@ Release_All_Keys()
         If GetKeyState(Key)
             Send, {Blind}{%Key% Up}
     }
+}
+;==================================================================================
+;计算一组数的中位数,必须以逗号隔开
+Median(values)
+{
+    Sort, values, N D, ;以逗号为分界符
+    VarArray := StrSplit(values, ",")
+    Mid := Ceil(VarArray.Length() / 2)
+    If Mod(VarArray.Length(), 2) ;奇数
+        VarMedian := VarArray[Mid]
+    Else ;偶数
+        VarMedian := (VarArray[Mid] + VarArray[Mid + 1]) / 2
+    Return VarMedian
 }
 ;==================================================================================
 ;End

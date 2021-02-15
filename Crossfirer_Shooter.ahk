@@ -1,22 +1,5 @@
-﻿#NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-#Warn  ; Enable warnings to assist with detecting common errors.
-#MenuMaskKey vkFF  ; vkFF is no mapping
-#MaxHotkeysPerInterval 99000000
-#HotkeyInterval 99000000
-#SingleInstance, force
-#IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
-#Include Crossfirer_Functions.ahk  
-#KeyHistory 0
-ListLines Off
-SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-Process, Priority, , H  ;进程高优先级
-SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
-SetKeyDelay, -1, -1
-SetMouseDelay, -1
-SetDefaultMouseSpeed, 0
-SetWinDelay, -1
-SetControlDelay, -1
+﻿#Include Crossfirer_Functions.ahk
+Preset(0)
 ;==================================================================================
 global SHT_Service_On := False
 CheckPermission()
@@ -237,7 +220,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     Gui, %CrID%: Color, 00FFFF ;#00FFFF
     Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
-    While, WinExist("ahk_class CrossFire")
+    While, WinActive("ahk_class CrossFire")
     {
         Random, rand, 58.0, 62.0 ;设定随机值减少被检测概率
         small_rand := rand / 2
@@ -285,7 +268,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
                             UpdateText(Gui_Number2, StatusID, "双切换弹", XGui2, YGui2)
                             Send, {3 DownTemp}
-                            HyperSleep(GamePing + 60)
+                            HyperSleep(GamePing + 75)
                             Send, {1 DownTemp}
                             
                             If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹
@@ -295,12 +278,12 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                                 Loop ;确保物理按1退出
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire")
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || GetKeyState("`", "P"))
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire")
                             }
                         }
 
