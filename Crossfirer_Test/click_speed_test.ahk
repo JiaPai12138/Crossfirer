@@ -42,15 +42,15 @@ SystemTime()
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
 {
-	t_accuracy := 0.984
+	t_accuracy := 0.991
 	value *= t_accuracy
 	begin_time := SystemTime()
 	freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
 	t_tmp := (begin_time + value) * freq / 1000 
-    While (t_current <= t_tmp)
+    While (t_current < t_tmp)
     {
-        If (t_tmp - t_current) > 30000 ;减少CPU占用
+        If (t_tmp - t_current) > 20000 ;减少CPU占用
         {
             DllCall("Winmm.dll\timeBeginPeriod", UInt, 1) ;;相对高精度睡眠
 			DllCall("Sleep", "UInt", 1)
