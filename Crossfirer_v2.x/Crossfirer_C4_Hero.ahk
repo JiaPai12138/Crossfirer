@@ -88,7 +88,7 @@ Return
 Return
 
 ~C & ~4::
-    If !Not_In_Game() && C4H_Service_On
+    If C4H_Service_On
     {
         Be_Hero := False
         C4_On := True
@@ -100,7 +100,7 @@ Return
 Return
 
 ~C & ~5::
-    If !Not_In_Game() && C4H_Service_On
+    If C4H_Service_On
     {
         C4_On := False
         SetTimer, UpdateC4, Off

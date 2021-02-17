@@ -156,7 +156,7 @@ press_key(key_name, press_time, sleep_time)
 {
     Send, {Blind}{%key_name% DownTemp}
     HyperSleep(press_time)
-    Send, {Blind}{%key_name% up}
+    Send, {Blind}{%key_name% Up}
     HyperSleep(sleep_time)
 }
 ;==================================================================================

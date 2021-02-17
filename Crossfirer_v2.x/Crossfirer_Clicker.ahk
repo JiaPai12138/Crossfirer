@@ -41,11 +41,11 @@ If WinExist("ahk_class CrossFire")
 Return
 
 ~*MButton:: ;爆裂者轰炸
-    If !Not_In_Game() && CLK_Service_On
+    If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "右键连点", XGui3, YGui3)
-        While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire")) ;避免切换窗口时影响
+        While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P")) && WinActive("ahk_class CrossFire") ;避免切换窗口时影响
         {
             press_key("RButton", 10.0, 50.0)
         }
@@ -55,28 +55,29 @@ Return
     }
 Return
 
-~*XButton2:: ;半自动速点,适合救世主步枪
-    If !Not_In_Game() && CLK_Service_On
+~*XButton2:: ;炼狱连刺
+    If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
-        UpdateText("click_mode", "ModeClick", "左键连点", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
+        UpdateText("click_mode", "ModeClick", "炼狱连刺", XGui3, YGui3)
+        cnt := 0
+        While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || cnt > 10) && WinActive("ahk_class CrossFire")
         {
-            ;press_key("LButton", 42.8, 42.8) ;FAL CAMO射速700
-            press_key("LButton", 50.0, 50.0)
+            press_key("RButton", 10.0, 270.0) ;炼狱右键
+            press_key("LButton", 10.0, 10.0) ;炼狱左键枪刺归位
+            cnt += 1
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
-        Send, {Blind}{LButton Up}
     }
 Return
 
 ~*XButton1:: ;半自动速点,适合加特林速点,不适合USP
-    If !Not_In_Game() && CLK_Service_On
+    If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
+        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire")
         {
             press_key("LButton", 30.0, 30.0) ;炼狱射速1000/分
         }
@@ -86,14 +87,30 @@ Return
     }
 Return
 
-~*K:: ;粉碎者直射
-    If !Not_In_Game() && CLK_Service_On
+~*8:: ;大宝剑二段连击
+    If CLK_Service_On
+    {
+        GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
+        UpdateText("click_mode", "ModeClick", "二段连击", XGui3, YGui3)
+        press_key("RButton", 1050, 150)
+        press_key("RButton", 90, 10)
+        While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P")) && WinActive("ahk_class CrossFire")
+        {
+            press_key("RButton", 490, 10)
+        }
+        GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
+        UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+    }
+Return
+
+~*9:: ;粉碎者直射
+    If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "左键不放", XGui3, YGui3)
         Send, {Blind}{LButton Up}
         Send, {LButton Down}
-        While, !(GetKeyState("R", "P") || GetKeyState("RButton", "P") || !WinActive("ahk_class CrossFire"))
+        While, !(GetKeyState("R", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire") && !Not_In_Game()
         {
             If !GetKeyState("LButton")
                 Send, {LButton Down}
@@ -105,34 +122,17 @@ Return
     }
 Return
 
-~RButton & ~C:: ;炼狱连刺
-    If !Not_In_Game() && CLK_Service_On
-    {
-        GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
-        UpdateText("click_mode", "ModeClick", "炼狱连刺", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
-        {
-            press_key("RButton", 10.0, 270.0) ;炼狱右键
-            press_key("LButton", 10.0, 10.0) ;炼狱左键枪刺归位
-        }
-        GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
-        UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
-        Send, {Blind}{LButton Up}
-    }
-Return
-
-~LButton & ~C:: ;炼狱热管
-    If !Not_In_Game() && CLK_Service_On
+~*0:: ;炼狱热管
+    If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P") || GetKeyState("XButton1", "P") || !WinActive("ahk_class CrossFire")) ;炼狱速点时结束
+        While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || GetKeyState("XButton1", "P")) && WinActive("ahk_class CrossFire") && !Not_In_Game() ;炼狱速点时结束
         {
-            press_key("LButton", 10.0, 50.0)
+            press_key("LButton", 10.0, 110.0)
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
         UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
-        Send, {Blind}{LButton Up}
     }
 Return
 ;==================================================================================
