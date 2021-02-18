@@ -238,6 +238,8 @@ Recoilless(Gun_Chosen)
                     mouseXY(0, 0) ;其实无用
                 HyperSleep(Ammo_Delay)
             }
+        Default:
+            Continue
         }
     } Until !GetKeyState("LButton", "P") 
     Return ;复原StartTime
