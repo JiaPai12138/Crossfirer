@@ -275,15 +275,15 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             {
                                 Send, {Blind}{3 Up}
                                 Send, {Blind}{1 Up}
-                                Loop ;确保物理按1退出
+                                Loop ;确保及时退出循环
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8)
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8)
                             }
                         }
 
