@@ -1,4 +1,4 @@
-﻿#Include Crossfirer_Functions.ahk
+﻿#Include, CrossHirer_Functions.ahk  
 Preset()
 ;==================================================================================
 global SHT_Service_On := False
@@ -15,7 +15,6 @@ If WinExist("ahk_class CrossFire")
 {
     WinGetTitle, game_title, ahk_class CrossFire
     CheckPosition(ValueX, ValueY, ValueW, ValueH, "CrossFire")
-    Start:
     Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
     Gui, fcn_mode: Color, 333333 ;#333333
@@ -47,6 +46,7 @@ If WinExist("ahk_class CrossFire")
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1001, "ReceiveActionS")
 
     ;If game_title = CROSSFIRE 
     ;    GamePing := Test_Game_Ping("172.217.1.142") + Test_Game_Ping("172.217.9.168")
@@ -58,24 +58,8 @@ If WinExist("ahk_class CrossFire")
     FuncPing()
     SHT_Service_On := True
     WinActivate, ahk_class CrossFire ;激活该窗口
-    Return
 }
 ;==================================================================================
-~*-::ExitApp
-~*Right::Suspend, Toggle ;输入聊天时不受影响
-
-~*RAlt::
-    If SHT_Service_On
-    {
-        SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round(ValueH / 9) - P1H // 2)
-        SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round(ValueH / 6) - P2H // 2)
-        SetGuiPosition(Xch, Ych, "M", -34, -35)
-        Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
-        Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
-        Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
-    }
-Return
-
 ~*` Up::
     If SHT_Service_On
         ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
@@ -229,7 +213,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
         UpdateText(Gui_Number2, StatusID, "搜寻敌人", XGui2, YGui2)
         Loop
         {
-            If ExitMode()
+            If (Game_Obj.In_Game = False)
             {
                 GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
                 UpdateText(Gui_Number2, StatusID, "自火暂停", XGui2, YGui2)
@@ -249,7 +233,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                 {
                     Case 2:
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
-                        press_key("LButton", 10, small_rand + rand - 3 * Color_Delay) ;控制USP射速
+                        press_key("LButton", 10, small_rand + rand - Color_Delay) ;控制USP射速
                         mouseXY(0, 1)
 
                     Case 8:
@@ -257,10 +241,10 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         If Not GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
-                            press_key("LButton", small_rand - Color_Delay, small_rand - 3 * Color_Delay)
+                            press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
                         }
                         Else
-                            press_key("LButton", small_rand - Color_Delay, small_rand - 3 * Color_Delay)
+                            press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
                         ;开镜瞬狙或连狙
 
                         If (GamePing <= 300) ;允许切枪减少换弹时间
@@ -289,11 +273,11 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
 
                     Case 111:
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
-                        press_key("LButton", 2 * rand, rand - 3 * Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
+                        press_key("LButton", 2 * rand, rand - Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
-                        press_key("LButton", small_rand, 10 + rand - 3 * Color_Delay) ;靠近600发每分的射速
+                        press_key("LButton", small_rand, 10 + rand - Color_Delay) ;靠近600发每分的射速
                         mouseXY(0, 2) ;小小压枪
                 }
             }
@@ -317,5 +301,20 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     }
     Else If game_title = 穿越火线
         Return GetColorStatus(X, Y, Var, H // 2 + Round(H / 15), PosColor_red) ;图形界面一半+到红名的距离, 542 对应 1600*900
+}
+;==================================================================================
+;学习自AHK论坛中的多脚本间通过端口简单通信函数,接受其他信息
+ReceiveActionS(Message) 
+{
+    global
+    If (Message = 123865) && SHT_Service_On
+    {
+        SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round(ValueH / 9) - P1H // 2)
+        SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 8) - P2W // 2, Round(ValueH / 6) - P2H // 2)
+        SetGuiPosition(Xch, Ych, "M", -34, -35)
+        Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
+        Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
+        Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+    }
 }
 ;==================================================================================
