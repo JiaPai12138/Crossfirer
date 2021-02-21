@@ -67,7 +67,7 @@ Return
         ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
 Return
 
-~*CapsLock:: ;minimize window and replace origin use
+~*CapsLock Up:: ;minimize window and replace origin use
     If CTL_Service_On
     {
         Need_Hide := !Need_Hide

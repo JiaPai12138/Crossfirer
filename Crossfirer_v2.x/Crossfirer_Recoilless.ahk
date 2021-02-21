@@ -1,5 +1,6 @@
 ﻿#Include Crossfirer_Functions.ahk
 Preset()
+#IfWinExist ahk_class CrossFire
 ;==================================================================================
 global RCL_Service_On := False
 RCL_Down := 0
@@ -73,7 +74,7 @@ If WinExist("ahk_class CrossFire")
 Return
 
 ~*$LButton:: ;压枪 正在开发
-    If RCL_Service_On
+    If RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -100,7 +101,7 @@ Return
 Return
 
 ~*RButton:: ;展示圆环
-    If RCL_Service_On
+    If RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -119,7 +120,7 @@ Return
 
 ~*NumpadIns::
 ~*Numpad0::
-    If !Not_In_Game() && RCL_Service_On
+    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
         UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
@@ -129,7 +130,7 @@ Return
 
 ~*NumpadDot::
 ~*NumpadDel::
-    If !Not_In_Game() && RCL_Service_On
+    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
@@ -139,7 +140,7 @@ Return
 
 ~*NumpadEnd::
 ~*Numpad1::
-    If !Not_In_Game() && RCL_Service_On
+    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "AK47-B 系", XGui6, YGui6)
@@ -149,7 +150,7 @@ Return
 
 ~*NumpadDown::
 ~*Numpad2::
-    If !Not_In_Game() && RCL_Service_On
+    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
@@ -165,7 +166,7 @@ Recoilless(Gun_Chosen)
     Ammo_Count := 0
     Loop
     {
-        EndTime := Floor(SystemTime() - StartTime + 3 * Color_Delay) ;确保非浮点
+        EndTime := Floor(SystemTime() - StartTime + 2 * Color_Delay) ;确保非浮点
         Switch Gun_Chosen
         {
         Case 0: ;通用啥都压系列
@@ -173,7 +174,7 @@ Recoilless(Gun_Chosen)
             If !GetKeyState("LButton")
                 Send, {Blind}{LButton Down}
             If EndTime < 100
-                HyperSleep(30 - 3 * Color_Delay)
+                HyperSleep(30 - 2 * Color_Delay)
             Else
                 HyperSleep(30)
             Send, {Blind}{LButton Up}
@@ -187,7 +188,7 @@ Recoilless(Gun_Chosen)
             If (Ammo_Count < 1)
             {
                 mouseXY(0, 3)
-                HyperSleep(Ammo_Delay - 3 * Color_Delay)
+                HyperSleep(Ammo_Delay - 2 * Color_Delay)
             }
             Else
             {
@@ -218,7 +219,7 @@ Recoilless(Gun_Chosen)
             If (Ammo_Count < 1)
             {
                 mouseXY(0, 1)
-                HyperSleep(Ammo_Delay - 3 * Color_Delay)
+                HyperSleep(Ammo_Delay - 2 * Color_Delay)
             }
             Else
             {

@@ -22,7 +22,7 @@ Else If CF_Title = 穿越火线
 Net_Allowed := Net_Time
 Net_Text := "一键断天涯|"Net_Time
 hwndcf := WinExist("ahk_class CrossFire")
-If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
+If ProcessExist("NLClientApp.exe")
 {
     WinActivate, ahk_exe NLClientApp.exe
     启用规则1 := Create_Limit_net_1_bmp()

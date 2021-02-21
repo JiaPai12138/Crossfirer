@@ -3,7 +3,7 @@ Preset()
 ;==================================================================================
 global RCL_Service_On := False
 RCL_Down := 0
-CheckPermission()
+CheckPermission(0)
 ;==================================================================================
 Gun_Chosen := -1
 XGui5 := 0, YGui5 := 0, XGui6 := 0, YGui6 := 0, XGui7 := 0, YGui7 := 0

@@ -9,7 +9,7 @@ global Net_On := True
 Net_Start := 0
 nb_block := False
 nb_allow := False
-CheckPermission()
+CheckPermission(0)
 WinGetTitle, CF_Title, ahk_class CrossFire
 If CF_Title = CROSSFIRE
     Net_Time := 6

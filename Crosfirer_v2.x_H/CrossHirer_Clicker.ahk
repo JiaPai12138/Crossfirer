@@ -2,7 +2,7 @@
 Preset()
 ;==================================================================================
 global CLK_Service_On := False
-CheckPermission()
+CheckPermission(0)
 ;==================================================================================
 If WinExist("ahk_class CrossFire")
 {

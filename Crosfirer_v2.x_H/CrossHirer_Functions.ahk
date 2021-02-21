@@ -24,7 +24,7 @@ Preset()
 }
 ;==================================================================================
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
-CheckPermission()
+CheckPermission(SleepTime := 5000)
 {
     If A_OSVersion in WIN_NT4, WIN_95, WIN_98, WIN_ME, WIN_2000, WIN_2003, WIN_XP, WIN_VISTA ;检测操作系统
     {
@@ -56,7 +56,7 @@ CheckPermission()
         {
             HyperSleep(1000)
         } Until WinExist("ahk_class CrossFire")
-        HyperSleep(5000) ;等待客户端完整出现
+        HyperSleep(SleepTime) ;等待客户端完整出现
     }
 }
 ;==================================================================================
