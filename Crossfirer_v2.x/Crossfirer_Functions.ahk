@@ -135,7 +135,7 @@ Not_In_Game()
 ;检测是否退出模式,由按键触发
 ExitMode()
 {
-    Return (Not_In_Game() || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
+    Return (!GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
 }
 ;==================================================================================
 ;检测点位颜色状态(颜色是否在颜色库中)
@@ -237,6 +237,10 @@ ReceiveMessage(Message)
 {
     If Message = 125638
         ExitApp ;退出当前脚本,未来可加其他动作
+    Else If Message = 66566 ;游戏中
+        Send, {Blind}{vk87 Up} ;F24 key
+    Else If Message = 44944 ;等待中
+        Send, {Blind}{vk87 Down} ;F24 key
 }
 ;==================================================================================
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,发送信息

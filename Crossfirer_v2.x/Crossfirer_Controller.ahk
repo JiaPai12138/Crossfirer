@@ -38,7 +38,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Helper: Show, Hide
 
     WinMinimize, ahk_class ConsoleWindowClass
-    SetTimer, UpdateGui, 1000 ;不需要太频繁
+    SetTimer, UpdateGui, 500
     DPI_Initial := A_ScreenDPI
     CTL_Service_On := True
 } 
@@ -82,7 +82,7 @@ Return
     }
 Return
 ;==================================================================================
-UpdateGui() ;精度1s
+UpdateGui() ;精度0.5s
 {
     global DPI_Initial
     If !InStr(A_ScreenDPI, DPI_Initial)
@@ -103,6 +103,10 @@ UpdateGui() ;精度1s
             Run, *RunAs .\关闭TX残留进程.bat, , Hide
         ExitApp
     }
+    Else If !Not_In_Game()
+        PostMessage("Listening", 66566)
+    Else If Not_In_Game()
+        PostMessage("Listening", 44944)
 }
 ;==================================================================================
 ;通过按下快捷键显示/隐藏提示

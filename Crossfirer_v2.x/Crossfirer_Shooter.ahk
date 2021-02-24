@@ -82,7 +82,7 @@ Return
 Return
 
 ~*1 Up:: ;还原模式
-    If (SHT_Service_On && AutoMode && !Not_In_Game() && StrLen(Temp_Run) > 0)
+    If (SHT_Service_On && AutoMode && !GetKeyState("vk87") && StrLen(Temp_Run) > 0)
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
@@ -91,7 +91,7 @@ Return
 Return
 
 ~*2 Up:: ;手枪模式
-    If (SHT_Service_On && AutoMode && !Not_In_Game())
+    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载手枪", XGui1, YGui1)
@@ -100,7 +100,7 @@ Return
 Return
 
 ~*Tab Up:: ;通用模式
-    If (SHT_Service_On && AutoMode && !Not_In_Game())
+    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 0
         Temp_Run := "加载通用"
@@ -111,7 +111,7 @@ Return
 Return
 
 ~*J Up:: ;瞬狙模式,M200效果上佳
-    If (SHT_Service_On && AutoMode && !Not_In_Game())
+    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 8
         Temp_Run := "加载狙击"
@@ -122,7 +122,7 @@ Return
 Return
 
 ~*L Up:: ;连点模式
-    If (SHT_Service_On && AutoMode && !Not_In_Game())
+    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 111
         Temp_Run := "加载速点"
@@ -156,7 +156,10 @@ PingCheck()
     Else
     {
         Gui, Ping_Ev: Destroy
+        ToolTip, 您输入了%Ping_Input%`nYou entered %Ping_Input%
         GamePing := Ping_Input
+        HyperSleep(3000)
+        ToolTip ;隐藏提示
     }
 }
 ;==================================================================================
@@ -249,7 +252,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                 {
                     Case 2:
                         UpdateText(Gui_Number1, ModeID, "手枪模式", XGui1, YGui1)
-                        press_key("LButton", 10, small_rand + rand - 3 * Color_Delay) ;控制USP射速
+                        press_key("LButton", 10, small_rand + rand - Color_Delay) ;控制USP射速
                         mouseXY(0, 1)
 
                     Case 8:
@@ -257,10 +260,10 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                         If Not GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
-                            press_key("LButton", small_rand - Color_Delay, small_rand - 3 * Color_Delay)
+                            press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
                         }
                         Else
-                            press_key("LButton", small_rand - Color_Delay, small_rand - 3 * Color_Delay)
+                            press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
                         ;开镜瞬狙或连狙
 
                         If (GamePing <= 300) ;允许切枪减少换弹时间
@@ -278,22 +281,22 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                                 Loop ;确保及时退出循环
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8)
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || GetKeyState("vk87"))
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8)
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || GetKeyState("vk87"))
                             }
                         }
 
                     Case 111:
                         UpdateText(Gui_Number1, ModeID, "连发速点", XGui1, YGui1)
-                        press_key("LButton", 2 * rand, rand - 3 * Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
+                        press_key("LButton", 2 * rand, rand - Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式", XGui1, YGui1)
-                        press_key("LButton", small_rand, 10 + rand - 3 * Color_Delay) ;靠近600发每分的射速
+                        press_key("LButton", small_rand, 10 + rand - Color_Delay) ;靠近600发每分的射速
                         mouseXY(0, 2) ;小小压枪
                 }
             }

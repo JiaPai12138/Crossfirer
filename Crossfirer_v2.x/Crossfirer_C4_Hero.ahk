@@ -48,7 +48,7 @@ If WinExist("ahk_class CrossFire")
         If WinActive("ahk_class CrossFire")
             Be_Hero := !Be_Hero
     
-        If (Be_Hero && !Not_In_Game())
+        If (Be_Hero && !GetKeyState("vk87"))
         {
             C4_On := False
             SetTimer, UpdateHero, 60
@@ -120,7 +120,7 @@ UpdateHero() ;精度0.06s
     CheckPosition(Xe, Ye, We, He, "CrossFire")
     GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
     UpdateText("Human_Hero", "IMHero", "猎手", XGui8, YGui8)
-    If (Be_Hero && !Not_In_Game())
+    If (Be_Hero && !GetKeyState("vk87"))
     {
         PixelSearch, HeroX1, HeroY1, Xe + We // 2 - Round(We / 32 * 3), Ye + Round(He / 8.5), Xe + We // 2 + Round(We / 32 * 3), Ye + Round(He / 6.5), 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
         If !ErrorLevel

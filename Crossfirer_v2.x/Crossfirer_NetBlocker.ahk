@@ -60,7 +60,9 @@ If ProcessExist("NLClientApp.exe")
     Block_nbClickX += 31, Block_nbClickY += 12, Allow_nbClickX += 31, Allow_nbClickY += 12
     CoordMode, Mouse, Client
     MouseClick, Left, Allow_nbClickX, Allow_nbClickY ;初始化状态
-    MsgBox, NetLimiter版一键限速已就绪!`nNetLimiter version of onekey-bandwidth-limiter is ready!
+    ToolTip, NetLimiter版一键限速已就绪!`nNetLimiter version of onekey-bandwidth-limiter is ready!
+    HyperSleep(3000)
+    ToolTip ;隐藏提示
     DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
 }
 Else If WinExist("ahk_class Q360NetFosClass")
@@ -68,11 +70,14 @@ Else If WinExist("ahk_class Q360NetFosClass")
     WinActivate, ahk_class Q360NetFosClass
     CheckPosition(X360, Y360, W360, H360, "Q360NetFosClass")
     clickx := Round(W360 / 5), clicky := Round(H360 / 2.8) ;右键位置
-    MsgBox, 360版一键限速已就绪!`n360 version of onekey-bandwidth-limiter is ready!
+    ToolTip, 360版一键限速已就绪!`n360 version of onekey-bandwidth-limiter is ready!
+    HyperSleep(3000)
+    ToolTip ;隐藏提示
+    DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
 }
 Else
 {
-    MsgBox, 262160, 错误/Error, 未找到指定流量限速程序!辅助将退出!!`nUnable to find bandwidth limiter!The program will exit!!
+    MsgBox, 262160, 错误/Error, 未找到指定流量限速程序!辅助将退出!!`nUnable to find bandwidth limiter!The program will exit!!, 3
     Exitapp
 }
 ;==================================================================================

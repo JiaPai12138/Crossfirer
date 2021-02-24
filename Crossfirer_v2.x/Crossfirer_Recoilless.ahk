@@ -78,12 +78,12 @@ Return
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
-        If (!Not_In_Game() && Gun_Chosen >= 0)
+        If (!GetKeyState("vk87") && Gun_Chosen >= 0)
         {
             GuiControl, recoil_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
             RCL_Text := "自动压枪 " RCL_Down
             UpdateText("recoil_mode", "ModeClick", RCL_Text, XGui5, YGui5)
-            Recoilless(Gun_Chosen)
+            Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
         }
     }
 Return
@@ -92,7 +92,7 @@ Return
     If RCL_Service_On || !WinActive("ahk_class CrossFire")
     {
         Gui, circle: Show, Hide
-        If !Not_In_Game()
+        If !GetKeyState("vk87")
         {
             GuiControl, recoil_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
             UpdateText("recoil_mode", "ModeClick", "压枪准备中", XGui5, YGui5)
@@ -120,7 +120,7 @@ Return
 
 ~*NumpadIns::
 ~*Numpad0::
-    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
         UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
@@ -130,36 +130,36 @@ Return
 
 ~*NumpadDot::
 ~*NumpadDel::
-    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
-        Gun_Chosen := 0
+        Gun_Chosen := 0, Ammo_Delay := 87.6
     }  
 Return
 
 ~*NumpadEnd::
 ~*Numpad1::
-    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "AK47-B 系", XGui6, YGui6)
-        Gun_Chosen := 1
+        Gun_Chosen := 1, Ammo_Delay := 100
     }  
 Return
 
 ~*NumpadDown::
 ~*Numpad2::
-    If !Not_In_Game() && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
-        Gun_Chosen := 2
+        Gun_Chosen := 2, Ammo_Delay := 87.6
     }
 Return
 ;==================================================================================
 ;压枪函数,对相应枪械,均能在中近距离上基本压成一条线,即将标准化
-Recoilless(Gun_Chosen)
+Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
 {
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     StartTime := SystemTime()
@@ -170,16 +170,16 @@ Recoilless(Gun_Chosen)
         Switch Gun_Chosen
         {
         Case 0: ;通用啥都压系列
-            global RCL_Down
+            Ammo_Count := EndTime // Ammo_Delay ;确保每一发都压到
             If !GetKeyState("LButton")
                 Send, {Blind}{LButton Down}
-            If EndTime < 100
+            If Ammo_Count < 1
                 HyperSleep(30 - 2 * Color_Delay)
             Else
                 HyperSleep(30)
             Send, {Blind}{LButton Up}
-            HyperSleep(70) ;600发/分标准射速
-            If RCL_Down && EndTime < 1200
+            HyperSleep(Ammo_Delay - 30) ;600发/分标准射速
+            If RCL_Down && Ammo_Count < 10
                 mouseXY(0, RCL_Down)
 
         Case 1: ;AK47英雄级

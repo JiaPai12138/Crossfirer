@@ -110,7 +110,7 @@ Return
         UpdateText("click_mode", "ModeClick", "左键不放", XGui3, YGui3)
         Send, {Blind}{LButton Up}
         Send, {LButton Down}
-        While, !(GetKeyState("R", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire") && !Not_In_Game()
+        While, !(GetKeyState("R", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk87")
         {
             If !GetKeyState("LButton")
                 Send, {LButton Down}
@@ -127,7 +127,7 @@ Return
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
         UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)
-        While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || GetKeyState("XButton1", "P")) && WinActive("ahk_class CrossFire") && !Not_In_Game() ;炼狱速点时结束
+        While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || GetKeyState("XButton1", "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk87") ;炼狱速点时结束
         {
             press_key("LButton", 10.0, 110.0)
         }
