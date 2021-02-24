@@ -13,7 +13,6 @@ If Mouse_Buttons < 5
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, "CrossFire")
-    Start:
     Gui, click_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, click_mode: Margin, 0, 0
     Gui, click_mode: Color, 333333 ;#333333

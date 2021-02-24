@@ -12,7 +12,6 @@ C4_On := False
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, "CrossFire")
-    Start:
     Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
     Gui, C4: Color, 333333 ;#333333
@@ -140,7 +139,7 @@ UpdateHero() ;精度0.06s
 C4Timer(XGuiC, YGuiC, ByRef C4_Start, ByRef C4_Time, Gui_Number, ControlID)
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
-    If Is_C4_Time(X1, Y1, W1, H1)
+    If Is_C4_Time(X1, Y1, W1, H1) && !GetKeyState("vk87")
     {
         If C4_Start = 0
             C4_Start := SystemTime()

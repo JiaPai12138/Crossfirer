@@ -19,7 +19,6 @@ If WinExist("ahk_class CrossFire")
     CheckPosition(Xrs, Yrs, Wrs, Hrs, "CrossFire")
     Radius := Round(Hrs / 18)
     Diameter := 2 * Radius
-    Start:
     Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
     Gui, recoil_mode: Color, 333333 ;#333333

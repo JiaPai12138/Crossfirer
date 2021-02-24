@@ -84,7 +84,6 @@ Else
 If (WinExist("ahk_class CrossFire"))
 {
     CheckPosition(X3e, Y3e, W3e, H3e, "CrossFire")
-    Start:
     Gui, net_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, net_status: Margin, 0, 0
     Gui, net_status: Color, 333333 ;#333333

@@ -11,7 +11,6 @@ global Title_Blank := 0
 
 If WinExist("ahk_class CrossFire")
 {
-    Start:
     Gui, Helper: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Helper: Margin, 0, 0
     Gui, Helper: Color, 333333 ;#333333
