@@ -173,7 +173,6 @@ FlashClick(clickx1, clicky1, winID)
     global hwndcf, Xnb, Ynb, Wnb, Hnb, X3e, Y3e, W3e, H3e
     CheckPosition(Xnb, Ynb, Wnb, Hnb, winID)
     CheckPosition(X3e, Y3e, W3e, H3e, "CrossFire")
-    WinMinimize, ahk_class CrossFire ;解锁鼠标
     BlockInput, On
     lParam := clickx1 & 0xFFFF | (clicky1 & 0xFFFF) << 16
     WinActivate, %winID%
@@ -181,17 +180,16 @@ FlashClick(clickx1, clicky1, winID)
         DllCall("SwitchToThisWindow", "UInt", hwndnt4, "UInt", 1)
     CoordMode, Mouse, Client
     MouseClick, Left, clickx1, clicky1
-    HyperSleep(10)
     PostMessage, 0x204, 2, %lParam%, , ahk_id %hwndnt4% ;WM_RBUTTONDOWN
     PostMessage, 0x205, 2, %lParam%, , ahk_id %hwndnt4% ;WM_RBUTTONUP
-    HyperSleep(10)
+    HyperSleep(5)
     Loop, 4
     {
         ControlSend, , {Down}, %winID%
         HyperSleep(5)
     }
 	ControlSend, , {Enter}, %winID%
-    HyperSleep(10)
+    HyperSleep(5)
     WinActivate, ahk_class CrossFire
     DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
     CoordMode, Mouse, Screen
