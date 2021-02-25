@@ -10,14 +10,6 @@ nb_block := False
 nb_allow := False
 H_pressed := A_TickCount
 CheckPermission()
-WinGetTitle, CF_Title, ahk_class CrossFire
-If CF_Title = CROSSFIRE
-    Net_Time := 6
-Else If CF_Title = 穿越火线
-    Net_Time := 8
-Net_Allowed := Net_Time
-Net_Text := "一键断天涯|"Net_Time
-hwndcf := WinExist("ahk_class CrossFire")
 If ProcessExist("NLClientApp.exe")
 {
     WinActivate, ahk_exe NLClientApp.exe
@@ -43,8 +35,15 @@ Else
     Exitapp
 }
 ;==================================================================================
-If (WinExist("ahk_class CrossFire"))
+If (hwndcf := WinExist("ahk_class CrossFire"))
 {
+    WinGetTitle, CF_Title, ahk_class CrossFire
+    If CF_Title = CROSSFIRE
+        Net_Time := 6
+    Else If CF_Title = 穿越火线
+        Net_Time := 8
+    Net_Allowed := Net_Time
+    Net_Text := "一键断天涯|"Net_Time
     CheckPosition(X3e, Y3e, W3e, H3e, "CrossFire")
     Gui, net_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, net_status: Margin, 0, 0
