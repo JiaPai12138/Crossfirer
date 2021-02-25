@@ -10,6 +10,7 @@ nb_block := False
 nb_allow := False
 H_pressed := A_TickCount
 CheckPermission()
+hwndcf := WinExist("ahk_class CrossFire")
 If ProcessExist("NLClientApp.exe")
 {
     WinActivate, ahk_exe NLClientApp.exe
@@ -35,7 +36,7 @@ Else
     Exitapp
 }
 ;==================================================================================
-If (hwndcf := WinExist("ahk_class CrossFire"))
+If (WinExist("ahk_class CrossFire"))
 {
     WinGetTitle, CF_Title, ahk_class CrossFire
     If CF_Title = CROSSFIRE
@@ -179,16 +180,17 @@ FlashClick(clickx1, clicky1, winID)
         DllCall("SwitchToThisWindow", "UInt", hwndnt4, "UInt", 1)
     CoordMode, Mouse, Client
     MouseClick, Left, clickx1, clicky1
+    MouseMove, clickx1, clicky1
     PostMessage, 0x204, 2, %lParam%, , ahk_id %hwndnt4% ;WM_RBUTTONDOWN
     PostMessage, 0x205, 2, %lParam%, , ahk_id %hwndnt4% ;WM_RBUTTONUP
-    HyperSleep(5)
+    HyperSleep(10)
     Loop, 4
     {
         ControlSend, , {Down}, %winID%
-        HyperSleep(5)
+        HyperSleep(10)
     }
 	ControlSend, , {Enter}, %winID%
-    HyperSleep(5)
+    HyperSleep(10)
     WinActivate, ahk_class CrossFire
     DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
     CoordMode, Mouse, Screen
