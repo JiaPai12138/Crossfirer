@@ -11,7 +11,7 @@ Preset()
     #MaxHotkeysPerInterval 99000000
     #HotkeyInterval 99000000
     #SingleInstance, Force
-    #IfWinActive ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+    #IfWinExist ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
     #KeyHistory 0
     ListLines Off
     SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
@@ -273,6 +273,15 @@ Median(values)
     Else ;偶数
         VarMedian := (VarArray[Mid] + VarArray[Mid + 1]) / 2
     Return VarMedian
+}
+;==================================================================================
+;将指定数据与一个范围比较,有点多此一举
+InRange(Min, x, Max) 
+{
+    If (x >= Min) && (x < Max)
+        Return True
+    Else
+        Return False
 }
 ;==================================================================================
 ;End

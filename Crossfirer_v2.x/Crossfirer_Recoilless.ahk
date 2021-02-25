@@ -1,6 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
 Preset()
-#IfWinExist ahk_class CrossFire
 ;==================================================================================
 global RCL_Service_On := False
 RCL_Down := 0
@@ -243,14 +242,5 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
         }
     } Until !GetKeyState("LButton", "P") 
     Return ;复原StartTime
-}
-;==================================================================================
-;将指定数据与一个范围比较,有点多此一举
-InRange(Min, x, Max) 
-{
-    If (x >= Min) && (x < Max)
-        Return True
-    Else
-        Return False
 }
 ;==================================================================================

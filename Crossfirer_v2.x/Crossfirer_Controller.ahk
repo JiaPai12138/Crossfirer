@@ -1,5 +1,4 @@
 ﻿#Include Crossfirer_Functions.ahk
-#IfWinExist ahk_class CrossFire
 Preset()
 ;==================================================================================
 global CTL_Service_On := False
@@ -74,6 +73,7 @@ Return
         {
             WinMinimize, ahk_class CrossFire
             HyperSleep(100)
+            CoordMode, Mouse, Screen
             MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
         }
         Else If (!WinActive("ahk_class CrossFire") && !Need_Hide)
