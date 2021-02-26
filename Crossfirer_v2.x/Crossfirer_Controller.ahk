@@ -38,7 +38,7 @@ If WinExist("ahk_class CrossFire")
 
     WinGetTitle, CF_Title, ahk_class CrossFire
     WinMinimize, ahk_class ConsoleWindowClass
-    SetTimer, UpdateGui, 500
+    SetTimer, UpdateGui, 200
     DPI_Initial := A_ScreenDPI
     CTL_Service_On := True
 } 
