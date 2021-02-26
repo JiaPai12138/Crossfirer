@@ -23,9 +23,10 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Right::Suspend, Toggle ;输入聊天时不受影响
+~*Enter::Suspend, On ;输入聊天时不受影响
 
 ~*RAlt::
+    Suspend, Off ;恢复热键
     If BHP_Service_On
     {
         SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round(He / 2.7) - P4H // 2)

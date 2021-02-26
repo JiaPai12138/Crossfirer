@@ -62,9 +62,10 @@ If (WinExist("ahk_class CrossFire"))
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Right::Suspend, Toggle ;输入聊天时不受影响
+~*Enter::Suspend, On ;输入聊天时不受影响
 
 ~*RAlt::
+    Suspend, Off ;恢复热键
     If NBK_Service_On
     {
         SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)

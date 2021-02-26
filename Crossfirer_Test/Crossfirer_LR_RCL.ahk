@@ -18,7 +18,7 @@ If (WinExist("ahk_class CrossFire"))
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Right::Suspend, Toggle ;输入聊天时不受影响
+~*Enter::Suspend, On ;输入聊天时不受影响
 
 ~*$LButton:: ;压枪 正在开发
     If LRC_Service_On

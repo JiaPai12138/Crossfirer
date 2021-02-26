@@ -61,9 +61,10 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Right::Suspend, Toggle ;输入聊天时不受影响
+~*Enter::Suspend, On ;输入聊天时不受影响
 
 ~*RAlt::
+    Suspend, Off ;恢复热键
     If SHT_Service_On
     {
         SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 8) - P1W // 2, Round(ValueH / 9) - P1H // 2)
@@ -76,6 +77,7 @@ If WinExist("ahk_class CrossFire")
 Return
 
 ~*` Up::
+~*~ Up::
     If SHT_Service_On
         ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return

@@ -123,15 +123,35 @@ ProcessExist(Process_Name)
     Return ErrorLevel
 }
 ;==================================================================================
-;检测是否不再游戏中,目标为界面左上角火焰状字样黄色部分以及附近的黑色阴影
-Not_In_Game() 
+;检测是否不再游戏中,目标为界面左上角
+Not_In_Game(CF_Title) 
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
-    PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x72FFFF, 0, Fast ;show color in editor: #FFFF72 #72FFFF
-    If !ErrorLevel
+    If CF_Title = 穿越火线
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x000000, 0, Fast ;show color in editor: #000000
-        Return !ErrorLevel
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x6E89A9, 0, Fast ;show color in editor: #A9896E #6E89A9
+        If !ErrorLevel
+        {
+            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x353637, 0, Fast ;show color in editor: #373635 #353637
+            If !ErrorLevel
+            {
+                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3B3C87, 0, Fast ;show color in editor: #873C3B #3B3C87
+                Return !ErrorLevel
+            }
+        }
+    }
+    Else If CF_Title = CROSSFIRE
+    {
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x929292, 0, Fast ;show color in editor: #929292
+        If !ErrorLevel
+        {
+            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3C4B61, 0, Fast ;show color in editor: #614B3C #3C4B61
+            If !ErrorLevel
+            {
+                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B53F4, 0, Fast ;show color in editor: #F4534B #4B53F4
+                Return !ErrorLevel
+            }
+        }
     }
     Else
         Return False
@@ -241,7 +261,7 @@ HyperSleep(value)
 ReceiveMessage(Message) 
 {
     If Message = 125638
-        ExitApp ;退出当前脚本,未来可加其他动作
+        ExitApp ;退出当前脚本
     Else If Message = 66566 ;游戏中
         Send, {Blind}{vk87 Up} ;F24 key
     Else If Message = 44944 ;等待中

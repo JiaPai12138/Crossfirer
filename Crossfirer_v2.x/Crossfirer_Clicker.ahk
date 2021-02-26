@@ -29,9 +29,10 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Right::Suspend, Toggle ;输入聊天时不受影响
+~*Enter::Suspend, On ;输入聊天时不受影响
 
 ~*RAlt::
+    Suspend, Off ;恢复热键
     If CLK_Service_On
     {
         SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round(He / 3) - P5H // 2)
@@ -86,7 +87,8 @@ Return
     }
 Return
 
-~*8:: ;大宝剑二段连击
+~*":: ;大宝剑二段连击
+~*'::
     If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
@@ -102,7 +104,8 @@ Return
     }
 Return
 
-~*9:: ;粉碎者直射
+~*|:: ;左键直射
+~*\::
     If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
@@ -121,7 +124,8 @@ Return
     }
 Return
 
-~*0:: ;炼狱热管
+~*::: ;炼狱热管
+~*;:: 
     If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF

@@ -7,6 +7,7 @@ CheckPermission()
 Need_Help := False
 Need_Hide := False
 global Title_Blank := 0
+CF_Title :=
 
 If WinExist("ahk_class CrossFire")
 {
@@ -35,6 +36,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Hint: Show, x%XGui10% y%YGui10% NA
     Gui, Helper: Show, Hide
 
+    WinGetTitle, CF_Title, ahk_class CrossFire
     WinMinimize, ahk_class ConsoleWindowClass
     SetTimer, UpdateGui, 500
     DPI_Initial := A_ScreenDPI
@@ -49,9 +51,10 @@ If WinExist("ahk_class CrossFire")
         Run, .\双击我启动助手!!!.exe
 ExitApp
 
-~*Right::Suspend, Toggle ;输入聊天时不受影响
+~*Enter::Suspend, On ;输入聊天时不受影响
 
 ~*RAlt::
+    Suspend, Off ;恢复热键
     If CTL_Service_On
     {
         SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
@@ -83,7 +86,7 @@ Return
 ;==================================================================================
 UpdateGui() ;精度0.5s
 {
-    global DPI_Initial
+    global DPI_Initial, CF_Title
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
     If !WinExist("ahk_class CrossFire")
@@ -113,9 +116,9 @@ UpdateGui() ;精度0.5s
         }
         ExitApp
     }
-    Else If !Not_In_Game()
+    Else If !Not_In_Game(CF_Title)
         PostMessage("Listening", 66566)
-    Else If Not_In_Game()
+    Else If Not_In_Game(CF_Title)
         PostMessage("Listening", 44944)
 }
 ;==================================================================================
