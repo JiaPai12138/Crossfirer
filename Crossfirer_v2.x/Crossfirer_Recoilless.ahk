@@ -88,7 +88,7 @@ Return
 Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
-    If RCL_Service_On || !WinActive("ahk_class CrossFire")
+    If RCL_Service_On
     {
         Gui, circle: Show, Hide
         If !GetKeyState("vk87")
@@ -108,7 +108,7 @@ Return
 Return
 
 ~*Rbutton Up::
-    If RCL_Service_On || !WinActive("ahk_class CrossFire")
+    If RCL_Service_On
         Gui, circle: Show, Hide
 Return
 
