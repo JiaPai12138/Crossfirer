@@ -104,8 +104,6 @@ Return
         Loop
         {
             press_key("LCtrl", 30, 30)
-            If cnt = 6
-                Send, {Space} ;幽灵跳
             cnt += 1
         } Until, (!GetKeyState("W", "P") || cnt >= 8 || !WinActive("ahk_class CrossFire"))
         press_key("LCtrl", 270, 30)
