@@ -39,7 +39,13 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
-~*Enter::Suspend, On ;输入聊天时不受影响
+~*Enter::
+    Suspend, Toggle ;输入聊天时不受影响
+    If A_IsSuspended
+        ToolTip, 禁用热键
+    Else
+        ToolTip
+Return
 
 ~*=::
     If C4H_Service_On
@@ -65,6 +71,7 @@ Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键
+    ToolTip
     If C4H_Service_On
     {
         SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 7.5) - P3H // 2)

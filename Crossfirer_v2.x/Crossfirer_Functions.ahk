@@ -129,20 +129,20 @@ Not_In_Game(CF_Title)
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
     If CF_Title = 穿越火线
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x6E89A9, 0, Fast ;show color in editor: #A9896E #6E89A9
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x7389A9, 0, Fast ;show color in editor: #A98973 #7389A9
         If !ErrorLevel
         {
-            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x353637, 0, Fast ;show color in editor: #373635 #353637
+            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x38373E, 0, Fast ;show color in editor: #3E3738 #38373E
             If !ErrorLevel
             {
-                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3B3C87, 0, Fast ;show color in editor: #873C3B #3B3C87
+                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3D3C82, 0, Fast ;show color in editor: #823C3D #3D3C82
                 Return !ErrorLevel
             }
         }
     }
     Else If CF_Title = CROSSFIRE
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x929292, 0, Fast ;show color in editor: #929292
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x959B95, 0, Fast ;show color in editor: #959B95
         If !ErrorLevel
         {
             PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3C4B61, 0, Fast ;show color in editor: #614B3C #3C4B61
@@ -262,10 +262,6 @@ ReceiveMessage(Message)
 {
     If Message = 125638
         ExitApp ;退出当前脚本
-    Else If Message = 66566 ;游戏中
-        Send, {Blind}{vk87 Up} ;F24 key
-    Else If Message = 44944 ;等待中
-        Send, {Blind}{vk87 Down} ;F24 key
 }
 ;==================================================================================
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,发送信息

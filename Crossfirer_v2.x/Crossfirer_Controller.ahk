@@ -51,10 +51,17 @@ If WinExist("ahk_class CrossFire")
         Run, .\双击我启动助手!!!.exe
 ExitApp
 
-~*Enter::Suspend, On ;输入聊天时不受影响
+~*Enter::
+    Suspend, Toggle ;输入聊天时不受影响
+    If A_IsSuspended
+        ToolTip, 禁用热键
+    Else
+        ToolTip
+Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键
+    ToolTip
     If CTL_Service_On
     {
         SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
@@ -84,7 +91,7 @@ Return
     }
 Return
 ;==================================================================================
-UpdateGui() ;精度0.5s
+UpdateGui() ;精度0.2s
 {
     global DPI_Initial, CF_Title
     If !InStr(A_ScreenDPI, DPI_Initial)
@@ -117,9 +124,9 @@ UpdateGui() ;精度0.5s
         ExitApp
     }
     Else If !Not_In_Game(CF_Title)
-        PostMessage("Listening", 66566)
+        Send, {Blind}{vk87 Up} ;F24 key
     Else If Not_In_Game(CF_Title)
-        PostMessage("Listening", 44944)
+        Send, {Blind}{vk87 Down} ;F24 key
 }
 ;==================================================================================
 ;通过按下快捷键显示/隐藏提示
