@@ -231,7 +231,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     Gui, %CrID%: Color, 00FFFF ;#00FFFF
     Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
-    While, WinActive("ahk_class CrossFire")
+    While, !GetKeyState("vk87")
     {
         Random, rand, 58.0, 62.0 ;设定随机值减少被检测概率
         small_rand := rand / 2
@@ -327,6 +327,6 @@ Shoot_Time(X, Y, W, H, Var, game_title)
         Return !ErrorLevel
     }
     Else If game_title = 穿越火线
-        Return GetColorStatus(X, Y, Var, H // 2 + Round(H / 15), PosColor_red) ;图形界面一半+到红名的距离, 542 对应 1600*900
+        Return GetColorStatus(X, Y, Var, H // 2 + Round(H / 15), PosColor_red) ;图形界面一半+到红名的距离, 510 对应 1600*900
 }
 ;==================================================================================
