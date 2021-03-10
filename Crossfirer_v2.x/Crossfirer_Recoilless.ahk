@@ -21,23 +21,23 @@ If WinExist("ahk_class CrossFire")
     Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
     Gui, recoil_mode: Color, 333333 ;#333333
-    Gui, recoil_mode: Font, s15, Microsoft YaHei
+    Gui, recoil_mode: Font, s10, Microsoft YaHei
     Gui, recoil_mode: Add, Text, hwndGui_6 vModeClick c00FF00, 压枪准备中 ;#00FF00
     GuiControlGet, P6, Pos, %Gui_6%
-    WinSet, TransColor, 333333 191 ;#333333
+    WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round(Hrs / 9) - P6H // 2)
+    SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 10) - P6W // 2, Round(Hrs / 9) - P6H // 2)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
 
     Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, gun_sel: Margin, 0, 0
     Gui, gun_sel: Color, 333333 ;#333333
-    Gui, gun_sel: Font, s15, Microsoft YaHei
+    Gui, gun_sel: Font, s10, Microsoft YaHei
     Gui, gun_sel: Add, Text, hwndGui_7 vModeGun c00FF00, 暂未选枪械 ;#00FF00
     GuiControlGet, P7, Pos, %Gui_7%
-    WinSet, TransColor, 333333 191 ;#333333
+    WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round(Hrs / 6) - P7H // 2)
+    SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 10) - P7W // 2, Round(Hrs / 7.2) - P7H // 2)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
 
     Gui, circle: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale, Listening
@@ -72,9 +72,9 @@ Return
     ToolTip
     If RCL_Service_On
     {
-        SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 8) - P6W // 2, Round(Hrs / 9) - P6H // 2)
+        SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 10) - P6W // 2, Round(Hrs / 9) - P6H // 2)
         Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
-        SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 8) - P7W // 2, Round(Hrs / 6) - P7H // 2)
+        SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 10) - P7W // 2, Round(Hrs / 7.2) - P7H // 2)
         Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
     }
 Return
@@ -140,7 +140,7 @@ Return
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
-        Gun_Chosen := 0, Ammo_Delay := 87.6
+        Gun_Chosen := 0 ;, Ammo_Delay := 87.6
     }  
 Return
 
@@ -163,30 +163,42 @@ Return
         Gun_Chosen := 2, Ammo_Delay := 87.6
     }
 Return
+
+~*NumpadPgDn::
+~*Numpad3::
+    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    {
+        GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
+        UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)
+        Gun_Chosen := 3, Ammo_Delay := 32
+    }
+Return
 ;==================================================================================
 ;压枪函数,对相应枪械,均能在中近距离上基本压成一条线,即将标准化
 Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
 {
-    static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     StartTime := SystemTime()
     Ammo_Count := 0
     Loop
     {
-        EndTime := Floor(SystemTime() - StartTime + 2 * Color_Delay) ;确保非浮点
+        EndTime := Floor(SystemTime() - StartTime) ;确保非浮点
         Switch Gun_Chosen
         {
         Case 0: ;通用啥都压系列
             Ammo_Count := EndTime // Ammo_Delay ;确保每一发都压到
             If !GetKeyState("LButton")
                 Send, {Blind}{LButton Down}
-            If Ammo_Count < 1
-                HyperSleep(30 - 2 * Color_Delay)
-            Else
-                HyperSleep(30)
+            HyperSleep(10)
             Send, {Blind}{LButton Up}
-            HyperSleep(Ammo_Delay - 30) ;600发/分标准射速
-            If RCL_Down && Ammo_Count < 10
+            HyperSleep(Ammo_Delay - 10)
+            If RCL_Down && Ammo_Count < 10 && Ammo_Delay > 60
                 mouseXY(0, RCL_Down)
+            Else
+            {
+                If !Mod(Ammo_Count, 3) && Ammo_Count <= 80
+                    mouseXY(0, 1) ;DPI 800,灵敏32
+            }
+
 
         Case 1: ;AK47英雄级
             Ammo_Delay := 100
@@ -194,7 +206,7 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
             If (Ammo_Count < 1)
             {
                 mouseXY(0, 3)
-                HyperSleep(Ammo_Delay - 2 * Color_Delay)
+                HyperSleep(Ammo_Delay)
             }
             Else
             {
@@ -225,7 +237,7 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
             If (Ammo_Count < 1)
             {
                 mouseXY(0, 1)
-                HyperSleep(Ammo_Delay - 2 * Color_Delay)
+                HyperSleep(Ammo_Delay)
             }
             Else
             {

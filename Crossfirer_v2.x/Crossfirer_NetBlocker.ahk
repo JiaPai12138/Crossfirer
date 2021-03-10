@@ -52,7 +52,7 @@ If (WinExist("ahk_class CrossFire"))
     Gui, net_status: Font, s20, Microsoft YaHei
     Gui, net_status: Add, Text, hwndGui_9 vNetBlock c00FFFF, %Net_Text% ;#00FFFF
     GuiControlGet, P9, Pos, %Gui_9%
-    WinSet, TransColor, 333333 191 ;#333333
+    WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
     Gui, net_status: Show, Hide ;x%XGui9% y%YGui9% NA
