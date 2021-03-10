@@ -28,7 +28,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Human_Hero: Margin, 0, 0
     Gui, Human_Hero: Color, 333333 ;333333
     Gui, Human_Hero: Font, s10 c00FFFF, Microsoft YaHei ;#00FFFF
-    Gui, Human_Hero: Add, Text, hwndhero vIMHero, 猎手
+    Gui, Human_Hero: Add, Text, hwndhero vIMHero, HEEERO
     GuiControlGet, PH, Pos, %hero%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20
