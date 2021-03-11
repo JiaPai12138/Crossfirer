@@ -214,7 +214,7 @@ class E_Hero
             }
 
             PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - Round(this.W / 10), this.Y + Round(this.H / 4), this.X + this.W // 2 + Round(this.W / 10), this.Y + Round(this.H / 3), 0xB7780B, 0, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
-            If !ErrorLevel && !GetKeyState("e")
+            If !ErrorLevel && !GetKeyState("e", "P")
                 Send, {Blind}{e Down}
             Else If ErrorLevel && GetKeyState("e")
                 Send, {Blind}{e Up}

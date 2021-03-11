@@ -5,7 +5,6 @@ global CTL_Service_On := False
 CheckPermission()
 ;==================================================================================
 Need_Help := False
-Need_Hide := False
 global Title_Blank := 0
 CF_Title :=
 
@@ -78,15 +77,14 @@ Return
 ~*CapsLock Up:: ;minimize window and replace origin use
     If CTL_Service_On
     {
-        Need_Hide := !Need_Hide
-        If (WinActive("ahk_class CrossFire") && Need_Hide)
+        If WinActive("ahk_class CrossFire")
         {
             WinMinimize, ahk_class CrossFire
             HyperSleep(100)
             CoordMode, Mouse, Screen
             MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
         }
-        Else If (!WinActive("ahk_class CrossFire") && !Need_Hide)
+        Else
             WinActivate, ahk_class CrossFire ;激活该窗口
     }
 Return
@@ -108,6 +106,7 @@ UpdateGui() ;精度0.2s
                 Title_Blank += 1
             HyperSleep(100) ;just for stability
         } Until Title_Blank > 4
+        
         If ProcessExist("GameLoader.exe")
         {
             If A_IsCompiled && A_IsAdmin

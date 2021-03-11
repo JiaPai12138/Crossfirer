@@ -83,6 +83,10 @@ Return
     }
 Return
 
+~*F6::
+    FuncPing() ;重新输入ping
+Return
+
 ~*` Up::
 ~*~ Up::
     If SHT_Service_On
@@ -111,7 +115,7 @@ Return
     If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 0
-        Temp_Run := "加载通用"
+        Temp_Run := "加载通用中"
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载通用中", XGui1, YGui1)
         AutoFire(0, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
@@ -122,7 +126,7 @@ Return
     If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 8
-        Temp_Run := "加载狙击"
+        Temp_Run := "加载狙击中"
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载狙击中", XGui1, YGui1)
         AutoFire(8, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
@@ -133,7 +137,7 @@ Return
     If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 111
-        Temp_Run := "加载速点"
+        Temp_Run := "加载速点中"
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载速点中", XGui1, YGui1)
         AutoFire(111, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
@@ -279,7 +283,8 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
                             UpdateText(Gui_Number2, StatusID, "双切换弹中", XGui2, YGui2)
                             Send, {3 DownTemp}
-                            HyperSleep(GamePing + 75)
+                            HyperSleep(GamePing + 60)
+                            press_key("LButton", 10, 10)
                             Send, {1 DownTemp}
                             
                             If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹
