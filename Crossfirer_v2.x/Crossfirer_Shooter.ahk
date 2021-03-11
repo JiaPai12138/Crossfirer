@@ -83,7 +83,7 @@ Return
     }
 Return
 
-~*F6::
+~*F7 Up::
     FuncPing() ;重新输入ping
 Return
 

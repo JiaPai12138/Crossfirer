@@ -175,6 +175,7 @@ class E_Hero
         this.W := 1600
         this.H := 900
         this.interval := 60
+        this.IsReloading := 0
         this.EHero := ObjBindMethod(this, "UpdatE_Hero")
     }
 
@@ -214,10 +215,25 @@ class E_Hero
             }
 
             PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - Round(this.W / 10), this.Y + Round(this.H / 4), this.X + this.W // 2 + Round(this.W / 10), this.Y + Round(this.H / 3), 0xB7780B, 0, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
-            If !ErrorLevel && !GetKeyState("e", "P")
+            If !ErrorLevel
+            {
                 Send, {Blind}{e Down}
+                this.IsReloading += 1
+                If this.IsReloading > 2
+                {
+                    PixelSearch, IsReloadX, IsReloadY, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B
+                    If ErrorLevel
+                    {
+                        Send, {Blind}{e Up}
+                        this.IsReloading := 0
+                    }
+                }
+            }
             Else If ErrorLevel && GetKeyState("e")
+            {
                 Send, {Blind}{e Up}
+                this.IsReloading := 0
+            }
         }
     }
 }

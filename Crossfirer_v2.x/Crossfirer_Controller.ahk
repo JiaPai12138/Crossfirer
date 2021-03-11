@@ -7,6 +7,7 @@ CheckPermission()
 Need_Help := False
 global Title_Blank := 0
 CF_Title :=
+Random_Move := False
 
 If WinExist("ahk_class CrossFire")
 {
@@ -37,7 +38,7 @@ If WinExist("ahk_class CrossFire")
 
     WinGetTitle, CF_Title, ahk_class CrossFire
     WinMinimize, ahk_class ConsoleWindowClass
-    SetTimer, UpdateGui, 200
+    SetTimer, UpdateGui, 250
     DPI_Initial := A_ScreenDPI
     CTL_Service_On := True
 } 
@@ -88,10 +89,14 @@ Return
             WinActivate, ahk_class CrossFire ;激活该窗口
     }
 Return
+
+~*F5::
+    Random_Move := !Random_Move
+Return
 ;==================================================================================
-UpdateGui() ;精度0.2s
+UpdateGui() ;精度0.25s
 {
-    global DPI_Initial, CF_Title
+    global DPI_Initial, CF_Title, Random_Move
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
     If !WinExist("ahk_class CrossFire")
@@ -106,7 +111,7 @@ UpdateGui() ;精度0.2s
                 Title_Blank += 1
             HyperSleep(100) ;just for stability
         } Until Title_Blank > 4
-        
+
         If ProcessExist("GameLoader.exe")
         {
             If A_IsCompiled && A_IsAdmin
@@ -123,7 +128,25 @@ UpdateGui() ;精度0.2s
         ExitApp
     }
     Else If !Not_In_Game(CF_Title)
+    {
         Send, {Blind}{vk87 Up} ;F24 key
+        If Random_Move && WinActive("ahk_class CrossFire")
+        {
+            Random, ran_move, -3, 3
+            Random, ran_act, -3, 3
+            mouseXY(ran_move * 100, ran_act * 10)
+            Switch ran_move
+            {
+                Case -3: press_key("w", 150, 30)
+                Case -2: press_key("s", 150, 30)
+                Case -1: press_key("a", 150, 30)
+                Case 0: press_key("LCtrl", 150, 30)
+                Case 1: press_key("d", 150, 30)
+                Case 2: press_key("Space", 150, 30)
+                Case 3: press_key("Shift", 60, 30), press_key("Shift", 60, 30)
+            }
+        }
+    }
     Else If Not_In_Game(CF_Title)
         Send, {Blind}{vk87 Down} ;F24 key
 }

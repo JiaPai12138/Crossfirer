@@ -71,8 +71,7 @@ CoordMode, Pixel, Screen
             IfEqual, color2, 0xFFF9D8
             {
                 MouseMove, (X + 515), (Y + 401)
-                Sleep, 30
-                Loop, 30
+                Loop, 100
                 {
                     MouseMove, (X + 515), (Y + 451)
                     SendInput, {Click, Down, Right}

@@ -142,8 +142,9 @@ Return
         UpdateText("jump_mode", "ModeJump", "跳蹲上坡", XGui4, YGui4)
         Loop
         {
-            press_key("Space", 30, 30)
-            press_key("LCtrl", 30, 30)
+            press_key("Space", 20, 20)
+            press_key("LCtrl", 20, 20)
+            press_key("Shift", 20, 20)
             cnt += 1
         } Until, (cnt > 50 || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
@@ -165,6 +166,24 @@ Return
         press_key("LCtrl", 700, 100)
         Send, {Blind}{s Up}
         Send, {Blind}{Space Up}
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return
+
+~S & ~LAlt:: ;后跳闪蹲 s+alt
+    If BHP_Service_On
+    {
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "后跳闪蹲", XGui4, YGui4)
+        cnt := 0
+        press_key("Space", 30, 30)
+        press_key("LCtrl", 700, 20)
+        While, GetKeyState("LAlt", "P") && WinActive("ahk_class CrossFire")
+        {
+            press_key("LCtrl", 20, 10)
+        }
+        Send, {Blind}{LCtrl Up}
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
@@ -213,6 +232,52 @@ Return
         press_key("Space", 10, 10)
         Send, {Blind}{s Up}
         
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return
+
+~*F6::
+    If BHP_Service_On
+    {
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "左旋转跳", XGui4, YGui4)
+        Send, {Blind}{s Down}
+        HyperSleep(60)
+        press_key("Space", 30, 30)
+        mouseXY(-400, 0)
+        Send, {Blind}{d Down}
+        Send, {Blind}{LCtrl Down}
+        HyperSleep(720)
+        press_key("Space", 30, 30)
+        mouseXY(-400, 0)
+        HyperSleep(960)
+        Send, {Blind}{s Up}
+        Send, {Blind}{d Up}
+        Send, {Blind}{LCtrl Up}
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    }
+Return
+
+~*F8::
+    If BHP_Service_On
+    {
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "右旋转跳", XGui4, YGui4)
+        Send, {Blind}{s Down}
+        HyperSleep(60)
+        press_key("Space", 30, 30)
+        mouseXY(400, 0)
+        Send, {Blind}{a Down}
+        Send, {Blind}{LCtrl Down}
+        HyperSleep(720)
+        press_key("Space", 30, 30)
+        mouseXY(400, 0)
+        HyperSleep(960)
+        Send, {Blind}{s Up}
+        Send, {Blind}{a Up}
+        Send, {Blind}{LCtrl Up}
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
