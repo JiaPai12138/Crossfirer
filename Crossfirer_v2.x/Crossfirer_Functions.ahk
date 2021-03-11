@@ -26,7 +26,7 @@ Preset()
     SetControlDelay, -1
     Menu, Tray, NoStandard
     Menu, Tray, Add, 重新加载, Re_load
-    Menu, Tray, Add, 退出, Exit
+    Menu, Tray, Add, 退出, Exit_Script
     Menu, Tray, Default, 退出
 }
 ;==================================================================================
@@ -306,7 +306,7 @@ InRange(Min, x, Max)
 }
 ;==================================================================================
 ;托盘退出选项
-Exit() 
+Exit_Script() 
 {
     ExitApp
 }
