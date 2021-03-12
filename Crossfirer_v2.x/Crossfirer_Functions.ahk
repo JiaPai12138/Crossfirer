@@ -52,6 +52,7 @@ CheckPermission()
                     Run, "%A_ProgramFiles%\AutoHotkey\AutoHotkeyU64_UIA.exe" "%A_ScriptFullPath%"
                 Else
                     Run, *RunAs "%A_ScriptFullPath%"
+                ExitApp
             }
         }
         Catch
@@ -70,22 +71,34 @@ CheckPermission()
     }
 }
 ;==================================================================================
-;检查是否存在指定的UIA权限辅助
+;检查脚本是否由指定的UIA权限运行
 CheckUIA()
 {
-    If ProcessExist("AutoHotkeyU64_UIA.exe")
-    {
-        DetectHiddenWindows, On
-        WinGetTitle, AHK_Title, ahk_exe AutoHotkeyU64_UIA.exe
-        WinGet, Process_Num, Count, ahk_exe AutoHotkeyU64_UIA.exe
-        DetectHiddenWindows, Off
-        If InStr(AHK_Title, "Crossfirer_") && Process_Num > 1
-            Return True
-        Else
-            Return False
-    }
+    process_id := ProcessInfo_GetCurrentProcessID()
+    process_name := GetProcessName(process_id)
+    If InStr(process_name, "AutoHotkeyU64_UIA.exe")
+        Return True
     Else
         Return False
+}
+;==================================================================================
+;拷贝自 https://github.com/camerb/AHKs/blob/master/thirdParty/ProcessInfo.ahk
+ProcessInfo_GetCurrentProcessID()
+{
+	Return DllCall("GetCurrentProcessId")
+}
+;==================================================================================
+;拷贝自 https://www.reddit.com/r/AutoHotkey/comments/6zftle/process_name_from_pid/
+GetProcessName(ProcessID)
+{
+    If (hProcess := DllCall("OpenProcess", "uint", 0x0410, "int", 0, "uint", ProcessID, "ptr")) 
+    {
+        size := VarSetCapacity(buf, 0x0104 << 1, 0)
+        If (DllCall("psapi\GetModuleFileNameEx", "ptr", hProcess, "ptr", 0, "ptr", &buf, "uint", size))
+            Return StrGet(&buf), DllCall("CloseHandle", "ptr", hProcess)
+		DllCall("CloseHandle", "ptr", hProcess)
+    }
+    Return False
 }
 ;==================================================================================
 ;检查游戏界面真正位置,不包括标题栏和边缘等等
