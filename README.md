@@ -10,7 +10,7 @@
 * 如果客户端界面位置发生变化请按靠右边的Alt键对准，一次不行多按几次(发行版的exe可能一次无法完全调整对准)，~~启动脚本后请等待三秒左右不然可能遇到警告~~
 * ~~以管理员模式运行脚本或者右键选择“Run with UI Access”~~ ~~直接双击，按提示选择管理员或者UI Access~~ 直接打开Crossfirer_v2.x文件夹中的bat文件然后选择你想打开的功能再运行游戏![image](PDF_Images/直接打开bat.png)![image](PDF_Images/选择脚本.png)或者打开发行版里的双击我启动助手!!!.exe![image](PDF_Images/发行版所有文件.png)
 * 按下"-"键重新加载脚本(实际是退出等待cmd界面重新选择运行脚本)
-* 运行脚本时将获得即时状态提示，一般黄色为暂停状态，绿色为就绪状态，青色为正在运行，红色为警报(仅自动开火部分)，按靠右的Ctrl键将获得简易键位提示![image](PDF_Images/做好变猎手准备.png)
+* 运行脚本时将获得即时状态提示，一般黄色![黄色](https://via.placeholder.com/15/ffff00/000000?text=+)为暂停状态，绿色![绿色](https://via.placeholder.com/15/00ff00/000000?text=+)为就绪状态，青色![青色](https://via.placeholder.com/15/00ffff/000000?text=+)为正在运行，红色![红色](https://via.placeholder.com/15/ff0000/000000?text=+)为警报(仅自动开火部分)，按靠右的Ctrl键将获得简易键位提示![image](PDF_Images/做好变猎手准备.png)
 * 按下回车键可暂停/恢复一切按键触发函数，或者按右边的Alt恢复按键触发，避免打字时错乱
 * 按下F5可开启/关闭游戏内随机动作
 ### 自动开火部分
