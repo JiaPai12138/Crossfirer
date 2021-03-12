@@ -43,7 +43,7 @@ CheckPermission()
     {
         Try
         {
-            If A_IsCompiled ;实际用自带编译器会被侦测,所以要加壳
+            If A_IsCompiled ;编译时请用加密减少侦测几率
                 Run, *RunAs "%A_ScriptFullPath%" ;管理员权限运行
             Else
             {
