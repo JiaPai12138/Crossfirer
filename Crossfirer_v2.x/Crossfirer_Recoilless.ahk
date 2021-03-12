@@ -80,7 +80,7 @@ Return
 Return
 
 ~*$LButton:: ;压枪 正在开发
-    If RCL_Service_On && WinActive("ahk_class CrossFire")
+    If RCL_Service_On && WinActive("ahk_class CrossFire") && !GetKeyState("vk87")
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
