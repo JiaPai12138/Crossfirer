@@ -82,13 +82,13 @@ CheckUIA()
         Return False
 }
 ;==================================================================================
-;拷贝自 https://github.com/camerb/AHKs/blob/master/thirdParty/ProcessInfo.ahk
+;拷贝自 https://github.com/camerb/AHKs/blob/master/thirdParty/ProcessInfo.ahk ,检测脚本运行的进程ID
 ProcessInfo_GetCurrentProcessID()
 {
 	Return DllCall("GetCurrentProcessId")
 }
 ;==================================================================================
-;拷贝自 https://www.reddit.com/r/AutoHotkey/comments/6zftle/process_name_from_pid/
+;拷贝自 https://www.reddit.com/r/AutoHotkey/comments/6zftle/process_name_from_pid/ ,通过进程ID得到进程完整路径
 GetProcessName(ProcessID)
 {
     If (hProcess := DllCall("OpenProcess", "uint", 0x0410, "int", 0, "uint", ProcessID, "ptr")) 
@@ -101,7 +101,7 @@ GetProcessName(ProcessID)
     Return False
 }
 ;==================================================================================
-;检查游戏界面真正位置,不包括标题栏和边缘等等
+;检查游戏界面真正位置,不包括标题栏和边缘等等,既Client位置
 CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, class_name)
 {
     WinGet, CFID, ID, ahk_class %class_name%
