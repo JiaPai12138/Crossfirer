@@ -226,7 +226,7 @@ GetColorStatus(X, Y, CX1, CX2, color_lib)
 }
 ;==================================================================================
 ;控制鼠标移动,上下左右
-mouseXY(x1,y1)
+mouseXY(x1, y1)
 {
     DllCall("mouse_event", uint, 1, int, x1, int, y1, uint, 0, int, 0)
 }
