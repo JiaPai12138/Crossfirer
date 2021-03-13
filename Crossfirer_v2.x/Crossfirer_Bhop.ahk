@@ -240,7 +240,7 @@ Return
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "左旋转跳", XGui4, YGui4)
         Send, {Blind}{s Down}
-        HyperSleep(60)
+        HyperSleep(180)
         press_key("Space", 30, 30)
         mouseXY(-400, 0)
         Send, {Blind}{d Down}
@@ -248,7 +248,7 @@ Return
         HyperSleep(540)
         press_key("Space", 30, 30)
         mouseXY(-400, 0)
-        HyperSleep(1080)
+        HyperSleep(880)
         Send, {Blind}{s Up}
         Send, {Blind}{d Up}
         Send, {Blind}{LCtrl Up}
@@ -263,7 +263,7 @@ Return
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "右旋转跳", XGui4, YGui4)
         Send, {Blind}{s Down}
-        HyperSleep(60)
+        HyperSleep(180)
         press_key("Space", 30, 30)
         mouseXY(400, 0)
         Send, {Blind}{a Down}
@@ -271,7 +271,7 @@ Return
         HyperSleep(540)
         press_key("Space", 30, 30)
         mouseXY(400, 0)
-        HyperSleep(1080)
+        HyperSleep(880)
         Send, {Blind}{s Up}
         Send, {Blind}{a Up}
         Send, {Blind}{LCtrl Up}
