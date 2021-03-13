@@ -245,10 +245,10 @@ Return
         mouseXY(-400, 0)
         Send, {Blind}{d Down}
         Send, {Blind}{LCtrl Down}
-        HyperSleep(720)
+        HyperSleep(540)
         press_key("Space", 30, 30)
         mouseXY(-400, 0)
-        HyperSleep(960)
+        HyperSleep(1080)
         Send, {Blind}{s Up}
         Send, {Blind}{d Up}
         Send, {Blind}{LCtrl Up}
@@ -268,10 +268,10 @@ Return
         mouseXY(400, 0)
         Send, {Blind}{a Down}
         Send, {Blind}{LCtrl Down}
-        HyperSleep(720)
+        HyperSleep(540)
         press_key("Space", 30, 30)
         mouseXY(400, 0)
-        HyperSleep(960)
+        HyperSleep(1080)
         Send, {Blind}{s Up}
         Send, {Blind}{a Up}
         Send, {Blind}{LCtrl Up}
