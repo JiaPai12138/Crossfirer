@@ -30,8 +30,11 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 ~*Enter::
-    Suspend, Toggle ;输入聊天时不受影响
-    Suspended()
+    If WinActive("ahk_class CrossFire")
+    {
+        Suspend, Toggle ;输入聊天时不受影响
+        Suspended()
+    }
 Return
 
 ~*RAlt::
