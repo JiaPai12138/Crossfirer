@@ -1,6 +1,8 @@
 ﻿;Functions for Crossfirer;CF娱乐助手函数集合
 ;Please read https://www.autohotkey.com/docs/commands/PixelGetColor.htm for RGB vs. BGR format
 ;https://github.com/JacobHu0723/cps.github.io For click speed test
+#Include, Create_CF_ico.ahk
+火线图标 := Create_CF_ico() ;加载图标
 ;==================================================================================
 ;预设参数
 Preset()
@@ -24,10 +26,19 @@ Preset()
     SetDefaultMouseSpeed, 0
     SetWinDelay, -1
     SetControlDelay, -1
+
+    global 火线图标
+    Menu, Tray, Add, 关于, About
+    Menu, Tray, Icon, 关于, HICON:*%火线图标%, , 20
+    Menu, Tray, Default, 关于
+    Menu, Tray, Click, 1
     Menu, Tray, NoStandard
-    Menu, Tray, Add, 重新加载, Re_load
-    Menu, Tray, Add, 退出, Exit_Script
-    Menu, Tray, Default, 退出
+    Menu, Tray, Add, 重新加载, Re_load, +Radio
+    Menu, Tray, Check, 重新加载
+    Menu, Tray, Add, 退出辅助, Exit_Script, +Radio
+    Menu, Tray, Check, 退出辅助
+    Menu, Tray, Tip, 火线娱乐助手
+    Menu, Tray, Color, 0x00FFFF
 }
 ;==================================================================================
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
@@ -232,7 +243,7 @@ UpdateText(Gui_Number, ControlID, NewText, X, Y)
     {
         GuiControl, %Gui_Number%: Text, %ControlID%, %NewText%
         OldText[ControlID] := NewText
-        Gui, %Gui_Number%: Show, x%X% y%Y% NA
+        Gui, %Gui_Number%: Show, x%X% y%Y% ;NA
     }
 }
 ;==================================================================================
@@ -328,6 +339,28 @@ Exit_Script()
 Re_load() 
 {
     Reload
+}
+;==================================================================================
+;托盘关于选项
+About()
+{
+    global 火线图标
+    static thanks, timenow
+    FormatTime, show_time
+    Gui, icon_about: New, +LastFound +AlwaysOnTop -DPIScale +Border, 关于
+    Gui, icon_about: Color, 333333 ;#333333
+    Gui, icon_about: Add, Picture, , HICON:*%火线图标% ;512*512
+    Gui, icon_about: Font, s12 Bold, Microsoft YaHei
+    Gui, icon_about: Add, Text, vthanks c00FFFF +Center w512 ReadOnly, 2020-2021 开源项目 欢迎指导 ;%A_GuiWidth%
+    Gui, icon_about: Add, Edit, vtimenow c00FFFF +Center w512 ReadOnly, %show_time% ;#00FFFF
+    Gui, icon_about: Add, Button, gclose_gui w512, 好的/OK
+    Gui, icon_about: Show
+}
+;==================================================================================
+;关闭关于界面
+close_gui()
+{
+    Gui, icon_about: Hide
 }
 ;==================================================================================
 ;End
