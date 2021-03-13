@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset()
+Preset("控")
 ;==================================================================================
 global CTL_Service_On := False
 CheckPermission()
@@ -53,15 +53,12 @@ ExitApp
 
 ~*Enter::
     Suspend, Toggle ;输入聊天时不受影响
-    If A_IsSuspended
-        ToolTip, 禁用热键
-    Else
-        ToolTip
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键
-    ToolTip
+    Suspended()
     If CTL_Service_On
     {
         SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)

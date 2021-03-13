@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset()
+Preset("火")
 ;==================================================================================
 global SHT_Service_On := False
 CheckPermission()
@@ -63,15 +63,12 @@ If WinExist("ahk_class CrossFire")
 ~*-::ExitApp
 ~*Enter::
     Suspend, Toggle ;输入聊天时不受影响
-    If A_IsSuspended
-        ToolTip, 禁用热键
-    Else
-        ToolTip
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键
-    ToolTip
+    Suspended()
     If SHT_Service_On
     {
         SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 10) - P1W // 2, Round(ValueH / 9) - P1H // 2)

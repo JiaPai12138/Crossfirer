@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset()
+Preset("压")
 ;==================================================================================
 global RCL_Service_On := False
 RCL_Down := 0
@@ -61,15 +61,12 @@ If WinExist("ahk_class CrossFire")
 ~*-::ExitApp
 ~*Enter::
     Suspend, Toggle ;输入聊天时不受影响
-    If A_IsSuspended
-        ToolTip, 禁用热键
-    Else
-        ToolTip
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键
-    ToolTip
+    Suspended()
     If RCL_Service_On
     {
         SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 10) - P6W // 2, Round(Hrs / 9) - P6H // 2)

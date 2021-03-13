@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset()
+Preset("猎")
 ;==================================================================================
 global C4H_Service_On := False
 CheckPermission()
@@ -42,10 +42,32 @@ If WinExist("ahk_class CrossFire")
 ~*-::ExitApp
 ~*Enter::
     Suspend, Toggle ;输入聊天时不受影响
-    If A_IsSuspended
-        ToolTip, 禁用热键
-    Else
-        ToolTip
+    Suspended()
+Return
+
+~*RAlt::
+    Suspend, Off ;恢复热键
+    Suspended()
+    If C4H_Service_On
+    {
+        SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2)
+        SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2)
+        If Be_Hero
+        {
+            Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+            Gui, C4: Show, Hide
+        }
+        Else
+            Gui, Human_Hero: Show, Hide
+
+        If C4_On
+        {
+            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+            Gui, Human_Hero: Show, Hide
+        }
+        Else
+            Gui, C4: Show, Hide
+    }
 Return
 
 ~*=::
@@ -67,31 +89,6 @@ Return
             HEro_01.Stop()
             Gui, Human_Hero: Show, Hide
         }
-    }
-Return
-
-~*RAlt::
-    Suspend, Off ;恢复热键
-    ToolTip
-    If C4H_Service_On
-    {
-        SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2)
-        SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2)
-        If Be_Hero
-        {
-            Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
-            Gui, C4: Show, Hide
-        }
-        Else
-            Gui, Human_Hero: Show, Hide
-
-        If C4_On
-        {
-            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
-            Gui, Human_Hero: Show, Hide
-        }
-        Else
-            Gui, C4: Show, Hide
     }
 Return
 

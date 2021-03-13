@@ -3,9 +3,10 @@
 ;https://github.com/JacobHu0723/cps.github.io For click speed test
 #Include, Create_CF_ico.ahk
 火线图标 := Create_CF_ico() ;加载图标
+脚本图标 := ""
 ;==================================================================================
 ;预设参数
-Preset()
+Preset(Script_Icon)
 {
     #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
     #Warn  ; Enable warnings to assist with detecting common errors.
@@ -27,17 +28,47 @@ Preset()
     SetWinDelay, -1
     SetControlDelay, -1
 
-    global 火线图标
+    global 火线图标, 脚本图标
+    Switch Script_Icon
+    {
+        Case "断": 
+            脚本图标 := Create_一键限速_ico()
+            Menu, Tray, Tip, 火线一键限速
+
+        Case "控": 
+            脚本图标 := Create_助手控制_ico()
+            Menu, Tray, Tip, 火线助手控制
+
+        Case "身": 
+            脚本图标 := Create_基础身法_ico()
+            Menu, Tray, Tip, 火线基础身法
+
+        Case "压": 
+            脚本图标 := Create_基础压枪_ico()
+            Menu, Tray, Tip, 火线基础压枪
+
+        Case "猎": 
+            脚本图标 := Create_战斗助手_ico()
+            Menu, Tray, Tip, 火线战斗助手
+
+        Case "火": 
+            脚本图标 := Create_自动开火_ico()
+            Menu, Tray, Tip, 火线自动开火
+
+        Case "点": 
+            脚本图标 := Create_连点助手_ico()
+            Menu, Tray, Tip, 火线连点助手
+    }
+    Menu, Tray, NoStandard
     Menu, Tray, Add, 关于, About
     Menu, Tray, Icon, 关于, HICON:*%火线图标%, , 20
     Menu, Tray, Default, 关于
     Menu, Tray, Click, 1
-    Menu, Tray, NoStandard
+    Menu, Tray, Icon, HICON:*%脚本图标%, , 1
     Menu, Tray, Add, 重新加载, Re_load, +Radio
     Menu, Tray, Check, 重新加载
     Menu, Tray, Add, 退出辅助, Exit_Script, +Radio
     Menu, Tray, Check, 退出辅助
-    Menu, Tray, Tip, 火线娱乐助手
     Menu, Tray, Color, 0x00FFFF
 }
 ;==================================================================================
@@ -243,7 +274,7 @@ UpdateText(Gui_Number, ControlID, NewText, X, Y)
     {
         GuiControl, %Gui_Number%: Text, %ControlID%, %NewText%
         OldText[ControlID] := NewText
-        Gui, %Gui_Number%: Show, x%X% y%Y% ;NA
+        Gui, %Gui_Number%: Show, x%X% y%Y% NA
     }
 }
 ;==================================================================================
@@ -361,6 +392,22 @@ About()
 close_gui()
 {
     Gui, icon_about: Hide
+}
+;==================================================================================
+;禁用/启用热键时修改图标
+Suspended()
+{
+    global 火线图标, 脚本图标
+    If A_IsSuspended
+    {
+        ToolTip, 禁用热键, , , 20
+        Menu, Tray, Icon, HICON:*%火线图标%
+    }
+    Else
+    {
+        ToolTip, , , , 20
+        Menu, Tray, Icon, HICON:*%脚本图标%
+    }
 }
 ;==================================================================================
 ;End

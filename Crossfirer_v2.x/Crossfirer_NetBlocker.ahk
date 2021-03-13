@@ -1,5 +1,5 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset()
+Preset("断")
 DetectHiddenWindows, On
 SetTitleMatchMode, Regex
 ;==================================================================================
@@ -64,15 +64,12 @@ If (WinExist("ahk_class CrossFire"))
 ~*-::ExitApp
 ~*Enter::
     Suspend, Toggle ;输入聊天时不受影响
-    If A_IsSuspended
-        ToolTip, 禁用热键
-    Else
-        ToolTip
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键
-    ToolTip
+    Suspended()
     If NBK_Service_On
     {
         SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
