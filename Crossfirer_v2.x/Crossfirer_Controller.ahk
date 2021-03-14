@@ -110,7 +110,7 @@ UpdateGui() ;精度0.25s
             HyperSleep(100) ;just for stability
         } Until Title_Blank > 4
 
-        If ProcessExist("GameLoader.exe")
+        If ProcessExist("GameLoader.exe") && Title_Blank > 4
         {
             If A_IsCompiled && A_IsAdmin
             {
