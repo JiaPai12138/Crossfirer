@@ -130,7 +130,7 @@ UpdateGui() ;精度0.25s
         Send, {Blind}{vk87 Up} ;F24 key
         Random, move_it, 1, 9
         If Random_Move && move_it = 3
-            press_key("3", 30, 30)
+            press_key("1", 30, 30)
         If Random_Move && WinActive("ahk_class CrossFire") && move_it > 6
         {
             Random, ran_move, -3, 3
