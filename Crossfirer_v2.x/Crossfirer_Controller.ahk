@@ -114,11 +114,11 @@ UpdateGui() ;精度0.25s
         {
             If A_IsCompiled && A_IsAdmin
             {
-                Runwait, %comspec% /c taskkill /IM GameLoader.exe /F, ,Hide
-                Runwait, %comspec% /c taskkill /IM TQMCenter.exe /F, ,Hide
-                Runwait, %comspec% /c taskkill /IM TenioDL.exe /F, ,Hide
-                Runwait, %comspec% /c taskkill /IM feedback.exe /F, ,Hide
-                Runwait, %comspec% /c taskkill /IM CrossProxy.exe /F, ,Hide
+                Runwait, %comspec% /c taskkill /IM GameLoader.exe /F, , Hide
+                Runwait, %comspec% /c taskkill /IM TQMCenter.exe /F, , Hide
+                Runwait, %comspec% /c taskkill /IM TenioDL.exe /F, , Hide
+                Runwait, %comspec% /c taskkill /IM feedback.exe /F, , Hide
+                Runwait, %comspec% /c taskkill /IM CrossProxy.exe /F, , Hide
             }
             Else
                 Run, *RunAs .\关闭TX残留进程.bat, , Hide
