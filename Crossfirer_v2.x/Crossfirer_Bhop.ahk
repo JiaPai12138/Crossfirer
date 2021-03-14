@@ -23,12 +23,11 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
+
+#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter::
-    If WinActive("ahk_class CrossFire")
-    {
-        Suspend, Toggle ;输入聊天时不受影响
-        Suspended()
-    }
+    Suspend, Toggle
+    Suspended()
 Return
 
 ~*RAlt::
@@ -252,8 +251,12 @@ Return
         press_key("Space", 30, 30)
         mouseXY(-400, 0)
         HyperSleep(880)
-        Send, {Blind}{s Up}
         Send, {Blind}{d Up}
+        WHile GetKeyState("s", "P")
+        {
+            HyperSleep(10)
+        }
+        Send, {Blind}{s Up}
         Send, {Blind}{LCtrl Up}
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
@@ -275,8 +278,12 @@ Return
         press_key("Space", 30, 30)
         mouseXY(400, 0)
         HyperSleep(880)
-        Send, {Blind}{s Up}
         Send, {Blind}{a Up}
+        WHile GetKeyState("s", "P")
+        {
+            HyperSleep(10)
+        }
+        Send, {Blind}{s Up}
         Send, {Blind}{LCtrl Up}
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)

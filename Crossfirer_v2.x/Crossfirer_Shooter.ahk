@@ -9,7 +9,7 @@ XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
 Temp_Mode := "", Temp_Run := ""
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
 game_title := 
-GamePing :=
+GamePing := 40 ;默认40,涵盖至少85%以上我所常见的国服游戏延迟
 
 If WinExist("ahk_class CrossFire")
 {
@@ -54,19 +54,18 @@ If WinExist("ahk_class CrossFire")
         
     ;If GamePing = 0 ;延迟大于300或者连接不上就没有玩的必要
     ;    ExitApp
-    FuncPing()
+    ;FuncPing() ;有设定默认延迟就不必一开始再要求输入
     SHT_Service_On := True
     WinActivate, ahk_class CrossFire ;激活该窗口
     Return
 }
 ;==================================================================================
 ~*-::ExitApp
+
+#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter::
-    If WinActive("ahk_class CrossFire")
-    {
-        Suspend, Toggle ;输入聊天时不受影响
-        Suspended()
-    }
+    Suspend, Toggle
+    Suspended()
 Return
 
 ~*RAlt::

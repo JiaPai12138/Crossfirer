@@ -51,12 +51,25 @@ If WinExist("ahk_class CrossFire")
         Run, .\双击我启动助手!!!.exe
 ExitApp
 
-~*Enter::
-    If WinActive("ahk_class CrossFire")
+~*CapsLock Up:: ;minimize window and replace origin use
+    If CTL_Service_On
     {
-        Suspend, Toggle ;输入聊天时不受影响
-        Suspended()
+        If WinActive("ahk_class CrossFire")
+        {
+            WinMinimize, ahk_class CrossFire
+            HyperSleep(100)
+            CoordMode, Mouse, Screen
+            MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
+        }
+        Else
+            WinActivate, ahk_class CrossFire ;激活该窗口
     }
+Return
+
+#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
+~*Enter::
+    Suspend, Toggle
+    Suspended()
 Return
 
 ~*RAlt::
@@ -73,21 +86,6 @@ Return
 ~*RCtrl::
     If CTL_Service_On
         ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
-Return
-
-~*CapsLock Up:: ;minimize window and replace origin use
-    If CTL_Service_On
-    {
-        If WinActive("ahk_class CrossFire")
-        {
-            WinMinimize, ahk_class CrossFire
-            HyperSleep(100)
-            CoordMode, Mouse, Screen
-            MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
-        }
-        Else
-            WinActivate, ahk_class CrossFire ;激活该窗口
-    }
 Return
 
 ~*F5::
@@ -130,11 +128,14 @@ UpdateGui() ;精度0.25s
     Else If !Not_In_Game(CF_Title)
     {
         Send, {Blind}{vk87 Up} ;F24 key
-        If Random_Move && WinActive("ahk_class CrossFire")
+        Random, move_it, 1, 9
+        If Random_Move && move_it = 3
+            press_key("3", 30, 30)
+        If Random_Move && WinActive("ahk_class CrossFire") && move_it > 6
         {
             Random, ran_move, -3, 3
             Random, ran_act, -3, 3
-            mouseXY(ran_move * 100, ran_act * 10)
+            mouseXY(ran_move * 100, ran_act * 20)
             Switch ran_move
             {
                 Case -3: press_key("w", 150, 30)
@@ -143,7 +144,7 @@ UpdateGui() ;精度0.25s
                 Case 0: press_key("LCtrl", 150, 30)
                 Case 1: press_key("d", 150, 30)
                 Case 2: press_key("Space", 150, 30)
-                Case 3: press_key("Shift", 60, 30), press_key("Shift", 60, 30)
+                Case 3: press_key("Shift", 30, 60), press_key("Shift", 30, 60)
             }
         }
     }

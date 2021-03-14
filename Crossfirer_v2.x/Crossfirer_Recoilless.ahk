@@ -59,12 +59,11 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
+
+#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter::
-    If WinActive("ahk_class CrossFire")
-    {
-        Suspend, Toggle ;输入聊天时不受影响
-        Suspended()
-    }
+    Suspend, Toggle
+    Suspended()
 Return
 
 ~*RAlt::
@@ -80,7 +79,7 @@ Return
 Return
 
 ~*$LButton:: ;压枪 正在开发
-    If RCL_Service_On && WinActive("ahk_class CrossFire") && !GetKeyState("vk87")
+    If RCL_Service_On && !GetKeyState("vk87")
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -107,7 +106,7 @@ Return
 Return
 
 ~*RButton:: ;展示圆环
-    If RCL_Service_On && WinActive("ahk_class CrossFire")
+    If RCL_Service_On
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -126,7 +125,7 @@ Return
 
 ~*NumpadIns::
 ~*Numpad0::
-    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
         UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
@@ -136,7 +135,7 @@ Return
 
 ~*NumpadDot::
 ~*NumpadDel::
-    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
@@ -146,7 +145,7 @@ Return
 
 ~*NumpadEnd::
 ~*Numpad1::
-    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "AK47-B 系", XGui6, YGui6)
@@ -156,7 +155,7 @@ Return
 
 ~*NumpadDown::
 ~*Numpad2::
-    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
@@ -166,7 +165,7 @@ Return
 
 ~*NumpadPgDn::
 ~*Numpad3::
-    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    If !GetKeyState("vk87") && RCL_Service_On
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
         UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)

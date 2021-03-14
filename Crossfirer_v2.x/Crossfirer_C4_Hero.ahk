@@ -40,12 +40,11 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::ExitApp
+
+#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter::
-    If WinActive("ahk_class CrossFire")
-    {
-        Suspend, Toggle ;输入聊天时不受影响
-        Suspended()
-    }
+    Suspend, Toggle
+    Suspended()
 Return
 
 ~*RAlt::
@@ -76,7 +75,7 @@ Return
 ~*=::
     If C4H_Service_On
     {
-        If WinActive("ahk_class CrossFire") && !GetKeyState("vk87")
+        If !GetKeyState("vk87")
             Be_Hero := !Be_Hero
     
         If (Be_Hero && !GetKeyState("vk87"))
