@@ -1,15 +1,21 @@
-﻿;CrossHirer_Founctions
+﻿;Functions for Crossfirer;CF娱乐助手函数集合
+;Please read https://www.autohotkey.com/docs/commands/PixelGetColor.htm for RGB vs. BGR format
+;https://github.com/JacobHu0723/cps.github.io For click speed test
+#Include, Create_CF_ico.ahk
+火线图标 := Create_CF_ico() ;加载图标
+脚本图标 := ""
 ;==================================================================================
 ;预设参数
-Preset()
+Preset(Script_Icon)
 {
     #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
     #Warn  ; Enable warnings to assist with detecting common errors.
+    #Persistent
     #MenuMaskKey, vkFF  ; vkFF is no mapping
     #MaxHotkeysPerInterval, 99000000
     #HotkeyInterval, 99000000
     #SingleInstance, Force
-    #IfWinActive, ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
+    #IfWinExist, ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
     #KeyHistory, 0
     ListLines, Off
     SendMode, Input  ; Recommended for new scripts due to its superior speed and reliability.
@@ -21,10 +27,53 @@ Preset()
     SetDefaultMouseSpeed, 0
     SetWinDelay, -1
     SetControlDelay, -1
+
+    global 火线图标, 脚本图标
+    Switch Script_Icon
+    {
+        Case "断": 
+            脚本图标 := Create_一键限速_ico()
+            Menu, Tray, Tip, 火线一键限速
+
+        Case "控": 
+            脚本图标 := Create_助手控制_ico()
+            Menu, Tray, Tip, 火线助手控制
+
+        Case "身": 
+            脚本图标 := Create_基础身法_ico()
+            Menu, Tray, Tip, 火线基础身法
+
+        Case "压": 
+            脚本图标 := Create_基础压枪_ico()
+            Menu, Tray, Tip, 火线基础压枪
+
+        Case "猎": 
+            脚本图标 := Create_战斗助手_ico()
+            Menu, Tray, Tip, 火线战斗助手
+
+        Case "火": 
+            脚本图标 := Create_自动开火_ico()
+            Menu, Tray, Tip, 火线自动开火
+
+        Case "点": 
+            脚本图标 := Create_连点助手_ico()
+            Menu, Tray, Tip, 火线连点助手
+    }
+    Menu, Tray, NoStandard
+    Menu, Tray, Add, 关于, About
+    Menu, Tray, Icon, 关于, HICON:*%火线图标%, , 20
+    Menu, Tray, Default, 关于
+    Menu, Tray, Click, 1
+    Menu, Tray, Icon, HICON:*%脚本图标%, , 1
+    Menu, Tray, Add, 重新加载, Re_load, +Radio
+    Menu, Tray, Check, 重新加载
+    Menu, Tray, Add, 退出辅助, Exit_Script, +Radio
+    Menu, Tray, Check, 退出辅助
+    Menu, Tray, Color, 0x00FFFF
 }
 ;==================================================================================
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
-CheckPermission(SleepTime := 5000)
+CheckPermission()
 {
     If A_OSVersion in WIN_NT4, WIN_95, WIN_98, WIN_ME, WIN_2000, WIN_2003, WIN_XP, WIN_VISTA ;检测操作系统
     {
@@ -32,17 +81,21 @@ CheckPermission(SleepTime := 5000)
         ExitApp
     }
 
-    SysGet, Mouse_Buttons, 43 ;检测鼠标按键数量
-    If Mouse_Buttons < 5
-    {
-        MsgBox, 262144, 鼠标按键数量不足/Not enough buttons on mouse, 请考虑更换鼠标,不然无法使用本连点辅助/Please consider getting a new mouse, or you will not able to use this auto clicker
-    }
-
-    If Not A_IsAdmin ;必须管理员运行,因为无法使用UIA
+    If Not (A_IsAdmin || CheckUIA())
     {
         Try
         {
-            Run, *RunAs "%A_ScriptFullPath%" ;管理员权限运行
+            If A_IsCompiled ;编译时请用加密减少侦测几率
+                Run, *RunAs "%A_ScriptFullPath%" ;管理员权限运行
+            Else
+            {
+                MsgBox, 262148, 警告/Warning, 请问你开启UIA了吗?`nDo you have UIAccess enabled?
+                IfMsgBox Yes
+                    Run, "%A_ProgramFiles%\AutoHotkey\AutoHotkeyU64_UIA.exe" "%A_ScriptFullPath%"
+                Else
+                    Run, *RunAs "%A_ScriptFullPath%"
+                ExitApp
+            }
         }
         Catch
         {
@@ -54,13 +107,43 @@ CheckPermission(SleepTime := 5000)
     {
         Loop
         {
-            HyperSleep(1000)
+            HyperSleep(3000)
         } Until WinExist("ahk_class CrossFire")
-        HyperSleep(SleepTime) ;等待客户端完整出现
+        HyperSleep(5000) ;等待客户端完整出现
     }
 }
 ;==================================================================================
-;检查游戏界面真正位置,不包括标题栏和边缘等等
+;检查脚本是否由指定的UIA权限运行
+CheckUIA()
+{
+    process_id := ProcessInfo_GetCurrentProcessID()
+    process_name := GetProcessName(process_id)
+    If InStr(process_name, "AutoHotkeyU64_UIA.exe")
+        Return True
+    Else
+        Return False
+}
+;==================================================================================
+;拷贝自 https://github.com/camerb/AHKs/blob/master/thirdParty/ProcessInfo.ahk ,检测脚本运行的进程ID
+ProcessInfo_GetCurrentProcessID()
+{
+	Return DllCall("GetCurrentProcessId")
+}
+;==================================================================================
+;拷贝自 https://www.reddit.com/r/AutoHotkey/comments/6zftle/process_name_from_pid/ ,通过进程ID得到进程完整路径
+GetProcessName(ProcessID)
+{
+    If (hProcess := DllCall("OpenProcess", "uint", 0x0410, "int", 0, "uint", ProcessID, "ptr")) 
+    {
+        size := VarSetCapacity(buf, 0x0104 << 1, 0)
+        If (DllCall("psapi\GetModuleFileNameEx", "ptr", hProcess, "ptr", 0, "ptr", &buf, "uint", size))
+            Return StrGet(&buf), DllCall("CloseHandle", "ptr", hProcess)
+		DllCall("CloseHandle", "ptr", hProcess)
+    }
+    Return False
+}
+;==================================================================================
+;检查游戏界面真正位置,不包括标题栏和边缘等等,既Client位置
 CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, class_name)
 {
     WinGet, CFID, ID, ahk_class %class_name%
@@ -95,15 +178,35 @@ ProcessExist(Process_Name)
     Return ErrorLevel
 }
 ;==================================================================================
-;检测是否不再游戏中,目标为界面左上角火焰状字样黄色部分以及附近的黑色阴影
-Not_In_Game()
+;检测是否不再游戏中,目标为界面左上角
+Not_In_Game(CF_Title) 
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
-    PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x72FFFF, 0, Fast ;show color in editor: #FFFF72 #72FFFF
-    If !ErrorLevel
+    If CF_Title = 穿越火线
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x000000, 0, Fast ;show color in editor: #000000
-        Return !ErrorLevel
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x7389A9, 0, Fast ;show color in editor: #A98973 #7389A9
+        If !ErrorLevel
+        {
+            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x38373E, 0, Fast ;show color in editor: #3E3738 #38373E
+            If !ErrorLevel
+            {
+                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3D3C82, 0, Fast ;show color in editor: #823C3D #3D3C82
+                Return !ErrorLevel
+            }
+        }
+    }
+    Else If CF_Title = CROSSFIRE
+    {
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x959B95, 0, Fast ;show color in editor: #959B95
+        If !ErrorLevel
+        {
+            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3C4B61, 0, Fast ;show color in editor: #614B3C #3C4B61
+            If !ErrorLevel
+            {
+                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B53F4, 0, Fast ;show color in editor: #F4534B #4B53F4
+                Return !ErrorLevel
+            }
+        }
     }
     Else
         Return False
@@ -112,7 +215,7 @@ Not_In_Game()
 ;检测是否退出模式,由按键触发
 ExitMode()
 {
-    Return (Not_In_Game() || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
+    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
 }
 ;==================================================================================
 ;检测点位颜色状态(颜色是否在颜色库中)
@@ -123,7 +226,7 @@ GetColorStatus(X, Y, CX1, CX2, color_lib)
 }
 ;==================================================================================
 ;控制鼠标移动,上下左右
-mouseXY(x1,y1)
+mouseXY(x1, y1)
 {
     DllCall("mouse_event", uint, 1, int, x1, int, y1, uint, 0, int, 0)
 }
@@ -213,7 +316,7 @@ HyperSleep(value)
 ReceiveMessage(Message) 
 {
     If Message = 125638
-        ExitApp ;退出当前脚本,未来可加其他动作
+        ExitApp ;退出当前脚本
 }
 ;==================================================================================
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,发送信息
@@ -246,6 +349,65 @@ Median(values)
     Else ;偶数
         VarMedian := (VarArray[Mid] + VarArray[Mid + 1]) / 2
     Return VarMedian
+}
+;==================================================================================
+;将指定数据与一个范围比较,有点多此一举
+InRange(Min, x, Max) 
+{
+    If (x >= Min) && (x < Max)
+        Return True
+    Else
+        Return False
+}
+;==================================================================================
+;托盘退出选项
+Exit_Script() 
+{
+    ExitApp
+}
+;==================================================================================
+;托盘重新加载选项
+Re_load() 
+{
+    Reload
+}
+;==================================================================================
+;托盘关于选项
+About()
+{
+    global 火线图标
+    static thanks, timenow
+    FormatTime, show_time
+    Gui, icon_about: New, +LastFound +AlwaysOnTop -DPIScale +Border, 关于
+    Gui, icon_about: Color, 333333 ;#333333
+    Gui, icon_about: Add, Picture, , HICON:*%火线图标% ;512*512
+    Gui, icon_about: Font, s12 Bold, Microsoft YaHei
+    Gui, icon_about: Add, Text, vthanks c00FFFF +Center w512 ReadOnly, 2020-2021 开源项目 欢迎指导 ;%A_GuiWidth%
+    Gui, icon_about: Add, Edit, vtimenow c00FFFF +Center w512 ReadOnly, %show_time% ;#00FFFF
+    Gui, icon_about: Add, Button, gclose_gui w512, 好的/OK
+    Gui, icon_about: Show
+}
+;==================================================================================
+;关闭关于界面
+close_gui()
+{
+    Gui, icon_about: Hide
+}
+;==================================================================================
+;禁用/启用热键时修改图标
+Suspended()
+{
+    global 火线图标, 脚本图标
+    If A_IsSuspended
+    {
+        ToolTip, 禁用热键, , , 20
+        Menu, Tray, Icon, HICON:*%火线图标%
+    }
+    Else
+    {
+        ToolTip, , , , 20
+        Menu, Tray, Icon, HICON:*%脚本图标%
+    }
 }
 ;==================================================================================
 ;检测ping的图形界面函数,因每次打开仅使用一次故做成函数

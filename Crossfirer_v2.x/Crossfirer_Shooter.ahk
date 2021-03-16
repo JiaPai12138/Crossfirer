@@ -4,7 +4,8 @@ Preset("火")
 global SHT_Service_On := False
 CheckPermission()
 ;==================================================================================
-AutoMode := False
+global AutoMode := False
+global mo_shi := -1
 XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
 Temp_Mode := "", Temp_Run := ""
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
@@ -97,16 +98,17 @@ Return
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
-        AutoFire(Temp_Mode, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
+        AutoFire(Temp_Mode, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
 Return
 
 ~*2 Up:: ;手枪模式
     If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
+        mo_shi := 2
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载手枪中", XGui1, YGui1)
-        AutoFire(2, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
+        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
 Return
 
@@ -114,10 +116,11 @@ Return
     If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 0
+        mo_shi := 0
         Temp_Run := "加载通用中"
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载通用中", XGui1, YGui1)
-        AutoFire(0, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
+        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }  
 Return
 
@@ -125,10 +128,11 @@ Return
     If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 8
+        mo_shi := 8
         Temp_Run := "加载狙击中"
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载狙击中", XGui1, YGui1)
-        AutoFire(8, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
+        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }
 Return
 
@@ -136,10 +140,11 @@ Return
     If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
     {
         Temp_Mode := 111
+        mo_shi := 111
         Temp_Run := "加载速点中"
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载速点中", XGui1, YGui1)
-        AutoFire(111, "fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing, AutoMode)
+        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
     }  
 Return
 ;==================================================================================
@@ -227,14 +232,14 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
 }
 ;==================================================================================
 ;自动开火函数,通过检测红名实现
-AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych, GamePing, AutoMode)
+AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych, GamePing)
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
     static PosColor_snipe := "0x000000" ;#000000
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     Gui, %CrID%: Color, 00FFFF ;#00FFFF
     Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
-    While, !GetKeyState("vk87")
+    While, !GetKeyState("vk87") && AutoMode
     {
         Random, rand, 58.0, 62.0 ;设定随机值减少被检测概率
         small_rand := rand / 2
@@ -277,7 +282,7 @@ AutoFire(mo_shi, Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, 
                             press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
                         ;开镜瞬狙或连狙
 
-                        If (GamePing <= 300) ;允许切枪减少换弹时间
+                        If (GamePing <= 250) ;允许切枪减少换弹时间
                         {
                             GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
                             UpdateText(Gui_Number2, StatusID, "双切换弹中", XGui2, YGui2)
