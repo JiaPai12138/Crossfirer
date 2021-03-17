@@ -25,16 +25,19 @@ If WinExist("ahk_class CrossFire")
 ~*-::ExitApp
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
-~*Enter::
-    Suspend, Toggle
-    Suspended()
+~*Enter Up::
+    If BHP_Service_On && Is_Chatting()
+    {
+        Suspend, On 
+        Suspended()
+    }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键
-    Suspended()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If BHP_Service_On
     {
+        Suspended()
         SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round(He / 4) - P4H // 2)
         Gui, jump_mode: Show, x%XGui4% y%YGui4% NA
     }

@@ -67,16 +67,19 @@ ExitApp
 Return
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
-~*Enter::
-    Suspend, Toggle
-    Suspended()
+~*Enter Up::
+    If CTL_Service_On && Is_Chatting()
+    {
+        Suspend, On 
+        Suspended()
+    }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键
-    Suspended()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If CTL_Service_On
     {
+        Suspended()
         SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
         SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
         ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
@@ -89,7 +92,11 @@ Return
 Return
 
 ~*F5::
-    Random_Move := !Random_Move
+    Random_Move := True
+Return
+
+~*LButton::
+    Random_Move := False
 Return
 ;==================================================================================
 UpdateGui() ;精度0.25s

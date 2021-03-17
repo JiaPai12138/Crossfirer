@@ -398,6 +398,7 @@ close_gui()
 Suspended()
 {
     global 火线图标, 脚本图标
+
     If A_IsSuspended
     {
         ToolTip, 禁用热键, , , 20
@@ -408,6 +409,25 @@ Suspended()
         ToolTip, , , , 20
         Menu, Tray, Icon, HICON:*%脚本图标%
     }
+}
+;==================================================================================
+;检测是否开启聊天框
+Is_Chatting()
+{
+    count_chat := 0
+    CheckPosition(controlX, controlY, controlW, controlH, "CrossFire")
+    PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), 0x8AFBFF, 0, Fast ;#FFFB8A
+    If !ErrorLevel
+        count_chat += 1
+    
+    PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), 0x43FFFF, 0, Fast ;#FFFF43
+    If !ErrorLevel
+        count_chat += 1
+
+    If count_chat
+        Return True
+    Else
+        Return False
 }
 ;==================================================================================
 ;End

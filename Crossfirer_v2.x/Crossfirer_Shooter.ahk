@@ -9,7 +9,7 @@ global mo_shi := -1
 XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
 Temp_Mode := "", Temp_Run := ""
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
-game_title := 
+game_title :=
 GamePing := 40 ;默认40,涵盖至少85%以上我所常见的国服游戏延迟
 
 If WinExist("ahk_class CrossFire")
@@ -64,16 +64,19 @@ If WinExist("ahk_class CrossFire")
 ~*-::ExitApp
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
-~*Enter::
-    Suspend, Toggle
-    Suspended()
+~*Enter Up::
+    If SHT_Service_On && Is_Chatting()
+    {
+        Suspend, On 
+        Suspended()
+    }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键
-    Suspended()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If SHT_Service_On
     {
+        Suspended()
         SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 10) - P1W // 2, Round(ValueH / 9) - P1H // 2)
         SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 10) - P2W // 2, Round(ValueH / 7.2) - P2H // 2)
         SetGuiPosition(Xch, Ych, "M", -34, -35)

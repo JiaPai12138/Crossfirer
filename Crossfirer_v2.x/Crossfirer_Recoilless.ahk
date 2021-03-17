@@ -61,16 +61,19 @@ If WinExist("ahk_class CrossFire")
 ~*-::ExitApp
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
-~*Enter::
-    Suspend, Toggle
-    Suspended()
+~*Enter Up::
+    If RCL_Service_On && Is_Chatting()
+    {
+        Suspend, On 
+        Suspended()
+    }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键
-    Suspended()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If RCL_Service_On
     {
+        Suspended()
         SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 10) - P6W // 2, Round(Hrs / 9) - P6H // 2)
         Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
         SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 10) - P7W // 2, Round(Hrs / 7.2) - P7H // 2)

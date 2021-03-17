@@ -64,16 +64,19 @@ If (WinExist("ahk_class CrossFire"))
 ~*-::ExitApp
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
-~*Enter::
-    Suspend, Toggle
-    Suspended()
+~*Enter Up::
+    If NBK_Service_On && Is_Chatting()
+    {
+        Suspend, On 
+        Suspended()
+    }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键
-    Suspended()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If NBK_Service_On
     {
+        Suspended()
         SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
         If !Net_On
             Gui, net_status: Show, x%XGui9% y%YGui9% NA
