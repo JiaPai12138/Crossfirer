@@ -10,7 +10,7 @@ If WinExist("ahk_class CrossFire")
     Gui, jump_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, jump_mode: Margin, 0, 0
     Gui, jump_mode: Color, 333333 ;#333333
-    Gui, jump_mode: Font, s10, Microsoft YaHei
+    Gui, jump_mode: Font, S10 Q5, Microsoft YaHei
     Gui, jump_mode: Add, Text, hwndGui_4 vModeJump c00FF00, 跳蹲准备 ;#00FF00
     GuiControlGet, P4, Pos, %Gui_4%
     WinSet, TransColor, 333333 255 ;#333333
@@ -26,15 +26,17 @@ If WinExist("ahk_class CrossFire")
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter Up::
-    If BHP_Service_On && Is_Chatting()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    If BHP_Service_On
     {
-        Suspend, On 
+        If Is_Chatting()
+            Suspend, On 
         Suspended()
     }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    Suspend, Off ;恢复热键,双保险
     If BHP_Service_On
     {
         Suspended()
@@ -116,12 +118,16 @@ Return
         UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
         cnt := 0
         press_key("Space", 30, 30)
-        press_key("LCtrl", 240, 10)
+        If GetKeyState("LButton", "P")
+            press_key("LCtrl", 200, 10)
+        Else
+            HyperSleep(210)
+        
         While, GetKeyState("LAlt", "P") && WinActive("ahk_class CrossFire")
         {
-            If cnt <= 16
+            If cnt < 10
             {
-                press_key("LCtrl", 20, 10)
+                press_key("LCtrl", 30, 30)
                 cnt += 1
             }
             Else

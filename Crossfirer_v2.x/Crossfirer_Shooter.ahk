@@ -19,7 +19,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
     Gui, fcn_mode: Color, 333333 ;#333333
-    Gui, fcn_mode: Font, s10, Microsoft YaHei
+    Gui, fcn_mode: Font, S10 Q5, Microsoft YaHei
     Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn cFFFF00, 已暂停加载 ;#FFFF00
     GuiControlGet, P1, Pos, %Gui_1%
     WinSet, TransColor, 333333 255 ;#333333
@@ -30,7 +30,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_status: Margin, 0, 0
     Gui, fcn_status: Color, 333333 ;#333333
-    Gui, fcn_status: Font, s10, Microsoft YaHei
+    Gui, fcn_status: Font, S10 Q5, Microsoft YaHei
     Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun cFFFF00, 自火已关闭 ;#FFFF00
     GuiControlGet, P2, Pos, %Gui_2%
     WinSet, TransColor, 333333 255 ;#333333
@@ -65,15 +65,17 @@ If WinExist("ahk_class CrossFire")
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter Up::
-    If SHT_Service_On && Is_Chatting()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    If SHT_Service_On
     {
-        Suspend, On 
+        If Is_Chatting()
+            Suspend, On 
         Suspended()
     }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    Suspend, Off ;恢复热键,双保险
     If SHT_Service_On
     {
         Suspended()

@@ -21,7 +21,7 @@ If WinExist("ahk_class CrossFire")
     Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
     Gui, recoil_mode: Color, 333333 ;#333333
-    Gui, recoil_mode: Font, s10, Microsoft YaHei
+    Gui, recoil_mode: Font, S10 Q5, Microsoft YaHei
     Gui, recoil_mode: Add, Text, hwndGui_6 vModeClick c00FF00, 压枪准备中 ;#00FF00
     GuiControlGet, P6, Pos, %Gui_6%
     WinSet, TransColor, 333333 255 ;#333333
@@ -32,7 +32,7 @@ If WinExist("ahk_class CrossFire")
     Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, gun_sel: Margin, 0, 0
     Gui, gun_sel: Color, 333333 ;#333333
-    Gui, gun_sel: Font, s10, Microsoft YaHei
+    Gui, gun_sel: Font, S10 Q5, Microsoft YaHei
     Gui, gun_sel: Add, Text, hwndGui_7 vModeGun c00FF00, 暂未选枪械 ;#00FF00
     GuiControlGet, P7, Pos, %Gui_7%
     WinSet, TransColor, 333333 255 ;#333333
@@ -62,15 +62,17 @@ If WinExist("ahk_class CrossFire")
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter Up::
-    If RCL_Service_On && Is_Chatting()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    If RCL_Service_On
     {
-        Suspend, On 
+        If Is_Chatting()
+            Suspend, On 
         Suspended()
     }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    Suspend, Off ;双保险
     If RCL_Service_On
     {
         Suspended()

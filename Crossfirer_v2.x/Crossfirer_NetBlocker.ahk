@@ -8,7 +8,6 @@ global Net_On := True
 Net_Start := 0
 nb_block := False
 nb_allow := False
-H_pressed := A_TickCount
 CheckPermission()
 hwndcf := WinExist("ahk_class CrossFire")
 If ProcessExist("NLClientApp.exe")
@@ -38,6 +37,7 @@ Else
 ;==================================================================================
 If (WinExist("ahk_class CrossFire"))
 {
+    H_pressed := A_TickCount
     WinGetTitle, CF_Title, ahk_class CrossFire
     If CF_Title = CROSSFIRE
         Net_Time := 6
@@ -49,7 +49,7 @@ If (WinExist("ahk_class CrossFire"))
     Gui, net_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, net_status: Margin, 0, 0
     Gui, net_status: Color, 333333 ;#333333
-    Gui, net_status: Font, s20, Microsoft YaHei
+    Gui, net_status: Font, S20 Q5, Microsoft YaHei
     Gui, net_status: Add, Text, hwndGui_9 vNetBlock c00FFFF, %Net_Text% ;#00FFFF
     GuiControlGet, P9, Pos, %Gui_9%
     WinSet, TransColor, 333333 255 ;#333333
@@ -65,15 +65,17 @@ If (WinExist("ahk_class CrossFire"))
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter Up::
-    If NBK_Service_On && Is_Chatting()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    If NBK_Service_On
     {
-        Suspend, On 
+        If Is_Chatting()
+            Suspend, On 
         Suspended()
     }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    Suspend, Off ;恢复热键,双保险
     If NBK_Service_On
     {
         Suspended()

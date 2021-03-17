@@ -415,6 +415,7 @@ Suspended()
 Is_Chatting()
 {
     count_chat := 0
+    HyperSleep(30) ;稳定性
     CheckPosition(controlX, controlY, controlW, controlH, "CrossFire")
     PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), 0x8AFBFF, 0, Fast ;#FFFB8A
     If !ErrorLevel

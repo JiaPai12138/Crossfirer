@@ -14,7 +14,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Helper: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Helper: Margin, 0, 0
     Gui, Helper: Color, 333333 ;#333333
-    Gui, Helper: Font, s8 c00FF00, Microsoft YaHei ;#00FF00
+    Gui, Helper: Font, S8 Q5 C00FF00, Microsoft YaHei ;#00FF00
     Gui, Helper: add, Text, hwndGui_8, ╔====使用==说明===╗`n     按~     =开关自火==`n     按2   ==手枪模式==`n     按3/4  =暂停模式==`n     按J    ==瞬狙模式==`n     按L   ==连发速点==`n     按Tab键 通用模式==`n================`n     鼠标中间键 右键连点`n     鼠标前进键 炼狱连刺`n     鼠标后退键 左键连点`n     按W和F ==基础鬼跳`n     按W和Alt =空中跳蹲`n     按W放LCtrl bug小道`n     按S和F  ==跳蹲上墙`n     按W和C==前跳跳蹲`n     按S和C ==后跳跳蹲`n     按Z和C ==六级跳箱`n================`n     小键盘123 更换射速`n     小键盘0     关闭压枪`n     小键盘+ 更换压枪度`n     小键盘Del. 点射压枪`n================`n     按H  =运行一键限速`n     按-   =重新加载脚本`n     按=      开关E键快反`n     大写锁定 最小化窗口`n     回车键 开关所有按键`n     右Alt   恢复所有按键`n╚====使用==说明===╝
     GuiControlGet, P8, Pos, %Gui_8%
     global P8H ;*= (A_ScreenDPI / 96)
@@ -68,15 +68,17 @@ Return
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter Up::
-    If CTL_Service_On && Is_Chatting()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    If CTL_Service_On
     {
-        Suspend, On 
+        If Is_Chatting()
+            Suspend, On 
         Suspended()
     }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    Suspend, Off ;恢复热键,双保险
     If CTL_Service_On
     {
         Suspended()

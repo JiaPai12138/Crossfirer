@@ -16,7 +16,7 @@ If WinExist("ahk_class CrossFire")
     Gui, click_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, click_mode: Margin, 0, 0
     Gui, click_mode: Color, 333333 ;#333333
-    Gui, click_mode: Font, s10, Microsoft YaHei
+    Gui, click_mode: Font, S10 Q5, Microsoft YaHei
     Gui, click_mode: Add, Text, hwndGui_5 vModeClick c00FF00, 连点准备 ;#00FF00
     GuiControlGet, P5, Pos, %Gui_5%
     WinSet, TransColor, 333333 255 ;#333333
@@ -32,15 +32,17 @@ If WinExist("ahk_class CrossFire")
 
 #IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
 ~*Enter Up::
-    If CLK_Service_On && Is_Chatting()
+    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    If CLK_Service_On
     {
-        Suspend, On 
+        If Is_Chatting()
+            Suspend, On 
         Suspended()
     }
 Return
 
 ~*RAlt::
-    Suspend, Off ;恢复热键,首行为挂起关闭才有效
+    Suspend, Off ;恢复热键,双保险
     If CLK_Service_On
     {
         Suspended()
@@ -53,7 +55,7 @@ Return
     If CLK_Service_On
     {
         GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
-        UpdateText("click_mode", "ModeClick", "右键连点", XGui3, YGui3)
+        UpdateText("click_mode", "ModeClick", "右键速点", XGui3, YGui3)
         While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P")) && WinActive("ahk_class CrossFire") ;避免切换窗口时影响
         {
             press_key("RButton", 10.0, 50.0)
