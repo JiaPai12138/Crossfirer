@@ -307,7 +307,7 @@ HyperSleep(value)
             ;以上三行代码为相对ahk自带sleep函数稍高精度的睡眠
             DllCall("QueryPerformanceCounter", "Int64*", t_current)
         }
-        Else ;小于三毫秒时开始暴力轮询,为更高精度睡眠
+        Else ;小于二毫秒时开始暴力轮询,为更高精度睡眠
             DllCall("QueryPerformanceCounter", "Int64*", t_current)
     }
 }
