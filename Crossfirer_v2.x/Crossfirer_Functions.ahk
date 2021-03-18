@@ -416,16 +416,12 @@ Is_Chatting()
 {
     count_chat := 0
     HyperSleep(30) ;稳定性
+    WinGetTitle, cf_title, ahk_class CrossFire
+    Chat_Color := (cf_title = 穿越火线) ? "0x8AFBFF" : "0x43FFFF" ;#FFFB8A #FFFF43
     CheckPosition(controlX, controlY, controlW, controlH, "CrossFire")
-    PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), 0x8AFBFF, 0, Fast ;#FFFB8A
-    If !ErrorLevel
-        count_chat += 1
-    
-    PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), 0x43FFFF, 0, Fast ;#FFFF43
-    If !ErrorLevel
-        count_chat += 1
 
-    If count_chat
+    PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), %Chat_Color%, 0, Fast
+    If !ErrorLevel
         Return True
     Else
         Return False
