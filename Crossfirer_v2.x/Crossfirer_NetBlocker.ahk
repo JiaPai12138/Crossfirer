@@ -94,7 +94,7 @@ Return
     Else If (1000 > A_TickCount - H_pressed)
         Return
 
-    If NBK_Service_On && WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
+    If NBK_Service_On && WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && !GetKeyState("vk87")
     {
         Net_On := !Net_On
         WinMove, ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+], , -400, 50, 700, 500 ;移动到不影响战斗同时能看清规则是否激活的地点
