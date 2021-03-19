@@ -59,6 +59,26 @@ Return
     }
 Return
 
+~W & ~F:: ;基本鬼跳
+    If BHP_Service_On
+    {
+        cnt := 0
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "基本鬼跳", XGui4, YGui4)
+        press_key("space", 100, 100)
+        Send, {LCtrl Down}
+        HyperSleep(100)
+        Loop 
+        {
+            press_key("space", 10, 0)   
+            cnt += 1
+        } Until, (!GetKeyState("W", "P") || cnt >= 100 || !WinActive("ahk_class CrossFire"))
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+        Send, {Blind}{LCtrl Up}
+    }
+Return
+
 ~W & ~C:: ;前进上箱子
     If BHP_Service_On
     {
@@ -76,26 +96,19 @@ Return
     }
 Return
 
-~W & ~Space:: ;连蹲跳,落地少掉血
+~W & ~Space:: ;连跳,落地少掉血
     If BHP_Service_On
     {
-        cnt := 0
         HyperSleep(270)
-        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         If GetKeyState("Space", "P")
         {
-            Send, {Blind}{LCtrl Down}
-            UpdateText("jump_mode", "ModeJump", "基础鬼跳", XGui4, YGui4)
-        }
-        Else
+            GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
             UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
-        HyperSleep(30)
-        While, GetKeyState("W", "P") && WinActive("ahk_class CrossFire") && cnt < 270 && !GetKeyState("RButton", "P")
+        }
+        While, GetKeyState("Space", "P") && WinActive("ahk_class CrossFire")
         {
             press_key("Space", 10, 0)
-            cnt += 1
         }
-        Send, {Blind}{LCtrl Up}
         GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
         UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     }
@@ -105,8 +118,8 @@ Return
     If BHP_Service_On
     {
         cnt := 0
-        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         press_key("Space", 30, 30)
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         If GetKeyState("LButton", "P")
         {
             press_key("LCtrl", 200, 10)
