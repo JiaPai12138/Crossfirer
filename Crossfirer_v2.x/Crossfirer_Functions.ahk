@@ -49,7 +49,7 @@ Preset(Script_Icon)
 
         Case "猎": 
             脚本图标 := Create_战斗助手_ico()
-            Menu, Tray, Tip, 火线战斗助手
+            Menu, Tray, Tip, 火线战斗猎手
 
         Case "火": 
             脚本图标 := Create_自动开火_ico()
