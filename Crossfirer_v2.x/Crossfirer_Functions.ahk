@@ -234,6 +234,8 @@ mouseXY(x1, y1)
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
 press_key(key_name, press_time, sleep_time)
 {
+    ;click_delay := 0.8 本机鼠标延迟测试,包括按下弹起
+    press_time -= 0.4, sleep_time -= 0.4
     Send, {Blind}{%key_name% DownTemp}
     HyperSleep(press_time)
     Send, {Blind}{%key_name% Up}
@@ -291,8 +293,6 @@ SystemTime()
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
 {
-    t_accuracy := 0.991 ;本机精度测试结果,通过JacobHu0723的CPS测试项目得出
-    value *= t_accuracy
     s_begin_time := SystemTime()
     freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
