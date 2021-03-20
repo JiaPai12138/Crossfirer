@@ -90,7 +90,8 @@ Return
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire")
         {
-            press_key("LButton", 90.0, 30.0) ;貌似tx开始严查间隔小于100的按击
+            Random, RanClick, 89.0, 91.0
+            press_key("LButton", RanClick, 120.0 - RanClick) ;貌似tx开始严查间隔小于100的按击
             ;press_key("LButton", 30.0, 30.0) ;炼狱加特林射速1000发/分
         }
         GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
