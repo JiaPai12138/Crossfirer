@@ -119,7 +119,6 @@ Return
     {
         cnt := 0
         press_key("Space", 40, 20)
-        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         If GetKeyState("LButton", "P")
         {
             press_key("LCtrl", 200, 10)
@@ -130,7 +129,7 @@ Return
             HyperSleep(210)
             UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
         }
-        
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         While, GetKeyState("LAlt", "P") && WinActive("ahk_class CrossFire")
         {
             If cnt < 10
