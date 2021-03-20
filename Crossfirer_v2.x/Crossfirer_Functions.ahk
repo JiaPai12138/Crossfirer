@@ -8,25 +8,25 @@
 ;预设参数
 Preset(Script_Icon)
 {
-    #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
-    #Warn  ; Enable warnings to assist with detecting common errors.
-    #Persistent
-    #MenuMaskKey, vkFF  ; vkFF is no mapping
-    #MaxHotkeysPerInterval, 99000000
-    #HotkeyInterval, 99000000
-    #SingleInstance, Force
-    #IfWinExist, ahk_class CrossFire  ; Chrome_WidgetWin_1 CrossFire
-    #KeyHistory, 0
-    ListLines, Off
-    SendMode, Input  ; Recommended for new scripts due to its superior speed and reliability.
-    SetWorkingDir, %A_ScriptDir%  ; Ensures a consistent starting directory.
-    Process, Priority, , H  ;进程高优先级
-    SetBatchLines, -1  ;全速运行,且因为全速运行,部分代码不得不调整
-    SetKeyDelay, -1, -1
-    SetMouseDelay, -1
-    SetDefaultMouseSpeed, 0
-    SetWinDelay, -1
-    SetControlDelay, -1
+    #NoEnv                           ;不检查空变量是否为环境变量
+    #Warn                            ;启用可能产生错误的特定状况时的警告
+    #Persistent                      ;让脚本持久运行
+    #MenuMaskKey, vkFF               ;改变用来掩饰(屏蔽)Win或Alt松开事件的按键
+    #MaxHotkeysPerInterval, 1000     ;与下行代码一起指定热键激活的速率(次数)
+    #HotkeyInterval, 1000            ;与上一行代码一起指定热键激活的速率(时间)
+    #SingleInstance, Force           ;跳过对话框并自动替换旧实例
+    #IfWinExist, ahk_class CrossFire ;热键仅当窗口存在时可以激活
+    #KeyHistory, 0                   ;禁用按键历史
+    ListLines, Off                   ;不显示最近执行的脚本行
+    SendMode, Input                  ;使用更速度和可靠方式发送键鼠点击
+    SetWorkingDir, %A_ScriptDir%     ;保证一致的脚本起始工作目录
+    Process, Priority, , H           ;进程高优先级
+    SetBatchLines, -1                ;全速运行,且因为全速运行,部分代码不得不调整
+    SetKeyDelay, -1, -1              ;设置每次Send和ControlSend发送键击后无延时
+    SetMouseDelay, -1                ;设置每次鼠标移动或点击后无延时
+    SetDefaultMouseSpeed, 0          ;设置移动鼠标速度时默认使用最快速度
+    SetWinDelay, -1                  ;全速执行窗口命令
+    SetControlDelay, -1              ;控件修改命令全速执行
 
     global 火线图标, 脚本图标
     Switch Script_Icon
@@ -165,9 +165,9 @@ CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, class_name)
         Mon_Width := NumGet(Screen_Info, 108, "int")
         Mon_Hight := NumGet(Screen_Info, 112, "int")
         If (Wcp >= Mon_Width) || (Hcp >= Mon_Hight) ;全屏检测,未知是否适应UHD不放大
-            CoordMode, Pixel, Client
+            CoordMode, Pixel, Client ;坐标相对活动窗口的客户端
         Else
-            CoordMode, Pixel, Screen
+            CoordMode, Pixel, Screen ;坐标相对全屏幕
     }
 }
 ;==================================================================================
