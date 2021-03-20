@@ -118,16 +118,16 @@ Return
     If BHP_Service_On
     {
         cnt := 0
-        press_key("Space", 60, 60)
+        press_key("Space", 40, 20)
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         If GetKeyState("LButton", "P")
         {
-            press_key("LCtrl", 140, 10)
+            press_key("LCtrl", 200, 10)
             UpdateText("jump_mode", "ModeJump", "空蹲连蹲", XGui4, YGui4)
         }
         Else
         {
-            HyperSleep(150)
+            HyperSleep(210)
             UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
         }
         
