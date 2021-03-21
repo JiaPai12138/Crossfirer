@@ -178,7 +178,7 @@ ProcessExist(Process_Name)
     Return ErrorLevel
 }
 ;==================================================================================
-;检测是否不再游戏中,目标为界面左上角
+;检测是否不在游戏中,目标为界面左上角
 Not_In_Game(CF_Title) 
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
