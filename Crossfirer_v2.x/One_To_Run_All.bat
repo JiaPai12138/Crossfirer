@@ -13,6 +13,9 @@ echo         .........................................
 pause >nul
 
 :Option
+echo.
+echo.
+echo.
 echo       请选择需要运行的脚本/Please select an option
 echo         ╔════════════════════════════════════╗
 echo         ║ [1]Run All Scripts     运行所有脚本
@@ -77,6 +80,9 @@ Start "" "%~dp0助手控制.exe"
 GOTO Option
 
 :End
+echo.
+echo.
+echo.
 echo         启动助手即将退出/Crossfirer will Exit
 echo         ......................................
 ::TIMEOUT /T 3
