@@ -25,6 +25,7 @@ If WinExist("ahk_class CrossFire")
     Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     OnMessage(0x1001, "ReceiveMessage")
     CLK_Service_On := True
+    global AccRem := 2.0
     Return
 }
 ;==================================================================================
@@ -49,6 +50,10 @@ Return
         SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round(He / 3.6) - P5H // 2)
         Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     }
+Return
+
+~*F9::
+    AccRem := 2.0 / AccRem
 Return
 
 ~*MButton:: ;爆裂者轰炸
@@ -90,7 +95,7 @@ Return
         UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
         While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire")
         {
-            Random, RanClick, 88.0, 92.0
+            Random, RanClick, (90.0 - AccRem), (90.0 + AccRem)
             press_key("LButton", RanClick, 120.0 - RanClick) ;貌似tx开始严查间隔小于100的按击
             ;press_key("LButton", 30.0, 30.0) ;炼狱加特林射速1000发/分
         }
