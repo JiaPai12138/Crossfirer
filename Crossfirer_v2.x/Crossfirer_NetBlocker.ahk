@@ -8,7 +8,7 @@ global Net_On := True
 Net_Start := 0
 nb_block := False
 nb_allow := False
-CheckPermission()
+CheckPermission("一键限网")
 hwndcf := WinExist("ahk_class CrossFire")
 If ProcessExist("NLClientApp.exe")
 {

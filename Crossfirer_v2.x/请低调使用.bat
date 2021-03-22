@@ -1,6 +1,11 @@
 @echo off 
 title Crossfirer Starter
 CHCP 65001
+::随机可读颜色
+set /a rand=%random% %% 5
+set HEX=9ABEF
+call set hexcolors=%%HEX:~%rand%,1%%
+color 0%hexcolors%
 
 :Start
 CLS
@@ -55,7 +60,7 @@ GOTO End
 
 :Run_RCL
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_RCL.ps1'"
-GOTO End
+GOTO End 
 
 :Run_NBK
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_NBK.ps1'"

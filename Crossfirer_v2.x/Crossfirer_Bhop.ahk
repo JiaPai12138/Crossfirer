@@ -2,7 +2,7 @@
 Preset("身")
 ;==================================================================================
 global BHP_Service_On := False
-CheckPermission()
+CheckPermission("基础身法")
 ;==================================================================================
 If WinExist("ahk_class CrossFire")
 {
@@ -97,7 +97,7 @@ Return
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return
 
-~W & ~Llt:: ;空中连蹲跳 w+alt
+~W & ~LAlt:: ;空中连蹲跳 w+alt
     cnt := 0
     press_key("Space", 40, 20)
     If GetKeyState("LButton", "P")

@@ -73,7 +73,7 @@ Preset(Script_Icon)
 }
 ;==================================================================================
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
-CheckPermission()
+CheckPermission(SectionName := "助手控制")
 {
     If A_OSVersion in WIN_NT4, WIN_95, WIN_98, WIN_ME, WIN_2000, WIN_2003, WIN_XP, WIN_VISTA ;检测操作系统
     {
@@ -81,7 +81,11 @@ CheckPermission()
         ExitApp
     }
 
-    If Not (A_IsAdmin || CheckUIA())
+    FileRead, Output_Data, 助手数据.ini
+    If ErrorLevel
+        FileAppend, , 助手数据.ini, UTF-16 ;创建一个新ini文件
+
+    If Not (A_IsAdmin || CheckUIA(SectionName))
     {
         Try
         {
@@ -114,9 +118,10 @@ CheckPermission()
 }
 ;==================================================================================
 ;检查脚本是否由指定的UIA权限运行
-CheckUIA()
+CheckUIA(SectionName)
 {
     process_id := ProcessInfo_GetCurrentProcessID()
+    IniWrite, %process_id%, 助手数据.ini, %SectionName%, PID
     process_name := GetProcessName(process_id)
     If InStr(process_name, "AutoHotkeyU64_UIA.exe")
         Return True

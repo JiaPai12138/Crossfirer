@@ -5,7 +5,6 @@ global CTL_Service_On := False
 CheckPermission()
 ;==================================================================================
 Need_Help := False
-global Title_Blank := 0
 CF_Title :=
 Random_Move := False
 
@@ -38,7 +37,7 @@ If WinExist("ahk_class CrossFire")
 
     WinGetTitle, CF_Title, ahk_class CrossFire
     WinMinimize, ahk_class ConsoleWindowClass
-    SetTimer, UpdateGui, 250
+    SetTimer, UpdateGui, 500
     DPI_Initial := A_ScreenDPI
     CTL_Service_On := True
 } 
@@ -94,7 +93,7 @@ Return
     Random_Move := False
 Return
 ;==================================================================================
-UpdateGui() ;精度0.25s
+UpdateGui() ;精度0.5s
 {
     global DPI_Initial, CF_Title, Random_Move
     If !InStr(A_ScreenDPI, DPI_Initial)
@@ -102,17 +101,7 @@ UpdateGui() ;精度0.25s
     If !WinExist("ahk_class CrossFire")
     {
         WinClose, ahk_class ConsoleWindowClass
-        Loop ;, 10
-        {
-            PostMessage("Listening", 125638)
-            WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
-            ;MsgBox, , , %Gui_Title%
-            If StrLen(Gui_Title) < 4
-                Title_Blank += 1
-            HyperSleep(100) ;just for stability
-        } Until Title_Blank > 4
-
-        If ProcessExist("GameLoader.exe") && Title_Blank > 4
+        If ProcessExist("GameLoader.exe")
         {
             If A_IsCompiled && A_IsAdmin
             {
@@ -125,7 +114,7 @@ UpdateGui() ;精度0.25s
             Else
                 Run, *RunAs .\关闭TX残留进程.bat, , Hide
         }
-        ExitApp
+        CloseOthers2()
     }
     Else If !Not_In_Game(CF_Title)
     {
@@ -169,5 +158,46 @@ ShowHelp(ByRef Need_Help, XGui1, YGui1, Gui_Number1, XGui2, YGui2, Gui_Number2, 
         Gui, %Gui_Number1%: Show, Hide
         Gui, %Gui_Number2%: Show, x%XGui2% y%YGui2% NA
     }
+}
+;==================================================================================
+;控制关闭其他脚本方式1
+CloseOthers1()
+{
+    Title_Blank := 0
+    Loop ;, 10
+    {
+        PostMessage("Listening", 125638)
+        WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
+        ;MsgBox, , , %Gui_Title%
+        If StrLen(Gui_Title) < 4
+            Title_Blank += 1
+        HyperSleep(30) ;just for stability
+    } Until Title_Blank > 4
+    FileDelete, 助手数据.ini
+    ExitApp
+}
+;==================================================================================
+;控制关闭其他脚本方式2
+CloseOthers2()
+{
+    DetectHiddenWindows, On
+    IniRead, PID1, 助手数据.ini, 一键限网, PID
+    IniRead, PID2, 助手数据.ini, 基础压枪, PID
+    IniRead, PID3, 助手数据.ini, 基础身法, PID
+    IniRead, PID4, 助手数据.ini, 战斗猎手, PID
+    IniRead, PID5, 助手数据.ini, 自动开火, PID
+    IniRead, PID6, 助手数据.ini, 连点助手, PID
+    process_count := 7
+    Loop
+    {
+        HyperSleep(30)
+        Current_Index := Mod(A_Index, 6) + 1
+        Current_Pid := PID%Current_Index%
+        If PID%Current_Index% != ERROR
+            PostMessage, 0x0111, 65405, , , ahk_pid %Current_Pid%
+        WinGet, process_count, Count, ahk_class AutoHotkey
+    } Until process_count <= 1
+    FileDelete, 助手数据.ini
+    ExitApp
 }
 ;==================================================================================

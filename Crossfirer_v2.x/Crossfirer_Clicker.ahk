@@ -2,7 +2,7 @@
 Preset("点")
 ;==================================================================================
 global CLK_Service_On := False
-CheckPermission()
+CheckPermission("连点助手")
 SysGet, Mouse_Buttons, 43 ;检测鼠标按键数量
 If Mouse_Buttons < 5
 {

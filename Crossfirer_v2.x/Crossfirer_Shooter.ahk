@@ -2,7 +2,7 @@
 Preset("火")
 ;==================================================================================
 global SHT_Service_On := False
-CheckPermission()
+CheckPermission("自动开火")
 ;==================================================================================
 global AutoMode := False
 global mo_shi := -1
