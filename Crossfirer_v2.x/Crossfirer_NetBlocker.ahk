@@ -63,28 +63,23 @@ If (WinExist("ahk_class CrossFire"))
 ;==================================================================================
 ~*-::ExitApp
 
-#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
+#If WinActive("ahk_class CrossFire") && NBK_Service_On ;以下的热键需要相应条件才能激活
+
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
-    If NBK_Service_On
-    {
-        If Is_Chatting()
-            Suspend, On 
-        Suspended()
-    }
+    If Is_Chatting()
+        Suspend, On 
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
-    If NBK_Service_On
-    {
-        Suspended()
-        SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
-        If !Net_On
-            Gui, net_status: Show, x%XGui9% y%YGui9% NA
-        Else
-            Gui, net_status: Show, Hide
-    }
+    Suspended()
+    SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
+    If !Net_On
+        Gui, net_status: Show, x%XGui9% y%YGui9% NA
+    Else
+        Gui, net_status: Show, Hide
 Return
 
 ~*H Up::
@@ -94,7 +89,7 @@ Return
     Else If (1000 > A_TickCount - H_pressed)
         Return
 
-    If NBK_Service_On && WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && !GetKeyState("vk87")
+    If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && !GetKeyState("vk87")
     {
         Net_On := !Net_On
         WinMove, ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+], , -400, 50, 700, 500 ;移动到不影响战斗同时能看清规则是否激活的地点

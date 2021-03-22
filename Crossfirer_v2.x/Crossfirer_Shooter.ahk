@@ -63,29 +63,24 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
-#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
+#If WinActive("ahk_class CrossFire") && SHT_Service_On ;以下的热键需要相应条件才能激活
+
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
-    If SHT_Service_On
-    {
-        If Is_Chatting()
-            Suspend, On 
-        Suspended()
-    }
+    If Is_Chatting()
+        Suspend, On 
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
-    If SHT_Service_On
-    {
-        Suspended()
-        SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 10) - P1W // 2, Round(ValueH / 9) - P1H // 2)
-        SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 10) - P2W // 2, Round(ValueH / 7.2) - P2H // 2)
-        SetGuiPosition(Xch, Ych, "M", -34, -35)
-        Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
-        Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
-        Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
-    }
+    Suspended()
+    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 10) - P1W // 2, Round(ValueH / 9) - P1H // 2)
+    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 10) - P2W // 2, Round(ValueH / 7.2) - P2H // 2)
+    SetGuiPosition(Xch, Ych, "M", -34, -35)
+    Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
+    Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
+    Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
 Return
 
 ~*F7 Up::
@@ -94,12 +89,13 @@ Return
 
 ~*` Up::
 ~*~ Up::
-    If SHT_Service_On
-        ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
+    ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
+#If WinActive("ahk_class CrossFire") && SHT_Service_On && AutoMode && !GetKeyState("vk87") ;以下的热键需要相应条件才能激活
+
 ~*1 Up:: ;还原模式
-    If (SHT_Service_On && AutoMode && !GetKeyState("vk87") && StrLen(Temp_Run) > 0)
+    If StrLen(Temp_Run) > 0
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
@@ -109,49 +105,37 @@ Return
 Return
 
 ~*2 Up:: ;手枪模式
-    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
-    {
-        mo_shi := 2
-        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
-        UpdateText("fcn_mode", "ModeOfFcn", "加载手枪中", XGui1, YGui1)
-        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
-    }
+    mo_shi := 2
+    GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
+    UpdateText("fcn_mode", "ModeOfFcn", "加载手枪中", XGui1, YGui1)
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
 Return
 
 ~*Tab Up:: ;通用模式
-    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
-    {
-        Temp_Mode := 0
-        mo_shi := 0
-        Temp_Run := "加载通用中"
-        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
-        UpdateText("fcn_mode", "ModeOfFcn", "加载通用中", XGui1, YGui1)
-        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
-    }  
+    Temp_Mode := 0
+    mo_shi := 0
+    Temp_Run := "加载通用中"
+    GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
+    UpdateText("fcn_mode", "ModeOfFcn", "加载通用中", XGui1, YGui1)
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing) 
 Return
 
 ~*J Up:: ;瞬狙模式,M200效果上佳
-    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
-    {
-        Temp_Mode := 8
-        mo_shi := 8
-        Temp_Run := "加载狙击中"
-        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
-        UpdateText("fcn_mode", "ModeOfFcn", "加载狙击中", XGui1, YGui1)
-        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
-    }
+    Temp_Mode := 8
+    mo_shi := 8
+    Temp_Run := "加载狙击中"
+    GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
+    UpdateText("fcn_mode", "ModeOfFcn", "加载狙击中", XGui1, YGui1)
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
 Return
 
 ~*L Up:: ;连点模式
-    If (SHT_Service_On && AutoMode && !GetKeyState("vk87"))
-    {
-        Temp_Mode := 111
-        mo_shi := 111
-        Temp_Run := "加载速点中"
-        GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
-        UpdateText("fcn_mode", "ModeOfFcn", "加载速点中", XGui1, YGui1)
-        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
-    }  
+    Temp_Mode := 111
+    mo_shi := 111
+    Temp_Run := "加载速点中"
+    GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
+    UpdateText("fcn_mode", "ModeOfFcn", "加载速点中", XGui1, YGui1)
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
 Return
 ;==================================================================================
 ;检测ping的图形界面函数,因每次打开仅使用一次故做成函数

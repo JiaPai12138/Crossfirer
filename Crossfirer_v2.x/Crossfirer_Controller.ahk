@@ -51,46 +51,39 @@ If WinExist("ahk_class CrossFire")
         Run, .\双击我启动助手!!!.exe
 ExitApp
 
+#If CTL_Service_On
+
 ~*CapsLock Up:: ;minimize window and replace origin use
-    If CTL_Service_On
+    If WinActive("ahk_class CrossFire")
     {
-        If WinActive("ahk_class CrossFire")
-        {
-            WinMinimize, ahk_class CrossFire
-            HyperSleep(100)
-            CoordMode, Mouse, Screen
-            MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
-        }
-        Else
-            WinActivate, ahk_class CrossFire ;激活该窗口
+        WinMinimize, ahk_class CrossFire
+        HyperSleep(100)
+        CoordMode, Mouse, Screen
+        MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
     }
+    Else
+        WinActivate, ahk_class CrossFire ;激活该窗口
 Return
 
-#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
+#If WinActive("ahk_class CrossFire") && CTL_Service_On ;以下的热键需要相应条件才能激活
+
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
-    If CTL_Service_On
-    {
-        If Is_Chatting()
-            Suspend, On 
-        Suspended()
-    }
+    If Is_Chatting()
+        Suspend, On 
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
-    If CTL_Service_On
-    {
-        Suspended()
-        SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
-        SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
-        ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
-    }
+    Suspended()
+    SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
+    SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
+    ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
 Return
 
 ~*RCtrl::
-    If CTL_Service_On
-        ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
+    ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
 Return
 
 ~*F5::

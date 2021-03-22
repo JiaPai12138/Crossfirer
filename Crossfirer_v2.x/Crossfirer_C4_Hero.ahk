@@ -41,83 +41,68 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
-#IfWinActive, ahk_class CrossFire ;以下的热键需要CF窗口活跃才能激活
+#If WinActive("ahk_class CrossFire") && C4H_Service_On ;以下的热键需要相应条件才能激活
+
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
-    If C4H_Service_On
-    {
-        If Is_Chatting()
-            Suspend, On 
-        Suspended()
-    }
+    If Is_Chatting()
+        Suspend, On 
+    Suspended()
 Return
 
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
-    If C4H_Service_On
+    Suspended()
+    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2)
+    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2)
+    If Be_Hero
     {
-        Suspended()
-        SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2)
-        SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2)
-        If Be_Hero
-        {
-            Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
-            Gui, C4: Show, Hide
-        }
-        Else
-            Gui, Human_Hero: Show, Hide
-
-        If C4_On
-        {
-            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
-            Gui, Human_Hero: Show, Hide
-        }
-        Else
-            Gui, C4: Show, Hide
+        Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+        Gui, C4: Show, Hide
     }
+    Else
+        Gui, Human_Hero: Show, Hide
+    If C4_On
+    {
+        Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+        Gui, Human_Hero: Show, Hide
+    }
+    Else
+        Gui, C4: Show, Hide
 Return
 
 ~*=::
-    If C4H_Service_On
-    {
-        If !GetKeyState("vk87")
-            Be_Hero := !Be_Hero
-    
-        If (Be_Hero && !GetKeyState("vk87"))
-        {
-            C4_On := False
-            HEro_01.Start()
-            SetTimer, UpdateC4, Off
-            Gui, C4: Show, Hide
-            Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
-        }
-        Else If (!Be_Hero && !GetKeyState("vk87"))
-        {
-            HEro_01.Stop()
-            Gui, Human_Hero: Show, Hide
-        }
-    }
-Return
+    If !GetKeyState("vk87")
+        Be_Hero := !Be_Hero
 
-~C & ~4::
-    If C4H_Service_On
+    If (Be_Hero && !GetKeyState("vk87"))
     {
-        Be_Hero := False
-        C4_On := True
-        SetTimer, UpdateC4, 100
+        C4_On := False
+        HEro_01.Start()
+        SetTimer, UpdateC4, Off
+        Gui, C4: Show, Hide
+        Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+    }
+    Else If (!Be_Hero && !GetKeyState("vk87"))
+    {
         HEro_01.Stop()
-        Gui, C4: Show, x%XGuiC% y%YGuiC% NA
         Gui, Human_Hero: Show, Hide
     }
 Return
 
+~C & ~4::
+    Be_Hero := False
+    C4_On := True
+    SetTimer, UpdateC4, 100
+    HEro_01.Stop()
+    Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+    Gui, Human_Hero: Show, Hide
+Return
+
 ~C & ~5::
-    If C4H_Service_On
-    {
-        C4_On := False
-        SetTimer, UpdateC4, Off
-        Gui, C4: Show, Hide
-    }
+    C4_On := False
+    SetTimer, UpdateC4, Off
+    Gui, C4: Show, Hide
 Return
 ;==================================================================================
 UpdateC4() ;精度0.1s
