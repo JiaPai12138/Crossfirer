@@ -15,6 +15,7 @@ echo.
 echo         请按任意键继续/Press any key to continue...
 pause >nul
 
+:Option
 echo.
 echo.
 echo       请选择需要运行的脚本/Please select an option
@@ -26,10 +27,12 @@ echo         ║  [4]Run Bhop only       运行基础身法
 echo         ║  [5]Run Clicker only    运行连点脚本  
 echo         ║  [6]Run Recoilless only 运行压枪脚本  
 echo         ║  [7]Run NetBlocker only 运行限速脚本  
+echo         ║  [8]Exit Starter now    退出启动助手
 echo         ╚════════════════════════════════════╝
-choice /C 1234567 /M ">        请选择/Choose a menu option:    "
+choice /C 12345678 /M ">        请选择/Choose a menu option:    "
 
 :: Note - list ERRORLEVELS in decreasing order
+IF ERRORLEVEL 8 GOTO End
 IF ERRORLEVEL 7 GOTO Run_NBK
 IF ERRORLEVEL 6 GOTO Run_RCL
 IF ERRORLEVEL 5 GOTO Run_CLK
@@ -40,35 +43,37 @@ IF ERRORLEVEL 1 GOTO Run_ALL
 
 :Run_ALL
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_ALL.ps1'"
-GOTO End
+GOTO Option
 
 :Run_SHT
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_SHT.ps1'"
-GOTO End
+GOTO Option
 
 :Run_C4H
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_C4H.ps1'"
-GOTO End
+GOTO Option
 
 :Run_BHP
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_BHP.ps1'"
-GOTO End
+GOTO Option
 
 :Run_CLK
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_CLK.ps1'"
-GOTO End
+GOTO Option
 
 :Run_RCL
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_RCL.ps1'"
-GOTO End 
+GOTO Option
 
 :Run_NBK
 PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '.\Start_Crossfirer_NBK.ps1'"
-GOTO End
+GOTO Option
 
 :End
 echo.
-echo         请保持命令指示符运行/Keep cmd.exe running......
 echo.
-echo         请按任意键继续/Press any key to continue...
-pause >nul
+echo.
+echo         启动助手即将退出/Crossfirer will Exit
+echo         ......................................
+::TIMEOUT /T 3
+PING -n 4 127.0.0.1>nul
