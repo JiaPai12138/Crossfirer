@@ -218,7 +218,7 @@ class E_Hero
                     }
                 }
             }
-            Else If ErrorLevel && GetKeyState("e")
+            Else If ErrorLevel && GetKeyState("e") && !GetKeyState("e", "P")
             {
                 Send, {Blind}{e Up}
                 this.IsReloading := 0
