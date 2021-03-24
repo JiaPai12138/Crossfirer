@@ -1,7 +1,12 @@
-@echo off
-:: 显示GBK编码
-CHCP 936
+@echo off 
 title 脚本启动助手 名侦探柯南战队专用
+CHCP 936
+::随机可读颜色
+set /a rand=%random% %% 5
+set HEX=9ABEF
+call set hexcolors=%%HEX:~%rand%,1%%
+color 0%hexcolors%
+
 
 :Start
 CLS

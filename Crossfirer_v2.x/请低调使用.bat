@@ -1,6 +1,6 @@
 @echo off 
-title Crossfirer Starter
-CHCP 65001
+title 脚本启动助手 名侦探柯南战队专用
+CHCP 936
 ::随机可读颜色
 set /a rand=%random% %% 5
 set HEX=9ABEF
