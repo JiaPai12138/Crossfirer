@@ -48,12 +48,10 @@ If WinExist("ahk_class CrossFire")
 
     OnMessage(0x1001, "ReceiveMessage")
 
-    ;If game_title = CROSSFIRE 
-    ;    GamePing := Test_Game_Ping("172.217.1.142") + Test_Game_Ping("172.217.9.168")
-    ;Else If game_title = 穿越火线
-    ;    GamePing := Test_Game_Ping("203.205.239.243")
+    ;If game_title = 穿越火线
+    ;    GamePing := Test_Game_Ping("cf.qq.com")
         
-    ;If GamePing = 0 ;延迟大于300或者连接不上就没有玩的必要
+    ;If GamePing = 0 ;延迟大于300或者连接不上就没有开启本辅助的必要
     ;    ExitApp
     ;FuncPing() ;有设定默认延迟就不必一开始再要求输入
     SHT_Service_On := True
@@ -172,7 +170,7 @@ PingCheck()
 ;测试ping值,但会被游戏加速器干扰,且游戏内已经提供ping查询,因此弃用但保留本函数
 Test_Game_Ping(URL_Or_Ping)
 {
-    Runwait, %comspec% /c ping -w 500 -n 3 %URL_Or_Ping% >ping.log, ,Hide ;后台执行cmd ping三次,每次最多等待500毫秒
+    Runwait, %comspec% /c ping -w 500 -n 3 %URL_Or_Ping% >ping.log, , Hide ;后台执行cmd ping三次,每次最多等待500毫秒
     FileRead, StrTemp, ping.log
     If RegExMatch(StrTemp, "Average = (\d+)", result)
         speed := (SubStr(result, 11) > 300 ? 0 : SubStr(result, 11))
