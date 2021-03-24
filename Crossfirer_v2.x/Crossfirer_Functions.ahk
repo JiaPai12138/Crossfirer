@@ -1,8 +1,14 @@
 ﻿;Functions for Crossfirer;CF娱乐助手函数集合
 ;Please read https://www.autohotkey.com/docs/commands/PixelGetColor.htm for RGB vs. BGR format
 ;https://github.com/JacobHu0723/cps.github.io For click speed test
+;https://icons8.cn/icon Download icons
+;https://www.designevo.com/cn/logo-maker/ https://www.pgyer.com/tools/appIcon Create logos
+;https://www.bitbug.net/ Create icons
+;http://www.ico51.cn/ Convert icons
 #Include, Create_CF_ico.ahk
 火线图标 := Create_CF_ico() ;加载图标
+火线重载 := Create_Reload_ico()
+火线退出 := Create_Exit_ico()
 脚本图标 := ""
 ;==================================================================================
 ;预设参数
@@ -28,7 +34,7 @@ Preset(Script_Icon)
     SetWinDelay, -1                  ;全速执行窗口命令
     SetControlDelay, -1              ;控件修改命令全速执行
 
-    global 火线图标, 脚本图标
+    global 火线图标, 脚本图标, 火线重载, 火线退出
     Switch Script_Icon
     {
         Case "断": 
@@ -65,10 +71,10 @@ Preset(Script_Icon)
     Menu, Tray, Default, 关于
     Menu, Tray, Click, 1
     Menu, Tray, Icon, HICON:*%脚本图标%, , 1
-    Menu, Tray, Add, 重新加载, Re_load, +Radio
-    Menu, Tray, Check, 重新加载
-    Menu, Tray, Add, 退出辅助, Exit_Script, +Radio
-    Menu, Tray, Check, 退出辅助
+    Menu, Tray, Add, 重新加载, Re_load
+    Menu, Tray, Icon, 重新加载, HICON:*%火线重载%, , 18
+    Menu, Tray, Add, 退出辅助, Exit_Script
+    Menu, Tray, Icon, 退出辅助, HICON:*%火线退出%, , 18
     Menu, Tray, Color, 0x00FFFF
 }
 ;==================================================================================
