@@ -1,7 +1,7 @@
 @echo off 
-title è„šæœ¬å¯åŠ¨åŠ©æ‰‹ åä¾¦æŽ¢æŸ¯å—æˆ˜é˜Ÿä¸“ç”¨
 CHCP 936
-::éšæœºå¯è¯»é¢œè‰²
+title ½Å±¾Æô¶¯ÖúÊÖ ÃûÕìÌ½¿ÂÄÏÕ½¶Ó×¨ÓÃ
+::Ëæ»ú¿É¶ÁÑÕÉ«
 set /a rand=%random% %% 5
 set HEX=9ABEF
 call set hexcolors=%%HEX:~%rand%,1%%
@@ -9,27 +9,27 @@ color 0%hexcolors%
 
 :Start
 CLS
-echo         è¯·å…ˆä»”ç»†é˜…è¯»è¯´æ˜Ž!!!!!!!!!!!!!!!!!!!!!!!!
+echo         ÇëÏÈ×ÐÏ¸ÔÄ¶ÁËµÃ÷!!!!!!!!!!!!!!!!!!!!!!!!
 echo.
 echo.
-echo         è¯·æŒ‰ä»»æ„é”®ç»§ç»­/Press any key to continue...
+echo         Çë°´ÈÎÒâ¼ü¼ÌÐø/Press any key to continue...
 pause >nul
 
 :Option
 echo.
 echo.
-echo       è¯·é€‰æ‹©éœ€è¦è¿è¡Œçš„è„šæœ¬/Please select an option
-echo         â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-echo         â•‘  [1]Run All Scripts     è¿è¡Œæ‰€æœ‰è„šæœ¬  
-echo         â•‘  [2]Run Shooter only    è¿è¡Œè‡ªç«è„šæœ¬  
-echo         â•‘  [3]Run C4 Hero only    è¿è¡Œç‚¸å¼¹è®¡æ—¶  
-echo         â•‘  [4]Run Bhop only       è¿è¡ŒåŸºç¡€èº«æ³•  
-echo         â•‘  [5]Run Clicker only    è¿è¡Œè¿žç‚¹è„šæœ¬  
-echo         â•‘  [6]Run Recoilless only è¿è¡ŒåŽ‹æžªè„šæœ¬  
-echo         â•‘  [7]Run NetBlocker only è¿è¡Œé™é€Ÿè„šæœ¬  
-echo         â•‘  [8]Exit Starter now    é€€å‡ºå¯åŠ¨åŠ©æ‰‹
-echo         â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-choice /C 12345678 /M ">        è¯·é€‰æ‹©/Choose a menu option:    "
+echo       ÇëÑ¡ÔñÐèÒªÔËÐÐµÄ½Å±¾/Please select an option
+echo         ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨[
+echo         ¨U  [1]Run All Scripts     ÔËÐÐËùÓÐ½Å±¾  
+echo         ¨U  [2]Run Shooter only    ÔËÐÐ×Ô»ð½Å±¾  
+echo         ¨U  [3]Run C4 Hero only    ÔËÐÐÕ¨µ¯¼ÆÊ±  
+echo         ¨U  [4]Run Bhop only       ÔËÐÐ»ù´¡Éí·¨  
+echo         ¨U  [5]Run Clicker only    ÔËÐÐÁ¬µã½Å±¾  
+echo         ¨U  [6]Run Recoilless only ÔËÐÐÑ¹Ç¹½Å±¾  
+echo         ¨U  [7]Run NetBlocker only ÔËÐÐÏÞËÙ½Å±¾  
+echo         ¨U  [8]Exit Starter now    ÍË³öÆô¶¯ÖúÊÖ
+echo         ¨^¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨a
+choice /C 12345678 /M ">        ÇëÑ¡Ôñ/Choose a menu option:    "
 
 :: Note - list ERRORLEVELS in decreasing order
 IF ERRORLEVEL 8 GOTO End
@@ -73,7 +73,7 @@ GOTO Option
 echo.
 echo.
 echo.
-echo         å¯åŠ¨åŠ©æ‰‹å³å°†é€€å‡º/Crossfirer will Exit
+echo         Æô¶¯ÖúÊÖ¼´½«ÍË³ö/Crossfirer will Exit
 echo         ......................................
 ::TIMEOUT /T 3
 PING -n 4 127.0.0.1>nul
