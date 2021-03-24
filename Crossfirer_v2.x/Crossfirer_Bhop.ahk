@@ -60,9 +60,9 @@ Return
     HyperSleep(100)
     Loop 
     {
-        press_key("space", 10, 0)   
+        press_key("space", 30, 0)   
         cnt += 1
-    } Until, (!GetKeyState("W", "P") || cnt >= 300 || !WinActive("ahk_class CrossFire"))
+    } Until, (!GetKeyState("W", "P") || cnt >= 100 || !WinActive("ahk_class CrossFire"))
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     Send, {Blind}{LCtrl Up}
@@ -84,14 +84,16 @@ Return
 
 ~W & ~Space:: ;连跳,落地少掉血
     HyperSleep(270)
+    cnt := 0
     If GetKeyState("Space", "P")
     {
         GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
         UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
     }
-    While, GetKeyState("Space", "P") && WinActive("ahk_class CrossFire")
+    While, GetKeyState("Space", "P") && WinActive("ahk_class CrossFire") && cnt < 300
     {
         press_key("Space", 10, 0)
+        cnt += 1
     }
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
@@ -135,11 +137,22 @@ Return
     UpdateText("jump_mode", "ModeJump", "跳蹲上坡", XGui4, YGui4)
     Loop
     {
-        press_key("Space", 20, 20)
-        press_key("LCtrl", 20, 20)
-        press_key("Shift", 20, 20)
+        Send, {Blind}{LCtrl Up}
+        Send, {Blind}{Space Down}
+        HyperSleep(30)
+        Send, {Blind}{Shift Up}
+        Send, {Blind}{LCtrl Down}
+        HyperSleep(30)
+        Send, {Blind}{Space Up}
+        Send, {Blind}{Shift Down}
+        HyperSleep(30)
         cnt += 1
     } Until, (cnt > 50 || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
+    Send, {Blind}{Space Up}
+    Send, {Blind}{LCtrl Up}
+    Send, {Blind}{Shift Up}
+    If Mod(cnt, 2)
+        press_key("Shift", 30, 30)
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return

@@ -7,6 +7,7 @@ CheckPermission()
 Need_Help := False
 CF_Title :=
 Random_Move := False
+cnt := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -91,11 +92,14 @@ Return
 
 ~*LButton::
     Random_Move := False
+    If Mod(cnt, 2)
+        press_key("Shift", 30, 30)
+    cnt := 0
 Return
 ;==================================================================================
 UpdateGui() ;精度0.5s
 {
-    global DPI_Initial, CF_Title, Random_Move
+    global DPI_Initial, CF_Title, Random_Move, cnt
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
     If !WinExist("ahk_class CrossFire")
@@ -135,7 +139,7 @@ UpdateGui() ;精度0.5s
                 Case 0: press_key("LCtrl", 150, 30)
                 Case 1: press_key("d", 150, 30)
                 Case 2: press_key("Space", 150, 30)
-                Case 3: press_key("Shift", 30, 60), press_key("Shift", 30, 60)
+                Case 3: press_key("Shift", 30, 60), press_key("Shift", 30, 60), cnt += 1
             }
         }
     }
