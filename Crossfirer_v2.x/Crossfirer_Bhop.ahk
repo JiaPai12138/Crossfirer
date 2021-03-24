@@ -62,7 +62,7 @@ Return
     {
         press_key("space", 10, 0)   
         cnt += 1
-    } Until, (!GetKeyState("W", "P") || cnt >= 100 || !WinActive("ahk_class CrossFire"))
+    } Until, (!GetKeyState("W", "P") || cnt >= 300 || !WinActive("ahk_class CrossFire"))
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     Send, {Blind}{LCtrl Up}
