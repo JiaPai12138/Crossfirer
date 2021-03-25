@@ -1,1 +1,2 @@
+# (cmd scripts:) PowerShell -NoProfile -ExecutionPolicy Bypass -Command "& '%~dp0Start_Crossfirer_C4H.ps1'"
 [System.Diagnostics.Process]::Start("C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe", ".\Crossfirer_C4_Hero.ahk")
