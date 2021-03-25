@@ -111,7 +111,7 @@ IF exist %~dp0Start_Crossfirer_C4H.ps1 IF exist %~dp0Crossfirer_C4_Hero.ahk (
     Start "" "%~dp0战斗助手.exe"
 ) ELSE (
     echo         战斗助手不存在!!!
-    PowerShell "[console]::beep(1000,1000)"
+    PowerShell "[console]::beep(2000,1000)"
 )
 GOTO:EOF
 
@@ -122,7 +122,7 @@ IF exist %~dp0Start_Crossfirer_BHP.ps1 IF exist %~dp0Crossfirer_Bhop.ahk (
     Start "" "%~dp0基础身法.exe"
 ) ELSE (
     echo         基础身法不存在!!!
-    PowerShell "[console]::beep(1000,1000)"
+    PowerShell "[console]::beep(3000,1000)"
 )
 GOTO:EOF
 
@@ -133,7 +133,7 @@ IF exist %~dp0Start_Crossfirer_CLK.ps1 IF exist %~dp0Crossfirer_Clicker.ahk (
     Start "" "%~dp0连点助手.exe"
 ) ELSE (
     echo         连点助手不存在!!!
-    PowerShell "[console]::beep(1000,1000)"
+    PowerShell "[console]::beep(4000,1000)"
 )
 GOTO:EOF
 
@@ -144,7 +144,7 @@ IF exist %~dp0Start_Crossfirer_RCL.ps1 IF exist %~dp0Crossfirer_Recoilless.ahk (
     Start "" "%~dp0基础压枪.exe"
 ) ELSE (
     echo         基础压枪不存在!!!
-    PowerShell "[console]::beep(1000,1000)"
+    PowerShell "[console]::beep(5000,1000)"
 )
 GOTO:EOF
 
@@ -155,7 +155,7 @@ IF exist %~dp0Start_Crossfirer_NBK.ps1 IF exist %~dp0Crossfirer_NetBlocker.ahk (
     Start "" "%~dp0一键限网.exe"
 ) ELSE (
     echo         一键限网不存在!!!
-    PowerShell "[console]::beep(1000,1000)"
+    PowerShell "[console]::beep(6000,1000)"
 )
 GOTO:EOF
 
@@ -166,6 +166,6 @@ IF exist %~dp0Start_Crossfirer_CTL.ps1 IF exist %~dp0Crossfirer_Controller.ahk (
     Start "" "%~dp0助手控制.exe"
 ) ELSE (
     echo         助手控制不存在!!!
-    PowerShell "[console]::beep(8000,1000)"
+    PowerShell "[console]::beep(7000,1000)"
 )
 GOTO:EOF
