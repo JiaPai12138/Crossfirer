@@ -51,7 +51,7 @@ Return
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return
 
-~W & ~F:: ;基本鬼跳
+~W & ~F:: ;基本鬼跳,落地少掉血
     cnt := 0
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "基本鬼跳", XGui4, YGui4)
@@ -60,9 +60,9 @@ Return
     HyperSleep(100)
     Loop 
     {
-        press_key("space", 30, 0)   
+        press_key("space", 10, 0)   
         cnt += 1
-    } Until, (!GetKeyState("W", "P") || cnt >= 100 || !WinActive("ahk_class CrossFire"))
+    } Until, (!GetKeyState("W", "P") || cnt >= 300 || !WinActive("ahk_class CrossFire"))
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     Send, {Blind}{LCtrl Up}
@@ -81,25 +81,6 @@ Return
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return
-
-#UseHook, On ;防止被send触发热键
-~W & ~Space:: ;连跳,落地少掉血
-    HyperSleep(270)
-    cnt := 0
-    If GetKeyState("Space", "P")
-    {
-        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
-        UpdateText("jump_mode", "ModeJump", "基础连跳", XGui4, YGui4)
-    }
-    While, GetKeyState("Space", "P") && WinActive("ahk_class CrossFire") && cnt < 300
-    {
-        press_key("Space", 10, 0)
-        cnt += 1
-    }
-    GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
-    UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
-Return
-#UseHook, Off
 
 ~W & ~LAlt:: ;空中连蹲跳 w+alt
     cnt := 0
