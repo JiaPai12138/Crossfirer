@@ -98,9 +98,9 @@ GOTO Option
 
 :Go_SHT
 IF exist "Crossfirer_Shooter.ahk" (
-    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "%~dp0Crossfirer_Shooter.ahk"
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Shooter.ahk"
 ) ELSE IF exist 自动开火.exe (
-    Start "" "%~dp0自动开火.exe"
+    Start "" "自动开火.exe"
 ) ELSE (
     echo         自动开火不存在!!!
     PowerShell "[console]::beep(1000,500)"
@@ -109,9 +109,9 @@ GOTO:EOF
 
 :Go_C4H
 IF exist "Crossfirer_C4_Hero.ahk" (
-    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "%~dp0Crossfirer_C4_Hero.ahk"
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_C4_Hero.ahk"
 ) ELSE IF exist 战斗助手.exe (
-    Start "" "%~dp0战斗助手.exe"
+    Start "" "战斗助手.exe"
 ) ELSE (
     echo         战斗助手不存在!!!
     PowerShell "[console]::beep(1500,500)"
@@ -120,9 +120,9 @@ GOTO:EOF
 
 :Go_BHP
 IF exist "Crossfirer_Bhop.ahk" (
-    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "%~dp0Crossfirer_Bhop.ahk"
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Bhop.ahk"
 ) ELSE IF exist 基础身法.exe (
-    Start "" "%~dp0基础身法.exe"
+    Start "" "基础身法.exe"
 ) ELSE (
     echo         基础身法不存在!!!
     PowerShell "[console]::beep(2000,500)"
@@ -131,9 +131,9 @@ GOTO:EOF
 
 :Go_CLK
 IF exist "Crossfirer_Clicker.ahk" (
-    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "%~dp0Crossfirer_Clicker.ahk"
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Clicker.ahk"
 ) ELSE IF exist 连点助手.exe (
-    Start "" "%~dp0连点助手.exe"
+    Start "" "连点助手.exe"
 ) ELSE (
     echo         连点助手不存在!!!
     PowerShell "[console]::beep(2500,500)"
@@ -142,9 +142,9 @@ GOTO:EOF
 
 :Go_RCL
 IF exist "Crossfirer_Recoilless.ahk" (
-    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "%~dp0Crossfirer_Recoilless.ahk"
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Recoilless.ahk"
 ) ELSE IF exist 基础压枪.exe (
-    Start "" "%~dp0基础压枪.exe"
+    Start "" "基础压枪.exe"
 ) ELSE (
     echo         基础压枪不存在!!!
     PowerShell "[console]::beep(3000,500)"
@@ -153,9 +153,9 @@ GOTO:EOF
 
 :Go_NBK
 IF exist "Crossfirer_NetBlocker.ahk" (
-    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "%~dp0Crossfirer_NetBlocker.ahk"
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_NetBlocker.ahk"
 ) ELSE IF exist 一键限网.exe (
-    Start "" "%~dp0一键限网.exe"
+    Start "" "一键限网.exe"
 ) ELSE (
     echo         一键限网不存在!!!
     PowerShell "[console]::beep(3500,500)"
@@ -164,9 +164,9 @@ GOTO:EOF
 
 :Go_CTL
 IF exist "Crossfirer_Controller.ahk" (
-    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "%~dp0Crossfirer_Controller.ahk"
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Controller.ahk"
 ) ELSE IF exist 助手控制.exe (
-    Start "" "%~dp0助手控制.exe"
+    Start "" "助手控制.exe"
 ) ELSE (
     echo         助手控制不存在!!!
     PowerShell "[console]::beep(4000,500)"
