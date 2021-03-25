@@ -72,9 +72,9 @@ Preset(Script_Icon)
     Menu, Tray, Click, 1
     Menu, Tray, Icon, HICON:*%脚本图标%, , 1
     Menu, Tray, Add, 重新加载, Re_load
-    Menu, Tray, Icon, 重新加载, HICON:*%火线重载%, , 18
+    Menu, Tray, Icon, 重新加载, HICON:*%火线重载%, , 20
     Menu, Tray, Add, 退出辅助, Exit_Script
-    Menu, Tray, Icon, 退出辅助, HICON:*%火线退出%, , 18
+    Menu, Tray, Icon, 退出辅助, HICON:*%火线退出%, , 20
     Menu, Tray, Color, 0x00FFFF
 }
 ;==================================================================================
