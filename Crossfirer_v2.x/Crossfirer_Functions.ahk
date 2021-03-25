@@ -91,7 +91,7 @@ CheckPermission(SectionName := "助手控制")
     If ErrorLevel
         FileAppend, , 助手数据.ini, UTF-16 ;创建一个新ini文件
 
-    If Not (A_IsAdmin || CheckUIA(SectionName))
+    If Not (CheckAdmin(SectionName) || CheckUIA(SectionName))
     {
         Try
         {
@@ -123,14 +123,29 @@ CheckPermission(SectionName := "助手控制")
     }
 }
 ;==================================================================================
+;检查脚本是否由管理员权限运行
+CheckAdmin(SectionName)
+{
+    If A_IsAdmin
+    {
+        process_id := ProcessInfo_GetCurrentProcessID()
+        IniWrite, %process_id%, 助手数据.ini, %SectionName%, PID
+        Return True
+    }
+    Else
+        Return False
+}
+;==================================================================================
 ;检查脚本是否由指定的UIA权限运行
 CheckUIA(SectionName)
 {
     process_id := ProcessInfo_GetCurrentProcessID()
-    IniWrite, %process_id%, 助手数据.ini, %SectionName%, PID
     process_name := GetProcessName(process_id)
     If InStr(process_name, "AutoHotkeyU64_UIA.exe")
+    {
+        IniWrite, %process_id%, 助手数据.ini, %SectionName%, PID
         Return True
+    }
     Else
         Return False
 }
