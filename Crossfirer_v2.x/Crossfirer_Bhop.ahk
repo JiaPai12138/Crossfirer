@@ -82,6 +82,7 @@ Return
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return
 
+#UseHook, On ;防止被send触发热键
 ~W & ~Space:: ;连跳,落地少掉血
     HyperSleep(270)
     cnt := 0
@@ -98,6 +99,7 @@ Return
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return
+#UseHook, Off
 
 ~W & ~LAlt:: ;空中连蹲跳 w+alt
     cnt := 0
