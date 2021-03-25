@@ -140,16 +140,22 @@ Return
 
 ~*NumpadDown::
 ~*Numpad2::
-    GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
-    UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
-    Gun_Chosen := 2, Ammo_Delay := 87.6
+    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    {
+        GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
+        UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
+        Gun_Chosen := 2, Ammo_Delay := 87.6
+    }
 Return
 
 ~*NumpadPgDn::
 ~*Numpad3::
-    GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
-    UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)
-    Gun_Chosen := 3, Ammo_Delay := 32
+    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
+    {
+        GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
+        UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)
+        Gun_Chosen := 3, Ammo_Delay := 32
+    }
 Return
 ;==================================================================================
 ;压枪函数,对相应枪械,均能在中近距离上基本压成一条线,即将标准化
@@ -171,7 +177,7 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
             HyperSleep(Ammo_Delay - 10)
             If RCL_Down && Ammo_Count < 10 && Ammo_Delay > 60
                 mouseXY(0, RCL_Down)
-            Else ;HK417
+            Else
             {
                 If !Mod(Ammo_Count, 3) && Ammo_Count <= 80
                     mouseXY(0, 1) ;DPI 800,灵敏32
