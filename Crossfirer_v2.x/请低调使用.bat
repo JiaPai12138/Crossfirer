@@ -16,7 +16,8 @@ IF %errorLevel% == 0 (
     GOTO Start
 ) else (
     echo         Î´ÒÔ¹ÜÀíÔ±Éí·İÔËĞĞ,Æô¶¯Æ÷½«ÍË³ö
-    GOTO Run_End
+    PING -n 2 127.0.0.1>nul
+    GOTO Start
 )
 
 :Start
@@ -38,7 +39,7 @@ echo         ¨X¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨T¨
 echo         ¨U [1]Run All assistants  ÔËĞĞËùÓĞ¸¨Öú
 echo         ¨U [2]Run Shooter only    ÔËĞĞ×Ô¶¯¿ª»ğ  
 echo         ¨U [3]Run C4 Hero only    ÔËĞĞÕ½¶·ÁÔÊÖ  
-echo         ¨U [4]Run Bhop only       ÔËĞĞ»ù´¡Éí·¨  
+echo         ¨U [4]Run Bhop only       ÔËĞĞÆÕÍ¨Éí·¨  
 echo         ¨U [5]Run Clicker only    ÔËĞĞÁ¬µãÖúÊÖ  
 echo         ¨U [6]Run Recoilless only ÔËĞĞ»ù´¡Ñ¹Ç¹  
 echo         ¨U [7]Run NetBlocker only ÔËĞĞÒ»¼üÏŞÍø
@@ -121,10 +122,10 @@ GOTO:EOF
 :Go_BHP
 IF exist "Crossfirer_Bhop.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Bhop.ahk"
-) ELSE IF exist »ù´¡Éí·¨.exe (
-    Start "" "»ù´¡Éí·¨.exe"
+) ELSE IF exist ÆÕÍ¨Éí·¨.exe (
+    Start "" "ÆÕÍ¨Éí·¨.exe"
 ) ELSE (
-    echo         »ù´¡Éí·¨²»´æÔÚ!!!
+    echo         ÆÕÍ¨Éí·¨²»´æÔÚ!!!
     PowerShell "[console]::beep(2000,500)"
 )
 GOTO:EOF
