@@ -14,7 +14,7 @@ IF %errorLevel% == 0 (
     echo         管理员你好
     PING -n 2 127.0.0.1>nul
     GOTO Start
-) else (
+) ELSE (
     echo         未以管理员身份运行,无法启动编译版
     PING -n 2 127.0.0.1>nul
     GOTO Start
