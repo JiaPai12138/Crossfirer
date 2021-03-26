@@ -213,7 +213,8 @@ Return
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return
 
-~*F6::
+~*<::
+~*,::
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "左旋转跳", XGui4, YGui4)
     Send, {Blind}{s Down}
@@ -237,7 +238,8 @@ Return
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
 Return
 
-~*F8::
+~*>::
+~*.::
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "右旋转跳", XGui4, YGui4)
     Send, {Blind}{s Down}
