@@ -15,7 +15,7 @@ IF %errorLevel% == 0 (
     PING -n 2 127.0.0.1>nul
     GOTO Start
 ) else (
-    echo         未以管理员身份运行,启动器将退出
+    echo         未以管理员身份运行,无法启动编译版
     PING -n 2 127.0.0.1>nul
     GOTO Start
 )
