@@ -48,7 +48,7 @@ If WinExist("ahk_class CrossFire")
     Try
         Run, .\请低调使用.bat
     Catch
-        Run, .\双击我启动助手!!!.exe
+        Run, .\低调使用.exe
 ExitApp
 
 #If CTL_Service_On
