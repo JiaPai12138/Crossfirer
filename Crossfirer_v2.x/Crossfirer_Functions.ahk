@@ -61,9 +61,13 @@ Preset(Script_Icon)
             脚本图标 := Create_自动开火_ico()
             Menu, Tray, Tip, 火线自动开火
 
-        Case "点": 
+        Case "点":
             脚本图标 := Create_连点助手_ico()
             Menu, Tray, Tip, 火线连点助手
+        
+        Case "尽": 
+            脚本图标 := Create_无尽挂机_ico()
+            Menu, Tray, Tip, 火线无尽挂机
     }
     Menu, Tray, NoStandard
     Menu, Tray, Add, 关于, About

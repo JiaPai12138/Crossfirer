@@ -24,16 +24,28 @@ If WinExist("ahk_class CrossFire")
     Gui, Hint: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Hint: Margin, 0, 0
     Gui, Hint: Color, 333333 ;#333333
-    Gui, Hint: Font, s8 c00FF00, Microsoft YaHei ;#00FF00
-    Gui, Hint: add, Text, hwndGui_9, 按`n右`n c`n t`n r`n l`n键`n开`n关`n帮`n助
+    Gui, Hint: Font, S8 Q5, Microsoft YaHei ;#00FF00
+    Gui, Hint: add, Text, hwndGui_9 c00FF00, 按`n右`n c`n t`n r`n l`n键`n开`n关`n帮`n助
     GuiControlGet, P9, Pos, %Gui_9%
     global P9H ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
+    Gui, Ran: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Ran: Margin, 0, 0
+    Gui, Ran: Color, 333333 ;#333333
+    Gui, Ran: Font, s10 Q5, Microsoft YaHei ;#00FF00
+    Gui, Ran: add, Text, hwndGui_11 c00FF00 vRan_Moving, 随机动作
+    GuiControlGet, P11, Pos, %Gui_11%
+    global P11H, P11W
+    WinSet, TransColor, 333333 255 ;#333333
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
+
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
+    SetGuiPosition(XGui11, YGui11, "H", -P11W // 2, 0)
     Gui, Hint: Show, x%XGui10% y%YGui10% NA
+    Gui, Ran: Show, x%XGui11% y%YGui11% NA
     Gui, Helper: Show, Hide
 
     WinGetTitle, CF_Title, ahk_class CrossFire
@@ -79,6 +91,8 @@ Return
     Suspended()
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
+    SetGuiPosition(XGui11, YGui11, "H", -P11W // 2, 0)
+    Gui, Ran: Show, x%XGui11% y%YGui11% NA
     ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
 Return
 
@@ -89,13 +103,15 @@ Return
 ~*?::
 ~*/::
     Random_Move := True
+    GuiControl, Ran: +c00FFFF +Redraw, Ran_Moving ;#00FFFF
 Return
 
-~*LButton::
+~*Left::
     Random_Move := False
     If Mod(cnt, 2)
         press_key("Shift", 30, 30)
     cnt := 0
+    GuiControl, Ran: +c00FF00 +Redraw, Ran_Moving ;#00FF00
 Return
 ;==================================================================================
 UpdateGui() ;精度0.5s
@@ -120,6 +136,7 @@ UpdateGui() ;精度0.5s
                 Run, *RunAs .\关闭TX残留进程.bat, , Hide
         }
         CloseOthers2()
+        CloseOthers1() ;确保关闭
     }
     Else If !Not_In_Game(CF_Title)
     {
@@ -178,7 +195,7 @@ CloseOthers1()
             Title_Blank += 1
         HyperSleep(30) ;just for stability
     } Until Title_Blank > 4
-    FileDelete, 助手数据.ini
+    ;FileDelete, 助手数据.ini
     ExitApp
 }
 ;==================================================================================
@@ -192,17 +209,20 @@ CloseOthers2()
     IniRead, PID4, 助手数据.ini, 战斗猎手, PID
     IniRead, PID5, 助手数据.ini, 自动开火, PID
     IniRead, PID6, 助手数据.ini, 连点助手, PID
-    process_count := 7
+    IniRead, PID7, 助手数据.ini, 无尽挂机, PID
+    process_count := 8
+    Time_Count := A_TickCount
     Loop
     {
         HyperSleep(30)
-        Current_Index := Mod(A_Index, 6) + 1
+        Current_Index := Mod(A_Index, 7) + 1
         Current_Pid := PID%Current_Index%
         If PID%Current_Index% != ERROR
             PostMessage, 0x0111, 65405, , , ahk_pid %Current_Pid%
         WinGet, process_count, Count, ahk_class AutoHotkey
-    } Until process_count <= 1
-    FileDelete, 助手数据.ini
+        Time_Used := A_TickCount - Time_Count
+    } Until process_count <= 1 || Time_Used > 5000
+    ;FileDelete, 助手数据.ini
     ExitApp
 }
 ;==================================================================================

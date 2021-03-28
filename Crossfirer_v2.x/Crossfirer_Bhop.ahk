@@ -223,10 +223,16 @@ Return
     mouseXY(-400, 0)
     Send, {Blind}{d Down}
     Send, {Blind}{LCtrl Down}
-    HyperSleep(540)
+    If !GetKeyState("LButton", "P")
+        HyperSleep(540)
+    Else
+        HyperSleep(240)
     press_key("Space", 30, 30)
     mouseXY(-400, 0)
-    HyperSleep(880)
+    If !GetKeyState("LButton", "P")
+        HyperSleep(880)
+    Else
+        HyperSleep(400)
     Send, {Blind}{d Up}
     WHile GetKeyState("s", "P")
     {
@@ -248,10 +254,16 @@ Return
     mouseXY(400, 0)
     Send, {Blind}{a Down}
     Send, {Blind}{LCtrl Down}
-    HyperSleep(540)
+    If !GetKeyState("LButton", "P")
+        HyperSleep(540)
+    Else
+        HyperSleep(240)
     press_key("Space", 30, 30)
-    mouseXY(400, 0)
-    HyperSleep(880)
+    mouseXY(-400, 0)
+    If !GetKeyState("LButton", "P")
+        HyperSleep(880)
+    Else
+        HyperSleep(400)
     Send, {Blind}{a Up}
     WHile GetKeyState("s", "P")
     {
