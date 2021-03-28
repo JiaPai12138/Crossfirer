@@ -7,7 +7,7 @@ CheckPermission()
 Need_Help := False
 CF_Title :=
 Random_Move := False
-cnt := 0
+global cnt := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -43,12 +43,14 @@ If WinExist("ahk_class CrossFire")
 
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
-    SetGuiPosition(XGui11, YGui11, "H", -P11W // 2, 0)
+    SetGuiPosition(XGui11, YGui11, "L", 0, -P11H)
     Gui, Hint: Show, x%XGui10% y%YGui10% NA
     Gui, Ran: Show, x%XGui11% y%YGui11% NA
     Gui, Helper: Show, Hide
 
     WinGetTitle, CF_Title, ahk_class CrossFire
+    global Xl := 0, Yl := 0, Wl := 1600, Hl := 900
+    CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
     WinMinimize, ahk_class ConsoleWindowClass
     SetTimer, UpdateGui, 500
     DPI_Initial := A_ScreenDPI
@@ -91,7 +93,7 @@ Return
     Suspended()
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
-    SetGuiPosition(XGui11, YGui11, "H", -P11W // 2, 0)
+    SetGuiPosition(XGui11, YGui11, "L", 0, -P11H)
     Gui, Ran: Show, x%XGui11% y%YGui11% NA
     ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
 Return
@@ -102,21 +104,22 @@ Return
 
 ~*?::
 ~*/::
-    Random_Move := True
-    GuiControl, Ran: +c00FFFF +Redraw, Ran_Moving ;#00FFFF
-Return
-
-~*Left::
-    Random_Move := False
-    If Mod(cnt, 2)
-        press_key("Shift", 30, 30)
-    cnt := 0
-    GuiControl, Ran: +c00FF00 +Redraw, Ran_Moving ;#00FF00
+    Random_Move := !Random_Move
+    If Random_Move
+        GuiControl, Ran: +c00FFFF +Redraw, Ran_Moving ;#00FFFF
+    Else
+    {
+        If Mod(cnt, 2)
+            press_key("Shift", 30, 30)
+        cnt := 0
+        GuiControl, Ran: +c00FF00 +Redraw, Ran_Moving ;#00FF00
+    }
 Return
 ;==================================================================================
 UpdateGui() ;精度0.5s
 {
-    global DPI_Initial, CF_Title, Random_Move, cnt
+    global DPI_Initial, CF_Title, Random_Move
+    CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
     If !WinExist("ahk_class CrossFire")
@@ -148,7 +151,12 @@ UpdateGui() ;精度0.5s
         {
             Random, ran_move, -3, 3
             Random, ran_act, -3, 3
-            mouseXY(ran_move * 100, ran_act * 20)
+            If !GetKeyState("vk86")
+            {
+                MouseMove, Xl + Wl // 2, Yl + Hl // 2
+                mouseXY(ran_move * 100, ran_act * 10)
+            }
+
             Switch ran_move
             {
                 Case -3: press_key("w", 150, 30)

@@ -12,11 +12,11 @@ color 0%hexcolors%
 net session >nul 2>&1
 IF %errorLevel% == 0 (
     echo         管理员你好
-    PING -n 2 127.0.0.1>nul
+    PING -n 32 127.0.0.1>nul
     GOTO Start
 ) ELSE (
     echo         未以管理员身份运行,无法启动编译版
-    PING -n 2 127.0.0.1>nul
+    PING -n 3 127.0.0.1>nul
     GOTO Start
 )
 
@@ -43,12 +43,14 @@ echo         ║ [4]Run Bhop only       运行普通身法
 echo         ║ [5]Run Clicker only    运行连点助手  
 echo         ║ [6]Run Recoilless only 运行基础压枪  
 echo         ║ [7]Run NetBlocker only 运行一键限网
-echo         ║ [8]Exit Starter now    退出启动助手
+echo         ║ [8]Run Challenger only 运行无尽挂机
+echo         ║ [9]Exit Starter now    退出启动助手
 echo         ╚════════════════════════════════════╝
-choice /C 12345678 /M ">        请选择/Choose a menu option:    "
+choice /C 123456789 /M ">        请选择/Choose a menu option:    "
 
 :: Note - list ERRORLEVELS in decreasing order
-IF ERRORLEVEL 8 GOTO Run_End
+IF ERRORLEVEL 9 GOTO Run_End
+IF ERRORLEVEL 8 GOTO Run_CLG
 IF ERRORLEVEL 7 GOTO Run_NBK
 IF ERRORLEVEL 6 GOTO Run_RCL
 IF ERRORLEVEL 5 GOTO Run_CLK
@@ -94,6 +96,11 @@ GOTO Option
 
 :Run_NBK
 CALL:Go_NBK
+CALL:Go_CTL
+GOTO Option
+
+:Run_CLG
+CALL:Go_CLG
 CALL:Go_CTL
 GOTO Option
 
@@ -163,6 +170,17 @@ IF exist "Crossfirer_NetBlocker.ahk" (
 )
 GOTO:EOF
 
+:Go_CLG
+IF exist "Crossfirer_Challenger.ahk" (
+    start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Challenger.ahk"
+) ELSE IF exist 无尽挂机.exe (
+    Start "" "无尽挂机.exe"
+) ELSE (
+    echo         无尽挂机不存在!!!
+    PowerShell "[console]::beep(4000,500)"
+)
+GOTO:EOF
+
 :Go_CTL
 IF exist "Crossfirer_Controller.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Controller.ahk"
@@ -170,7 +188,7 @@ IF exist "Crossfirer_Controller.ahk" (
     Start "" "助手控制.exe"
 ) ELSE (
     echo         助手控制不存在!!!
-    PowerShell "[console]::beep(4000,500)"
+    PowerShell "[console]::beep(4500,500)"
 )
 GOTO:EOF
 

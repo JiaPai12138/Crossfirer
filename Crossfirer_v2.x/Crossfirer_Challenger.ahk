@@ -8,6 +8,7 @@ global cstage := 0
 global IndiMulti := "单人"
 global 挂机 := False
 global 准备 := False
+global 找人 := False
 global Xj := 0, Yj := 0, Wj := 1600, Hj := 900
 
 If WinExist("ahk_class CrossFire")
@@ -17,7 +18,7 @@ If WinExist("ahk_class CrossFire")
     Gui, challen_mode: Margin, 0, 0
     Gui, challen_mode: Color, 333333 ;#333333
     Gui, challen_mode: Font, S10 Q5, Microsoft YaHei
-    Gui, challen_mode: Add, Text, hwndGui_10 vModeChallen c00FF00, 无尽挂机 ;#00FF00
+    Gui, challen_mode: Add, Text, hwndGui_10 vModeChallen c00FF00, 单人无尽挂机 ;#00FF00
     GuiControlGet, P10, Pos, %Gui_10%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
@@ -49,22 +50,27 @@ Return
 
 ~*F2::
     IndiMulti := "多人"
+    UpdateText("challen_mode", "ModeChallen", "多人无尽挂机", XGui10, YGui10)
     挂机 := True
-    准备 := False
+    找人 := False
 Return
 
 ~*F3::
     IndiMulti := "单人"
+    UpdateText("challen_mode", "ModeChallen", "单人无尽挂机", XGui10, YGui10)
     挂机 := True
-    准备 := False
+    找人 := False
 Return
 
 ~*F8::
+    Send, {Blind}{vk86 Down}
     GuiControl, challen_mode: +c00FFFF +Redraw, ModeChallen ;#00FFFF
     While, WinActive("ahk_class CrossFire") && 挂机
     {
         If !准备
             无尽准备()
+        Else If !找人
+            单挑合作()
         Else
         {
             无尽挑战挂机()
@@ -73,6 +79,7 @@ Return
         HyperSleep(1000)
     }
     GuiControl, challen_mode: +c00FF00 +Redraw, ModeChallen ;#00FF00
+    Send, {Blind}{vk86 Up}
 Return
 
 ~*Esc::
@@ -85,9 +92,16 @@ Exit ;退出当前线程
 {
     If GetKeyState("vk87")
     {
-        CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
-        HyperSleep(100)
-        MouseClick, Left, Xj + Round(Wj * 0.94), Yj + Round(Hj * 0.823)
+        称号升级 := True
+        Loop
+        {
+            ClickWait(0.589, 0.913) ;确认称号
+            PixelSearch, 称号升级X, 称号升级Y, Xj + Wj // 2 - Round(Wj / 8), Yj + Hj // 2 - Round(Hj / 20), Xj + Wj // 2 + Round(Wj / 8), Yj + Hj // 2 + Round(Hj / 20), 0xFF972F, 0, Fast ;#2F97FF #FF972F
+            If ErrorLevel
+                称号升级 := False
+        } Until, JumpLoop() || !称号升级
+        
+        ClickWait(0.94, 0.823) ;点击开始游戏
         游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0
         Loop
         {
@@ -96,15 +110,15 @@ Exit ;退出当前线程
             PixelSearch, 进入游戏x, 进入游戏y, Xj + Round(Wj * 0.8125), Yj + Hj // 2, Xj + Round(Wj * 0.9), Yj + Round(Hj * 2 / 3), 0xF2EEF2, 0, Fast ;#F2EEF2
             If !ErrorLevel
                 游戏即将开始 := True
-        } Until (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
+        } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
 
         Game_Start := A_TickCount
         Time_Use := 0
-        确认成绩x := 0, 确认成绩y := 0, 确认死亡x := 0, 确认死亡y := 0
         Char_Dead := False
 
         Loop
         {
+            确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 确认死亡x := 0, 确认死亡y := 0
             CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
             PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj / 3), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Hj // 2, 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
             If !ErrorLevel
@@ -130,7 +144,9 @@ Exit ;退出当前线程
             Time_Use := A_TickCount - Game_Start ;确认所用时间
 
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.72), Yj + Round(Hj * 0.87), Xj + Round(Wj * 0.835), Yj + Round(Hj * 0.925), 0x553503, 0, Fast ;#303555 #553505 确认按钮
-        } Until (确认成绩x > 0 && 确认成绩y > 0) || Time_Use > 1320000 || JumpLoop() || GetKeyState("vk87") ;每局最多22分钟
+            If !ErrorLevel
+                PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.72), Yj + Round(Hj * 0.87), Xj + Round(Wj * 0.835), Yj + Round(Hj * 0.925), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0, 确认成绩b > 0) || Time_Use > 1320000 || JumpLoop() || GetKeyState("vk87") ;每局最多22分钟
         ToolTip, 本局完毕, , , 19
     }
 }
@@ -138,68 +154,59 @@ Exit ;退出当前线程
 ;初始化挑战环境
 无尽准备()
 {
-    global 准备, IndiMulti
+    global 准备
     地图选择x := 0, 地图选择y := 0, 暗黑营地x := 0, 暗黑营地y := 0
     If GetKeyState("vk87")
     {
-        CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
         ToolTip, 选择模式, , , 19
-        HyperSleep(200)
-        MouseClick, Left, Xj + Round(Wj * 0.2), Yj + Round(Hj * 0.03)
-        HyperSleep(200)
-        MouseClick, Left, Xj + Round(Wj * 0.09), Yj + Round(Hj * 0.117)
-        HyperSleep(200)
-        MouseClick, Left, Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.805)
-        Loop
+        Loop ;确认是否进入模式/地图选择界面
         {
-            HyperSleep(100)
-            CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
+            ClickWait(0.2, 0.03) ;进行游戏
+            ClickWait(0.09, 0.117) ;新版大厅
+            ClickWait(0.8125, 0.805) ;选择模式
             PixelSearch, 地图选择x, 地图选择y, Xj + Wj // 2 - Round(Wj / 16), Yj, Xj + Wj // 2 + Round(Wj / 16), Yj + Round(Hj / 9), 0x4CCDFF, 0, Fast ;#FFCD4C #4CCDFF
-        } Until (地图选择x > 0 && 地图选择y > 0) || JumpLoop()
+        } Until, (地图选择x > 0 && 地图选择y > 0) || JumpLoop()
 
-        Loop
+        Loop ;确认是否选择了暗黑营地地图
         {
             ToolTip, 确认暗黑营地, , , 19
-            HyperSleep(100)
-            CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
-            MouseClick, Left, Xj + Round(Wj * 0.4125), Yj + Round(Hj * 0.141)
-            HyperSleep(500)
-            MouseClick, Left, Xj + Round(Wj * 0.1), Yj + Round(Hj * 0.25)
-            HyperSleep(500)
+            ClickWait(0.4125, 0.141) ;挑战模式
+            ClickWait(0.1, 0.25) ;无尽挑战
             PixelSearch, 暗黑营地x, 暗黑营地y, Xj + Round(Wj * 0.53), Yj + Round(Hj * 0.36), Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.76), 0x638B62, 0, Fast ;#628B63 #638B62
-            HyperSleep(100)
-            MouseClick, Left, Xj + Round(Wj * 0.6), Yj + Round(Hj / 1.8) ;目前第三栏暗黑营地位置
-        } Until (暗黑营地x > 0 && 暗黑营地y > 0) || JumpLoop()
+            ClickWait(0.6, 0.556) ;目前第三栏暗黑营地位置
+        } Until, (暗黑营地x > 0 && 暗黑营地y > 0) || JumpLoop()
         
         Loop
         {
-            HyperSleep(100)
-            CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
-            MouseClick, Left, Xj + Round(Wj / 1.185), Yj + Round(Hj * 0.95)
-        } Until GetKeyState("vk87") || JumpLoop()
-        ToolTip, 选择等级, , , 19
-        HyperSleep(100)
-        MouseClick, Left, Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.85)
-        HyperSleep(100)
-        MouseMove, Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.75)
-        Loop, 4
-        {
-            press_key("WheelDown", 50, 50) ;选比最高通过等级小的等级
-        }
-        MouseClick, Left, Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.655)
-        HyperSleep(200)
-        ToolTip, 选择单/多人, , , 19
-        MouseClick, Left, Xj + Round(Wj * 0.975), Yj + Round(Hj / 1.125) ;选择多人/单人
-        HyperSleep(200)
+            ClickWait(0.844, 0.95) ;点击确认
+        } Until, GetKeyState("vk87") || JumpLoop()
 
-        If InStr(IndiMulti, "单人")
-            MouseClick, Left, Xj + Round(Wj * 0.856), Yj + Round(Hj * 0.946)
-        Else If InStr(IndiMulti, "多人")
-            MouseClick, Left, Xj + Round(Wj * 0.856), Yj + Round(Hj * 0.975)
-        HyperSleep(200)
+        ;ToolTip, 选择等级, , , 19
+        ;ClickWait(0.8125, 0.85)
+        ;MouseMove, Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.75)
+        ;Loop, 4
+        ;{
+        ;    HyperSleep(100)
+        ;    press_key("WheelDown", 50, 50) ;选比最高通过等级小的等级
+        ;}
+        ;ClickWait(0.8125, 0.655)
+
         准备 := True
         ToolTip, 准备完毕, , , 19
     }
+}
+;==================================================================================
+;单双人模式切换
+单挑合作()
+{
+    global IndiMulti, 找人
+    ToolTip, 选择单/多人, , , 19
+    ClickWait(0.975, 0.889) ;选择多人/单人
+    If InStr(IndiMulti, "单人")
+        ClickWait(0.856, 0.946)
+    Else If InStr(IndiMulti, "多人")
+        ClickWait(0.856, 0.975)
+    找人 := True
 }
 ;==================================================================================
 ;确认分数返回主界面
@@ -208,9 +215,8 @@ Exit ;退出当前线程
     ToolTip, 点击确认成绩, , , 19
     Loop
     {
-        MouseClick, Left, Xj + Round(Wj * 0.775), Yj + Round(Hj * 0.9) ;点击确认键
-        HyperSleep(500)
-    } Until GetKeyState("vk87") || JumpLoop()
+        ClickWait(0.775, 0.9) ;点击确认键
+    } Until, GetKeyState("vk87") || JumpLoop()
     ToolTip, , , , 19
 }
 ;==================================================================================
@@ -220,5 +226,13 @@ JumpLoop()
     If !WinActive("ahk_class CrossFire") || GetKeyState("Esc", "P")
         Return True
     Return False
+}
+;==================================================================================
+;鼠标点击指定位置并等待
+ClickWait(a, b)
+{
+    CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
+    MouseClick, Left, Xj + Round(Wj * a), Yj + Round(Hj * b)
+    HyperSleep(500)
 }
 ;==================================================================================

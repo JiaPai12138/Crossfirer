@@ -291,6 +291,11 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
         XGui := X1 + W1 // 2 + OffsetX
         YGui := Y1 + H1 // 2 + OffsetY
     }
+    Else If InStr("L", GuiPosition) ;左下角显示
+    {
+        XGui := X1 + OffsetX
+        YGui := Y1 + H1 + OffsetY
+    }
     Else ;从左上角为基准显示
     {
         XGui := X1 + OffsetX
