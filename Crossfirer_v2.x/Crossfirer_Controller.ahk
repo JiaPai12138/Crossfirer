@@ -203,7 +203,6 @@ CloseOthers1()
             Title_Blank += 1
         HyperSleep(30) ;just for stability
     } Until Title_Blank > 4
-    ;FileDelete, 助手数据.ini
     ExitApp
 }
 ;==================================================================================
@@ -231,6 +230,7 @@ CloseOthers2()
         Time_Used := A_TickCount - Time_Count
     } Until process_count <= 1 || Time_Used > 5000
     ;FileDelete, 助手数据.ini
+    ;Runwait, %comspec% /c del /f /s /q 助手数据.ini, , Hide
     ExitApp
 }
 ;==================================================================================
