@@ -26,7 +26,6 @@ If WinExist("ahk_class CrossFire")
     Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
     OnMessage(0x1001, "ReceiveMessage")
     CLG_Service_On := True
-    CoordMode, Mouse, Screen
     Return
 }
 ;==================================================================================
@@ -102,7 +101,8 @@ Exit ;退出当前线程
         } Until, JumpLoop() || !称号升级
         
         ClickWait(0.94, 0.823) ;点击开始游戏
-        游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0
+        游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0, Char_Dead := False
+
         Loop
         {
             ToolTip, 等待进入游戏, , , 19
@@ -112,13 +112,13 @@ Exit ;退出当前线程
                 游戏即将开始 := True
         } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
 
-        Game_Start := A_TickCount
-        Time_Use := 0
-        Char_Dead := False
-
+        Game_Start := 0, Game_Timenow := 0, Time_Frequency := 0, Time_Used_ms := 0
+        DllCall("QueryPerformanceCounter", "Int64*", Game_Start) ;计时开始
+        
+        确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
         Loop
         {
-            确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 确认死亡x := 0, 确认死亡y := 0
+            确认死亡x := 0, 确认死亡y := 0
             CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
             PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj / 3), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Hj // 2, 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
             If !ErrorLevel
@@ -131,9 +131,11 @@ Exit ;退出当前线程
 
             If !Char_Dead
             {
+                Random, RanTurn, -3, 3
+                mouseXY(RanTurn * 50, RanTurn * 5)
                 MouseMove, Xj + Wj // 2, Yj + Hj // 2
                 MouseMove, Xj + Wj // 2, Yj + Round(Hj * 0.75) ;枪口朝下
-                Loop, 50
+                Loop, 20
                 {
                     Random, RanClick, 8, 12
                     press_key("RButton", RanClick, 60 - RanClick)
@@ -141,13 +143,28 @@ Exit ;退出当前线程
                 }
             }
 
-            Time_Use := A_TickCount - Game_Start ;确认所用时间
+            ;确认所用时间并显示
+            DllCall("QueryPerformanceCounter", "Int64*", Game_Timenow)
+            DllCall("QueryPerformanceFrequency", "Int64*", Time_Frequency)
+            Time_Used_ms := (Game_Timenow - Game_Start) * 1000 / Time_Frequency
+            Time_Minute := Floor(Time_Used_ms / 60000)
+            ToolTip, 目前用时约: %Time_Minute% 分钟, Xj, Yj, 18
 
-            PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.72), Yj + Round(Hj * 0.87), Xj + Round(Wj * 0.835), Yj + Round(Hj * 0.925), 0x553503, 0, Fast ;#303555 #553505 确认按钮
+            PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
             If !ErrorLevel
-                PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.72), Yj + Round(Hj * 0.87), Xj + Round(Wj * 0.835), Yj + Round(Hj * 0.925), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0, 确认成绩b > 0) || Time_Use > 1320000 || JumpLoop() || GetKeyState("vk87") ;每局最多22分钟
+            {
+                Loop
+                {
+                    ClickWait(0.5, 0.765)
+                Until GetKeyState("vk87")
+            }
+
+            PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
+            If !ErrorLevel
+                PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0, 确认成绩b > 0) || Time_Minute > 23 || JumpLoop() || GetKeyState("vk87") ;每局最多23分钟(有余量),实际包括总时间21分30秒以及进地图等时间
         ToolTip, 本局完毕, , , 19
+        ToolTip, , , , 18
     }
 }
 ;==================================================================================
@@ -223,7 +240,7 @@ Exit ;退出当前线程
 ;退出循环
 JumpLoop()
 {
-    If !WinActive("ahk_class CrossFire") || GetKeyState("Esc", "P")
+    If !WinExist("ahk_class CrossFire") || GetKeyState("Esc", "P") || !挂机
         Return True
     Return False
 }

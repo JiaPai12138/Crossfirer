@@ -93,7 +93,7 @@ CheckPermission(SectionName := "助手控制")
 
     FileRead, Output_Data, 助手数据.ini
     If ErrorLevel
-        FileAppend, , 助手数据.ini, UTF-16 ;创建一个新ini文件
+        FileAppend, ########助手进程ID########, 助手数据.ini, UTF-16 ;创建一个新ini文件
 
     If Not (CheckAdmin(SectionName) || CheckUIA(SectionName))
     {
@@ -195,9 +195,17 @@ CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, class_name)
         Mon_Width := NumGet(Screen_Info, 108, "int")
         Mon_Hight := NumGet(Screen_Info, 112, "int")
         If (Wcp >= Mon_Width) || (Hcp >= Mon_Hight) ;全屏检测,未知是否适应UHD不放大
+        {
             CoordMode, Pixel, Client ;坐标相对活动窗口的客户端
+            CoordMode, Mouse, Client
+            CoordMode, ToolTip, Client
+        }
         Else
+        {
             CoordMode, Pixel, Screen ;坐标相对全屏幕
+            CoordMode, Mouse, Screen
+            CoordMode, ToolTip, Screen
+        }
     }
 }
 ;==================================================================================
