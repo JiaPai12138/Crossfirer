@@ -156,7 +156,7 @@ Exit ;退出当前线程
                 Loop
                 {
                     ClickWait(0.5, 0.765)
-                Until GetKeyState("vk87")
+                } Until, GetKeyState("vk87")
             }
 
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
