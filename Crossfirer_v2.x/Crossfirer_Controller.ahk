@@ -145,16 +145,17 @@ UpdateGui() ;精度0.5s
     {
         Send, {Blind}{vk87 Up} ;F24 key
         Random, move_it, 1, 9
+        Random, do_range, 3, 6 ;随机命中几率
         If Random_Move && move_it = 3
             press_key("1", 30, 30)
-        If Random_Move && WinActive("ahk_class CrossFire") && move_it > 6
+        If Random_Move && WinActive("ahk_class CrossFire") && move_it > do_range
         {
-            Random, ran_move, -3, 3
-            Random, ran_act, -3, 3
-            If !GetKeyState("vk86")
+            Random, ran_move, -3, 3 ;随机鼠标左右和自身移动
+            Random, ran_act, -3, 3 ;随机鼠标上下
+            If !GetKeyState("vk86") ;当不在无尽挂机中
             {
                 MouseMove, Xl + Wl // 2, Yl + Hl // 2
-                mouseXY(ran_move * 100, ran_act * 10)
+                mouseXY(ran_move * 50, ran_act * 5)
             }
 
             Switch ran_move
