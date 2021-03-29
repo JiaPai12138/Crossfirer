@@ -112,8 +112,7 @@ Exit ;退出当前线程
                 游戏即将开始 := True
         } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
 
-        Game_Start := 0, Game_Timenow := 0, Time_Frequency := 0, Time_Used_ms := 0
-        DllCall("QueryPerformanceCounter", "Int64*", Game_Start) ;计时开始
+        Game_Start := A_Min
         
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
         Loop
@@ -144,10 +143,7 @@ Exit ;退出当前线程
             }
 
             ;确认所用时间并显示
-            DllCall("QueryPerformanceCounter", "Int64*", Game_Timenow)
-            DllCall("QueryPerformanceFrequency", "Int64*", Time_Frequency)
-            Time_Used_ms := (Game_Timenow - Game_Start) * 1000 / Time_Frequency
-            Time_Minute := Floor(Time_Used_ms / 60000)
+            Time_Minute := (A_Min - Game_Start) >= 0 ? (A_Min - Game_Start) : (A_Min + 60 - Game_Start)
             ToolTip, 目前用时约: %Time_Minute% 分钟, Xj, Yj, 18
 
             PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
@@ -156,13 +152,14 @@ Exit ;退出当前线程
                 Loop
                 {
                     ClickWait(0.5, 0.765)
-                } Until, GetKeyState("vk87")
+                    PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
+                } Until, GetKeyState("vk87") || JumpLoop() || ErrorLevel
             }
 
-            PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
+            PixelSearch, 确认成绩x, 确认1成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
             If !ErrorLevel
                 PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0, 确认成绩b > 0) || Time_Minute > 23 || JumpLoop() || GetKeyState("vk87") ;每局最多23分钟(有余量),实际包括总时间21分30秒以及进地图等时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0, 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 22 ;每局最多23分钟(有余量),实际包括总时间21分30秒以及进地图等时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
     }
