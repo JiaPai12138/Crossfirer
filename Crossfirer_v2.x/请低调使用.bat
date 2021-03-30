@@ -12,7 +12,7 @@ color 0%hexcolors%
 net session >nul 2>&1
 IF %errorLevel% == 0 (
     echo         管理员你好
-    PING -n 32 127.0.0.1>nul
+    PING -n 3 127.0.0.1>nul
     GOTO Start
 ) ELSE (
     echo         未以管理员身份运行,无法启动编译版
