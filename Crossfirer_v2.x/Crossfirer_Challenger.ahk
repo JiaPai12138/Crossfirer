@@ -107,11 +107,12 @@ Exit ;退出当前线程
         Loop
         {
             ToolTip, 等待进入游戏, , , 19
-            HyperSleep(1000)
+            HyperSleep(100)
             PixelSearch, 进入游戏x, 进入游戏y, Xj + Round(Wj * 0.8125), Yj + Hj // 2, Xj + Round(Wj * 0.9), Yj + Round(Hj * 2 / 3), 0xF2EEF2, 0, Fast ;#F2EEF2
             If !ErrorLevel
                 游戏即将开始 := True
         } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
+        HyperSleep(15000) ;进入地图大约15秒
 
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
