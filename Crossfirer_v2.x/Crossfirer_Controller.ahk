@@ -1,6 +1,6 @@
 ﻿#Include Crossfirer_Functions.ahk
 Preset("控")
-OnExit("CloseOthers", -1)
+;OnExit("CloseOthers", -1)
 ;==================================================================================
 global CTL_Service_On := False
 CheckPermission()
@@ -9,6 +9,10 @@ Need_Help := False
 CF_Title :=
 Random_Move := False
 global cnt := 0
+global Game_Start_Hour := 0 ;客户端启动就计时
+global Game_Begin_Min := 0
+global Allowed_Hour := 4 ;默认单次游戏最多四小时
+global Hour_Played := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -55,11 +59,10 @@ If WinExist("ahk_class CrossFire")
     WinMinimize, ahk_class ConsoleWindowClass
     SetTimer, UpdateGui, 500
     DPI_Initial := A_ScreenDPI
-    CTL_Service_On := True
 
-    global Game_Start_Hour := A_Hour ;客户端启动就计时
-    global Allowed_Hour := 4 ;默认单次游戏最多四小时
-    global Time_Played := 0
+    Game_Start_Hour := A_Hour
+    Game_Begin_Min := A_Min
+    CTL_Service_On := True
 } 
 ;==================================================================================
 ~*-::
@@ -126,9 +129,8 @@ UpdateGui() ;精度0.5s
     global DPI_Initial, CF_Title, Random_Move
     CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
 
-    Time_Played := A_Hour
-    Time_Played := (A_Hour - Game_Start_Hour) >= 0 ? (A_Hour - Game_Start_Hour) : (A_Hour + 24 - Game_Start_Hour)
-    If Time_Played >= Allowed_Hour
+    Hour_Played := (A_Hour - Game_Start_Hour) >= 0 ? (A_Hour - Game_Start_Hour) : (A_Hour + 24 - Game_Start_Hour)
+    If Hour_Played >= Allowed_Hour && A_min = Game_Begin_Min
         WinClose, ahk_class CrossFire
 
     If !InStr(A_ScreenDPI, DPI_Initial)

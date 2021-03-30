@@ -136,7 +136,7 @@ Exit ;退出当前线程
                 mouseXY(RanTurn * 50, RanTurn * 5)
                 MouseMove, Xj + Wj // 2, Yj + Hj // 2
                 MouseMove, Xj + Wj // 2, Yj + Round(Hj * 0.75) ;枪口朝下
-                Loop, 20
+                Loop, 15
                 {
                     Random, RanClick, 8, 12
                     press_key("RButton", RanClick, 60 - RanClick)
@@ -147,6 +147,10 @@ Exit ;退出当前线程
             ;确认所用时间并显示
             Time_Minute := (A_Min - Game_Start_Min) >= 0 ? (A_Min - Game_Start_Min) : (A_Min + 60 - Game_Start_Min)
             Time_Sec := (A_Sec - Game_Start_Sec) >= 0 ? (A_Sec - Game_Start_Sec) : (A_Sec + 60 - Game_Start_Sec)
+            If (A_Sec - Game_Start_Sec) < 0
+            {
+                Time_Minute -= 1
+            }
             ToolTip, 目前用时约: %Time_Minute% 分 %Time_Sec% 秒, Xj, Yj, 18
 
             PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
