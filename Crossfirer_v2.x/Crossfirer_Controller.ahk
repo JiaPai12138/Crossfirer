@@ -130,7 +130,11 @@ UpdateGui() ;精度0.5s
     CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
 
     Hour_Played := (A_Hour - Game_Start_Hour) >= 0 ? (A_Hour - Game_Start_Hour) : (A_Hour + 24 - Game_Start_Hour)
-    If Hour_Played >= Allowed_Hour && A_min = Game_Begin_Min
+    If (A_Min - Game_Begin_Min) < 0
+    {
+        Hour_Played -= 1
+    }
+    If Hour_Played >= Allowed_Hour
         WinClose, ahk_class CrossFire
 
     If !InStr(A_ScreenDPI, DPI_Initial)
