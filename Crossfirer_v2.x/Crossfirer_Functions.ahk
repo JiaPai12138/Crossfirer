@@ -85,9 +85,15 @@ Preset(Script_Icon)
 ;检查脚本执行权限,只有以管理员权限或以UI Access运行才能正常工作
 CheckPermission(SectionName := "助手控制")
 {
-    If A_OSVersion in WIN_NT4, WIN_95, WIN_98, WIN_ME, WIN_2000, WIN_2003, WIN_XP, WIN_VISTA ;检测操作系统
+    If A_OSVersion in WIN_NT4, WIN_95, WIN_98, WIN_ME, WIN_2000, WIN_2003, WIN_XP, WIN_VISTA ;检测操作系统版本
     {
         MsgBox, 262160, 错误/Error, 此辅助需要Win 7及以上操作系统!!!`nThis program requires Windows 7 or later!!!
+        ExitApp
+    }
+
+    If !A_Is64bitOS ;检测操作系统是否为64位
+    {
+        MsgBox, 262160, 错误/Error, 此辅助需要64位操作系统!!!`nThis program requires 64-bit OS!!!
         ExitApp
     }
 

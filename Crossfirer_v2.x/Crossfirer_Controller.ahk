@@ -1,5 +1,6 @@
 ﻿#Include Crossfirer_Functions.ahk
 Preset("控")
+OnExit("CloseOthers", -1)
 ;==================================================================================
 global CTL_Service_On := False
 CheckPermission()
@@ -55,6 +56,10 @@ If WinExist("ahk_class CrossFire")
     SetTimer, UpdateGui, 500
     DPI_Initial := A_ScreenDPI
     CTL_Service_On := True
+
+    global Game_Start_Hour := A_Hour ;客户端启动就计时
+    global Allowed_Hour := 4 ;默认单次游戏最多四小时
+    global Time_Played := 0
 } 
 ;==================================================================================
 ~*-::
@@ -120,6 +125,12 @@ UpdateGui() ;精度0.5s
 {
     global DPI_Initial, CF_Title, Random_Move
     CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
+
+    Time_Played := A_Hour
+    Time_Played := (A_Hour - Game_Start_Hour) >= 0 ? (A_Hour - Game_Start_Hour) : (A_Hour + 24 - Game_Start_Hour)
+    If Time_Played >= Allowed_Hour
+        WinClose, ahk_class CrossFire
+
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
     If !WinExist("ahk_class CrossFire")
@@ -138,8 +149,8 @@ UpdateGui() ;精度0.5s
             Else
                 Run, *RunAs .\关闭TX残留进程.bat, , Hide
         }
-        CloseOthers2()
-        CloseOthers1() ;确保关闭
+        CloseOthers()
+        ExitApp
     }
     Else If !Not_In_Game(CF_Title)
     {
@@ -191,24 +202,8 @@ ShowHelp(ByRef Need_Help, XGui1, YGui1, Gui_Number1, XGui2, YGui2, Gui_Number2, 
     }
 }
 ;==================================================================================
-;控制关闭其他脚本方式1
-CloseOthers1()
-{
-    Title_Blank := 0
-    Loop ;, 10
-    {
-        PostMessage("Listening", 125638)
-        WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
-        ;MsgBox, , , %Gui_Title%
-        If StrLen(Gui_Title) < 4
-            Title_Blank += 1
-        HyperSleep(30) ;just for stability
-    } Until Title_Blank > 4
-    ExitApp
-}
-;==================================================================================
-;控制关闭其他脚本方式2
-CloseOthers2()
+;控制关闭其他脚本方式
+CloseOthers()
 {
     DetectHiddenWindows, On
     IniRead, PID1, 助手数据.ini, 一键限网, PID
@@ -230,7 +225,17 @@ CloseOthers2()
         WinGet, process_count, Count, ahk_class AutoHotkey
         Time_Used := A_TickCount - Time_Count
     } Until process_count <= 1 || Time_Used > 5000
-    Runwait, %comspec% /c del /f /s /q 助手数据.ini, , Hide
-    ExitApp
+    FileDelete, 助手数据.ini ;删除脚本进程数据
+
+    Title_Blank := 0
+    Loop ;, 10
+    {
+        PostMessage("Listening", 125638)
+        WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
+        ;MsgBox, , , %Gui_Title%
+        If StrLen(Gui_Title) < 4
+            Title_Blank += 1
+        HyperSleep(30) ;just for stability
+    } Until Title_Blank > 4
 }
 ;==================================================================================
