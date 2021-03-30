@@ -230,8 +230,7 @@ CloseOthers2()
         WinGet, process_count, Count, ahk_class AutoHotkey
         Time_Used := A_TickCount - Time_Count
     } Until process_count <= 1 || Time_Used > 5000
-    ;FileDelete, 助手数据.ini
-    ;Runwait, %comspec% /c del /f /s /q 助手数据.ini, , Hide
+    Runwait, %comspec% /c del /f /s /q 助手数据.ini, , Hide
     ExitApp
 }
 ;==================================================================================
