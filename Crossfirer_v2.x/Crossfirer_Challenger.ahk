@@ -18,7 +18,7 @@ If WinExist("ahk_class CrossFire")
     Gui, challen_mode: Margin, 0, 0
     Gui, challen_mode: Color, 333333 ;#333333
     Gui, challen_mode: Font, S10 Q5, Microsoft YaHei
-    Gui, challen_mode: Add, Text, hwndGui_10 vModeChallen c00FF00, 单人无尽挂机 ;#00FF00
+    Gui, challen_mode: Add, Text, hwndGui_10 vModeChallen c00FF00, 无尽挂机准备 ;#00FF00
     GuiControlGet, P10, Pos, %Gui_10%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
@@ -48,15 +48,15 @@ Return
 Return
 
 ~*F2::
-    IndiMulti := "多人"
-    UpdateText("challen_mode", "ModeChallen", "多人无尽挂机", XGui10, YGui10)
+    IndiMulti := "匹配"
+    UpdateText("challen_mode", "ModeChallen", "匹配无尽挂机", XGui10, YGui10)
     挂机 := True
     找人 := False
 Return
 
 ~*F3::
-    IndiMulti := "单人"
-    UpdateText("challen_mode", "ModeChallen", "单人无尽挂机", XGui10, YGui10)
+    IndiMulti := "组队"
+    UpdateText("challen_mode", "ModeChallen", "组队无尽挂机", XGui10, YGui10)
     挂机 := True
     找人 := False
 Return
@@ -84,6 +84,7 @@ Return
 ~*Esc::
     挂机 := False
     准备 := False
+    UpdateText("challen_mode", "ModeChallen", "无尽挂机准备", XGui10, YGui10)
 Exit ;退出当前线程
 ;==================================================================================
 ;执行无尽挑战挂机,需要目前背包选择的武器或者背包1位主武器为神圣爆裂者
@@ -215,11 +216,11 @@ Exit ;退出当前线程
 单挑合作()
 {
     global IndiMulti, 找人
-    ToolTip, 选择单/多人, , , 19
+    ToolTip, 选择组队/匹配, , , 19
     ClickWait(0.975, 0.889) ;选择多人/单人
-    If InStr(IndiMulti, "单人")
+    If InStr(IndiMulti, "组队")
         ClickWait(0.856, 0.946)
-    Else If InStr(IndiMulti, "多人")
+    Else If InStr(IndiMulti, "匹配")
         ClickWait(0.856, 0.975)
     找人 := True
 }
