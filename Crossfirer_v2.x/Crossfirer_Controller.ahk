@@ -60,7 +60,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
     SetGuiPosition(XGui11, YGui11, "L", 0, -P11H)
-    SetGuiPosition(XGui12, YGui12, "_", 0, -P12H)
+    SetGuiPosition(XGui12, YGui12, "_", -P12W // 2, -P12H)
     Gui, Hint: Show, x%XGui10% y%YGui10% NA
     Gui, Ran: Show, x%XGui11% y%YGui11% NA
     Gui, Helper: Show, Hide
@@ -115,7 +115,7 @@ Return
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
     SetGuiPosition(XGui11, YGui11, "L", 0, -P11H)
-    SetGuiPosition(XGui12, YGui12, "_", 0, -P12H)
+    SetGuiPosition(XGui12, YGui12, "_", -P12W // 2, -P12H)
     Gui, Ran: Show, x%XGui11% y%YGui11% NA
     ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
     Gui, T_Hour: Show, x%XGui12% y%YGui12% NA
