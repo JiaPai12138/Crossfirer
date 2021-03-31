@@ -152,7 +152,9 @@ Exit ;退出当前线程
             {
                 Time_Minute -= 1
             }
-            ToolTip, 目前用时约: %Time_Minute% 分 %Time_Sec% 秒, Xj, Yj, 18
+            Time_Minute := SubStr("00" . Time_Minute, -1) ;格式
+            Time_Sec := SubStr("00" . Time_Sec, -1) ;格式
+            ToolTip, 目前用时约: %Time_Minute%分%Time_Sec%秒, Xj, Yj, 18
 
             PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
             If !ErrorLevel

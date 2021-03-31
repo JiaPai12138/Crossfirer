@@ -9,11 +9,11 @@ Need_Help := False
 CF_Title :=
 Random_Move := False
 global cnt := 0
-global Game_Start_Hour := 0 ;客户端启动就计时
-global Game_Begin_Min := 0
+global Game_Begin_Hour := 0, Game_Begin_Min := 0, Game_Begin_Sec := 0 ;客户端启动就计时
 global Allowed_Hour := 4 ;默认单次游戏最多四小时
-global Hour_Played := 0
-global Hour_Left := Allowed_Hour - Hour_Played
+global Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
+global Hour_Left := (Ex_End_Hour - Game_Begin_Hour) >= 0 ? (Ex_End_Hour - Game_Begin_Hour) : (Ex_End_Hour + 24 - Game_Begin_Hour)
+global Minute_Left := 00, Second_Left := 00
 
 If WinExist("ahk_class CrossFire")
 {
@@ -51,7 +51,7 @@ If WinExist("ahk_class CrossFire")
     Gui, T_Hour: Margin, 0, 0
     Gui, T_Hour: Color, 333333 ;#333333
     Gui, T_Hour: Font, s8 Q5, Microsoft YaHei ;#00FF00
-    Gui, T_Hour: add, Text, hwndGui_12 c00FF00 vT_Left, 剩余%Hour_Left%小时
+    Gui, T_Hour: add, Text, hwndGui_12 c00FF00 vT_Left, 剩余%Hour_Left%小时%Minute_Left%分%Second_Left%秒
     GuiControlGet, P12, Pos, %Gui_12%
     global P12H, P12W
     WinSet, TransColor, 333333 255 ;#333333
@@ -73,8 +73,9 @@ If WinExist("ahk_class CrossFire")
     SetTimer, UpdateGui, 500
     DPI_Initial := A_ScreenDPI
 
-    Game_Start_Hour := A_Hour
+    Game_Begin_Hour := A_Hour
     Game_Begin_Min := A_Min
+    Game_Begin_Sec := A_Sec
     CTL_Service_On := True
 } 
 ;==================================================================================
@@ -155,15 +156,23 @@ UpdateGui() ;精度0.5s
     global DPI_Initial, CF_Title, Random_Move, XGui12, YGui12
     CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
 
-    Hour_Played := (A_Hour - Game_Start_Hour) >= 0 ? (A_Hour - Game_Start_Hour) : (A_Hour + 24 - Game_Start_Hour)
-    If (A_Min - Game_Begin_Min) < 0
+    Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
+    Hour_Left := (Ex_End_Hour - Game_Begin_Hour) >= 0 ? (Ex_End_Hour - Game_Begin_Hour) : (Ex_End_Hour + 24 - Game_Begin_Hour) ;剩余小时
+    Minute_Left := (Game_Begin_Min - A_Min) >= 0 ? (Game_Begin_Min - A_Min) : (Game_Begin_Min + 60 - A_Min) ;剩余分钟
+    Second_Left := (Game_Begin_Sec - A_Sec) >= 0 ? (Game_Begin_Sec - A_Sec) : (Game_Begin_Sec + 60 - A_Sec) ;剩余秒钟
+    If (Game_Begin_Sec - A_Sec) < 0
     {
-        Hour_Played -= 1
+        Minute_Left -= 1
+        If Minute_Left < 0
+            Minute_Left := 59
     }
-    Hour_Left := Allowed_Hour - Hour_Played
-    Hour_Text := "剩余" . Hour_Left . "小时"
-    UpdateText("T_Hour", "T_Left", Hour_Text, XGui12, YGui12)
-    If Hour_Left <= 0
+    If (Game_Begin_Min - A_Min) != 0 || (Game_Begin_Sec - A_Sec) != 0
+        Hour_Left -= 1
+    Minute_Left := SubStr("00" . Minute_Left, -1) ;格式
+    Second_Left := SubStr("00" . Second_Left, -1) ;格式
+    Time_Text := "剩余" . Hour_Left . "小时" . Minute_Left . "分" . Second_Left . "秒"
+    UpdateText("T_Hour", "T_Left", Time_Text, XGui12, YGui12)
+    If Hour_Left < 0
         WinClose, ahk_class CrossFire
 
     If !InStr(A_ScreenDPI, DPI_Initial)
