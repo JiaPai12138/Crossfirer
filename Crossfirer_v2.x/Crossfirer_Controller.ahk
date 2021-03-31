@@ -13,6 +13,7 @@ global Game_Start_Hour := 0 ;客户端启动就计时
 global Game_Begin_Min := 0
 global Allowed_Hour := 4 ;默认单次游戏最多四小时
 global Hour_Played := 0
+global Hour_Left := Allowed_Hour - Hour_Played
 
 If WinExist("ahk_class CrossFire")
 {
@@ -46,12 +47,24 @@ If WinExist("ahk_class CrossFire")
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
+    Gui, T_Hour: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, T_Hour: Margin, 0, 0
+    Gui, T_Hour: Color, 333333 ;#333333
+    Gui, T_Hour: Font, s8 Q5, Microsoft YaHei ;#00FF00
+    Gui, T_Hour: add, Text, hwndGui_12 c00FF00 vT_Left, 剩余%Hour_Left%小时
+    GuiControlGet, P12, Pos, %Gui_12%
+    global P12H, P12W
+    WinSet, TransColor, 333333 255 ;#333333
+    WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
+
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
     SetGuiPosition(XGui11, YGui11, "L", 0, -P11H)
+    SetGuiPosition(XGui12, YGui12, "_", 0, -P12H)
     Gui, Hint: Show, x%XGui10% y%YGui10% NA
     Gui, Ran: Show, x%XGui11% y%YGui11% NA
     Gui, Helper: Show, Hide
+    Gui, T_Hour: Show, x%XGui12% y%YGui12% NA
 
     WinGetTitle, CF_Title, ahk_class CrossFire
     global Xl := 0, Yl := 0, Wl := 1600, Hl := 900
@@ -102,8 +115,18 @@ Return
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
     SetGuiPosition(XGui10, YGui10, "V", 0, -P9H // 2)
     SetGuiPosition(XGui11, YGui11, "L", 0, -P11H)
+    SetGuiPosition(XGui12, YGui12, "_", 0, -P12H)
     Gui, Ran: Show, x%XGui11% y%YGui11% NA
     ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
+    Gui, T_Hour: Show, x%XGui12% y%YGui12% NA
+Return
+
+~*Up::
+    Allowed_Hour += 1
+Return
+
+~*Down::
+    Allowed_Hour -= 1
 Return
 
 ~*RCtrl::
@@ -126,7 +149,7 @@ Return
 ;==================================================================================
 UpdateGui() ;精度0.5s
 {
-    global DPI_Initial, CF_Title, Random_Move
+    global DPI_Initial, CF_Title, Random_Move, XGui12, YGui12
     CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
 
     Hour_Played := (A_Hour - Game_Start_Hour) >= 0 ? (A_Hour - Game_Start_Hour) : (A_Hour + 24 - Game_Start_Hour)
@@ -134,6 +157,9 @@ UpdateGui() ;精度0.5s
     {
         Hour_Played -= 1
     }
+    Hour_Left := Allowed_Hour - Hour_Played
+    Hour_Text := "剩余" . Hour_Left . "小时"
+    UpdateText("T_Hour", "T_Left", Hour_Text, XGui12, YGui12)
     If Hour_Played >= Allowed_Hour
         WinClose, ahk_class CrossFire
 
