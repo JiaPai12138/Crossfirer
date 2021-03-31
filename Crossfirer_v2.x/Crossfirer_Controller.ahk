@@ -137,7 +137,10 @@ Return
 ~*/::
     Random_Move := !Random_Move
     If Random_Move
+    {
         GuiControl, Ran: +c00FFFF +Redraw, Ran_Moving ;#00FFFF
+        cnt := 0
+    }
     Else
     {
         If Mod(cnt, 2)
@@ -160,7 +163,7 @@ UpdateGui() ;精度0.5s
     Hour_Left := Allowed_Hour - Hour_Played
     Hour_Text := "剩余" . Hour_Left . "小时"
     UpdateText("T_Hour", "T_Left", Hour_Text, XGui12, YGui12)
-    If Hour_Played >= Allowed_Hour
+    If Hour_Left <= 0
         WinClose, ahk_class CrossFire
 
     If !InStr(A_ScreenDPI, DPI_Initial)
