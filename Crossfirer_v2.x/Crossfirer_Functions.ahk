@@ -273,6 +273,7 @@ GetColorStatus(X, Y, CX1, CX2, color_lib)
 ;拷贝自 https://autohotkey.com/board/topic/53956-fast-mouse-control/ 控制鼠标上下左右相对屏幕移动
 mouseXY(x1, y1)
 {
+    global Mon_Width, Mon_Hight
     ;绝对坐标从0~65535,所以我们要转换到像素坐标
     static SysX, SysY
     If (SysX = "")

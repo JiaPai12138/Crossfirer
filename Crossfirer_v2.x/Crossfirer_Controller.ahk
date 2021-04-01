@@ -137,6 +137,9 @@ Return
 ~*?::
 ~*/::
     Random_Move := !Random_Move
+    If Strlen(Key_Pressed) > 0
+        Send, {Blind}{%Key_Pressed% Up}
+    Key_Pressed := ""
     If Random_Move
         GuiControl, Ran: +c00FFFF +Redraw, Ran_Moving ;#00FFFF
     Else
