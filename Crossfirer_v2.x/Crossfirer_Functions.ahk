@@ -275,9 +275,8 @@ mouseXY(x1, y1)
 {
     global Mon_Width, Mon_Hight
     ;绝对坐标从0~65535,所以我们要转换到像素坐标
-    static SysX, SysY
-    If !SysX && !SysY
-        SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
+    static SysX := 65535 // Mon_Width
+    static SysY := 65535 // Mon_Hight
     DllCall("mouse_event", uint, 0x8001, int, x1 * SysX, int, y1 * SysY, uint, 0, int, 0)
 }
 ;==================================================================================
