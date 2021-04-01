@@ -8,12 +8,12 @@ CheckPermission()
 Need_Help := False
 CF_Title :=
 Random_Move := False
-global cnt := 0
 global Game_Begin_Hour := 0, Game_Begin_Min := 0, Game_Begin_Sec := 0 ;客户端启动就计时
 global Allowed_Hour := 4 ;默认单次游戏最多四小时
 global Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
 global Hour_Left := (Ex_End_Hour - Game_Begin_Hour) >= 0 ? (Ex_End_Hour - Game_Begin_Hour) : (Ex_End_Hour + 24 - Game_Begin_Hour)
 global Minute_Left := 00, Second_Left := 00
+global Key_Pressed := ""
 
 If WinExist("ahk_class CrossFire")
 {
@@ -138,17 +138,9 @@ Return
 ~*/::
     Random_Move := !Random_Move
     If Random_Move
-    {
         GuiControl, Ran: +c00FFFF +Redraw, Ran_Moving ;#00FFFF
-        cnt := 0
-    }
     Else
-    {
-        If Mod(cnt, 2)
-            press_key("Shift", 30, 30)
-        cnt := 0
         GuiControl, Ran: +c00FF00 +Redraw, Ran_Moving ;#00FF00
-    }
 Return
 ;==================================================================================
 UpdateGui() ;精度0.5s
@@ -174,6 +166,9 @@ UpdateGui() ;精度0.5s
     UpdateText("T_Hour", "T_Left", Time_Text, XGui12, YGui12)
     If Hour_Left < 0
         WinClose, ahk_class CrossFire
+
+    If Strlen(Key_Pressed) > 0
+        Send, {Blind}{%Key_Pressed% Up}
 
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
@@ -215,13 +210,33 @@ UpdateGui() ;精度0.5s
 
             Switch ran_move
             {
-                Case -3: press_key("w", 150, 30)
-                Case -2: press_key("s", 150, 30)
-                Case -1: press_key("a", 150, 30)
-                Case 0: press_key("LCtrl", 150, 30)
-                Case 1: press_key("d", 150, 30)
-                Case 2: press_key("Space", 150, 30)
-                Case 3: press_key("Shift", 30, 60), press_key("Shift", 30, 60), cnt += 1
+                Case -3:
+                    Send, {Blind}{w DownTemp}
+                    Key_Pressed := "w"
+
+                Case -2:
+                    Send, {Blind}{a DownTemp}
+                    Key_Pressed := "a"
+
+                Case -1:
+                    Send, {Blind}{Space DownTemp}
+                    Key_Pressed := "Space"
+
+                Case 0:
+                    Send, {Blind}{LCtrl DownTemp}
+                    Key_Pressed := "LCtrl"
+
+                Case 1:
+                    Send, {Blind}{Space DownTemp}
+                    Key_Pressed := "Space"
+
+                Case 2:
+                    Send, {Blind}{d DownTemp}
+                    Key_Pressed := "d"
+
+                Case 3:
+                    Send, {Blind}{s DownTemp}
+                    Key_Pressed := "s"
             }
         }
     }

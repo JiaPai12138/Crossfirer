@@ -10,6 +10,11 @@
 火线重载 := Create_Reload_ico()
 火线退出 := Create_Exit_ico()
 脚本图标 := ""
+;加载真正的屏幕大小,即使在UHD放大情况下
+VarSetCapacity(Screen_Info, 156)
+DllCall("EnumDisplaySettingsA", Ptr, 0, UInt, -1, UInt, &Screen_Info) ;真实分辨率
+global Mon_Width := NumGet(Screen_Info, 108, "int")
+global Mon_Hight := NumGet(Screen_Info, 112, "int")
 ;==================================================================================
 ;预设参数
 Preset(Script_Icon)
@@ -196,10 +201,6 @@ CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, class_name)
 
     If InStr(class_name, "CrossFire")
     {
-        VarSetCapacity(Screen_Info, 156)
-        DllCall("EnumDisplaySettingsA", Ptr, 0, UInt, -1, UInt, &Screen_Info) ;真实分辨率
-        Mon_Width := NumGet(Screen_Info, 108, "int")
-        Mon_Hight := NumGet(Screen_Info, 112, "int")
         If (Wcp >= Mon_Width) || (Hcp >= Mon_Hight) ;全屏检测,未知是否适应UHD不放大
         {
             CoordMode, Pixel, Client ;坐标相对活动窗口的客户端
@@ -269,10 +270,14 @@ GetColorStatus(X, Y, CX1, CX2, color_lib)
     Return InStr(color_lib, color_got)
 }
 ;==================================================================================
-;控制鼠标移动,上下左右
+;拷贝自 https://autohotkey.com/board/topic/53956-fast-mouse-control/ 控制鼠标上下左右相对屏幕移动
 mouseXY(x1, y1)
 {
-    DllCall("mouse_event", uint, 1, int, x1, int, y1, uint, 0, int, 0)
+    ;绝对坐标从0~65535,所以我们要转换到像素坐标
+    static SysX, SysY
+    If (SysX = "")
+        SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
+    DllCall("mouse_event", uint, 0x8001, int, x1 * SysX, int, y1 * SysY, uint, 0, int, 0)
 }
 ;==================================================================================
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
