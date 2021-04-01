@@ -270,14 +270,37 @@ GetColorStatus(X, Y, CX1, CX2, color_lib)
     Return InStr(color_lib, color_got)
 }
 ;==================================================================================
-;拷贝自 https://autohotkey.com/board/topic/53956-fast-mouse-control/ 控制鼠标上下左右相对屏幕移动
+;控制鼠标上下左右相对移动
 mouseXY(x1, y1)
+{
+    DllCall("mouse_event", uint, 0x0001, int, x1, int, y1, uint, 0, int, 0)
+}
+;==================================================================================
+;拷贝自 https://autohotkey.com/board/topic/53956-fast-mouse-control/ 控制鼠标上下左右绝对屏幕移动,相当于CoordMode,Mouse,Screen下的MouseMove
+ABSmouseXY(x2, y2, ClickOrNot := False, ClickWhich := 1)
 {
     global Mon_Width, Mon_Hight
     ;绝对坐标从0~65535,所以我们要转换到像素坐标
-    static SysX := 65535 // Mon_Width
-    static SysY := 65535 // Mon_Hight
-    DllCall("mouse_event", uint, 0x8001, int, x1 * SysX, int, y1 * SysY, uint, 0, int, 0)
+    static SysX, SysY
+    SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
+    DllCall("mouse_event", uint, 0x8001, int, x2 * SysX, int, y2 * SysY, uint, 0, int, 0) ;移动到相对屏幕绝对坐标
+    If ClickOrNot
+    {
+        Switch ClickWhich
+        {
+            Case 1:
+                DllCall("mouse_event", "UInt", 0x02) ;左键按下
+                DllCall("mouse_event", "UInt", 0x04) ;左键弹起
+            
+            Case 2:
+                DllCall("mouse_event", "UInt", 0x08) ;右键按下
+                DllCall("mouse_event", "UInt", 0x10) ;右键弹起
+
+            Case 3:
+                DllCall("mouse_event", "UInt", 0x20) ;中键按下
+                DllCall("mouse_event", "UInt", 0x40) ;中键弹起
+        }
+    }
 }
 ;==================================================================================
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
