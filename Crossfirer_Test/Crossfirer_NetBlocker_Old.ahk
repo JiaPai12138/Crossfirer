@@ -1,6 +1,4 @@
 ﻿#Include Crossfirer_Functions.ahk
-;加载额外库
-#Include Acc.ahk
 Preset("断")
 DetectHiddenWindows, On
 SetTitleMatchMode, Regex
@@ -12,10 +10,10 @@ nb_block := False
 nb_allow := False
 CheckPermission("一键限网")
 hwndcf := WinExist("ahk_class CrossFire")
-If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
+If ProcessExist("NLClientApp.exe")
 {
-    hwndnt := WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
     WinActivate, ahk_exe NLClientApp.exe
+    Nclickx := 416, Nclicky := 130
     ToolTip, NetLimiter版一键限速已就绪!`nNetLimiter version of onekey-bandwidth-limiter is ready!
     HyperSleep(3000)
     ToolTip ;隐藏提示
@@ -23,7 +21,6 @@ If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
 }
 Else If WinExist("ahk_class Q360NetFosClass")
 {
-    hwnd360 := WinExist("ahk_class Q360NetFosClass")
     WinActivate, ahk_class Q360NetFosClass
     CheckPosition(X360, Y360, W360, H360, "Q360NetFosClass")
     clickx := Round(W360 / 5), clicky := Round(H360 / 2.8) ;右键位置
@@ -87,31 +84,29 @@ Return
 
 ~*H Up::
     ;保证短时间内无法连续点击破坏断网效果
-    If (100 <= A_TickCount - H_pressed)
+    If (1000 <= A_TickCount - H_pressed)
         H_pressed := A_TickCount
-    Else If (100 > A_TickCount - H_pressed)
+    Else If (1000 > A_TickCount - H_pressed)
         Return
 
     If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && !GetKeyState("vk87")
     {
         Net_On := !Net_On
+        WinMove, ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+], , -400, 50, 700, 500 ;移动到不影响战斗同时能看清规则是否激活的地点
+        Gui, net_status: Show, x%XGui9% y%YGui9% NA
+        Release_All_Keys() ;释放所有按键防止误触
         If !Net_On
-        {
-            Gui, net_status: Show, x%XGui9% y%YGui9% NA
-            Close_Net := Acc_Get("Object", "4.18.1.6.4", 0, "ahk_id " hwndnt)
-            Close_Net.accDoDefaultAction(0)
             SetTimer, UpdateNet, 100
-        }
         Else
         {
-            Open_Net := Acc_Get("Object", "4.18.1.6.5", 0, "ahk_id " hwndnt)
-            Open_Net.accDoDefaultAction(0)
             SetTimer, UpdateNet, Off
             Net_Start := 0, Net_Time := Net_Allowed
             Gui, net_status: Show, Hide
+            Gui, net_count: Show, Hide
         }
+        FlashClick(Nclickx, Nclicky, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") ;开关都一样
     }
-    Else If WinExist("ahk_class Q360NetFosClass") && !GetKeyState("vk87")
+    Else If NBK_Service_On && (hwnd360 := WinExist("ahk_class Q360NetFosClass"))
     {
         Net_On := !Net_On
         
@@ -124,13 +119,14 @@ Return
             SetTimer, UpdateNet, Off
             Net_Start := 0, Net_Time := Net_Allowed
             Gui, net_status: Show, Hide
+            Gui, net_count: Show, Hide
         }
     }
 Return
 ;==================================================================================
 UpdateNet() ;精度0.1s
 {
-    global XGui9, YGui9, Net_Start, Net_Time, clickx, clicky, Nclickx, Nclicky, hwndcf, hwnd360, H360, Net_Text, Open_Net, Close_Net, hwndnt, Net_Allowed
+    global XGui9, YGui9, Net_Start, Net_Time, clickx, clicky, Nclickx, Nclicky, hwndcf, hwnd360, H360, Net_Text
     Net_Timer(XGui9, YGui9, Net_On, Net_Start, Net_Time, Net_Text, "net_status", "NetBlock")
     If Net_On
     {
@@ -138,15 +134,14 @@ UpdateNet() ;精度0.1s
         SetTimer, UpdateNet, Off
         If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
         {
-            Open_Net := Acc_Get("Object", "4.18.1.6.5", 0, "ahk_id " hwndnt)
-            Open_Net.accDoDefaultAction(0)
+            Release_All_Keys()
+            FlashClick(Nclickx, Nclicky, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
         }
         Else If WinExist("ahk_class Q360NetFosClass")
         {
             Release_All_Keys()
             FlashPress(clickx, clicky, "ahk_class Q360NetFosClass", "ahk_class #32768")
         }
-        Net_Start := 0, Net_Time := Net_Allowed
     }
 }
 ;==================================================================================
@@ -177,6 +172,37 @@ Net_Timer(XGui9, YGui9, ByRef Net_On, ByRef Net_Start, ByRef Net_Time, ByRef Net
             UpdateText(Gui_Number, ControlID, Net_Text, XGui9, YGui9)
         }
     }
+}
+;==================================================================================
+;模拟点击界面指定位置,代替controlclick
+FlashClick(clickx1, clicky1, winID)
+{
+    global hwndcf, Xnb, Ynb, Wnb, Hnb, X3e, Y3e, W3e, H3e
+    CheckPosition(Xnb, Ynb, Wnb, Hnb, winID)
+    CheckPosition(X3e, Y3e, W3e, H3e, "CrossFire")
+    BlockInput, On
+    lParam := clickx1 & 0xFFFF | (clicky1 & 0xFFFF) << 16
+    WinActivate, %winID%
+    If hwndnt4 := WinExist(winID) ;确保窗口置顶...
+        DllCall("SwitchToThisWindow", "UInt", hwndnt4, "UInt", 1)
+    CoordMode, Mouse, Client
+    MouseClick, Left, clickx1, clicky1
+    MouseMove, clickx1, clicky1
+    PostMessage, 0x204, 2, %lParam%, , ahk_id %hwndnt4% ;WM_RBUTTONDOWN
+    PostMessage, 0x205, 2, %lParam%, , ahk_id %hwndnt4% ;WM_RBUTTONUP
+    HyperSleep(10)
+    Loop, 4
+    {
+        ControlSend, , {Down}, %winID%
+        HyperSleep(10)
+    }
+	ControlSend, , {Enter}, %winID%
+    HyperSleep(10)
+    WinActivate, ahk_class CrossFire
+    DllCall("SwitchToThisWindow", "UInt", hwndcf, "UInt", 1)
+    CoordMode, Mouse, Screen
+    MouseMove, X3e + W3e // 2, Y3e + H3e // 2
+    BlockInput, Off
 }
 ;==================================================================================
 ;模拟指定界面按键
