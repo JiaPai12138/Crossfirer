@@ -14,8 +14,7 @@ CheckPermission("一键限网")
 hwndcf := WinExist("ahk_class CrossFire")
 If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
 {
-    hwndnt := WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
-    WinActivate, ahk_exe NLClientApp.exe
+    WinActivate, ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]
     ToolTip, NetLimiter版一键限速已就绪!`nNetLimiter version of onekey-bandwidth-limiter is ready!
     HyperSleep(3000)
     ToolTip ;隐藏提示
@@ -98,13 +97,13 @@ Return
         If !Net_On
         {
             Gui, net_status: Show, x%XGui9% y%YGui9% NA
-            Close_Net := Acc_Get("Object", "4.18.1.6.4", 0, "ahk_id " hwndnt)
+            Close_Net := Acc_Get("Object", "4.18.1.6.4", 0, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
             Close_Net.accDoDefaultAction(0)
             SetTimer, UpdateNet, 100
         }
         Else
         {
-            Open_Net := Acc_Get("Object", "4.18.1.6.5", 0, "ahk_id " hwndnt)
+            Open_Net := Acc_Get("Object", "4.18.1.6.5", 0, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
             Open_Net.accDoDefaultAction(0)
             SetTimer, UpdateNet, Off
             Net_Start := 0, Net_Time := Net_Allowed
@@ -130,7 +129,7 @@ Return
 ;==================================================================================
 UpdateNet() ;精度0.1s
 {
-    global XGui9, YGui9, Net_Start, Net_Time, clickx, clicky, Nclickx, Nclicky, hwndcf, hwnd360, H360, Net_Text, Open_Net, Close_Net, hwndnt, Net_Allowed
+    global XGui9, YGui9, Net_Start, Net_Time, clickx, clicky, Nclickx, Nclicky, hwndcf, hwnd360, H360, Net_Text, Open_Net, Close_Net, Net_Allowed
     Net_Timer(XGui9, YGui9, Net_On, Net_Start, Net_Time, Net_Text, "net_status", "NetBlock")
     If Net_On
     {
@@ -138,7 +137,7 @@ UpdateNet() ;精度0.1s
         SetTimer, UpdateNet, Off
         If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
         {
-            Open_Net := Acc_Get("Object", "4.18.1.6.5", 0, "ahk_id " hwndnt)
+            Open_Net := Acc_Get("Object", "4.18.1.6.5", 0, "ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
             Open_Net.accDoDefaultAction(0)
         }
         Else If WinExist("ahk_class Q360NetFosClass")
