@@ -25,7 +25,7 @@ If WinExist("ahk_class CrossFire")
     Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     OnMessage(0x1001, "ReceiveMessage")
     CLK_Service_On := True
-    global AccRem := 2.0
+    global AccRem := 1.0
     Return
 }
 ;==================================================================================
@@ -54,9 +54,10 @@ Return
 ~*MButton:: ;爆裂者轰炸
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "右键速点", XGui3, YGui3)
-    While, !(GetKeyState("R", "P") || GetKeyState("LButton", "P")) && WinActive("ahk_class CrossFire") ;避免切换窗口时影响
+    While, StayLoop("LButton") ;避免切换窗口时影响
     {
-        press_key("RButton", 10.0, 50.0)
+        Random, RanClick1, (10.0 - AccRem), (10.0 + AccRem)
+        press_key("RButton", RanClick1, 60.0 - RanClick1)
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
@@ -67,7 +68,7 @@ Return
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "炼狱连刺", XGui3, YGui3)
     cnt := 0
-    While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || cnt > 10) && WinActive("ahk_class CrossFire")
+    While, StayLoop("LButton") && cnt <= 10
     {
         press_key("RButton", 10.0, 270.0) ;炼狱右键
         press_key("LButton", 10.0, 10.0) ;炼狱左键枪刺归位
@@ -80,10 +81,10 @@ Return
 ~*XButton1:: ;半自动速点,适合加特林速点,不适合USP
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
-    While, !(GetKeyState("E", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire")
+    While, StayLoop("RButton")
     {
-        Random, RanClick, (90.0 - AccRem), (90.0 + AccRem)
-        press_key("LButton", RanClick, 120.0 - RanClick) ;略微增加散布的代价大幅降低被检测几率
+        Random, RanClick2, (90.0 - AccRem), (90.0 + AccRem)
+        press_key("LButton", RanClick2, 120.0 - RanClick2) ;略微增加散布的代价大幅降低被检测几率
         ;press_key("LButton", 30.0, 30.0) ;炼狱加特林射速1000发/分
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
@@ -97,7 +98,7 @@ Return
     UpdateText("click_mode", "ModeClick", "二段连击", XGui3, YGui3)
     press_key("RButton", 1050, 150)
     press_key("RButton", 90, 10)
-    While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P")) && WinActive("ahk_class CrossFire")
+    While, StayLoop("LButton")
     {
         press_key("RButton", 490, 10)
     }
@@ -111,7 +112,7 @@ Return
     UpdateText("click_mode", "ModeClick", "左键不放", XGui3, YGui3)
     Send, {Blind}{LButton Up}
     Send, {LButton Down}
-    While, !(GetKeyState("R", "P") || GetKeyState("RButton", "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk87")
+    While, StayLoop("RButton")
     {
         If !GetKeyState("LButton")
             Send, {LButton Down}
@@ -126,11 +127,19 @@ Return
 ~*;:: 
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)
-    While, !(GetKeyState("E", "P") || GetKeyState("LButton", "P") || GetKeyState("XButton1", "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk87") ;炼狱速点时结束
+    While, StayLoop("LButton") && !GetKeyState("XButton1", "P") ;炼狱速点时结束
     {
         press_key("LButton", 10.0, 110.0)
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
 Return
+;==================================================================================
+;跳出连点循环
+StayLoop(KeyClicker)
+{
+    If !(GetKeyState("E", "P") || GetKeyState("R", "P") || GetKeyState(KeyClicker, "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk87")
+        Return True
+    Return False
+}
 ;==================================================================================
