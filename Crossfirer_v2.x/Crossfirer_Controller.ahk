@@ -76,6 +76,7 @@ If WinExist("ahk_class CrossFire")
     Game_Begin_Hour := A_Hour
     Game_Begin_Min := A_Min
     Game_Begin_Sec := A_Sec
+    Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
     CTL_Service_On := True
 } 
 ;==================================================================================
@@ -124,10 +125,12 @@ Return
 
 ~*Up::
     Allowed_Hour += 1
+    Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
 Return
 
 ~*Down::
     Allowed_Hour -= 1
+    Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
 Return
 
 ~*RCtrl::
@@ -148,10 +151,9 @@ Return
 ;==================================================================================
 UpdateGui() ;精度0.5s
 {
-    global DPI_Initial, CF_Title, Random_Move, XGui12, YGui12
+    global DPI_Initial, CF_Title, Random_Move, XGui12, YGui12, Ex_End_Hour
     CheckPosition(Xl, Yl, Wl, Hl, "CrossFire")
 
-    Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
     Hour_Left := (Ex_End_Hour - A_Hour) >= 0 ? (Ex_End_Hour - A_Hour) : (Ex_End_Hour + 24 - A_Hour) ;剩余小时
     Minute_Left := (Game_Begin_Min - A_Min) >= 0 ? (Game_Begin_Min - A_Min) : (Game_Begin_Min + 60 - A_Min) ;剩余分钟
     Second_Left := (Game_Begin_Sec - A_Sec) >= 0 ? (Game_Begin_Sec - A_Sec) : (Game_Begin_Sec + 60 - A_Sec) ;剩余秒钟
