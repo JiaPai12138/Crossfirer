@@ -163,7 +163,7 @@ UpdateGui() ;精度0.5s
         If Minute_Left < 0
             Minute_Left := 59
     }
-    If (Game_Begin_Min - A_Min) != 0 || (Game_Begin_Sec - A_Sec) != 0
+    If (Game_Begin_Min - A_Min) < 0
         Hour_Left -= 1
     Minute_Left := SubStr("00" . Minute_Left, -1) ;格式
     Second_Left := SubStr("00" . Second_Left, -1) ;格式
