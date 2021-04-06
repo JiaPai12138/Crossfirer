@@ -83,9 +83,14 @@ Return
     UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
     While, StayLoop("RButton")
     {
-        Random, RanClick2, (90.0 - AccRem), (90.0 + AccRem)
-        press_key("LButton", RanClick2, 120.0 - RanClick2) ;略微增加散布的代价大幅降低被检测几率
-        ;press_key("LButton", 30.0, 30.0) ;炼狱加特林射速1000发/分
+        If !GetKeyState("E")
+        {
+            Random, RanClick2, (90.0 - AccRem), (90.0 + AccRem)
+            press_key("LButton", RanClick2, 120.0 - RanClick2) ;略微增加散布的代价大幅降低被检测几率
+            ;press_key("LButton", 30.0, 30.0) ;炼狱加特林射速1000发/分
+        }
+        Else
+            HyperSleep(100)
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
