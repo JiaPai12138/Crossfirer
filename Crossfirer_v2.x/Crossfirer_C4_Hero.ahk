@@ -194,7 +194,7 @@ class E_Hero
         this.Y := 0
         this.W := 1600
         this.H := 900
-        this.interval := 60
+        this.interval := 50
         this.IsReloading := 0
         this.EHero := ObjBindMethod(this, "UpdatE_Hero")
     }
