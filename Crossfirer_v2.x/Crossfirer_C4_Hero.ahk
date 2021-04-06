@@ -220,7 +220,7 @@ class E_Hero
         this.H := aH
     }
 
-    UpdatE_Hero() ;精度0.06s
+    UpdatE_Hero() ;精度0.05s
     {
         global Be_Hero
         this.UpdatePos()
