@@ -144,7 +144,11 @@ CheckAdmin(SectionName)
     If A_IsAdmin
     {
         process_id := ProcessInfo_GetCurrentProcessID()
+        memory_used := GetProcessMemoryInMB(process_id)
+        IniRead, LAST_PID, 助手数据.ini, %SectionName%, PID
+        IniWrite, %LAST_PID%, 助手数据.ini, %SectionName%, LASTPID
         IniWrite, %process_id%, 助手数据.ini, %SectionName%, PID
+        IniWrite, %memory_used%, 助手数据.ini, %SectionName%, MEMORY
         Return True
     }
     Else
@@ -156,9 +160,13 @@ CheckUIA(SectionName)
 {
     process_id := ProcessInfo_GetCurrentProcessID()
     process_name := GetProcessName(process_id)
+    memory_used := GetProcessMemoryInMB(process_id)
     If InStr(process_name, "AutoHotkeyU64_UIA.exe")
     {
+        IniRead, LAST_PID, 助手数据.ini, %SectionName%, PID
+        IniWrite, %LAST_PID%, 助手数据.ini, %SectionName%, LASTPID
         IniWrite, %process_id%, 助手数据.ini, %SectionName%, PID
+        IniWrite, %memory_used%MB, 助手数据.ini, %SectionName%, MEMORY
         Return True
     }
     Else
@@ -174,7 +182,7 @@ ProcessInfo_GetCurrentProcessID()
 ;拷贝自 https://www.reddit.com/r/AutoHotkey/comments/6zftle/process_name_from_pid/ ,通过进程ID得到进程完整路径
 GetProcessName(ProcessID)
 {
-    If (hProcess := DllCall("OpenProcess", "uint", 0x0410, "int", 0, "uint", ProcessID, "ptr")) 
+    If (hProcess := DllCall("OpenProcess", "uint", 0x0410, "int", 0, "uint", ProcessID, "ptr"))
     {
         size := VarSetCapacity(buf, 0x0104 << 1, 0)
         If (DllCall("psapi\GetModuleFileNameEx", "ptr", hProcess, "ptr", 0, "ptr", &buf, "uint", size))
@@ -182,6 +190,24 @@ GetProcessName(ProcessID)
 		DllCall("CloseHandle", "ptr", hProcess)
     }
     Return False
+}
+;==================================================================================
+;拷贝自jNizM的htopmini.ahk v0.8.3,单位MB,精度两位小数
+GetProcessMemoryInMB(PID)
+{
+    pu := "", memory_usage := ""
+    hProcess := DllCall("OpenProcess", "UInt", 0x001F0FFF, "UInt", 0, "UInt", PID)
+    if (hProcess)
+    {
+        static PMCEX, size := (A_PtrSize = 8 ? 80 : 44), init := VarSetCapacity(PMCEX, size, 0) && NumPut(size, PMCEX)
+        if (DllCall("K32GetProcessMemoryInfo", "Ptr", hProcess, "UInt", &PMCEX, "UInt", size))
+        {
+            pu := { 10 : NumGet(PMCEX, (A_PtrSize = 8 ? 72 : 40), "Ptr") }
+        }
+        DllCall("CloseHandle", "Ptr", hProcess)
+    }
+    memory_usage := Round(pu[10] / (1024 ** 2), 2)
+    return memory_usage
 }
 ;==================================================================================
 ;检查游戏界面真正位置,不包括标题栏和边缘等等,既Client位置

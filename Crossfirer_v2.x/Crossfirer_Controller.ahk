@@ -293,7 +293,7 @@ CloseOthers()
         WinGet, process_count, Count, ahk_class AutoHotkey
         Time_Used := A_TickCount - Time_Count
     } Until process_count <= 1 || Time_Used > 5000
-    FileDelete, 助手数据.ini ;删除脚本进程数据
+    ;FileDelete, 助手数据.ini ;删除脚本进程数据
 
     Title_Blank := 0
     Loop ;, 10

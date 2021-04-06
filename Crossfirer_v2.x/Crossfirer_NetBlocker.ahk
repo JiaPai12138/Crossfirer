@@ -91,6 +91,8 @@ Return
     Else If (100 > A_TickCount - H_pressed)
         Return
 
+    press_key("Space", 30, 90) ;跳起来断网可以无敌???
+
     If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && !GetKeyState("vk87")
     {
         Net_On := !Net_On
