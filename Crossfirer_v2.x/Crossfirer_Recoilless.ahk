@@ -115,47 +115,36 @@ Return
     RCL_Down := Mod(RCL_Down + 1, 4)
 Return
 
-#If WinActive("ahk_class CrossFire") && RCL_Service_On && !GetKeyState("vk87") ;以下的热键需要相应条件才能激活
+#If (WinActive("ahk_class CrossFire") && RCL_Service_On && !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
 
-~*NumpadIns::
 ~*Numpad0::
     GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
     UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
     Gun_Chosen := -1
 Return
 
-~*NumpadDot::
 ~*NumpadDel::
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
     Gun_Chosen := 0 ;, Ammo_Delay := 87.6
 Return
 
-~*NumpadEnd::
 ~*Numpad1::
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "AK47-B 系", XGui6, YGui6)
     Gun_Chosen := 1, Ammo_Delay := 100  
 Return
 
-~*NumpadDown::
 ~*Numpad2::
-    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
-    {
-        GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
-        UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
-        Gun_Chosen := 2, Ammo_Delay := 87.6
-    }
+    GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
+    UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
+    Gun_Chosen := 2, Ammo_Delay := 87.6
 Return
 
-~*NumpadPgDn::
 ~*Numpad3::
-    If !GetKeyState("vk87") && RCL_Service_On && WinActive("ahk_class CrossFire")
-    {
-        GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
-        UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)
-        Gun_Chosen := 3, Ammo_Delay := 32
-    }
+    GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
+    UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)
+    Gun_Chosen := 3, Ammo_Delay := 32
 Return
 ;==================================================================================
 ;压枪函数,对相应枪械,均能在中近距离上基本压成一条线,即将标准化
