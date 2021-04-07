@@ -12,13 +12,11 @@ color 0%hexcolors%
 net session >nul 2>&1
 IF %errorLevel% == 0 (
     echo         管理员你好
-    PING -n 3 127.0.0.1>nul
-    GOTO Start
 ) ELSE (
     echo         未以管理员身份运行,无法启动编译版
-    PING -n 3 127.0.0.1>nul
-    GOTO Start
 )
+PING 127.0.0.1 -n 1 -w 3000> nul
+GOTO Start
 
 :Start
 CLS
@@ -105,6 +103,7 @@ CALL:Go_CTL
 GOTO Option
 
 :Go_SHT
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_Shooter.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Shooter.ahk"
 ) ELSE IF exist 自动开火.exe (
@@ -116,6 +115,7 @@ IF exist "Crossfirer_Shooter.ahk" (
 GOTO:EOF
 
 :Go_C4H
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_C4_Hero.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_C4_Hero.ahk"
 ) ELSE IF exist 战斗助手.exe (
@@ -127,6 +127,7 @@ IF exist "Crossfirer_C4_Hero.ahk" (
 GOTO:EOF
 
 :Go_BHP
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_Bhop.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Bhop.ahk"
 ) ELSE IF exist 普通身法.exe (
@@ -138,6 +139,7 @@ IF exist "Crossfirer_Bhop.ahk" (
 GOTO:EOF
 
 :Go_CLK
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_Clicker.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Clicker.ahk"
 ) ELSE IF exist 连点助手.exe (
@@ -149,6 +151,7 @@ IF exist "Crossfirer_Clicker.ahk" (
 GOTO:EOF
 
 :Go_RCL
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_Recoilless.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Recoilless.ahk"
 ) ELSE IF exist 基础压枪.exe (
@@ -160,6 +163,7 @@ IF exist "Crossfirer_Recoilless.ahk" (
 GOTO:EOF
 
 :Go_NBK
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_NetBlocker.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_NetBlocker.ahk"
 ) ELSE IF exist 一键限网.exe (
@@ -171,6 +175,7 @@ IF exist "Crossfirer_NetBlocker.ahk" (
 GOTO:EOF
 
 :Go_CLG
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_Challenger.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Challenger.ahk"
 ) ELSE IF exist 无尽挂机.exe (
@@ -182,6 +187,7 @@ IF exist "Crossfirer_Challenger.ahk" (
 GOTO:EOF
 
 :Go_CTL
+PING 127.0.0.1 -n 1 -w 500> nul
 IF exist "Crossfirer_Controller.ahk" (
     start "" "C:\Program Files\AutoHotkey\AutoHotkeyU64_UIA.exe" "Crossfirer_Controller.ahk"
 ) ELSE IF exist 助手控制.exe (
@@ -199,4 +205,4 @@ echo.
 echo         启动助手即将退出/Crossfirer will Exit
 echo         ......................................
 ::TIMEOUT /T 3
-PING -n 3 127.0.0.1>nul
+PING 127.0.0.1 -n 1 -w 3000> nul
