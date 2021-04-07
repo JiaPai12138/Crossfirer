@@ -92,15 +92,6 @@ Exit ;退出当前线程
 {
     If GetKeyState("vk87")
     {
-        称号升级 := True
-        Loop
-        {
-            ClickWait(0.589, 0.913) ;确认称号
-            PixelSearch, 称号升级X, 称号升级Y, Xj + Wj // 2 - Round(Wj / 8), Yj + Hj // 2 - Round(Hj / 20), Xj + Wj // 2 + Round(Wj / 8), Yj + Hj // 2 + Round(Hj / 20), 0xFF972F, 0, Fast ;#2F97FF #FF972F
-            If ErrorLevel
-                称号升级 := False
-        } Until, JumpLoop() || !称号升级
-        
         ClickWait(0.94, 0.823) ;点击开始游戏
         游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0, Char_Dead := False
 
@@ -236,6 +227,26 @@ Exit ;退出当前线程
 ;确认分数返回主界面
 无尽收尾()
 {
+    ToolTip, 点击确认称号, , , 19
+    称号升级 := True
+    Loop
+    {
+        ClickWait(0.589, 0.913) ;确认称号
+        PixelSearch, 称号升级X, 称号升级Y, Xj + Wj // 2 - Round(Wj / 8), Yj + Hj // 2 - Round(Hj / 20), Xj + Wj // 2 + Round(Wj / 8), Yj + Hj // 2 + Round(Hj / 20), 0xFF972F, 0, Fast ;#2F97FF #FF972F
+        If ErrorLevel
+            称号升级 := False
+    } Until, JumpLoop() || !称号升级
+
+    ToolTip, 点击确认军衔, , , 19
+    军衔提升 := True
+    Loop
+    {
+        ClickWait(0.51, 0.63) ;确认军衔
+        PixelSearch, 军衔提升X, 军衔提升Y, Xj + Round(Wj / 2.1), Yj + Round(Hj / 2.7), Xj + Round(Wj / 1.5), Yj + Round(Hj / 2.4), 0x91FFFF, 0, Fast ;#FFFF91 #91FFFF
+        If ErrorLevel
+            军衔提升 := False
+    } Until, JumpLoop() || !军衔提升
+
     ToolTip, 点击确认成绩, , , 19
     Loop
     {

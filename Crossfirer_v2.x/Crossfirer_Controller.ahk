@@ -176,9 +176,6 @@ UpdateGui() ;精度0.5s
     If Hour_Left < 0
         WinClose, ahk_class CrossFire
 
-    If Strlen(Key_Pressed) > 0
-        Send, {Blind}{%Key_Pressed% Up}
-
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
     If !WinExist("ahk_class CrossFire")
@@ -220,32 +217,28 @@ UpdateGui() ;精度0.5s
             Switch ran_move
             {
                 Case -3:
-                    Send, {Blind}{w DownTemp}
-                    Key_Pressed := "w"
+                    JumpMove("w")
 
                 Case -2:
-                    Send, {Blind}{a DownTemp}
-                    Key_Pressed := "a"
+                    JumpMove("a")
 
                 Case -1:
-                    Send, {Blind}{Space DownTemp}
-                    Key_Pressed := "Space"
+                    press_key("LShift", 60, 60)
+                    press_key("LShift", 60, 60)
 
                 Case 0:
-                    Send, {Blind}{LCtrl DownTemp}
-                    Key_Pressed := "LCtrl"
+                    press_key("LCtrl", 60, 60)
+                    press_key("LCtrl", 60, 60)
 
                 Case 1:
-                    Send, {Blind}{Space DownTemp}
-                    Key_Pressed := "Space"
+                    press_key("Space", 60, 60)
+                    press_key("Space", 60, 60)
 
                 Case 2:
-                    Send, {Blind}{d DownTemp}
-                    Key_Pressed := "d"
+                    JumpMove("d")
 
                 Case 3:
-                    Send, {Blind}{s DownTemp}
-                    Key_Pressed := "s"
+                    JumpMove("s")
             }
         }
     }
@@ -305,5 +298,22 @@ CloseOthers()
             Title_Blank += 1
         HyperSleep(30) ;just for stability
     } Until Title_Blank > 4
+}
+;==================================================================================
+;随机移动或跳跃
+JumpMove(movekey)
+{
+    If Mod(A_Sec, 3)
+    {
+        If Strlen(Key_Pressed) > 0
+            Send, {Blind}{%Key_Pressed% Up}
+        Send, {Blind}{%movekey% DownTemp}
+        Key_Pressed := movekey
+    }
+    Else
+    {
+        press_key("Space", 60, 60)
+        press_key("Space", 60, 60)
+    }
 }
 ;==================================================================================
