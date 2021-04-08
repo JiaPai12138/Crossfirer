@@ -58,6 +58,7 @@ Return
             无尽准备()
         Else
         {
+            等级调整()
             无尽挑战挂机()
             无尽收尾()
         }
@@ -119,6 +120,7 @@ Exit ;退出当前线程
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
+        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0
         Loop
         {
             确认死亡x := 0, 确认死亡y := 0
@@ -133,7 +135,6 @@ Exit ;退出当前线程
             Else
                 Char_Dead := False
 
-            Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0
             PixelSearch, Boss_x, Boss_y, Xj + Wj // 2 - Round(Wj // 16), Yj + Hj // 2, Xj + Wj // 2 + Round(Wj // 16), Yj + Round(Hj / 3 * 2), 0x18FFFF, 0, Fast ;#FFFF18 #18FFFF 确认Boss
             If !ErrorLevel
                 Boss_Come := True
@@ -143,13 +144,13 @@ Exit ;退出当前线程
 
             If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵
             {
-                press_key("`", 20, 20)
+                press_key("~", 20, 20)
                 If Mod(A_Min, 2)
                     press_key("1", 20, 20)
                 Else
                     press_key("3", 20, 20)
                 press_key("Space", 20, 20)
-                press_key("Space", 20, 20)
+                press_key("~", 20, 20)
             }
 
             If !Char_Dead && !Boss_Come
@@ -157,7 +158,7 @@ Exit ;退出当前线程
                 If GetKeyState("LButton")
                     Send, {Blind}{LButton Up}
                 Random, RanTurn, -3, 3
-                mouseXY(RanTurn * 20, 0)
+                mouseXY(RanTurn * 30, 0)
                 Loop, 15
                 {
                     Random, RanClick, 8, 12
@@ -243,12 +244,20 @@ Exit ;退出当前线程
             ClickWait(0.844, 0.95) ;点击确认
         } Until, GetKeyState("vk87") || JumpLoop()
 
+        准备 := True
+        ToolTip, 准备完毕, , , 19
+    }
+}
+;==================================================================================
+;更新等级
+等级调整()
+{
+    global Sel_Level, 准备
+    If GetKeyState("vk87") && 准备
+    {
         ToolTip, 选择等级, , , 19
         ClickWait(0.8, 0.85) ;打开级别选择
         ClickWait(0.8, 0.62 + 35 / 900 * (Sel_Level - 6)) ;默认六级
-
-        准备 := True
-        ToolTip, 准备完毕, , , 19
     }
 }
 ;==================================================================================
