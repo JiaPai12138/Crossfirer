@@ -5,11 +5,11 @@ global CLG_Service_On := False
 CheckPermission("无尽挂机")
 ;==================================================================================
 global cstage := 0
-global IndiMulti := "单人"
 global 挂机 := False
 global 准备 := False
-global 找人 := False
 global Xj := 0, Yj := 0, Wj := 1600, Hj := 900
+global Sel_Level := 6
+global Show_Sel_Level := SubStr("00" . Sel_Level, -1)
 
 If WinExist("ahk_class CrossFire")
 {
@@ -18,7 +18,7 @@ If WinExist("ahk_class CrossFire")
     Gui, challen_mode: Margin, 0, 0
     Gui, challen_mode: Color, 333333 ;#333333
     Gui, challen_mode: Font, S10 Q5, Microsoft YaHei
-    Gui, challen_mode: Add, Text, hwndGui_10 vModeChallen c00FF00, 无尽挂机准备 ;#00FF00
+    Gui, challen_mode: Add, Text, hwndGui_10 vModeChallen c00FF00, 无尽挂机准备%Show_Sel_Level% ;#00FF00
     GuiControlGet, P10, Pos, %Gui_10%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
@@ -47,29 +47,15 @@ Return
     Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
 Return
 
-~*F2::
-    IndiMulti := "匹配"
-    UpdateText("challen_mode", "ModeChallen", "匹配无尽挂机", XGui10, YGui10)
-    挂机 := True
-    找人 := False
-Return
-
-~*F3::
-    IndiMulti := "组队"
-    UpdateText("challen_mode", "ModeChallen", "组队无尽挂机", XGui10, YGui10)
-    挂机 := True
-    找人 := False
-Return
-
 ~*F8::
     Send, {Blind}{vk86 Down}
     GuiControl, challen_mode: +c00FFFF +Redraw, ModeChallen ;#00FFFF
-    While, WinActive("ahk_class CrossFire") && 挂机
+    UpdateText("challen_mode", "ModeChallen", "开始无尽挂机" . Show_Sel_Level, XGui10, YGui10)
+    挂机 := True
+    While, WinExist("ahk_class CrossFire") && 挂机
     {
         If !准备
             无尽准备()
-        Else If !找人
-            单挑合作()
         Else
         {
             无尽挑战挂机()
@@ -78,13 +64,37 @@ Return
         HyperSleep(1000)
     }
     GuiControl, challen_mode: +c00FF00 +Redraw, ModeChallen ;#00FF00
+    UpdateText("challen_mode", "ModeChallen", "无尽挂机准备" . Show_Sel_Level, XGui10, YGui10)
+    挂机 := False
     Send, {Blind}{vk86 Up}
+Return
+
+~*Left::
+    Sel_Level -= 1
+    If Sel_Level < 1
+        Sel_Level := 1
+    Show_Sel_Level := SubStr("00" . Sel_Level, -1)
+    If !挂机
+        UpdateText("challen_mode", "ModeChallen", "无尽挂机准备" . Show_Sel_Level, XGui10, YGui10)
+    Else
+        UpdateText("challen_mode", "ModeChallen", "开始无尽挂机" . Show_Sel_Level, XGui10, YGui10)
+Return
+
+~*Right::
+    Sel_Level += 1
+    If Sel_Level > 10
+        Sel_Level := 10
+    Show_Sel_Level := SubStr("00" . Sel_Level, -1)
+    If !挂机
+        UpdateText("challen_mode", "ModeChallen", "无尽挂机准备" . Show_Sel_Level, XGui10, YGui10)
+    Else
+        UpdateText("challen_mode", "ModeChallen", "开始无尽挂机" . Show_Sel_Level, XGui10, YGui10)
 Return
 
 ~*Esc::
     挂机 := False
     准备 := False
-    UpdateText("challen_mode", "ModeChallen", "无尽挂机准备", XGui10, YGui10)
+    UpdateText("challen_mode", "ModeChallen", "无尽挂机准备" . Show_Sel_Level, XGui10, YGui10)
 Exit ;退出当前线程
 ;==================================================================================
 ;执行无尽挑战挂机,需要目前背包选择的武器或者背包1位主武器为神圣爆裂者
@@ -99,10 +109,11 @@ Exit ;退出当前线程
         {
             ToolTip, 等待进入游戏, , , 19
             HyperSleep(100)
-            PixelSearch, 进入游戏x, 进入游戏y, Xj + Round(Wj * 0.8125), Yj + Hj // 2, Xj + Round(Wj * 0.9), Yj + Round(Hj * 2 / 3), 0xF2EEF2, 0, Fast ;#F2EEF2
+            PixelSearch, 进入游戏x, 进入游戏y, Xj + Round(Wj / 8), Yj, Xj + Round(Wj / 4), Yj + Round(Hj / 9), 0x836F54, 0, Fast ;#546F83 #836F54
             If !ErrorLevel
                 游戏即将开始 := True
         } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
+        ToolTip, 进入房间界面, , , 19
         HyperSleep(15000) ;进入地图大约15秒
 
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
@@ -122,18 +133,60 @@ Exit ;退出当前线程
             Else
                 Char_Dead := False
 
-            If !Char_Dead
+            Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0
+            PixelSearch, Boss_x, Boss_y, Xj + Wj // 2 - Round(Wj // 16), Yj + Hj // 2, Xj + Wj // 2 + Round(Wj // 16), Yj + Round(Hj / 3 * 2), 0x18FFFF, 0, Fast ;#FFFF18 #18FFFF 确认Boss
+            If !ErrorLevel
+                Boss_Come := True
+            
+            If GetKeyState("LAlt") ;偶发按键影响
+                Send, {Blind}{LAlt Up}
+
+            If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵
             {
+                press_key("`", 20, 20)
+                If Mod(A_Min, 2)
+                    press_key("1", 20, 20)
+                Else
+                    press_key("3", 20, 20)
+                press_key("Space", 20, 20)
+                press_key("Space", 20, 20)
+            }
+
+            If !Char_Dead && !Boss_Come
+            {
+                If GetKeyState("LButton")
+                    Send, {Blind}{LButton Up}
                 Random, RanTurn, -3, 3
-                mouseXY(RanTurn * 50, RanTurn * 5)
-                MouseMove, Xj + Wj // 2, Yj + Hj // 2
-                MouseMove, Xj + Wj // 2, Yj + Round(Hj * 0.75) ;枪口朝下
+                mouseXY(RanTurn * 20, 0)
                 Loop, 15
                 {
                     Random, RanClick, 8, 12
                     press_key("RButton", RanClick, 60 - RanClick)
                     ToolTip, 爆裂轰炸, , , 19
                 }
+            }
+            Else If !Char_Dead && Boss_Come
+            {
+                Send, {Blind}{LButton Up}
+                Send, {Blind}{LButton Down}
+                LRMoveX := 0, LRMoveY := 0
+                PixelSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, 0x18FFFF, 0, Fast ;锁定Boss #FFFF18 #18FFFF
+                If !ErrorLevel
+                {
+                    LRMoveX := ((Xj + Wj // 2) - Boss_x) ** 1/3
+                    LRMoveX := ((Yj + Hj // 2) - Boss_y) ** 1/3
+                    mouseXY(LRMoveX, LRMoveY)
+                }
+                Else If !Boss_x1 || !Boss_y1 ;未确认boss位置时转身寻找
+                    mouseXY(100, 0)
+
+                Loop, 9
+                {
+                    If !GetKeyState("LButton")
+                        Send, {Blind}{LButton Down}
+                    HyperSleep(100)
+                }
+                ToolTip, 立地成佛, , , 19
             }
 
             ;确认所用时间并显示
@@ -152,7 +205,7 @@ Exit ;退出当前线程
             {
                 Loop
                 {
-                    ClickWait(0.5, 0.765)
+                    ClickWait(0.44, 0.765)
                     PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
                 } Until, GetKeyState("vk87") || JumpLoop() || ErrorLevel
             }
@@ -160,17 +213,18 @@ Exit ;退出当前线程
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
 
             PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 17 ;游戏内部总倒计时21分30秒,因为cf无尽内置倒计时精度太差而减少实际时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 20 ;游戏内部总倒计时21分30秒,因为cf无尽内置倒计时精度太差而减少实际时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
+        Send, {Blind}{LButton Up}
     }
 }
 ;==================================================================================
 ;初始化挑战环境
 无尽准备()
 {
-    global 准备
-    地图选择x := 0, 地图选择y := 0, 暗黑营地x := 0, 暗黑营地y := 0
+    global 准备, Sel_Level
+    地图选择x := 0, 地图选择y := 0
     If GetKeyState("vk87")
     {
         ToolTip, 选择模式, , , 19
@@ -179,49 +233,23 @@ Exit ;退出当前线程
             ClickWait(0.2, 0.03) ;进行游戏
             ClickWait(0.09, 0.117) ;新版大厅
             ClickWait(0.8125, 0.805) ;选择模式
-            PixelSearch, 地图选择x, 地图选择y, Xj + Wj // 2 - Round(Wj / 16), Yj, Xj + Wj // 2 + Round(Wj / 16), Yj + Round(Hj / 9), 0x4CCDFF, 0, Fast ;#FFCD4C #4CCDFF
-        } Until, (地图选择x > 0 && 地图选择y > 0) || JumpLoop()
-
-        Loop ;确认是否选择了暗黑营地地图
-        {
-            ToolTip, 确认暗黑营地, , , 19
             ClickWait(0.4125, 0.141) ;挑战模式
             ClickWait(0.1, 0.25) ;无尽挑战
-            PixelSearch, 暗黑营地x, 暗黑营地y, Xj + Round(Wj * 0.53), Yj + Round(Hj * 0.36), Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.76), 0x638B62, 0, Fast ;#628B63 #638B62
-            ClickWait(0.6, 0.556) ;目前第三栏暗黑营地位置
-        } Until, (暗黑营地x > 0 && 暗黑营地y > 0) || JumpLoop()
+            PixelSearch, 地图选择x, 地图选择y, Xj + Wj // 2 - Round(Wj / 16), Yj, Xj + Wj // 2 + Round(Wj / 16), Yj + Round(Hj / 9), 0x4CCDFF, 0, Fast ;#FFCD4C #4CCDFF
+        } Until, (地图选择x > 0 && 地图选择y > 0) || JumpLoop()
         
         Loop
         {
             ClickWait(0.844, 0.95) ;点击确认
         } Until, GetKeyState("vk87") || JumpLoop()
 
-        ;ToolTip, 选择等级, , , 19
-        ;ClickWait(0.8125, 0.85)
-        ;MouseMove, Xj + Round(Wj * 0.8125), Yj + Round(Hj * 0.75)
-        ;Loop, 4
-        ;{
-        ;    HyperSleep(100)
-        ;    press_key("WheelDown", 50, 50) ;选比最高通过等级小的等级
-        ;}
-        ;ClickWait(0.8125, 0.655)
+        ToolTip, 选择等级, , , 19
+        ClickWait(0.8, 0.85) ;打开级别选择
+        ClickWait(0.8, 0.62 + 35 / 900 * (Sel_Level - 6)) ;默认六级
 
         准备 := True
         ToolTip, 准备完毕, , , 19
     }
-}
-;==================================================================================
-;单双人模式切换
-单挑合作()
-{
-    global IndiMulti, 找人
-    ToolTip, 选择组队/匹配, , , 19
-    ClickWait(0.975, 0.889) ;选择多人/单人
-    If InStr(IndiMulti, "组队")
-        ClickWait(0.856, 0.946)
-    Else If InStr(IndiMulti, "匹配")
-        ClickWait(0.856, 0.975)
-    找人 := True
 }
 ;==================================================================================
 ;确认分数返回主界面

@@ -255,13 +255,13 @@ Not_In_Game(CF_Title)
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
     If CF_Title = 穿越火线
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x7389A9, 0, Fast ;show color in editor: #A98973 #7389A9
+        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x6E87A5, 0, Fast ;show color in editor: #A5876E #6E87A5
         If !ErrorLevel
         {
-            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x38373E, 0, Fast ;show color in editor: #3E3738 #38373E
+            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3B3634, 0, Fast ;show color in editor: #34363B #3B3634
             If !ErrorLevel
             {
-                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3D3C82, 0, Fast ;show color in editor: #823C3D #3D3C82
+                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x373781, 0, Fast ;show color in editor: #813737 #373781
                 Return !ErrorLevel
             }
         }

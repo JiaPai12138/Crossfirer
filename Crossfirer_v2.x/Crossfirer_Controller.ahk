@@ -223,8 +223,13 @@ UpdateGui() ;精度0.5s
                     JumpMove("a")
 
                 Case -1:
-                    press_key("LShift", 60, 60)
-                    press_key("LShift", 60, 60)
+                    If !GetKeyState("vk86")
+                    {
+                        press_key("Space", 60, 60)
+                        press_key("Space", 60, 60)
+                    }
+                    Else
+                        JumpMove("s")
 
                 Case 0:
                     press_key("LCtrl", 60, 60)
@@ -312,8 +317,16 @@ JumpMove(movekey)
     }
     Else
     {
-        press_key("Space", 60, 60)
-        press_key("Space", 60, 60)
+        If !GetKeyState("vk86")
+        {
+            press_key("Space", 60, 60)
+            press_key("Space", 60, 60)
+        }
+        Else
+        {
+            Send, {Blind}{s DownTemp} ;尽可能向后获得打中场boss的能力
+            Key_Pressed := "s"
+        }
     }
 }
 ;==================================================================================
