@@ -142,15 +142,21 @@ Exit ;退出当前线程
             If GetKeyState("LAlt") ;偶发按键影响
                 Send, {Blind}{LAlt Up}
 
-            If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵
+            If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
             {
-                press_key("~", 20, 20)
-                If Mod(A_Min, 2)
-                    press_key("1", 20, 20)
-                Else
-                    press_key("3", 20, 20)
-                press_key("Space", 20, 20)
-                press_key("~", 20, 20)
+                press_key("~", 30, 30)
+                PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
+                If !ErrorLevel
+                {
+                    If Mod(A_Min, 2)
+                        press_key("1", 30, 30)
+                    Else
+                        press_key("3", 30, 30)
+                    press_key("Space", 30, 30)
+                }
+                PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
+                If !ErrorLevel
+                    press_key("~", 30, 30)
             }
 
             If !Char_Dead && !Boss_Come
@@ -175,11 +181,12 @@ Exit ;退出当前线程
                 If !ErrorLevel
                 {
                     LRMoveX := ((Xj + Wj // 2) - Boss_x) ** 1/3
-                    LRMoveX := ((Yj + Hj // 2) - Boss_y) ** 1/3
-                    mouseXY(LRMoveX, LRMoveY)
+                    LRMoveY := ((Yj + Round(Hj * 0.4)) - Boss_y) ** 1/3 ;枪口上抬
                 }
                 Else If !Boss_x1 || !Boss_y1 ;未确认boss位置时转身寻找
-                    mouseXY(100, 0)
+                    mouseXY(600, 0)
+
+                mouseXY(LRMoveX, LRMoveY)
 
                 Loop, 9
                 {
