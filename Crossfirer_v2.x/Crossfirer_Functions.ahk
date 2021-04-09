@@ -283,12 +283,6 @@ Not_In_Game(CF_Title)
         Return False
 }
 ;==================================================================================
-;检测是否退出模式,由按键触发
-ExitMode()
-{
-    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("Tab", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("~", "P") || GetKeyState("RAlt", "P")) 
-}
-;==================================================================================
 ;检测点位颜色状态(颜色是否在颜色库中)
 GetColorStatus(X, Y, CX1, CX2, color_lib)
 {
