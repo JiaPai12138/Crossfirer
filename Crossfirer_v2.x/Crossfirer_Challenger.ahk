@@ -121,7 +121,7 @@ Exit ;退出当前线程
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
-        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口上 := False
+        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口上 := False, 后退 := False
         Loop
         {
             确认死亡x := 0, 确认死亡y := 0
@@ -174,15 +174,25 @@ Exit ;退出当前线程
                 If !ErrorLevel
                 {
                     MouseMove, Xj + Wj // 2, Yj + Hj // 2
-                    mouseXY(0, -20) ;枪口略微朝上
+                    If !枪口上
+                    {
+                        mouseXY(0, -20) ;枪口略微朝上
+                        枪口上 := True
+                    }
                     press_key("e", 10, 10) ;佣兵觉醒
-                    枪口上 := True
+                    Send, {Blind}{s Down}
+                    后退 := True
                 }
-                Else If 枪口上
+                Else
                 {
                     MouseMove, Xj + Wj // 2, Yj + Hj // 2
-                    mouseXY(0, 20) ;枪口略微回调
-                    枪口上 := False
+                    If 枪口上
+                    {
+                        mouseXY(0, 20) ;枪口略微回调
+                        枪口上 := False
+                    }
+                    If 后退
+                        Send, {Blind}{s Up}
                 }
 
                 If !枪口上
