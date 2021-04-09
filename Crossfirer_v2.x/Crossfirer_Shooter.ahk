@@ -330,6 +330,6 @@ Shoot_Time(X, Y, W, H, Var, game_title)
 ;检测是否退出模式,由按键触发
 ExitMode()
 {
-    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("`", "P") || GetKeyState("RAlt", "P")) 
+    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P")) 
 }
 ;==================================================================================
