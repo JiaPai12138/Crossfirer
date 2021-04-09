@@ -104,12 +104,13 @@ Exit ;退出当前线程
     If GetKeyState("vk87")
     {
         ClickWait(0.94, 0.823) ;点击开始游戏
+        ClickWait(0.5, 0.648) ;离开原本退出的比赛
         游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0, Char_Dead := False
 
         Loop
         {
             ToolTip, 等待进入游戏, , , 19
-            HyperSleep(100)
+            HyperSleep(1000)
             PixelSearch, 进入游戏x, 进入游戏y, Xj + Round(Wj / 8), Yj, Xj + Round(Wj / 4), Yj + Round(Hj / 9), 0x836F54, 0, Fast ;#546F83 #836F54
             If !ErrorLevel
                 游戏即将开始 := True
@@ -164,7 +165,7 @@ Exit ;退出当前线程
                 If GetKeyState("LButton")
                     Send, {Blind}{LButton Up}
                 Random, RanTurn, -3, 3
-                mouseXY(RanTurn * 30, 0)
+                mouseXY(RanTurn * 50, 0)
                 Loop, 15
                 {
                     Random, RanClick, 8, 12
@@ -221,10 +222,22 @@ Exit ;退出当前线程
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
 
             PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 20 ;游戏内部总倒计时21分30秒,因为cf无尽内置倒计时精度太差而减少实际时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 19 ;游戏内部总倒计时24分50秒,因为cf无尽内置倒计时精度太差而减少实际时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
         Send, {Blind}{LButton Up}
+        
+        If Time_Minute > 19 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
+        {
+            press_key("Esc", 100, 100)
+            press_key("Enter", 100, 100)
+            press_key("Enter", 100, 100)
+            Sel_Level -= 1
+            If Sel_Level < 1
+                Sel_Level := 1
+            Show_Sel_Level := SubStr("00" . Sel_Level, -1)
+            UpdateText("challen_mode", "ModeChallen", "开始无尽挂机" . Show_Sel_Level, XGui10, YGui10)
+        }
     }
 }
 ;==================================================================================
@@ -308,10 +321,10 @@ JumpLoop()
 }
 ;==================================================================================
 ;鼠标点击指定位置并等待
-ClickWait(a, b)
+ClickWait(a, b, SleepWait := 500)
 {
     CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
     MouseClick, Left, Xj + Round(Wj * a), Yj + Round(Hj * b)
-    HyperSleep(500)
+    HyperSleep(SleepWait)
 }
 ;==================================================================================
