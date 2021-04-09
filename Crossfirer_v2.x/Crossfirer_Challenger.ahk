@@ -121,7 +121,7 @@ Exit ;退出当前线程
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
-        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0
+        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口下 := False
         Loop
         {
             确认死亡x := 0, 确认死亡y := 0
@@ -131,6 +131,7 @@ Exit ;退出当前线程
             {
                 Char_Dead := True
                 ToolTip, 玩家死亡, , , 19
+                枪口下 := False
                 HyperSleep(500)
             }
             Else
@@ -166,6 +167,19 @@ Exit ;退出当前线程
                     Send, {Blind}{LButton Up}
                 Random, RanTurn, -3, 3
                 mouseXY(RanTurn * 50, 0)
+                PixelSearch, Bossa, Bossb, Xj + Round(Wj * 0.442), Yj + Round(Hj * 0.13), Xj + Wj // 2, Yj + Round(Hj * 0.15), 0xFFFFFF, 0, Fast ;#FFFFFF Boss级别怪物
+                If !ErrorLevel
+                {
+                    MouseMove, Xj + Wj // 2, Yj + Hj // 2
+                    MouseMove, Xj + Wj // 2, Yj + Round(Hj * 0.6) ;枪口朝下
+                    枪口下 := True
+                }
+                Else If 枪口下
+                {
+                    MouseMove, Xj + Wj // 2, Yj + Hj // 2
+                    MouseMove, Xj + Wj // 2, Yj + Round(Hj * 0.45) ;枪口朝下
+                    枪口下 := False
+                }
                 Loop, 15
                 {
                     Random, RanClick, 8, 12
@@ -178,13 +192,14 @@ Exit ;退出当前线程
                 Send, {Blind}{LButton Up}
                 Send, {Blind}{LButton Down}
                 LRMoveX := 0, LRMoveY := 0
-                PixelSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, 0x18FFFF, 0, Fast ;锁定Boss #FFFF18 #18FFFF
+                PixelSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, 0x18FFFF, 7, Fast ;锁定Boss #FFFF18 #18FFFF
                 If !ErrorLevel
                 {
+                    Found_Boss := True
                     LRMoveX := ((Xj + Wj // 2) - Boss_x) ** 1/3
                     LRMoveY := ((Yj + Round(Hj * 0.4)) - Boss_y) ** 1/3 ;枪口上抬
                 }
-                Else If !Boss_x1 || !Boss_y1 ;未确认boss位置时转身寻找
+                Else If !Found_Boss ;未确认boss位置时转身寻找
                     mouseXY(600, 0)
 
                 mouseXY(LRMoveX, LRMoveY)
@@ -222,15 +237,19 @@ Exit ;退出当前线程
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
 
             PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 19 ;游戏内部总倒计时24分50秒,因为cf无尽内置倒计时精度太差而减少实际时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 17 ;游戏内部总倒计时24分50秒,因为cf无尽内置倒计时精度太差而减少实际时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
         Send, {Blind}{LButton Up}
         
-        If Time_Minute > 19 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
+        If Time_Minute > 17 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
         {
             global XGui10, YGui10
-            press_key("Esc", 100, 100)
+            Loop
+            {
+                press_key("Esc", 100, 100)
+                PixelSearch, ESCx, ESCy, Xj + Wj // 2 - Round(Wj / 32), Yj + Round(Hj / 3), Xj + Wj // 2 + Round(Wj / 32), Yj + Round(Hj / 2.25), 0xFAFEFF, 0, Fast ;#FFFEFA #FAFEFF Esc目录
+            } Until !ErrorLevel
             press_key("Enter", 100, 100)
             press_key("Enter", 100, 100)
             Sel_Level -= 1
@@ -278,7 +297,7 @@ Exit ;退出当前线程
     {
         ToolTip, 选择等级, , , 19
         ClickWait(0.8, 0.85) ;打开级别选择
-        ClickWait(0.8, 0.62 + 35 / 900 * (Sel_Level - 6)) ;默认六级
+        ClickWait(0.8, 0.62 - 35 / 900 * (Sel_Level - 6)) ;默认六级
     }
 }
 ;==================================================================================
