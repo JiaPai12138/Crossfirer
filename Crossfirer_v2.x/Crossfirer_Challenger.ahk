@@ -175,7 +175,7 @@ Exit ;退出当前线程
                 {
                     MouseMove, Xj + Wj // 2, Yj + Hj // 2
                     mouseXY(0, -20) ;枪口略微朝上
-                    press_key("f", 10, 10) ;佣兵觉醒
+                    press_key("e", 10, 10) ;佣兵觉醒
                     枪口上 := True
                 }
                 Else If 枪口上
@@ -202,7 +202,7 @@ Exit ;退出当前线程
             {
                 Send, {Blind}{LButton Up}
                 Send, {Blind}{LButton Down}
-                press_key("f", 10, 10) ;佣兵觉醒
+                press_key("e", 10, 10) ;佣兵觉醒
                 LRMoveX := 0, LRMoveY := 0
                 PixelSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, 0x18FFFF, 7, Fast ;锁定Boss #FFFF18 #18FFFF
                 If !ErrorLevel
