@@ -229,6 +229,7 @@ Exit ;退出当前线程
         
         If Time_Minute > 19 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
         {
+            global XGui10, YGui10
             press_key("Esc", 100, 100)
             press_key("Enter", 100, 100)
             press_key("Enter", 100, 100)
