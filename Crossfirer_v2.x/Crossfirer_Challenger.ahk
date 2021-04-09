@@ -274,7 +274,6 @@ Exit ;退出当前线程
 ;初始化挑战环境
 无尽准备()
 {
-    global 准备, Sel_Level
     地图选择x := 0, 地图选择y := 0
     If GetKeyState("vk87")
     {
@@ -302,7 +301,6 @@ Exit ;退出当前线程
 ;更新等级
 等级调整()
 {
-    global Sel_Level, 准备
     If GetKeyState("vk87") && 准备
     {
         ToolTip, 选择等级, , , 19
