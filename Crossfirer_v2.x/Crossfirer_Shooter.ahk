@@ -85,8 +85,8 @@ Return
     FuncPing() ;重新输入ping
 Return
 
-~*` Up::
-~*~ Up::
+~LCtrl & ~` Up::
+~LCtrl & ~~ Up::
     ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
@@ -109,7 +109,7 @@ Return
     AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
 Return
 
-~*Tab Up:: ;通用模式
+~LCtrl & ~Tab Up:: ;通用模式
     Temp_Mode := 0
     mo_shi := 0
     Temp_Run := "加载通用中"
