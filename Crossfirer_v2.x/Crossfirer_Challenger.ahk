@@ -121,7 +121,7 @@ Exit ;退出当前线程
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
-        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口下 := False
+        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口上 := False
         Loop
         {
             确认死亡x := 0, 确认死亡y := 0
@@ -131,7 +131,7 @@ Exit ;退出当前线程
             {
                 Char_Dead := True
                 ToolTip, 玩家死亡, , , 19
-                枪口下 := False
+                枪口上 := False
                 HyperSleep(500)
             }
             Else
@@ -143,6 +143,10 @@ Exit ;退出当前线程
             
             If GetKeyState("LAlt") ;偶发按键影响
                 Send, {Blind}{LAlt Up}
+
+            PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
+            If !ErrorLevel
+                press_key("~", 30, 30)
 
             If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
             {
@@ -165,21 +169,27 @@ Exit ;退出当前线程
             {
                 If GetKeyState("LButton")
                     Send, {Blind}{LButton Up}
-                Random, RanTurn, -3, 3
-                mouseXY(RanTurn * 50, 0)
+
                 PixelSearch, Bossa, Bossb, Xj + Round(Wj * 0.442), Yj + Round(Hj * 0.13), Xj + Wj // 2, Yj + Round(Hj * 0.15), 0xFFFFFF, 0, Fast ;#FFFFFF Boss级别怪物
                 If !ErrorLevel
                 {
                     MouseMove, Xj + Wj // 2, Yj + Hj // 2
-                    MouseMove, Xj + Wj // 2, Yj + Round(Hj * 0.6) ;枪口朝下
-                    枪口下 := True
+                    mouseXY(0, -20) ;枪口略微朝上
+                    枪口上 := True
                 }
-                Else If 枪口下
+                Else If 枪口上
                 {
                     MouseMove, Xj + Wj // 2, Yj + Hj // 2
-                    MouseMove, Xj + Wj // 2, Yj + Round(Hj * 0.45) ;枪口朝下
-                    枪口下 := False
+                    mouseXY(0, 20) ;枪口略微回调
+                    枪口上 := False
                 }
+
+                If !枪口上
+                {
+                    Random, RanTurn, -3, 3
+                    mouseXY(RanTurn * 50, 0)
+                }
+
                 Loop, 15
                 {
                     Random, RanClick, 8, 12
