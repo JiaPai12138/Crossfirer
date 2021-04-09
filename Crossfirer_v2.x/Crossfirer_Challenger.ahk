@@ -116,7 +116,7 @@ Exit ;退出当前线程
                 游戏即将开始 := True
         } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
         ToolTip, 进入房间界面, , , 19
-        HyperSleep(15000) ;进入地图大约15秒
+        HyperSleep(20000) ;进入地图大约20秒
 
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
@@ -218,8 +218,13 @@ Exit ;退出当前线程
                 If !ErrorLevel
                 {
                     Found_Boss := True
-                    LRMoveX := ((Xj + Wj // 2) - Boss_x) ** 1/3
-                    LRMoveY := ((Yj + Round(Hj * 0.4)) - Boss_y) ** 1/3 ;枪口上抬
+                    ToolTip, 锁定Boss, Xj, , 17
+                    LRMoveX := ((Xj + Wj // 2) - Boss_x) // 3
+                    LRMoveY := ((Yj + Round(Hj * 0.45)) - Boss_y) // 3 ;枪口上抬
+                }
+                Else If ErrorLevel
+                {
+                    ToolTip, 丢失Boss, Xj, , 17
                 }
                 Else If !Found_Boss ;未确认boss位置时转身寻找
                     mouseXY(600, 0)
@@ -259,9 +264,10 @@ Exit ;退出当前线程
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
 
             PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 17 ;游戏内部总倒计时24分50秒,因为cf无尽内置倒计时精度太差而减少实际时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 17 ;游戏内部总倒计时25分,因为cf无尽内置倒计时精度太差而减少实际时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
+        ToolTip, , , , 17
         Send, {Blind}{LButton Up}
         
         If Time_Minute > 17 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
