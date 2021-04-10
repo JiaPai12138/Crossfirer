@@ -139,7 +139,12 @@ Exit ;退出当前线程
 
             PixelSearch, Boss_x, Boss_y, Xj + Wj // 2 - Round(Wj // 16), Yj + Hj // 2, Xj + Wj // 2 + Round(Wj // 16), Yj + Round(Hj / 3 * 2), 0x18FFFF, 0, Fast ;#FFFF18 #18FFFF 确认Boss
             If !ErrorLevel
-                Boss_Come := True
+            {
+                PixelSearch, Bossa, Bossb, Xj + Round(Wj * 0.442), Yj + Round(Hj * 0.13), Xj + Wj // 2, Yj + Round(Hj * 0.15), 0xFFFFFF, 0, Fast ;#FFFFFF Boss级别怪物
+                If !ErrorLevel
+                    Boss_Come := True
+            }
+                
             
             If GetKeyState("LAlt") ;偶发按键影响
                 Send, {Blind}{LAlt Up}

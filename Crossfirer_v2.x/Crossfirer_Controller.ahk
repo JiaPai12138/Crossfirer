@@ -200,6 +200,8 @@ UpdateGui() ;精度0.5s
     Else If !Not_In_Game(CF_Title)
     {
         Send, {Blind}{vk87 Up} ;F24 key
+        If Strlen(Key_Pressed) > 0
+            Send, {Blind}{%Key_Pressed% Up}
         Random, move_it, 1, 9
         Random, do_range, 3, 6 ;随机命中几率
         If Random_Move && move_it = 3
@@ -310,8 +312,6 @@ JumpMove(movekey)
 {
     If Mod(A_Sec, 3)
     {
-        If Strlen(Key_Pressed) > 0
-            Send, {Blind}{%Key_Pressed% Up}
         Send, {Blind}{%movekey% DownTemp}
         Key_Pressed := movekey
     }
