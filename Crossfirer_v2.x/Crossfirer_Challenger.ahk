@@ -116,15 +116,15 @@ Exit ;退出当前线程
                 游戏即将开始 := True
         } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
         ToolTip, 进入房间界面, , , 19
-        HyperSleep(20000) ;进入地图大约20秒
+        HyperSleep(30000) ;进入地图大约30秒
 
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
-        Boss_Come := False, Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口上 := False, 后退 := False
+        Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口上 := False, 后退 := False
         Loop
         {
-            确认死亡x := 0, 确认死亡y := 0
+            确认死亡x := 0, 确认死亡y := 0, Boss_Come := False
             CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
             PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj / 3), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Hj // 2, 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
             If !ErrorLevel
@@ -137,13 +137,9 @@ Exit ;退出当前线程
             Else
                 Char_Dead := False
 
-            PixelSearch, Boss_x, Boss_y, Xj + Wj // 2 - Round(Wj // 16), Yj + Hj // 2, Xj + Wj // 2 + Round(Wj // 16), Yj + Round(Hj / 3 * 2), 0x18FFFF, 7, Fast ;#FFFF18 #18FFFF 确认Boss
+            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x3B8CCA, 7, Fast ;#CA8C3B #3B8CCA 确认Boss 
             If !ErrorLevel
-            {
-                PixelSearch, Bossa, Bossb, Xj + Round(Wj * 0.442), Yj + Round(Hj * 0.13), Xj + Wj // 2, Yj + Round(Hj * 0.15), 0xFFFFFF, 0, Fast ;#FFFFFF Boss级别怪物
-                If !ErrorLevel
-                    Boss_Come := True
-            }
+                Boss_Come := True
             
             If GetKeyState("LAlt") ;偶发按键影响
                 Send, {Blind}{LAlt Up}
@@ -152,14 +148,13 @@ Exit ;退出当前线程
             If !ErrorLevel
                 press_key("~", 30, 30)
 
-            If !Mod(A_Sec, 15) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
+            If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
             {
                 press_key("~", 30, 30)
                 PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
                 If !ErrorLevel
                 {
-                    Random, ranvar, 0, 1
-                    If ranvar
+                    If Mod(A_Min, 2)
                         press_key("1", 30, 30)
                     Else
                         press_key("3", 30, 30)
@@ -219,13 +214,13 @@ Exit ;退出当前线程
                 Send, {Blind}{LButton Down}
                 press_key("e", 10, 10) ;佣兵觉醒
                 LRMoveX := 0, LRMoveY := 0
-                PixelSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, 0x18FFFF, 7, Fast ;锁定Boss #FFFF18 #18FFFF
+                PixelSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, 0x18FFFF, 0, Fast ;锁定Boss #FFFF18 #18FFFF
                 If !ErrorLevel
                 {
                     Found_Boss := True
-                    ToolTip, 锁定Boss, Xj, , 17
-                    LRMoveX := ((Xj + Wj // 2) - Boss_x) // 3
-                    LRMoveY := ((Yj + Round(Hj * 0.45)) - Boss_y) // 3 ;枪口上抬
+                    LRMoveX := ((Xj + Wj // 2) - Boss_x1) // 10
+                    LRMoveY := ((Yj + Round(Hj * 0.45)) - Boss_y1) // 10 ;枪口上抬
+                    ToolTip, 锁定Boss 鼠标移动%LRMoveX%|%LRMoveY%, Xj, , 17
                 }
                 Else If ErrorLevel
                 {
