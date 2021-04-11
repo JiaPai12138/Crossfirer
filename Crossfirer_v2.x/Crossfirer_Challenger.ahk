@@ -148,7 +148,7 @@ Exit ;退出当前线程
             If !ErrorLevel
                 press_key("~", 30, 30)
 
-            If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
+            If !Mod(A_Sec, 12) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
             {
                 press_key("~", 30, 30)
                 PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
