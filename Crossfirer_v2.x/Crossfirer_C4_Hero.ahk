@@ -18,8 +18,10 @@ If WinExist("ahk_class CrossFire")
     Gui, C4: Margin, 0, 0
     Gui, C4: Color, 333333 ;#333333
     Gui, C4: Font, S10 Q5 C00FFFF, Microsoft YaHei
-    Gui, C4: Add, Text, hwndGui_3 vC4Status, %C4_Time% ;#00FFFF
+    Gui, C4: Add, Text, hwndGui_3 vC4Status, 剩余%C4_Time%秒钟 ;#00FFFF
     GuiControlGet, P3, Pos, %Gui_3%
+    Gui, C4: Add, Progress, w%P3W% h4 c00FFFF Background333333 vC4Progress Range0-40, %C4_Time% ;#00FFFF
+    
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2) ;避开狙击枪秒准线确认点
@@ -154,10 +156,18 @@ class C4Timer
             {
                 this.C4_Time := SubStr("00" . Format("{:.0f}", (40.5 - (SystemTime() - this.C4_Start) / 1000)), -1) ;强行显示两位数,00起爆
                 If (this.C4_Time < 21 && this.C4_Time >= 11)
+                {
                     GuiControl, C4: +cFFFF00 +Redraw, C4Status ;#FFFF00
+                    GuiControl, C4: +cFFFF00 +Redraw, C4Progress ;#FFFF00
+                }
                 Else If this.C4_Time < 11
+                {
                     GuiControl, C4: +cFF0000 +Redraw, C4Status ;#FF0000
-                UpdateText("C4", "C4Status", this.C4_Time, XGuiC, YGuiC)
+                    GuiControl, C4: +cFF0000 +Redraw, C4Progress ;#FF0000
+                }
+                GuiControl, C4: , C4Progress, % this.C4_Time
+                Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+                UpdateText("C4", "C4Status", "剩余" . this.C4_Time . "秒钟", XGuiC, YGuiC)
             }
         }
         Else
@@ -167,7 +177,10 @@ class C4Timer
             If this.C4_Time != 40
                 this.C4_Time := 40
             GuiControl, C4: +c00FFFF +Redraw, C4Status ;#00FFFF
-            UpdateText("C4", "C4Status", this.C4_Time, XGuiC, YGuiC)
+            GuiControl, C4: , C4Progress, % this.C4_Time
+            GuiControl, C4: +c00FFFF +Redraw, C4Progress ;#00FFFF
+            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+            UpdateText("C4", "C4Status", "剩余" . this.C4_Time . "秒钟", XGuiC, YGuiC)
         }
     }
 
