@@ -105,6 +105,7 @@ Exit ;退出当前线程
     {
         ClickWait(0.94, 0.823) ;点击开始游戏
         ClickWait(0.5, 0.648) ;离开原本退出的比赛
+        ClickWait(0.94, 0.823) ;点击开始游戏
         游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0, Char_Dead := False
 
         Loop
