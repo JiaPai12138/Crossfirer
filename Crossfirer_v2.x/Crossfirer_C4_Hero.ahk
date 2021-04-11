@@ -153,7 +153,7 @@ class C4Timer
             Else If this.C4_Start > 0
             {
                 this.C4_Time := SubStr("00" . Format("{:.0f}", (40.5 - (SystemTime() - this.C4_Start) / 1000)), -1) ;强行显示两位数,00起爆
-                If (this.C4_Time < 31 && this.C4_Time >= 11)
+                If (this.C4_Time < 21 && this.C4_Time >= 11)
                     GuiControl, C4: +cFFFF00 +Redraw, C4Status ;#FFFF00
                 Else If this.C4_Time < 11
                     GuiControl, C4: +cFF0000 +Redraw, C4Status ;#FF0000

@@ -137,14 +137,13 @@ Exit ;退出当前线程
             Else
                 Char_Dead := False
 
-            PixelSearch, Boss_x, Boss_y, Xj + Wj // 2 - Round(Wj // 16), Yj + Hj // 2, Xj + Wj // 2 + Round(Wj // 16), Yj + Round(Hj / 3 * 2), 0x18FFFF, 0, Fast ;#FFFF18 #18FFFF 确认Boss
+            PixelSearch, Boss_x, Boss_y, Xj + Wj // 2 - Round(Wj // 16), Yj + Hj // 2, Xj + Wj // 2 + Round(Wj // 16), Yj + Round(Hj / 3 * 2), 0x18FFFF, 7, Fast ;#FFFF18 #18FFFF 确认Boss
             If !ErrorLevel
             {
                 PixelSearch, Bossa, Bossb, Xj + Round(Wj * 0.442), Yj + Round(Hj * 0.13), Xj + Wj // 2, Yj + Round(Hj * 0.15), 0xFFFFFF, 0, Fast ;#FFFFFF Boss级别怪物
                 If !ErrorLevel
                     Boss_Come := True
             }
-                
             
             If GetKeyState("LAlt") ;偶发按键影响
                 Send, {Blind}{LAlt Up}
@@ -153,13 +152,14 @@ Exit ;退出当前线程
             If !ErrorLevel
                 press_key("~", 30, 30)
 
-            If !Mod(A_Sec, 10) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
+            If !Mod(A_Sec, 15) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
             {
                 press_key("~", 30, 30)
                 PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
                 If !ErrorLevel
                 {
-                    If Mod(A_Min, 2)
+                    Random, ranvar, 0, 1
+                    If ranvar
                         press_key("1", 30, 30)
                     Else
                         press_key("3", 30, 30)
