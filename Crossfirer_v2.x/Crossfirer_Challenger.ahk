@@ -130,7 +130,7 @@ Exit ;退出当前线程
         {
             确认死亡x := 0, 确认死亡y := 0, Boss_Come := False
             CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
-            PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj / 3), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Hj // 2, 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
+            PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj * 0.39), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Round(Hj * 0.425), 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
             If !ErrorLevel
             {
                 Char_Dead := True
@@ -223,7 +223,7 @@ Exit ;退出当前线程
                 {
                     Found_Boss := True
                     LRMoveX := ((Xj + Wj // 2) - Boss_x1) // 10
-                    LRMoveY := ((Yj + Round(Hj * 0.45)) - Boss_y1) // 10 ;枪口上抬
+                    LRMoveY := ((Yj + Round(Hj * 0.65)) - Boss_y1) // 10 ;枪口上抬
                     ToolTip, 锁定Boss 鼠标移动%LRMoveX%|%LRMoveY%, Xj, , 17
                 }
                 Else If ErrorLevel
