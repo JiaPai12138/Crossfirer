@@ -116,7 +116,11 @@ Exit ;退出当前线程
                 游戏即将开始 := True
         } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
         ToolTip, 进入房间界面, , , 19
-        HyperSleep(30000) ;进入地图大约30秒
+        
+        Loop
+        {
+            HyperSleep(1000) ;等待真正进入游戏
+        } Until, Challenging() || JumpLoop()
 
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
@@ -141,8 +145,7 @@ Exit ;退出当前线程
             If !ErrorLevel
                 Boss_Come := True
             
-            If GetKeyState("LAlt") ;偶发按键影响
-                Send, {Blind}{LAlt Up}
+            Send, {Blind}{LAlt Up} ;偶发按键影响
 
             PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
             If !ErrorLevel
@@ -150,6 +153,7 @@ Exit ;退出当前线程
 
             If !Mod(A_Sec, 12) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
             {
+                Send, {Blind}{LAlt Up} ;偶发按键影响
                 press_key("~", 30, 30)
                 PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
                 If !ErrorLevel
@@ -293,7 +297,9 @@ Exit ;退出当前线程
 无尽准备()
 {
     地图选择x := 0, 地图选择y := 0
-    If GetKeyState("vk87")
+    If Challenging()
+        Return
+    Else If GetKeyState("vk87")
     {
         ToolTip, 选择模式, , , 19
         Loop ;确认是否进入模式/地图选择界面
@@ -372,5 +378,14 @@ ClickWait(a, b, SleepWait := 500)
     CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
     MouseClick, Left, Xj + Round(Wj * a), Yj + Round(Hj * b)
     HyperSleep(SleepWait)
+}
+;==================================================================================
+;检测是否在挑战中
+Challenging()
+{
+    PixelSearch, clgx, clgy, Xj + Wj // 2 - Round(Wj / 8), Yj, Xj + Wj // 2 + Round(Wj / 8), Yj + Round(Hj / 18), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
+    If !ErrorLevel
+        Return True
+    Return False
 }
 ;==================================================================================
