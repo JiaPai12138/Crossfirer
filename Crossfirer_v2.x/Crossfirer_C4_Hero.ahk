@@ -74,7 +74,7 @@ Return
         Gui, C4: Show, Hide
 Return
 
-#If (WinActive("ahk_class CrossFire") && C4H_Service_On !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
+#If (WinActive("ahk_class CrossFire") && C4H_Service_On && !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
 
 ~*=::
     Be_Hero := !Be_Hero
