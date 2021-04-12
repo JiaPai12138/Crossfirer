@@ -142,7 +142,7 @@ Exit ;退出当前线程
             Else
                 Char_Dead := False
 
-            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x3B8CCA, 7, Fast ;#CA8C3B #3B8CCA 确认Boss 
+            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x2E619A, 0, Fast ;#9A612E #2E619A 确认Boss 
             If !ErrorLevel
                 Boss_Come := True
             
@@ -150,24 +150,17 @@ Exit ;退出当前线程
 
             PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
             If !ErrorLevel
-                press_key("~", 30, 30)
+                press_key("~", 30, 30) ;退出佣兵管理界面
 
-            If !Mod(A_Sec, 12) && !Char_Dead ;增强佣兵,因死亡时界面消失而分开两个颜色识别
+            If !Mod(A_Sec, 12) && !Char_Dead ;增强佣兵
             {
-                Send, {Blind}{LAlt Up} ;偶发按键影响
                 press_key("~", 30, 30)
-                PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
-                If !ErrorLevel
-                {
-                    If Mod(A_Min, 2)
-                        press_key("1", 30, 30)
-                    Else
-                        press_key("3", 30, 30)
-                    press_key("Space", 30, 30)
-                }
-                PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
-                If !ErrorLevel
-                    press_key("~", 30, 30)
+                If Mod(A_Min, 2)
+                    press_key("1", 30, 30)
+                Else
+                    press_key("3", 30, 30)
+                press_key("Space", 30, 30)
+                press_key("~", 30, 30)
             }
 
             If !Char_Dead && !Boss_Come
@@ -219,7 +212,7 @@ Exit ;退出当前线程
                 Send, {Blind}{LButton Down}
                 press_key("e", 10, 10) ;佣兵觉醒
                 LRMoveX := 0, LRMoveY := 0
-                PixelSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, 0x18FFFF, 0, Fast ;锁定Boss #FFFF18 #18FFFF
+                PixelSearch, Boss_x1, Boss_y1, Xj + Round(Wj / 6.4), Yj + Hj, Xj + Wj - Round(Wj / 6.4), Yj, 0x18FFFF, 7, Fast ;锁定Boss #FFFF18 #18FFFF
                 If !ErrorLevel
                 {
                     Found_Boss := True
@@ -269,7 +262,7 @@ Exit ;退出当前线程
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
 
             PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 17 ;游戏内部总倒计时25分,因为cf无尽内置倒计时精度太差而减少实际时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 18 ;游戏内部总倒计时25分,因为cf无尽内置倒计时精度太差而减少实际时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
         ToolTip, , , , 17
