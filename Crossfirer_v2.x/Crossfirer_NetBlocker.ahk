@@ -90,8 +90,7 @@ Return
         H_pressed := A_TickCount
     Else If (100 > A_TickCount - H_pressed)
         Return
-        
-    WinActivate, ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]
+
     press_key("Space", 30, 150) ;跳起来断网可以无敌???
 
     If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && !GetKeyState("vk87")
