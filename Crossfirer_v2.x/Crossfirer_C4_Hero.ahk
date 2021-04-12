@@ -74,11 +74,12 @@ Return
         Gui, C4: Show, Hide
 Return
 
-~*=::
-    If !GetKeyState("vk87")
-        Be_Hero := !Be_Hero
+#If (WinActive("ahk_class CrossFire") && C4H_Service_On !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
 
-    If (Be_Hero && !GetKeyState("vk87"))
+~*=::
+    Be_Hero := !Be_Hero
+
+    If Be_Hero
     {
         C4_On := False
         HEro_01.Start()
@@ -86,7 +87,7 @@ Return
         Gui, C4: Show, Hide
         Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
     }
-    Else If (!Be_Hero && !GetKeyState("vk87"))
+    Else
     {
         HEro_01.Stop()
         Gui, Human_Hero: Show, Hide

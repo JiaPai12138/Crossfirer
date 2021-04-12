@@ -84,6 +84,8 @@ Return
         Gui, net_status: Show, Hide
 Return
 
+#If (WinActive("ahk_class CrossFire") && NBK_Service_On && !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
+
 ~*H Up::
     ;保证短时间内无法连续点击破坏断网效果
     If (100 <= A_TickCount - H_pressed)
