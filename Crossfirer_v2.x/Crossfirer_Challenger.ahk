@@ -147,7 +147,7 @@ Exit ;退出当前线程
             If !ErrorLevel
                 Boss_Come := True
 
-            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x2E619A, 0, Fast ;#C44709 #0947C4 确认黄金Boss 
+            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x0947C4, 0, Fast ;#C44709 #0947C4 确认黄金Boss 
             If !ErrorLevel
                 Boss_Come := True
             
