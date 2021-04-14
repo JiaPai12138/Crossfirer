@@ -221,12 +221,12 @@ Exit ;退出当前线程
                 LRMoveX := 0, LRMoveY := 0
 
                 ;PixelSearch, Boss_x1, Boss_y1, Xj + Round(Wj / 6.4), Yj + Hj, Xj + Wj - Round(Wj / 6.4), Yj, 0x18FFFF, 7, Fast ;锁定Boss #FFFF18 #18FFFF
-                ImageSearch, Boss_x1, Boss_y1, Xj + Round(Wj / 6.4), Yj, Xj + Wj - Round(Wj / 6.4), Yj + Hj, *27 HBITMAP:*%Load_FFFF1B% ;#FFFF1B
+                ImageSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, *27 HBITMAP:*%Load_FFFF1B% ;#FFFF1B
                 If !ErrorLevel
                 {
                     Found_Boss := True
-                    LRMoveX := ((Xj + Wj // 2) - Boss_x1) // 10
-                    LRMoveY := ((Yj + Round(Hj * 0.65)) - Boss_y1) // 10 ;枪口上抬
+                    LRMoveX := (Boss_x1 - (Xj + Wj // 2)) // 10
+                    LRMoveY := (Boss_y1 - (Yj + Round(Hj * 0.65))) // 10 ;枪口上抬
                     ToolTip, 锁定Boss 鼠标移动%LRMoveX%|%LRMoveY%, Xj, , 17
                 }
                 Else If ErrorLevel && Found_Boss
@@ -234,7 +234,10 @@ Exit ;退出当前线程
                     ToolTip, 丢失Boss, Xj, , 17
                 }
                 Else If !Found_Boss ;未确认boss位置时转身寻找
+                {
                     mouseXY(600, 0)
+                    ToolTip, 搜寻Boss, Xj, , 17
+                }
 
                 mouseXY(LRMoveX, LRMoveY)
 
