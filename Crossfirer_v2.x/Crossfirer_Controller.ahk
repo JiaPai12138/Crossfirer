@@ -341,6 +341,10 @@ JumpMove(movekey)
 HasWGTooltip()
 {
     PixElsearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 4), Yl + Round(Hl / 9), 0x282622, 0, Fast ;show color in editor: #222628 #282622
-    Return !ErrorLevel
+    If !ErrorLevel
+    {
+        PixElsearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 4), Yl + Round(Hl / 9), 0x282622, 0, Fast ;show color in editor: #1580BD #BD8015
+        Return !ErrorLevel
+    }
 }
 ;==================================================================================
