@@ -202,6 +202,13 @@ UpdateGui() ;精度0.5s
         Send, {Blind}{vk87 Up} ;F24 key
         If Strlen(Key_Pressed) > 0
             Send, {Blind}{%Key_Pressed% Up}
+        
+        If HasWGTooltip()
+        {
+            press_key("F11", 60, 60)
+            Return
+        }
+
         Random, move_it, 1, 9
         Random, do_range, 3, 6 ;随机命中几率
         If Random_Move && move_it = 3
@@ -250,7 +257,7 @@ UpdateGui() ;精度0.5s
         }
     }
     Else If Not_In_Game(CF_Title)
-        Send, {Blind}{vk87 Down} ;F24 key
+        Send, {Blind}{vk87 Down} ;F24 key  
 }
 ;==================================================================================
 ;通过按下快捷键显示/隐藏提示
@@ -328,5 +335,12 @@ JumpMove(movekey)
             Key_Pressed := "s"
         }
     }
+}
+;==================================================================================
+;查看是否被遮挡
+HasWGTooltip()
+{
+    PixElsearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 4), Yl + Round(Hl / 9), 0x282622, 0, Fast ;show color in editor: #222628 #282622
+    Return !ErrorLevel
 }
 ;==================================================================================
