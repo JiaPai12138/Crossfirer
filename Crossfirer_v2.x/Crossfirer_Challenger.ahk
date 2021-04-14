@@ -226,8 +226,8 @@ Exit ;退出当前线程
                 If !ErrorLevel
                 {
                     Found_Boss := True
-                    LRMoveX := (Boss_x1 - (Xj + Wj // 2)) // 10
-                    LRMoveY := (Boss_y1 - (Yj + Round(Hj * 0.65))) // 10 ;枪口上抬
+                    LRMoveX := (Boss_x1 - (Xj + Wj // 2)) // 4
+                    LRMoveY := (Boss_y1 - (Yj + Round(Hj * 0.65))) // 7 ;枪口上抬
                     ToolTip, 锁定Boss 鼠标移动%LRMoveX%|%LRMoveY%, Xj, , 17
                 }
                 Else If ErrorLevel && Found_Boss
