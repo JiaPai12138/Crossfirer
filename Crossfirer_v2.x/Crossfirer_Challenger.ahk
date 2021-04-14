@@ -174,6 +174,7 @@ Exit ;退出当前线程
 
             If !Char_Dead && !Boss_Come
             {
+                ToolTip, , , , 17
                 If GetKeyState("LButton")
                     Send, {Blind}{LButton Up}
 
