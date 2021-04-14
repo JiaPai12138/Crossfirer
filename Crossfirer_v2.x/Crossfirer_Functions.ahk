@@ -265,6 +265,7 @@ Not_In_Game(CF_Title)
                 Return !ErrorLevel
             }
         }
+        Return False
     }
     Else If CF_Title = CROSSFIRE
     {
@@ -278,6 +279,7 @@ Not_In_Game(CF_Title)
                 Return !ErrorLevel
             }
         }
+        Return False
     }
     Else
         Return False
