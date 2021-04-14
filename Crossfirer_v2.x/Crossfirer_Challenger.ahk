@@ -216,8 +216,8 @@ Exit ;退出当前线程
                 press_key("e", 10, 10) ;佣兵觉醒
                 LRMoveX := 0, LRMoveY := 0
 
-                ImageSearch, Boss_x1, Boss_y1, Xj + Round(Wj / 6.4), Yj + Hj, Xj + Wj - Round(Wj / 6.4), Yj, *27 HBITMAP:*%Load_FFFF1B% ;FFFF23
                 ;PixelSearch, Boss_x1, Boss_y1, Xj + Round(Wj / 6.4), Yj + Hj, Xj + Wj - Round(Wj / 6.4), Yj, 0x18FFFF, 7, Fast ;锁定Boss #FFFF18 #18FFFF
+                ImageSearch, Boss_x1, Boss_y1, Xj + Round(Wj / 6.4), Yj, Xj + Wj - Round(Wj / 6.4), Yj + Hj, *27 HBITMAP:*%Load_FFFF1B% ;#FFFF1B
                 If !ErrorLevel
                 {
                     Found_Boss := True
