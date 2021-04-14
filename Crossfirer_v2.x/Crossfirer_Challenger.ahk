@@ -160,12 +160,16 @@ Exit ;退出当前线程
             If !Mod(A_Sec, 12) && !Char_Dead ;增强佣兵
             {
                 press_key("~", 30, 30)
-                If Mod(A_Min, 2)
-                    press_key("1", 30, 30)
-                Else
-                    press_key("3", 30, 30)
-                press_key("Space", 30, 30)
-                press_key("~", 30, 30)
+                PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
+                If !ErrorLevel
+                {
+                    If Mod(A_Min, 2)
+                        press_key("1", 30, 30)
+                    Else
+                        press_key("3", 30, 30)
+                    press_key("Space", 30, 30)
+                    press_key("~", 30, 30)
+                }
             }
 
             If !Char_Dead && !Boss_Come
@@ -225,7 +229,7 @@ Exit ;退出当前线程
                     LRMoveY := ((Yj + Round(Hj * 0.65)) - Boss_y1) // 10 ;枪口上抬
                     ToolTip, 锁定Boss 鼠标移动%LRMoveX%|%LRMoveY%, Xj, , 17
                 }
-                Else If ErrorLevel
+                Else If ErrorLevel && Found_Boss
                 {
                     ToolTip, 丢失Boss, Xj, , 17
                 }
