@@ -340,10 +340,10 @@ JumpMove(movekey)
 ;查看是否被遮挡
 HasWGTooltip()
 {
-    PixElsearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x282622, 0, Fast ;show color in editor: #222628 #282622
+    PixelSearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x282622, 0, Fast ;#222628 #282622
     If !ErrorLevel
     {
-        PixElsearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x282622, 0, Fast ;show color in editor: #1580BD #BD8015
+        PixelSearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0xBD8015, 0, Fast ;#1580BD #BD8015
         Return !ErrorLevel
     }
     Return False

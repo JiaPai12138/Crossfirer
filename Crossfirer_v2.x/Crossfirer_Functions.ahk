@@ -250,18 +250,18 @@ ProcessExist(Process_Name)
 }
 ;==================================================================================
 ;检测是否不在游戏中,目标为界面左上角
-Not_In_Game(CF_Title) 
+Not_In_Game(CF_Title)
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
     If CF_Title = 穿越火线
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x7A91B1, 0, Fast ;show color in editor: #B1917A #7A91B1
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x7A91B1, 0, Fast ;show color in editor: #B1917A #7A91B1
         If !ErrorLevel
         {
-            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B4341, 0, Fast ;show color in editor: #41434B #4B4341
+            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B4341, 0, Fast ;show color in editor: #41434B #4B4341
             If !ErrorLevel
             {
-                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x676665, 0, Fast ;show color in editor: #656667 #676665
+                PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x676665, 0, Fast ;show color in editor: #656667 #676665
                 Return !ErrorLevel
             }
         }
@@ -269,13 +269,13 @@ Not_In_Game(CF_Title)
     }
     Else If CF_Title = CROSSFIRE
     {
-        PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x959B95, 0, Fast ;show color in editor: #959B95
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x959B95, 0, Fast ;show color in editor: #959B95
         If !ErrorLevel
         {
-            PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3C4B61, 0, Fast ;show color in editor: #614B3C #3C4B61
+            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3C4B61, 0, Fast ;show color in editor: #614B3C #3C4B61
             If !ErrorLevel
             {
-                PixElsearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B53F4, 0, Fast ;show color in editor: #F4534B #4B53F4
+                PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B53F4, 0, Fast ;show color in editor: #F4534B #4B53F4
                 Return !ErrorLevel
             }
         }
