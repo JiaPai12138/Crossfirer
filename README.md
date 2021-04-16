@@ -7,7 +7,7 @@
 * 图像识别(基于神经网络)
 
 ## 使用说明
-* 请先[安装ahk](https://www.autohotkey.com/download/ahk-install.exe)；这里是[安装教程](https://seujxh.wordpress.com/2018/09/11/ahk%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B/)；穿越火线**窗口化**并且分辨率为**1600*900**；鼠标灵敏值设为28(为了压枪)；1200 DPI
+* 请先[安装ahk](https://www.autohotkey.com/download/ahk-install.exe)；这里是[安装教程](https://seujxh.wordpress.com/2018/09/11/ahk%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B/)；穿越火线**窗口化**并且分辨率为**1600*900**；鼠标灵敏值设为32(为了压枪)；1200 DPI
 * 如果客户端界面位置发生变化请按靠右边的Alt键对准，一次不行多按几次(发行版的exe可能一次无法完全调整对准)，~~启动脚本后请等待三秒左右不然可能遇到警告~~
 * ~~以管理员模式运行脚本或者右键选择"Run with UI Access"~~ ~~直接双击，按提示选择管理员或者UI Access~~ 直接打开Crossfirer_v2.x文件夹中的bat文件然后选择你想打开的功能再运行游戏![image](PDF_Images/直接打开bat.png)![image](PDF_Images/选择脚本.png)或者打开发行版里的低调使用.exe![image](PDF_Images/发行版所有文件.png)
 * 按下"-"键重新加载脚本(实际是退出等待cmd界面重新选择运行脚本)
