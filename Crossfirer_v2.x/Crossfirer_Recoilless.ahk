@@ -219,7 +219,7 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
                 }
                 Else If InRange(3, Ammo_Count, 6)
                 {
-                    mouseXY(0, 5)
+                    mouseXY(0, 6)
                 }
                 Else If InRange(6, Ammo_Count, 10)
                 {
