@@ -78,6 +78,7 @@ Return
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
 Return
 
+~*T:: ;防止鼠标不符合要求
 ~*XButton1:: ;半自动速点,适合加特林速点,不适合USP
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
