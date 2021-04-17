@@ -10,7 +10,7 @@ XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
 Temp_Mode := "", Temp_Run := ""
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
 game_title :=
-GamePing := 40 ;默认40,涵盖至少85%以上我所常见的国服游戏延迟
+global GamePing := 40 ;默认40,涵盖至少85%以上我所常见的国服游戏延迟
 
 If WinExist("ahk_class CrossFire")
 {
@@ -92,13 +92,14 @@ Return
 
 #If WinActive("ahk_class CrossFire") && SHT_Service_On && AutoMode && !GetKeyState("vk87") ;以下的热键需要相应条件才能激活
 
+~*Tab Up::
 ~*1 Up:: ;还原模式
     If StrLen(Temp_Run) > 0
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", Temp_Run, XGui1, YGui1)
         mo_shi := Temp_Mode
-        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
+        AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
     }
 Return
 
@@ -106,16 +107,16 @@ Return
     mo_shi := 2
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载手枪中", XGui1, YGui1)
-    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
-~LCtrl & ~Tab Up:: ;通用模式
+~V Up:: ;通用模式
     Temp_Mode := 0
     mo_shi := 0
     Temp_Run := "加载通用中"
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载通用中", XGui1, YGui1)
-    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing) 
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych) 
 Return
 
 ~*J Up:: ;瞬狙模式,M200效果上佳
@@ -124,7 +125,7 @@ Return
     Temp_Run := "加载狙击中"
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载狙击中", XGui1, YGui1)
-    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
 ~*L Up:: ;连点模式
@@ -133,7 +134,7 @@ Return
     Temp_Run := "加载速点中"
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载速点中", XGui1, YGui1)
-    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych, GamePing)
+    AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 ;==================================================================================
 ;检测ping的图形界面函数,因每次打开仅使用一次故做成函数
@@ -220,7 +221,7 @@ ChangeMode(Gui_Number1, Gui_Number2, ModeID, StatusID, ByRef AutoMode, XGui1, YG
 }
 ;==================================================================================
 ;自动开火函数,通过检测红名实现
-AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych, GamePing)
+AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, XGui2, YGui2, CrID, Xch, Ych)
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
     static PosColor_snipe := "0x000000" ;#000000
@@ -229,7 +230,7 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
     Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
     While, !GetKeyState("vk87") && AutoMode
     {
-        Random, rand, 58.0, 62.0 ;设定随机值减少被检测概率
+        Random, rand, 59.0, 61.0 ;设定随机值减少被检测概率
         small_rand := rand / 2
         Var := W1 // 2 - 15 ;788
         GuiControl, %Gui_Number2%: +c00FFFF +Redraw, %StatusID% ;#00FFFF
@@ -256,7 +257,7 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
                 {
                     Case 2:
                         UpdateText(Gui_Number1, ModeID, "手枪模式中", XGui1, YGui1)
-                        press_key("LButton", 10, small_rand + rand - Color_Delay) ;控制USP射速
+                        press_key("LButton", 30, small_rand * 2.4 - Color_Delay) ;控制USP射速
                         mouseXY(0, 1)
 
                     Case 8:
@@ -275,8 +276,7 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
                             GuiControl, %Gui_Number2%: +c00FF00 +Redraw, %StatusID% ;#00FF00
                             UpdateText(Gui_Number2, StatusID, "双切换弹中", XGui2, YGui2)
                             Send, {3 DownTemp}
-                            HyperSleep(GamePing + 60)
-                            press_key("LButton", 10, 10)
+                            HyperSleep(GamePing + 80)
                             Send, {1 DownTemp}
                             
                             If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹
@@ -297,11 +297,11 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
 
                     Case 111:
                         UpdateText(Gui_Number1, ModeID, "连发速点中", XGui1, YGui1)
-                        press_key("LButton", 2 * rand, rand - Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
+                        press_key("LButton", 3 * rand, small_rand - Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式中", XGui1, YGui1)
-                        press_key("LButton", 10, small_rand + rand - Color_Delay) ;靠近600发每分的射速
+                        press_key("LButton", 30, small_rand * 2.4 - Color_Delay) ;靠近600发每分的射速
                         mouseXY(0, 2) ;小小压枪
                 }
             }
@@ -330,6 +330,6 @@ Shoot_Time(X, Y, W, H, Var, game_title)
 ;检测是否退出模式,由按键触发
 ExitMode()
 {
-    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P")) 
+    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P") || GetKeyState("Tab", "P") || GetKeyState("V", "P"))
 }
 ;==================================================================================
