@@ -262,7 +262,7 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
 
                     Case 8:
                         UpdateText(Gui_Number1, ModeID, "瞬狙模式中", XGui1, YGui1)
-                        If Not GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) ;检测狙击镜准心
+                        If !GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) ;检测狙击镜准心
                         {
                             press_key("RButton", small_rand, small_rand)
                             press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
@@ -302,7 +302,7 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式中", XGui1, YGui1)
                         press_key("LButton", 30, small_rand * 2.4 - Color_Delay) ;靠近600发每分的射速
-                        mouseXY(0, 2) ;小小压枪
+                        mouseXY(0, 3) ;小小压枪
                 }
             }
             Var += 1
@@ -330,6 +330,6 @@ Shoot_Time(X, Y, W, H, Var, game_title)
 ;检测是否退出模式,由按键触发
 ExitMode()
 {
-    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P") || GetKeyState("Tab", "P") || GetKeyState("V", "P"))
+    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P") || GetKeyState("Tab", "P") || GetKeyState("V", "P") || GetKeyState("vk85"))
 }
 ;==================================================================================

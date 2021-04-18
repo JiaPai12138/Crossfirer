@@ -292,9 +292,14 @@ GetColorStatus(X, Y, CX1, CX2, color_lib)
     Return InStr(color_lib, color_got)
 }
 ;==================================================================================
-;控制鼠标上下左右相对移动
+;控制鼠标上下左右相对移动,减少大幅度直线移动的几率以避免16-2
 mouseXY(x1, y1)
 {
+    Random, RandXY, -1, 1
+    If (x1 = 0) && (y1 > 2)
+        x1 := RandXY
+    Else If (y1 = 0) && (x1 > 2)
+        y1 := RandXY
     DllCall("mouse_event", uint, 0x0001, int, x1, int, y1, uint, 0, int, 0)
 }
 ;==================================================================================

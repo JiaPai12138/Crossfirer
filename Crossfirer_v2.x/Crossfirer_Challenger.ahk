@@ -48,7 +48,7 @@ Return
 Return
 
 ~*F8::
-    Send, {Blind}{vk86 Down}
+    Send, {Blind}{vk86 Down} ;无尽中
     GuiControl, challen_mode: +c00FFFF +Redraw, ModeChallen ;#00FFFF
     UpdateText("challen_mode", "ModeChallen", "开始无尽挂机" . Show_Sel_Level, XGui10, YGui10)
     挂机 := True
@@ -130,10 +130,17 @@ Exit ;退出当前线程
         Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口上 := False, 后退 := False
         Loop
         {
-            确认死亡x := 0, 确认死亡y := 0, Boss_Come := False
+            确认死亡x := 0, 确认死亡y := 0, Boss_Come := False, IsDead := 0
             CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
             PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj * 0.39), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Round(Hj * 0.425), 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
             If !ErrorLevel
+                IsDead += 1
+
+            PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj * 0.39), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Round(Hj * 0.425), 0x00E4E4, 0, Fast ;#E4E400 #00E4E4 确认死亡
+            If !ErrorLevel
+                IsDead += 1
+
+            If IsDead  
             {
                 Char_Dead := True
                 ToolTip, 玩家死亡, , , 19

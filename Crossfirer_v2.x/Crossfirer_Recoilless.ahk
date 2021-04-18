@@ -5,7 +5,7 @@ global RCL_Service_On := False
 RCL_Down := 0
 CheckPermission("基础压枪")
 ;==================================================================================
-Gun_Chosen := -1
+Gun_Chosen := -1, Current_Gun := -1
 XGui5 := 0, YGui5 := 0, XGui6 := 0, YGui6 := 0, XGui7 := 0, YGui7 := 0
 Vertices := 40
 Radius := 0
@@ -79,11 +79,11 @@ Return
 Return
 
 ~*$LButton:: ;压枪 正在开发
-    If !GetKeyState("vk87")
+    If !(GetKeyState("vk87") || GetKeyState("vk85"))
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
-        If (!GetKeyState("vk87") && Gun_Chosen >= 0)
+        If Gun_Chosen >= 0
         {
             GuiControl, recoil_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
             RCL_Text := "自动压枪 " RCL_Down
@@ -120,31 +120,43 @@ Return
 ~*Numpad0::
     GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
     UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
-    Gun_Chosen := -1
+    Gun_Chosen := -1, Current_Gun := -1
 Return
 
 ~*NumpadDel::
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
-    Gun_Chosen := 0 ;, Ammo_Delay := 87.6
+    Gun_Chosen := 0 , Current_Gun := 0
+Return
+
+~*1::
+    GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
+    Gun_Chosen := Current_Gun
+Return
+
+~*2::
+~*3::
+~*4::
+    GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
+    Gun_Chosen := -1
 Return
 
 ~*Numpad1::
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "AK47-B 系", XGui6, YGui6)
-    Gun_Chosen := 1, Ammo_Delay := 100  
+    Gun_Chosen := 1, Ammo_Delay := 100, Current_Gun := 1
 Return
 
 ~*Numpad2::
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
-    Gun_Chosen := 2, Ammo_Delay := 87.6
+    Gun_Chosen := 2, Ammo_Delay := 87.6, Current_Gun := 2
 Return
 
 ~*Numpad3::
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)
-    Gun_Chosen := 3, Ammo_Delay := 32
+    Gun_Chosen := 3, Ammo_Delay := 116, Current_Gun := 3
 Return
 ;==================================================================================
 ;压枪函数,对相应枪械,均能在中近距离上基本压成一条线,即将标准化
@@ -164,13 +176,8 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
             HyperSleep(10)
             Send, {Blind}{LButton Up}
             HyperSleep(Ammo_Delay - 10)
-            If RCL_Down && Ammo_Count < 10 && Ammo_Delay > 60
+            If RCL_Down && Ammo_Count < 10
                 mouseXY(0, RCL_Down)
-            Else
-            {
-                If !Mod(Ammo_Count, 3) && Ammo_Count <= 80
-                    mouseXY(0, 1) ;DPI 800,灵敏32
-            }
 
         Case 1: ;AK47英雄级
             Ammo_Delay := 100

@@ -202,12 +202,14 @@ UpdateGui() ;精度0.5s
         Send, {Blind}{vk87 Up} ;F24 key
         If Strlen(Key_Pressed) > 0
             Send, {Blind}{%Key_Pressed% Up}
+
+        If IsMutant() ;僵尸
+            Send, {Blind}{vk85 Down}
+        Else
+            Send, {Blind}{vk85 Up}
         
         If HasWGTooltip()
-        {
-            press_key("F11", 60, 60)
-            Return
-        }
+            press_key("F11", 30, 30)
 
         Random, move_it, 1, 9
         Random, do_range, 3, 6 ;随机命中几率
@@ -257,7 +259,10 @@ UpdateGui() ;精度0.5s
         }
     }
     Else If Not_In_Game(CF_Title)
-        Send, {Blind}{vk87 Down} ;F24 key  
+    {
+        Send, {Blind}{vk87 Down} ;F24 key
+        Send, {Blind}{vk85 Up}
+    }
 }
 ;==================================================================================
 ;通过按下快捷键显示/隐藏提示
@@ -347,5 +352,12 @@ HasWGTooltip()
         Return !ErrorLevel
     }
     Return False
+}
+;==================================================================================
+;查看生化追击模式中是否变僵尸
+IsMutant()
+{
+    PixelSearch, Outputa, Outpu1tb, Xl + Round(Wl * 0.95), Yl + Round(Hl * 0.24), Xl + Wl, Yl + Hl // 2, 0x91AB2F, 0, Fast ;#2FAB91 #91AB2F
+    Return !ErrorLevel
 }
 ;==================================================================================
