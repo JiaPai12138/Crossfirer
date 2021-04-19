@@ -231,7 +231,7 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
                 }
                 Else If InRange(6, Ammo_Count, 10)
                 {
-                    mouseXY(0, 1)
+                    mouseXY(0, 2)
                 }
                 Else If Ammo_Count >= 10
                     mouseXY(0, 0) ;其实无用
