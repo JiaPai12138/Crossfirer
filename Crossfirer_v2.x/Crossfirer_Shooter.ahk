@@ -109,7 +109,7 @@ Return
     AutoFire("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", game_title, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
-~V Up:: ;通用模式
+~K Up:: ;通用模式
     Temp_Mode := 0
     mo_shi := 0
     Temp_Run := "加载通用中"
@@ -329,6 +329,6 @@ Shoot_Time(X, Y, W, H, Var, game_title)
 ;检测是否退出模式,由按键触发
 ExitMode()
 {
-    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P") || GetKeyState("Tab", "P") || GetKeyState("V", "P") || GetKeyState("vk85"))
+    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P") || GetKeyState("Tab", "P") || GetKeyState("K", "P") || GetKeyState("vk85"))
 }
 ;==================================================================================
