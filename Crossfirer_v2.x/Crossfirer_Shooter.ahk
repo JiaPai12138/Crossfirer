@@ -1,7 +1,6 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset("火")
-;==================================================================================
 global SHT_Service_On := False
+Preset("火")
 CheckPermission("自动开火")
 ;==================================================================================
 global AutoMode := False

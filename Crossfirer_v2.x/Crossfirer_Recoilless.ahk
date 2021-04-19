@@ -1,11 +1,9 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset("压")
-;==================================================================================
 global RCL_Service_On := False
-RCL_Down := 0
+Preset("压")
 CheckPermission("基础压枪")
 ;==================================================================================
-Gun_Chosen := -1, Current_Gun := -1
+Gun_Chosen := -1, Current_Gun := -1, RCL_Down := 0
 XGui5 := 0, YGui5 := 0, XGui6 := 0, YGui6 := 0, XGui7 := 0, YGui7 := 0
 Vertices := 40
 Radius := 0

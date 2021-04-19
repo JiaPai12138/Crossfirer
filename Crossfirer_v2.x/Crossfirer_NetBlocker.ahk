@@ -1,11 +1,11 @@
 ﻿#Include Crossfirer_Functions.ahk
 ;加载额外库
 #Include Acc.ahk
+global NBK_Service_On := False
 Preset("断")
 DetectHiddenWindows, On
 SetTitleMatchMode, Regex
 ;==================================================================================
-global NBK_Service_On := False
 global Net_On := True
 Net_Start := 0
 nb_block := False

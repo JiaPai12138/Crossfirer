@@ -1,7 +1,6 @@
 ﻿#Include Crossfirer_Functions.ahk
-Preset("身")
-;==================================================================================
 global BHP_Service_On := False
+Preset("身")
 CheckPermission("基础身法")
 ;==================================================================================
 If WinExist("ahk_class CrossFire")

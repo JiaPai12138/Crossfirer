@@ -1,8 +1,7 @@
 ﻿#Include Crossfirer_Functions.ahk
+global CTL_Service_On := False
 Preset("控")
 ;OnExit("CloseOthers", -1)
-;==================================================================================
-global CTL_Service_On := False
 CheckPermission()
 ;==================================================================================
 Need_Help := False
