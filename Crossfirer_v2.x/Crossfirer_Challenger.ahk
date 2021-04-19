@@ -339,7 +339,9 @@ Exit ;退出当前线程
 ;更新等级
 等级调整()
 {
-    If GetKeyState("vk87") && 准备
+    If Challenging()
+        Return
+    Else If GetKeyState("vk87") && 准备
     {
         ToolTip, 选择等级, , , 19
         ClickWait(0.8, 0.85) ;打开级别选择
