@@ -130,8 +130,11 @@ Return
 Return
 
 ~*1::
-    GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
-    Gun_Chosen := Current_Gun
+    If Current_Gun != -1
+    {
+        GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
+        Gun_Chosen := Current_Gun
+    }
 Return
 
 ~*2::
