@@ -101,13 +101,14 @@ Exit ;退出当前线程
 ;执行无尽挑战挂机,需要目前背包选择的武器或者背包1位主武器为神圣爆裂者
 无尽挑战挂机()
 {
+    游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0, Char_Dead := False, 正式游戏 := False
+    Load_FFFF1B := Create_ffff1b_png() ;Boss胸口黄灯
+
     If GetKeyState("vk87")
     {
         ClickWait(0.94, 0.823) ;点击开始游戏
         ClickWait(0.5, 0.648) ;离开原本退出的比赛
         ClickWait(0.94, 0.823) ;点击开始游戏
-        游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0, Char_Dead := False
-        Load_FFFF1B := Create_ffff1b_png() ;Boss胸口黄灯
 
         Loop
         {
@@ -123,7 +124,13 @@ Exit ;退出当前线程
         {
             HyperSleep(1000) ;等待真正进入游戏
         } Until, Challenging() || JumpLoop()
-
+        正式游戏 := True
+    }
+    Else If Challenging()
+        正式游戏 := True
+    
+    If 正式游戏
+    {
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
         
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
