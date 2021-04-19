@@ -121,7 +121,7 @@ Return
     Gun_Chosen := -1, Current_Gun := -1
 Return
 
-~*NumpadDel::
+~*NumpadDot::
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
     Gun_Chosen := 0 , Current_Gun := 0
