@@ -149,6 +149,7 @@ Exit ;退出当前线程
 
             If IsDead  
             {
+                Lose_Boss := 0
                 Char_Dead := True
                 ToolTip, 玩家死亡, , , 19
                 枪口上 := False
@@ -244,7 +245,7 @@ Exit ;退出当前线程
                     Lose_Boss := 0
                     Found_Boss := True
                     LRMoveX := (Boss_x1 - (Xj + Wj // 2)) // 4
-                    LRMoveY := (Boss_y1 - (Yj + Round(Hj * 0.65))) // 7 ;枪口上抬
+                    LRMoveY := (Boss_y1 - (Yj + Round(Hj * 0.666))) // 7 ;枪口上抬
                     ToolTip, 锁定Boss 鼠标移动%LRMoveX%|%LRMoveY%, Xj, , 17
                 }
                 Else If ErrorLevel && Found_Boss
@@ -254,11 +255,11 @@ Exit ;退出当前线程
                 }
                 Else If !Found_Boss ;未确认boss位置时转身寻找
                 {
-                    mouseXY(600, 0)
+                    mouseXY(500, 0)
                     ToolTip, 搜寻Boss, Xj, , 17
                 }
 
-                If Lose_Boss > 9
+                If Lose_Boss > 29
                     Found_Boss := False
 
                 mouseXY(LRMoveX, LRMoveY)
