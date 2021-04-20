@@ -151,7 +151,7 @@ Exit ;退出当前线程
             {
                 Lose_Boss := 0
                 Char_Dead := True
-                ToolTip, 玩家死亡, , , 19
+                ToolTip, 玩家死亡, , Yj, 19
                 枪口上 := False
                 HyperSleep(500)
             }
@@ -198,7 +198,7 @@ Exit ;退出当前线程
                 {
                     If !枪口上
                     {
-                        mouseXY(0, -20) ;枪口略微朝上
+                        mouseXY(0, -50) ;枪口略微朝上
                         枪口上 := True
                     }
                     press_key("e", 10, 10) ;佣兵觉醒
@@ -209,7 +209,7 @@ Exit ;退出当前线程
                 {
                     If 枪口上
                     {
-                        mouseXY(0, 20) ;枪口略微回调
+                        mouseXY(0, 50) ;枪口略微回调
                         枪口上 := False
                     }
                     If 后退
@@ -226,13 +226,13 @@ Exit ;退出当前线程
                 {
                     Random, RanClick, 8, 12
                     press_key("RButton", RanClick, 60 - RanClick)
-                    ToolTip, 爆裂轰炸, , , 19
+                    ToolTip, 爆裂轰炸, , Yj, 19
                 }
             }
             Else If !Char_Dead && Boss_Come
             {
-                Send, {Blind}{LButton Up}
-                Send, {Blind}{LButton Down}
+                If !GetKeyState("LButton")
+                    Send, {Blind}{LButton Down}
                 press_key("e", 10, 10) ;佣兵觉醒
                 LRMoveX := 0, LRMoveY := 0
             
@@ -259,7 +259,7 @@ Exit ;退出当前线程
                     ToolTip, 搜寻Boss, Xj, , 17
                 }
 
-                If Lose_Boss > 29
+                If Lose_Boss > 21
                     Found_Boss := False
 
                 mouseXY(LRMoveX, LRMoveY)
@@ -270,7 +270,7 @@ Exit ;退出当前线程
                         Send, {Blind}{LButton Down}
                     HyperSleep(100)
                 }
-                ToolTip, 立地成佛, , , 19
+                ToolTip, 立地成佛, , Yj, 19
             }
 
             ;确认所用时间并显示
