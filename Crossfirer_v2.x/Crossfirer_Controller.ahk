@@ -208,7 +208,7 @@ UpdateGui() ;精度0.5s
             Send, {Blind}{vk85 Up}
         
         If HasWGTooltip()
-            press_key("F11", 30, 30)
+            press_key("F11", 50, 50)
 
         Random, move_it, 1, 9
         Random, do_range, 3, 6 ;随机命中几率
