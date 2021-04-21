@@ -5,11 +5,9 @@
 ;https://www.designevo.com/cn/logo-maker/ https://www.pgyer.com/tools/appIcon Create logos
 ;https://www.bitbug.net/ Create icons
 ;http://www.ico51.cn/ Convert icons
-#Include, Create_CF_ico.ahk
-火线图标 := Create_CF_ico() ;加载图标
-火线重载 := Create_Reload_ico()
-火线退出 := Create_Exit_ico()
-脚本图标 := ""
+
+脚本图标 := 0
+
 ;加载真正的屏幕大小,即使在UHD放大情况下
 VarSetCapacity(Screen_Info, 156)
 DllCall("EnumDisplaySettingsA", Ptr, 0, UInt, -1, UInt, &Screen_Info) ;真实分辨率
@@ -39,51 +37,57 @@ Preset(Script_Icon)
     SetWinDelay, -1                  ;全速执行窗口命令
     SetControlDelay, -1              ;控件修改命令全速执行
 
-    global 火线图标, 脚本图标, 火线重载, 火线退出
+    global 脚本图标
+    If !FileExist("火线图标.dll")
+    {
+        MsgBox, 262160, 错误/Error, 图标文件丢失!!!`nIcon file lost!!!
+        ExitApp
+    }
+
     Switch Script_Icon
     {
         Case "断": 
-            脚本图标 := Create_一键限速_ico()
+            脚本图标 := 2
             Menu, Tray, Tip, 火线一键限速
 
         Case "控": 
-            脚本图标 := Create_助手控制_ico()
+            脚本图标 := 3
             Menu, Tray, Tip, 火线助手控制
 
         Case "身": 
-            脚本图标 := Create_基础身法_ico()
+            脚本图标 := 4
             Menu, Tray, Tip, 火线基础身法
 
         Case "压": 
-            脚本图标 := Create_基础压枪_ico()
+            脚本图标 := 5
             Menu, Tray, Tip, 火线基础压枪
+        
+        Case "尽": 
+            脚本图标 := 6
+            Menu, Tray, Tip, 火线无尽挂机
 
         Case "猎": 
-            脚本图标 := Create_战斗助手_ico()
+            脚本图标 := 7
             Menu, Tray, Tip, 火线战斗猎手
 
         Case "火": 
-            脚本图标 := Create_自动开火_ico()
+            脚本图标 := 8
             Menu, Tray, Tip, 火线自动开火
 
         Case "点":
-            脚本图标 := Create_连点助手_ico()
+            脚本图标 := 9
             Menu, Tray, Tip, 火线连点助手
-        
-        Case "尽": 
-            脚本图标 := Create_无尽挂机_ico()
-            Menu, Tray, Tip, 火线无尽挂机
     }
     Menu, Tray, NoStandard
     Menu, Tray, Add, 关于, About
-    Menu, Tray, Icon, 关于, HICON:*%火线图标%, , 20
+    Menu, Tray, Icon, 关于, 火线图标.dll, 1, 20
     Menu, Tray, Default, 关于
     Menu, Tray, Click, 1
-    Menu, Tray, Icon, HICON:*%脚本图标%, , 1
+    Menu, Tray, Icon, 火线图标.dll, %脚本图标%, 1
     Menu, Tray, Add, 重新加载, Re_load
-    Menu, Tray, Icon, 重新加载, HICON:*%火线重载%, , 20
+    Menu, Tray, Icon, 重新加载, 火线图标.dll, 11, 20
     Menu, Tray, Add, 退出辅助, Exit_Script
-    Menu, Tray, Icon, 退出辅助, HICON:*%火线退出%, , 20
+    Menu, Tray, Icon, 退出辅助, 火线图标.dll, 10, 20
     Menu, Tray, Color, 0x00FFFF
 }
 ;==================================================================================
@@ -484,12 +488,11 @@ Re_load()
 ;托盘关于选项
 About()
 {
-    global 火线图标
     static thanks, timenow
     FormatTime, show_time
     Gui, icon_about: New, +LastFound +AlwaysOnTop -DPIScale +Border, 关于
     Gui, icon_about: Color, 333333 ;#333333
-    Gui, icon_about: Add, Picture, , HICON:*%火线图标% ;512*512
+    Gui, icon_about: Add, Picture, icon12, 火线图标.dll ;512*512
     Gui, icon_about: Font, s12 Bold, Microsoft YaHei
     Gui, icon_about: Add, Text, vthanks c00FFFF +Center w512 ReadOnly, 2020-2021 开源项目 欢迎指导 ;%A_GuiWidth%
     Gui, icon_about: Add, Edit, vtimenow c00FFFF +Center w512 ReadOnly, %show_time% ;#00FFFF
@@ -506,17 +509,17 @@ close_gui()
 ;禁用/启用热键时修改图标
 Suspended()
 {
-    global 火线图标, 脚本图标
+    global 脚本图标
 
     If A_IsSuspended
     {
         ToolTip, 禁用热键, , , 20
-        Menu, Tray, Icon, HICON:*%火线图标%
+        Menu, Tray, Icon, 火线图标.dll, 1
     }
     Else
     {
         ToolTip, , , , 20
-        Menu, Tray, Icon, HICON:*%脚本图标%
+        Menu, Tray, Icon, 火线图标.dll, %脚本图标%
     }
 }
 ;==================================================================================
