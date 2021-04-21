@@ -58,6 +58,22 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
+#If RCL_Service_On ;以下的热键需要相应条件才能激活
+
+~*CapsLock Up:: ;最小最大化窗口
+    HyperSleep(100)
+    If WinActive("ahk_class CrossFire")
+    {
+        Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
+        Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
+    }
+    Else
+    {
+        Gui, recoil_mode: Show, Hide
+        Gui, gun_sel: Show, Hide
+    }
+Return
+
 #If WinActive("ahk_class CrossFire") && RCL_Service_On ;以下的热键需要相应条件才能激活
 
 ~*Enter Up::

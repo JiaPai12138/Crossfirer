@@ -60,6 +60,24 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
+#If SHT_Service_On ;以下的热键需要相应条件才能激活
+
+~*CapsLock Up:: ;最小最大化窗口
+    HyperSleep(100)
+    If WinActive("ahk_class CrossFire")
+    {
+        Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
+        Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
+        Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
+    }
+    Else
+    {
+        Gui, fcn_mode: Show, Hide
+        Gui, fcn_status: Show, Hide
+        Gui, cross_hair: Show, Hide
+    }
+Return
+
 #If WinActive("ahk_class CrossFire") && SHT_Service_On ;以下的热键需要相应条件才能激活
 
 ~*Enter Up::

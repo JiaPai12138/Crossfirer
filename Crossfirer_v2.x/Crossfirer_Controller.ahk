@@ -89,16 +89,22 @@ ExitApp
 
 #If CTL_Service_On
 
-~*CapsLock Up:: ;minimize window and replace origin use
+~*CapsLock Up:: ;最小最大化窗口
     If WinActive("ahk_class CrossFire")
     {
         WinMinimize, ahk_class CrossFire
-        HyperSleep(100)
-        CoordMode, Mouse, Screen
-        MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
+        Gui, Hint: Show, Hide
+        Gui, Ran: Show, Hide
+        Gui, Helper: Show, Hide
+        Gui, T_Hour: Show, Hide
     }
     Else
+    {
         WinActivate, ahk_class CrossFire ;激活该窗口
+        Gui, Ran: Show, x%XGui11% y%YGui11% NA
+        ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
+        Gui, T_Hour: Show, x%XGui12% y%YGui12% NA
+    }
 Return
 
 #If WinActive("ahk_class CrossFire") && CTL_Service_On ;以下的热键需要相应条件才能激活
@@ -165,18 +171,23 @@ UpdateGui() ;精度0.5s
             Hour_Left -= 1
     }
     If (Game_Begin_Min - A_Min) < 0
-    {
         Hour_Left -= 1
-    }
     Minute_Left := SubStr("00" . Minute_Left, -1) ;格式
     Second_Left := SubStr("00" . Second_Left, -1) ;格式
     Time_Text := "剩余" . Hour_Left . "小时" . Minute_Left . "分" . Second_Left . "秒"
-    UpdateText("T_Hour", "T_Left", Time_Text, XGui12, YGui12)
+    
+    If WinActive("ahk_class CrossFire")
+        UpdateText("T_Hour", "T_Left", Time_Text, XGui12, YGui12)
+
     If Hour_Left < 0
         WinClose, ahk_class CrossFire
 
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
+    
+    If !GetKeyState("LAlt", "P") && GetKeyState("LAlt")
+        Send, {Blind}{LAlt Up} ;双重保险防止意外激活
+
     If !WinExist("ahk_class CrossFire")
     {
         WinClose, ahk_class ConsoleWindowClass
@@ -199,6 +210,7 @@ UpdateGui() ;精度0.5s
     Else If !Not_In_Game(CF_Title)
     {
         Send, {Blind}{vk87 Up} ;F24 key
+        Send, {Blind}{vk84 Up}
         If Strlen(Key_Pressed) > 0
             Send, {Blind}{%Key_Pressed% Up}
 
@@ -257,10 +269,17 @@ UpdateGui() ;精度0.5s
             }
         }
     }
-    Else If Not_In_Game(CF_Title)
+    Else If Not_In_Game(CF_Title) = 1 ;不在房间也不在活跃主界面
     {
         Send, {Blind}{vk87 Down} ;F24 key
         Send, {Blind}{vk85 Up}
+        Send, {Blind}{vk84 Up}
+    }
+    Else If Not_In_Game(CF_Title) = 2 ;在活跃主界面
+    {
+        Send, {Blind}{vk87 Down} ;F24 key
+        Send, {Blind}{vk85 Up}
+        Send, {Blind}{vk84 Down}
     }
 }
 ;==================================================================================
@@ -347,7 +366,7 @@ HasWGTooltip()
     PixelSearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x282622, 0, Fast ;#222628 #282622
     If !ErrorLevel
     {
-        PixelSearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0xBD8015, 0, Fast ;#1580BD #BD8015
+        PixelSearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x919191, 0, Fast ;#919191
         Return !ErrorLevel
     }
     Return False

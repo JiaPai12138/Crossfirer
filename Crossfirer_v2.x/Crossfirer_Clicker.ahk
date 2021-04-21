@@ -30,6 +30,16 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
+#If CLK_Service_On ;以下的热键需要相应条件才能激活
+
+~*CapsLock Up:: ;最小最大化窗口
+    HyperSleep(100)
+    If WinActive("ahk_class CrossFire")
+        Gui, click_mode: Show, x%XGui3% y%YGui3% NA
+    Else
+        Gui, click_mode: Show, Hide
+Return
+
 #If WinActive("ahk_class CrossFire") && CLK_Service_On ;以下的热键需要相应条件才能激活
 
 ~*Enter Up::

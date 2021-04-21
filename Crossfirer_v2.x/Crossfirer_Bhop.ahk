@@ -23,6 +23,16 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
+#If BHP_Service_On ;以下的热键需要相应条件才能激活
+
+~*CapsLock Up:: ;最小最大化窗口
+    HyperSleep(100)
+    If WinActive("ahk_class CrossFire")
+        Gui, jump_mode: Show, x%XGui4% y%YGui4% NA
+    Else
+        Gui, jump_mode: Show, Hide
+Return
+
 #If WinActive("ahk_class CrossFire") && BHP_Service_On ;以下的热键需要相应条件才能激活
 
 ~*Enter Up::

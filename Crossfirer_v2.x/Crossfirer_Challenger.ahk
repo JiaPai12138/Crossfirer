@@ -30,6 +30,16 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
+#If CLG_Service_On ;以下的热键需要相应条件才能激活
+
+~*CapsLock Up:: ;最小最大化窗口
+    HyperSleep(100)
+    If WinActive("ahk_class CrossFire")
+        Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
+    Else
+        Gui, challen_mode: Show, Hide
+Return
+
 #If WinActive("ahk_class CrossFire") && CLG_Service_On ;以下的热键需要相应条件才能激活
 
 ~*Enter Up::
@@ -100,33 +110,24 @@ Exit ;退出当前线程
 ;执行无尽挑战挂机,需要目前背包选择的武器或者背包1位主武器为神圣爆裂者
 无尽挑战挂机()
 {
-    游戏即将开始 := False, 进入游戏x := 0, 进入游戏y := 0, Char_Dead := False, 正式游戏 := False
+    进入游戏x := 0, 进入游戏y := 0, Char_Dead := False, 正式游戏 := False
     Load_FFFF14 := Create_ffff14_png() ;Boss胸口黄灯
     Load_FAFA00 := Create_fafa00_png() ;黄金Boss胸口黄灯
 
-    If GetKeyState("vk87")
+    If GetKeyState("vk84") ;主界面
     {
         ClickWait(0.94, 0.823) ;点击开始游戏
         ClickWait(0.5, 0.648) ;离开原本退出的比赛
         ClickWait(0.94, 0.823) ;点击开始游戏
-
-        Loop
-        {
-            ToolTip, 等待进入游戏, , , 19
-            HyperSleep(1000)
-            PixelSearch, 进入游戏x, 进入游戏y, Xj + Round(Wj / 8), Yj, Xj + Round(Wj / 4), Yj + Round(Hj / 9), 0x836F54, 0, Fast ;#546F83 #836F54
-            If !ErrorLevel
-                游戏即将开始 := True
-        } Until, (!GetKeyState("vk87") && 游戏即将开始) || JumpLoop() ;等待进入游戏
-        ToolTip, 进入房间界面, , , 19
         
         Loop
         {
+            ToolTip, 等待进入游戏, , , 19
             HyperSleep(1000) ;等待真正进入游戏
-        } Until, Challenging() || JumpLoop()
+        } Until, !GetKeyState("vk87") || JumpLoop()
         正式游戏 := True
     }
-    Else If Challenging()
+    Else If !GetKeyState("vk87")
         正式游戏 := True
     
     If 正式游戏
@@ -172,7 +173,7 @@ Exit ;退出当前线程
             If !ErrorLevel
                 press_key("~", 30, 30) ;退出佣兵管理界面
 
-            If !Mod(A_Sec, 12) && !Char_Dead ;增强佣兵
+            If !Mod(A_Sec, 12) && !Char_Dead && !Boss_Come ;增强佣兵
             {
                 press_key("~", 30, 30)
                 PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
@@ -291,19 +292,19 @@ Exit ;退出当前线程
                 {
                     ClickWait(0.44, 0.765)
                     PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
-                } Until, GetKeyState("vk87") || JumpLoop() || ErrorLevel
+                } Until, GetKeyState("vk84") || JumpLoop() || ErrorLevel
             }
 
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
 
             PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 18 ;游戏内部总倒计时25分,因为cf无尽内置倒计时精度太差而减少实际时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 18 ;游戏内部总倒计时25分,因为cf无尽内置倒计时精度太差以及死亡次数过多会减少时间而降低实际时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
         ToolTip, , , , 17
         Send, {Blind}{LButton Up}
         
-        If Time_Minute > 17 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
+        If Time_Minute > 18 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
         {
             global XGui10, YGui10
             Loop
@@ -326,12 +327,12 @@ Exit ;退出当前线程
 无尽准备()
 {
     地图选择x := 0, 地图选择y := 0
-    If Challenging()
+    If !GetKeyState("vk87")
     {
         准备 := True
         Return
     }
-    Else If GetKeyState("vk87")
+    Else If GetKeyState("vk84")
     {
         ToolTip, 选择模式, , , 19
         Loop ;确认是否进入模式/地图选择界面
@@ -347,7 +348,7 @@ Exit ;退出当前线程
         Loop
         {
             ClickWait(0.844, 0.95) ;点击确认
-        } Until, GetKeyState("vk87") || JumpLoop()
+        } Until, GetKeyState("vk84") || JumpLoop()
 
         准备 := True
         ToolTip, 准备完毕, , , 19
@@ -357,9 +358,9 @@ Exit ;退出当前线程
 ;更新等级
 等级调整()
 {
-    If Challenging()
+    If !GetKeyState("vk87")
         Return
-    Else If GetKeyState("vk87") && 准备
+    Else If GetKeyState("vk84") && 准备
     {
         ToolTip, 选择等级, , , 19
         ClickWait(0.8, 0.85) ;打开级别选择
@@ -394,7 +395,7 @@ Exit ;退出当前线程
     Loop
     {
         ClickWait(0.775, 0.9) ;点击确认键
-    } Until, GetKeyState("vk87") || JumpLoop()
+    } Until, GetKeyState("vk84") || JumpLoop()
     ToolTip, , , , 19
 }
 ;==================================================================================
@@ -414,15 +415,6 @@ ClickWait(a, b, SleepWait := 500)
     HyperSleep(SleepWait)
 }
 ;==================================================================================
-;检测是否在挑战中
-Challenging()
-{
-    PixelSearch, clgx, clgy, Xj + Wj // 2 - Round(Wj / 8), Yj, Xj + Wj // 2 + Round(Wj / 8), Yj + Round(Hj / 18), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
-    If !ErrorLevel
-        Return True
-    Return False
-}
-;==================================================================================
 ; ##################################################################################
 ; # This #Include file was generated by Image2Include.ahk, you must not change it! #
 ; ##################################################################################
@@ -433,7 +425,7 @@ If (NewHandle)
 If (hBitmap)
     Return hBitmap
 VarSetCapacity(B64, 1232 << !!A_IsUnicode)
-B64 := "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAMAAADXEh96AAADAFBMVEX//xRmAFwAZgBmAGYAMQAuADQAcABnAG4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGNIACodyF3IYUAAAAAAAABAAAAAABug7H4kHcAABkAAAAAADAAAAAAAAAAAABuhAgAAHcAAAAAAAAAAAAAAABMAAB3IYYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABzeATDgHcADOsAvwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGQAAACYAAAMrGAAAgkAAADKAAACCQXrQBDDgAyIDOsMrGC/AAAAAADMAAAAGfhvO7arOXcAd3AAAAAAAAAAAAAAAAAAAAAAAAB8FQDsuBF3FPYZ+XD3DQC3dxQAAAAAAAAAAAArwAB3FPcAAGAAAAAFAAAAAAAAAIAAgAAAwBAAAAAABngAAAADAAAAAAA4ADbDgAAADOsAAADrw4AAAAxsAAAAGfkUmGMAAHcYAAAAAAAAAAD5EABAABkAAAAAAAD5YAAAABkAAAAAAAAAAAAAAAAAAACHsmAAAA8MAL8AAAAAAAIBAQAx///Jfp4Z+aDz3gAAdxQAAAAAAAL5iAAAABkAAAAAABgAgAAAAAAAAAAAAAAAAAAAAACPpvYGAAAAAWJLR0SL8m9H4AAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADVJREFUeNoBKgDV/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqAAHsFU4fAAAAAElFTkSuQmCC"
+B64 := "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAIAAABvrngfAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAEUlEQVR42mP4/18EDTHQVggAurZKiRLIUFoAAAAASUVORK5CYII="
 DecLen := 0, pStream := "", pBitmap := "", pToken := ""
 If !DllCall("Crypt32.dll\CryptStringToBinary", "Ptr", &B64, "UInt", 0, "UInt", 0x01, "Ptr", 0, "UIntP", DecLen, "Ptr", 0, "Ptr", 0)
     Return False
@@ -468,7 +460,7 @@ If (NewHandle)
 If (hBitmap)
     Return hBitmap
 VarSetCapacity(B64, 1232 << !!A_IsUnicode)
-B64 := "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAMAAADXEh96AAADAFBMVEX6+gBmAGEAYQAwADAALgBuAHAAZwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAhjSCFqHcAdyEAAAAAAAAAAQCxAAB3boMZ+DAAAAAwAAAAAAAAAAAAAAAIAAB3boQAAAAAAAAAAAAAAAAAAACGTAAAdyEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAB3c3j53HgAAAwAALcAAAAAAAAAAAAAAAAAAAAAAAAAAABkAAAAAAAAAADfYABtCdEAAAEAAAAGSwAIAW0M+YD53HjfUAwACdEAtwAAAAD4bAC2ABl3bztwqzkAAHcAAAAAAAAAAAAAAAAAAAAAAAA/SS/27CcQdxQAGfkU9w0At3cAAAAAAAAAAAD3K8BgdxQAAAAAAAAABQCAAAAAAAAQAIAAAMCYAAAAAAcAAAAAAwA2AAAAOAD53HgAAAx4AAAM+dwAAAAAwADTALfTAAAAAAAAGAAAAAAAAAAZ+LAAQAAAAAAAAAAZ+QAAAAAAAAAAAAAAAAAAAAB4AAAOfZK3AAAADAACAAAAAABdAQGEcFBE4aYAGfkU894AAHcCAAAAAAAZ+SgAAAAYAAAAAAAAAIAAAAAAAAAAAAAAAAAAAABYAACIo5a8AAAAAWJLR0SL8m9H4AAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADVJREFUeNoBKgDV/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqAAHsFU4fAAAAAElFTkSuQmCC"
+B64 := "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAIAAABvrngfAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAAEUlEQVR42mP49YsBDTHQVggAzEtGUdGPnoQAAAAASUVORK5CYII="
 DecLen := 0, pStream := "", pBitmap := "", pToken := ""
 If !DllCall("Crypt32.dll\CryptStringToBinary", "Ptr", &B64, "UInt", 0, "UInt", 0x01, "Ptr", 0, "UIntP", DecLen, "Ptr", 0, "Ptr", 0)
     Return False

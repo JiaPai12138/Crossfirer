@@ -5,8 +5,8 @@ CheckPermission("战斗猎手")
 ;==================================================================================
 C4_Time := 40
 C4_Start := 0
-Be_Hero := False
-C4_On := False
+global Be_Hero := False
+global C4_On := False
 
 If WinExist("ahk_class CrossFire")
 {
@@ -43,6 +43,26 @@ If WinExist("ahk_class CrossFire")
 ;==================================================================================
 ~*-::ExitApp
 
+#If C4H_Service_On ;以下的热键需要相应条件才能激活
+
+~*CapsLock Up:: ;最小最大化窗口
+    HyperSleep(100)
+    If WinActive("ahk_class CrossFire")
+    {
+        Gui, C4: Show, Hide
+        Gui, Human_Hero: Show, Hide
+        If Be_Hero
+            Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+        Else If C4_On
+            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+    }
+    Else
+    {
+        Gui, Human_Hero: Show, Hide
+        Gui, C4: Show, Hide
+    }
+Return
+
 #If WinActive("ahk_class CrossFire") && C4H_Service_On ;以下的热键需要相应条件才能激活
 
 ~*Enter Up::
@@ -57,20 +77,12 @@ Return
     Suspended()
     SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2)
     SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2)
+    Gui, C4: Show, Hide
+    Gui, Human_Hero: Show, Hide
     If Be_Hero
-    {
         Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
-        Gui, C4: Show, Hide
-    }
-    Else
-        Gui, Human_Hero: Show, Hide
-    If C4_On
-    {
+    Else If C4_On
         Gui, C4: Show, x%XGuiC% y%YGuiC% NA
-        Gui, Human_Hero: Show, Hide
-    }
-    Else
-        Gui, C4: Show, Hide
 Return
 
 #If (WinActive("ahk_class CrossFire") && C4H_Service_On && !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
