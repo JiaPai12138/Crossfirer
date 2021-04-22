@@ -107,7 +107,7 @@ Return
     ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
-#If WinActive("ahk_class CrossFire") && SHT_Service_On && AutoMode && !GetKeyState("vk87") ;以下的热键需要相应条件才能激活
+#If (WinActive("ahk_class CrossFire") && SHT_Service_On && AutoMode && !GetKeyState("vk87") && !GetKeyState("vk85")) ;以下的热键需要相应条件才能激活
 
 ~*Tab Up::
 ~*1 Up:: ;还原模式

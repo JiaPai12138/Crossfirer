@@ -157,10 +157,21 @@ class C4Timer
         this.H := aH
     }
 
-    UpdateC4()
+    C4Show()
     {
         global XGuiC, YGuiC
-        If this.IsC4Time() && !GetKeyState("vk87") && WinActive("ahk_class CrossFire")
+        If WinActive("ahk_class CrossFire")
+        {
+            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
+            UpdateText("C4", "C4Status", "剩余" . this.C4_Time . "秒钟", XGuiC, YGuiC)
+        }
+        Else
+            Gui, C4: Show, Hide
+    }
+
+    UpdateC4()
+    {
+        If this.IsC4Time() && !GetKeyState("vk87")
         {
             If this.C4_Start = 0
                 this.C4_Start := SystemTime()
@@ -178,8 +189,7 @@ class C4Timer
                     GuiControl, C4: +cFF0000 +Redraw, C4Progress ;#FF0000
                 }
                 GuiControl, C4: , C4Progress, % this.C4_Time
-                Gui, C4: Show, x%XGuiC% y%YGuiC% NA
-                UpdateText("C4", "C4Status", "剩余" . this.C4_Time . "秒钟", XGuiC, YGuiC)
+                this.C4Show()
             }
         }
         Else
@@ -191,8 +201,7 @@ class C4Timer
             GuiControl, C4: +c00FFFF +Redraw, C4Status ;#00FFFF
             GuiControl, C4: , C4Progress, % this.C4_Time
             GuiControl, C4: +c00FFFF +Redraw, C4Progress ;#00FFFF
-            Gui, C4: Show, x%XGuiC% y%YGuiC% NA
-            UpdateText("C4", "C4Status", "剩余" . this.C4_Time . "秒钟", XGuiC, YGuiC)
+            this.C4Show()
         }
     }
 
