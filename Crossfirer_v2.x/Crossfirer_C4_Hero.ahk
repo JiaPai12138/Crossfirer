@@ -160,7 +160,7 @@ class C4Timer
     UpdateC4()
     {
         global XGuiC, YGuiC
-        If this.IsC4Time() && !GetKeyState("vk87")
+        If this.IsC4Time() && !GetKeyState("vk87") && WinActive("ahk_class CrossFire")
         {
             If this.C4_Start = 0
                 this.C4_Start := SystemTime()
