@@ -153,7 +153,7 @@ Return
 ;跳出连点循环
 StayLoop(KeyClicker)
 {
-    If !(GetKeyState("E", "P") || GetKeyState("R", "P") || GetKeyState(KeyClicker, "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk87")
+    If !(GetKeyState("E", "P") || GetKeyState("R", "P") || GetKeyState(KeyClicker, "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk84")
         Return True
     Return False
 }
