@@ -1,4 +1,6 @@
-# 火线娱乐辅助
+# 火线娱乐辅助 𝕮𝖗𝖔𝖘𝖘𝖋𝖎𝖗𝖊𝖗
+
+[![img](https://img.shields.io/github/stars/JiaPai12138/Crossfirer?label=点赞)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/last-commit/JiaPai12138/Crossfirer?label=最近提交)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/release/JiaPai12138/Crossfirer?label=最新版本)](https://github.com/JiaPai12138/Crossfirer/releases)  [![img](https://img.shields.io/github/license/JiaPai12138/Crossfirer?label=许可证)](https://github.com/JiaPai12138/Crossfirer/blob/main/LICENSE)  [![img](https://img.shields.io/badge/URL-帮助文档-blue)](https://github.com/JiaPai12138/Crossfirer/blob/main/README.pdf)
 
 ## 介绍(不会有英文介绍的)
 火线娱乐辅助，拥有红名自动开火、鼠标连点、跳蹲、扫射压枪、C4计时、秒变猎手、无尽挂机等功能。适用于Win7+系统。适合手残党以及高手挂机。建议**窗口化**运行。这是个学习性质脚本，恳请在以下方面提供意见与帮助:
@@ -14,6 +16,7 @@
 * 运行脚本时将获得即时状态提示，一般黄色![黄色](PDF_Images/黄色.png)为暂停状态，绿色![绿色](PDF_Images/绿色.png)为就绪状态，青色![青色](PDF_Images/青色.png)为正在运行，红色![红色](PDF_Images/红色.png)为警报(仅自动开火和C4计时部分)，按靠右的Ctrl键将获得简易键位提示![image](PDF_Images/做好变猎手准备.png)
 * 游戏中按下回车键可暂停/恢复一切按键触发函数，或者按右边的Alt恢复按键触发，避免打字时错乱
 * 按下"?"可开启/关闭游戏内随机动作，避免不活跃被系统踢出房间
+* 按下方向上/下键增加/减少挂机时间，默认为4小时
 
 ### 自动开火部分
 * 按下"LCtrl"和"~"键开启、关闭脚本自瞄动开火部分
@@ -40,9 +43,9 @@
 * 先后按下"C"和"4"键打开C4计时功能(~~期间移动客户端位置会暂时失效~~)，先后按下"C"和"5"或直接按"="取消C4计时功能，C4计时带有简易进度条
 
 ### 鼠标连点部分
-* 任何时候可运行鼠标连点，按下滚轮键或鼠标前进后退键切换模式，按照情况按下"E"、"R"、鼠标左右键退出连点循环![image](PDF_Images/加特林速点.png)
+* 任何时候可运行鼠标连点，按下滚轮键或鼠标前进后退键切换模式，按照情况按下"E"、"R"、鼠标左右键退出连点循环
 * 按鼠标前进键开启炼狱连刺(10下)
-* 按鼠标后退键或者T键开启炼狱速点(对加特林系列的压枪接近无后坐力，并且因为应用随机函数以及合理点射间隔而大幅减少被tx封杀的几率)
+* 按鼠标后退键或者T键开启炼狱速点(对加特林系列的压枪接近无后坐力，并且因为应用随机函数以及合理点射间隔而大幅减少被tx封杀的几率)![image](PDF_Images/加特林速点.png)
 * 按鼠标滚轮键开启右键速点(适合神圣爆裂者)
 * 按键盘"|"键开启左键不放
 * 按键盘"""键开启大宝剑二段连击
@@ -53,6 +56,7 @@
 
 ### 无尽挂机部分
 * **在游戏大厅界面**按"F8"开始自动刷末日工厂(需要默认主武器为神圣爆裂者,默认等级为6)，**然后**再按"?"键防止被系统判定不活跃踢出房间
+* 按方向左/右键下调/上调挑战等级
 * 按"Esc"键退出挂机循环，按"?"键退出随机移动
 * 当日存在黑暗属性时脚本表现变差(影响到屏幕取色)
 * 实际时间超出18分钟未通过后会自动退出(游戏内计时25分种实际只有14分钟不到)然后再开一局

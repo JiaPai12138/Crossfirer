@@ -1,16 +1,10 @@
 ﻿#IfWinExist, ahk_class CrossFire  
-#Include, CrossHirer_Bhop.ahk  
-#Include, CrossHirer_C4_Hero.ahk  
-#Include, CrossHirer_Clicker.ahk  
-#Include, CrossHirer_Functions.ahk  
-#Include, CrossHirer_NetBlocker.ahk  
-#Include, CrossHirer_Recoilless.ahk  
-#Include, CrossHirer_Shooter.ahk  
+#Include, CrossHirer_Functions.ahk
 Preset()
 DetectHiddenWindows, On  
 SetTitleMatchMode, Regex  
 ;==================================================================================
-global CTL_Service_On := False
+global Service_On := False
 CheckPermission()
 Game_Obj := CriticalObject()  ;Create new critical object
 Game_Obj.In_Game := False
@@ -49,27 +43,30 @@ If WinExist("ahk_class CrossFire")
     ;WinMinimize, ahk_class ConsoleWindowClass
     SetTimer, UpdateGui, 500 ;不需要太频繁
     DPI_Initial := A_ScreenDPI
-    CTL_Service_On := True
+    Service_On := True
 }
 ;OutputVar := AhkThread(ScriptOrFile, , , True)
 ;==================================================================================
 ;第一个线程:自动开火
-AhkThread_Shooter := AhkThread("CrossHirer_Shooter.ahk", , , True)
+AhkThread_Shooter := AhkThread("", , , True)
 ;==================================================================================
 ;第二个线程:基础身法
-AhkThread_Bhop := AhkThread("CrossHirer_Bhop.ahk", , , True)
+AhkThread_Bhop := AhkThread("", , , True)
 ;==================================================================================
 ;第三个线程:C4计时+秒变猎手
-AhkThread_C4_Hero := AhkThread("CrossHirer_C4_Hero.ahk", , , True)
+AhkThread_C4_Hero := AhkThread("", , , True)
 ;==================================================================================
 ;第四个线程:鼠标连点
-AhkThread_Clicker := AhkThread("CrossHirer_Clicker.ahk", , , True)
+AhkThread_Clicker := AhkThread("", , , True)
 ;==================================================================================
 ;第五个线程:小小压枪
-AhkThread_Recoilless := AhkThread("CrossHirer_Recoilless.ahk", , , True)
+AhkThread_Recoilless := AhkThread("", , , True)
 ;==================================================================================
-;第六个线程:一键限速
-AhkThread_NetBlocker := AhkThread("CrossHirer_NetBlocker.ahk", , , True)
+;第六个线程:一键限网
+AhkThread_NetBlocker := AhkThread("", , , True)
+;==================================================================================
+;第七个线程:无尽挂机
+AhkThread_NetBlocker := AhkThread("", , , True)
 ;==================================================================================
 ~*-::
     HyperSleep(1000)
@@ -106,48 +103,3 @@ Return
             WinActivate, ahk_class CrossFire ;激活该窗口
     }
 Return
-;==================================================================================
-UpdateGui() ;精度0.5s
-{
-    global DPI_Initial, Game_Obj
-    If Not_In_Game()
-        Game_Obj.In_Game := False
-    Else
-        Game_Obj.In_Game := True
-    If !InStr(A_ScreenDPI, DPI_Initial)
-        MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
-    If !WinExist("ahk_class CrossFire")
-    {
-        WinClose, ahk_class ConsoleWindowClass
-        Loop ;, 10
-        {
-            ;PostMessage("Listening", 125638)
-            WinGetTitle, Gui_Title, ahk_class AutoHotkeyGUI
-            ;MsgBox, , , %Gui_Title%
-            If StrLen(Gui_Title) < 4
-                Title_Blank += 1
-            HyperSleep(100) ;just for stability
-        } Until Title_Blank > 4
-        If ProcessExist("GameLoader.exe")
-            Run, *RunAs .\关闭TX残留进程.bat, , Hide
-        ExitApp
-    }
-}
-;==================================================================================
-;通过按下快捷键显示/隐藏提示
-ShowHelp(ByRef Need_Help, XGui1, YGui1, Gui_Number1, XGui2, YGui2, Gui_Number2, Changer)
-{
-    If Changer = 1
-        Need_Help := !Need_Help
-    If Need_Help
-    {
-        Gui, %Gui_Number1%: Show, x%XGui1% y%YGui1% NA
-        Gui, %Gui_Number2%: Show, Hide
-    }
-    Else
-    {
-        Gui, %Gui_Number1%: Show, Hide
-        Gui, %Gui_Number2%: Show, x%XGui2% y%YGui2% NA
-    }
-}
-;==================================================================================
