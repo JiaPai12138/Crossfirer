@@ -46,6 +46,7 @@ If WinExist("ahk_class CrossFire")
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1002, "ReceiveMessage")
 
     ;If game_title = 穿越火线
     ;    GamePing := Test_Game_Ping("cf.qq.com")
@@ -107,7 +108,7 @@ Return
     ChangeMode("fcn_mode", "fcn_status", "ModeOfFcn", "StatusOfFun", AutoMode, XGui1, YGui1, XGui2, YGui2, "cross_hair", Xch, Ych)
 Return
 
-#If (WinActive("ahk_class CrossFire") && SHT_Service_On && AutoMode && !GetKeyState("vk87") && !GetKeyState("vk85")) ;以下的热键需要相应条件才能激活
+#If (WinActive("ahk_class CrossFire") && SHT_Service_On && AutoMode && CF_Now.GetStatus() = 1 && CF_Now.GetHuman()) ;以下的热键需要相应条件才能激活
 
 ~*Tab Up::
 ~*1 Up:: ;还原模式
@@ -245,7 +246,7 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
     static Color_Delay := 7 ;本机i5-10300H测试结果,6.985毫秒上下约等于7,使用test_color.ahk测试
     Gui, %CrID%: Color, 00FFFF ;#00FFFF
     Gui, %CrID%: Show, x%Xch% y%Ych% w66 h66 NA
-    While, !GetKeyState("vk87") && AutoMode
+    While, CF_Now.GetStatus() = 1 && AutoMode
     {
         Random, rand, 59.0, 61.0 ;设定随机值减少被检测概率
         small_rand := rand / 2
@@ -303,12 +304,12 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
                                 Loop ;确保及时退出循环
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || GetKeyState("vk87"))
+                                } Until, (GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || !CF_Now.GetStatus())
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || GetKeyState("vk87"))
+                                } Until, (!GetColorStatus(X1, Y1, W1 // 2 + 1, H1 // 2 + Round(H1 / 9 * 2), PosColor_snipe) || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || !CF_Now.GetStatus())
                             }
                         }
 
@@ -347,6 +348,6 @@ Shoot_Time(X, Y, W, H, Var, game_title)
 ;检测是否退出模式,由按键触发
 ExitMode()
 {
-    Return (GetKeyState("vk87") || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P") || GetKeyState("Tab", "P") || GetKeyState("K", "P") || GetKeyState("vk85"))
+    Return (!CF_Now.GetStatus() || GetKeyState("1", "P") || GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P") || GetKeyState("J", "P") || GetKeyState("L", "P") || GetKeyState("RAlt", "P") || GetKeyState("Tab", "P") || GetKeyState("K", "P") || !CF_Now.GetHuman())
 }
 ;==================================================================================

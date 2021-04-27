@@ -7,6 +7,7 @@
 ;http://www.ico51.cn/ Convert icons
 
 脚本图标 := 0
+global CF_Now := New CF_Game_Status ;初始化显示游戏状态
 
 ;加载真正的屏幕大小,即使在UHD放大情况下
 VarSetCapacity(Screen_Info, 156)
@@ -254,8 +255,12 @@ ProcessExist(Process_Name)
 }
 ;==================================================================================
 ;检测是否不在游戏中,目标为界面左上角以及界面顶端中部
-Not_In_Game(CF_Title)
+In_Game(CF_Title)
 {
+    ;-1为既不在主界面也不在游戏房间内的状态
+    ;0为主界面状态,可见左上角穿越火线字样
+    ;1为游戏中状态,可见正上方x:x字样,包括生化/团竞/爆破模式
+    ;2为游戏中状态,可见正上方x:x字样或者黑幕,专为挑战模式
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
     Load_000000 := Create_000000_png()
     If CF_Title = 穿越火线
@@ -268,23 +273,27 @@ Not_In_Game(CF_Title)
             {
                 PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x676665, 0, Fast ;show color in editor: #656667 #676665
                 If !ErrorLevel
-                    Return 2 ;在游戏开始界面
+                    Return 0 ;在游戏开始界面
             }
         }
 
         ImageSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1, Y1 + H1, HBITMAP:*%Load_000000% ;#000000 160*90
         If !ErrorLevel
-            Return 0 ;无尽挑战黑暗中
+            Return 2 ;无尽挑战黑暗中
 
         PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 30), 0x89876C, 0, Fast ;#6C8789 #89876C
         If !ErrorLevel
-            Return 0 ;非挑战房间中
+            Return 1 ;非挑战房间中
 
         PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 30), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
         If !ErrorLevel
-            Return 0 ;挑战房间中
+            Return 2 ;挑战房间中
+
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 30), 0xB6B6B6, 0, Fast ;#B6B6B6
+        If !ErrorLevel
+            Return 1 ;人机爆破
         
-        Return 1 ;不在房间也不在活跃主界面也不是黑暗视觉
+        Return -1 ;不在房间也不在活跃主界面也不是黑暗视觉
     }
     Else If CF_Title = CROSSFIRE
     {
@@ -296,11 +305,11 @@ Not_In_Game(CF_Title)
             {
                 PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B53F4, 0, Fast ;show color in editor: #F4534B #4B53F4
                 If !ErrorLevel
-                    Return 2 ;在游戏开始界面
+                    Return 0 ;在游戏开始界面
             }
         }
 
-        Return 1 ;不在房间也不在活跃主界面
+        Return -1 ;不在房间也不在活跃主界面
     }
 }
 ;==================================================================================
@@ -443,8 +452,35 @@ HyperSleep(value)
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,接受信息
 ReceiveMessage(Message) 
 {
-    If Message = 125638
-        ExitApp ;退出当前脚本
+    Switch Message
+    {
+        Case 125638:
+            ExitApp ;退出当前脚本
+
+        Case 109999:
+            CF_Now.SetStaus(-1)
+
+        Case 110000:
+            CF_Now.SetStaus(0)
+
+        Case 110001:
+            CF_Now.SetStaus(1)
+
+        Case 110002:
+            CF_Now.SetStaus(2)
+        
+        Case 110003:
+            CF_Now.SetHuman(1)
+        
+        Case 110004:
+            CF_Now.SetHuman(0)
+        
+        Case 110005:
+            CF_Now.Set无尽(1)
+        
+        Case 110006:
+            CF_Now.Set无尽(0)
+    }
 }
 ;==================================================================================
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,发送信息
@@ -453,6 +489,38 @@ PostMessage(Receiver, Message) ;接受方为GUI标题
     SetTitleMatchMode, 3
     DetectHiddenWindows, On
     PostMessage, 0x1001, %Message%, , , %Receiver% ahk_class AutoHotkeyGUI
+}
+;==================================================================================
+;学习自AHK论坛中的多脚本间通过端口简单通信函数,发送信息
+PostStatus(Message)
+{
+    SetTitleMatchMode, 3
+    DetectHiddenWindows, On
+
+    IniRead, PID1, 助手数据.ini, 一键限网, PID
+    IniRead, PID2, 助手数据.ini, 基础压枪, PID
+    IniRead, PID3, 助手数据.ini, 基础身法, PID
+    IniRead, PID4, 助手数据.ini, 战斗猎手, PID
+    IniRead, PID5, 助手数据.ini, 自动开火, PID
+    IniRead, PID6, 助手数据.ini, 连点助手, PID
+    IniRead, PID7, 助手数据.ini, 无尽挂机, PID
+
+    Loop, 7
+    {
+        CurrentPID := PID%A_Index%
+        If CurrentPID != ERROR
+            PostMessage, 0x1002, %Message%, , , ahk_pid %CurrentPID%
+    }
+}
+;==================================================================================
+;学习自AHK论坛中的多脚本间通过端口简单通信函数,发送信息
+PostBack(Message)
+{
+    SetTitleMatchMode, 3
+    DetectHiddenWindows, On
+    IniRead, PID0, 助手数据.ini, 助手控制, PID
+    If PID0 != ERROR
+        PostMessage, 0x1003, %Message%, , , ahk_pid %PID0%
 }
 ;==================================================================================
 ;释放所有按键,来自于https://www.autohotkey.com/boards/viewtopic.php?t=60762
@@ -554,6 +622,60 @@ Is_Chatting()
         Return True
     Else
         Return False
+}
+;==================================================================================
+;返回游戏状态
+class CF_Game_Status
+{
+    ;-1为既不在主界面也不在游戏房间内的状态
+    ;0为主界面状态,可见左上角穿越火线字样
+    ;1为游戏中状态,可见正上方x:x字样,包括生化/团竞/爆破模式
+    ;2为游戏中状态,可见正上方x:x字样或者黑幕,专为挑战模式
+
+    __New()
+    {
+        this.status := 0
+        this.Human := False
+        this.无尽 := False
+    }
+
+    SetStaus(newvar)
+    {
+        this.status := newvar
+        If !(newvar > 0)
+            this.Human := False
+    }
+
+    GetStatus()
+    {
+        Return this.status
+    }
+
+    SetHuman(newhuman)
+    {
+        If newhuman
+            this.Human := True
+        Else
+            this.Human := False
+    }
+
+    GetHuman()
+    {
+        Return this.Human
+    }
+
+    Set无尽(无尽中)
+    {
+        If 无尽中
+            this.无尽 := True
+        Else
+            this.无尽 := False
+    }
+
+    Get无尽()
+    {
+        Return this.无尽
+    }
 }
 ;==================================================================================
 ; ##################################################################################

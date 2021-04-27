@@ -52,6 +52,7 @@ If WinExist("ahk_class CrossFire")
     Hole = ;free memory
     Gui, circle: Show, Hide
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1002, "ReceiveMessage")
     RCL_Service_On := True
     Return
 }
@@ -93,7 +94,7 @@ Return
 Return
 
 ~*$LButton:: ;压枪 正在开发
-    If !(GetKeyState("vk87") || GetKeyState("vk85"))
+    If CF_Now.GetStatus()
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -114,7 +115,7 @@ Return
 Return
 
 ~*RButton:: ;展示圆环
-    If !GetKeyState("vk87")
+    If CF_Now.GetStatus()
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -129,7 +130,7 @@ Return
     RCL_Down := Mod(RCL_Down + 1, 4)
 Return
 
-#If (WinActive("ahk_class CrossFire") && RCL_Service_On && !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
+#If (WinActive("ahk_class CrossFire") && RCL_Service_On && CF_Now.GetStatus() && CF_Now.GetHuman()) ;以下的热键需要相应条件才能激活
 
 ~*Numpad0::
     GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00

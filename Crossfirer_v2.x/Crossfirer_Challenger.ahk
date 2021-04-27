@@ -24,6 +24,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui10, YGui10, "H", -P10W // 2, Round(Hj / 18) - P10H // 2)
     Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1002, "ReceiveMessage")
     CLG_Service_On := True
     Return
 }
@@ -57,7 +58,7 @@ Return
 Return
 
 ~*F8::
-    Send, {Blind}{vk86 Down} ;无尽中
+    PostBack(110005) ;无尽中
     GuiControl, challen_mode: +c00FFFF +Redraw, ModeChallen ;#00FFFF
     UpdateText("challen_mode", "ModeChallen", "开始无尽挂机" . Show_Sel_Level, XGui10, YGui10)
     挂机 := True
@@ -76,7 +77,7 @@ Return
     GuiControl, challen_mode: +c00FF00 +Redraw, ModeChallen ;#00FF00
     UpdateText("challen_mode", "ModeChallen", "无尽挂机准备" . Show_Sel_Level, XGui10, YGui10)
     挂机 := False
-    Send, {Blind}{vk86 Up}
+    PostBack(110006)
 Return
 
 ~*Left::
@@ -114,7 +115,7 @@ Exit ;退出当前线程
     Load_FFFF14 := Create_ffff14_png() ;Boss胸口黄灯
     Load_FAFA00 := Create_fafa00_png() ;黄金Boss胸口黄灯
 
-    If GetKeyState("vk84") ;主界面
+    If CF_Now.GetStatus() = 0 ;主界面
     {
         ClickWait(0.94, 0.823) ;点击开始游戏
         ClickWait(0.5, 0.648) ;离开原本退出的比赛
@@ -124,10 +125,10 @@ Exit ;退出当前线程
         {
             ToolTip, 等待进入游戏, , , 19
             HyperSleep(1000) ;等待真正进入游戏
-        } Until, !GetKeyState("vk87") || JumpLoop()
+        } Until, CF_Now.GetStatus() = 2 || JumpLoop()
         正式游戏 := True
     }
-    Else If !GetKeyState("vk87")
+    Else If CF_Now.GetStatus() = 2
         正式游戏 := True
     
     If 正式游戏
@@ -292,19 +293,19 @@ Exit ;退出当前线程
                 {
                     ClickWait(0.44, 0.765)
                     PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
-                } Until, GetKeyState("vk84") || JumpLoop() || ErrorLevel
+                } Until, CF_Now.GetStatus() = 0 || JumpLoop() || ErrorLevel
             }
 
             PixelSearch, 确认成绩x, 确认成绩y, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0x4E332E, 0, Fast ;#2E334E #4E332E 确认按钮
 
             PixelSearch, 确认成绩a, 确认成绩b, Xj + Round(Wj * 0.7), Yj + Round(Hj * 0.85), Xj + Round(Wj * 0.85), Yj + Round(Hj * 0.95), 0xFFFFFF, 0, Fast ;#FFFFFF 确认字样
-        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || GetKeyState("vk87") || Time_Minute > 18 ;游戏内部总倒计时25分,因为cf无尽内置倒计时精度太差以及死亡次数过多会减少时间而降低实际时间
+        } Until, (确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) || JumpLoop() || CF_Now.GetStatus() = 0 || Time_Minute > 18 ;游戏内部总倒计时25分,因为cf无尽内置倒计时精度太差以及死亡次数过多会减少时间而降低实际时间
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
         ToolTip, , , , 17
         Send, {Blind}{LButton Up}
         
-        If Time_Minute > 18 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && !GetKeyState("vk87") ;超时无法通关则降低等级
+        If Time_Minute > 18 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && CF_Now.GetStatus() != 0 ;超时无法通关则降低等级
         {
             global XGui10, YGui10
             Loop
@@ -327,12 +328,12 @@ Exit ;退出当前线程
 无尽准备()
 {
     地图选择x := 0, 地图选择y := 0
-    If !GetKeyState("vk87")
+    If CF_Now.GetStatus() = 2
     {
         准备 := True
         Return
     }
-    Else If GetKeyState("vk84")
+    Else If CF_Now.GetStatus() = 0
     {
         ToolTip, 选择模式, , , 19
         Loop ;确认是否进入模式/地图选择界面
@@ -348,7 +349,7 @@ Exit ;退出当前线程
         Loop
         {
             ClickWait(0.844, 0.95) ;点击确认
-        } Until, GetKeyState("vk84") || JumpLoop()
+        } Until, CF_Now.GetStatus() = 0 || JumpLoop()
 
         准备 := True
         ToolTip, 准备完毕, , , 19
@@ -358,9 +359,9 @@ Exit ;退出当前线程
 ;更新等级
 等级调整()
 {
-    If !GetKeyState("vk87")
+    If CF_Now.GetStatus() = 2
         Return
-    Else If GetKeyState("vk84") && 准备
+    Else If CF_Now.GetStatus() = 0 && 准备
     {
         ToolTip, 选择等级, , , 19
         ClickWait(0.8, 0.85) ;打开级别选择
@@ -395,7 +396,7 @@ Exit ;退出当前线程
     Loop
     {
         ClickWait(0.775, 0.9) ;点击确认键
-    } Until, GetKeyState("vk84") || JumpLoop()
+    } Until, CF_Now.GetStatus() = 0 || JumpLoop()
     ToolTip, , , , 19
 }
 ;==================================================================================

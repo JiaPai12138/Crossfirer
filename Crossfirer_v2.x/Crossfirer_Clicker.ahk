@@ -23,6 +23,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round(He / 3.6) - P5H // 2)
     Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1002, "ReceiveMessage")
     CLK_Service_On := True
     global AccRem := 1.0
     Return
@@ -153,7 +154,7 @@ Return
 ;跳出连点循环
 StayLoop(KeyClicker)
 {
-    If !(GetKeyState("E", "P") || GetKeyState("R", "P") || GetKeyState(KeyClicker, "P")) && WinActive("ahk_class CrossFire") && !GetKeyState("vk84")
+    If !(GetKeyState("E", "P") || GetKeyState("R", "P") || GetKeyState(KeyClicker, "P")) && WinActive("ahk_class CrossFire") && CF_Now.GetStatus() != 0
         Return True
     Return False
 }

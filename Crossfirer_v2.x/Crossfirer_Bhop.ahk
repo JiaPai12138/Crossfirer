@@ -17,6 +17,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round(He / 4) - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1002, "ReceiveMessage")
     BHP_Service_On := True
     Return
 }
@@ -48,6 +49,8 @@ Return
     SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, Round(He / 4) - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA
 Return
+
+#If (WinActive("ahk_class CrossFire") && BHP_Service_On && CF_Now.GetStatus()) ;以下的热键需要相应条件才能激活
 
 ~W & ~LCtrl Up:: ;BUG小道,可能会掉血
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF

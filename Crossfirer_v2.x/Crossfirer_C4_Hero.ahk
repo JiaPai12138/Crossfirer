@@ -37,6 +37,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2) ;避开狙击枪秒准线确认点
     Gui, Human_Hero: Show, Hide
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1002, "ReceiveMessage")
     C4H_Service_On := True
     Return
 }
@@ -85,7 +86,7 @@ Return
         Gui, C4: Show, x%XGuiC% y%YGuiC% NA
 Return
 
-#If (WinActive("ahk_class CrossFire") && C4H_Service_On && !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
+#If (WinActive("ahk_class CrossFire") && C4H_Service_On && CF_Now.GetStatus()) ;以下的热键需要相应条件才能激活
 
 ~*=::
     Be_Hero := !Be_Hero
@@ -171,7 +172,7 @@ class C4Timer
 
     UpdateC4()
     {
-        If this.IsC4Time() && !GetKeyState("vk87")
+        If this.IsC4Time() && CF_Now.GetStatus()
         {
             If this.C4_Start = 0
                 this.C4_Start := SystemTime()
@@ -258,7 +259,7 @@ class E_Hero
     {
         global Be_Hero
         this.UpdatePos()
-        If (Be_Hero && !GetKeyState("vk87") && WinActive("ahk_class CrossFire"))
+        If (Be_Hero && CF_Now.GetStatus() && WinActive("ahk_class CrossFire"))
         {
             PixelSearch, HeroX1, HeroY1, this.X + this.W // 2 - Round(this.W / 20), this.Y + Round(this.H / 8.5), this.X + this.W // 2 + Round(this.W / 20), this.Y + Round(this.H / 6.5), 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
             If !ErrorLevel

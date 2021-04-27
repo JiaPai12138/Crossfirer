@@ -76,6 +76,7 @@ If WinExist("ahk_class CrossFire")
     Game_Begin_Min := A_Min
     Game_Begin_Sec := A_Sec
     Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
+    OnMessage(0x1003, "ReceiveMessage")
     CTL_Service_On := True
 } 
 ;==================================================================================
@@ -190,7 +191,6 @@ UpdateGui() ;精度0.5s
 
     If !WinExist("ahk_class CrossFire")
     {
-        WinClose, ahk_class ConsoleWindowClass
         If ProcessExist("GameLoader.exe")
         {
             If A_IsCompiled && A_IsAdmin
@@ -204,20 +204,24 @@ UpdateGui() ;精度0.5s
             Else
                 Run, *RunAs .\关闭TX残留进程.bat, , Hide
         }
+        WinClose, ahk_class ConsoleWindowClass
         CloseOthers()
         ExitApp
     }
-    Else If !Not_In_Game(CF_Title)
+    Else If In_Game(CF_Title) > 0
     {
-        Send, {Blind}{vk87 Up} ;F24 key
-        Send, {Blind}{vk84 Up}
+        If In_Game(CF_Title) = 1
+            PostStatus(110001)
+        Else If In_Game(CF_Title) = 2
+            PostStatus(110002)
+
         If Strlen(Key_Pressed) > 0
             Send, {Blind}{%Key_Pressed% Up}
 
         If IsMutant() ;僵尸
-            Send, {Blind}{vk85 Down}
+            PostStatus(110004)
         Else
-            Send, {Blind}{vk85 Up}
+            PostStatus(110003)
         
         If HasWGTooltip()
             press_key("F11", 50, 50)
@@ -230,7 +234,7 @@ UpdateGui() ;精度0.5s
         {
             Random, ran_move, -3, 3 ;随机鼠标左右和自身移动
             Random, ran_act, -3, 3 ;随机鼠标上下
-            If !GetKeyState("vk86") ;当不在无尽挂机中
+            If !CF_Now.Get无尽() ;当不在无尽挂机中
             {
                 MouseMove, Xl + Wl // 2, Yl + Hl // 2
                 mouseXY(ran_move * 50, ran_act * 5)
@@ -245,7 +249,7 @@ UpdateGui() ;精度0.5s
                     JumpMove("a")
 
                 Case -1:
-                    If !GetKeyState("vk86")
+                    If !CF_Now.Get无尽()
                     {
                         press_key("Space", 60, 60)
                         press_key("Space", 60, 60)
@@ -269,18 +273,10 @@ UpdateGui() ;精度0.5s
             }
         }
     }
-    Else If Not_In_Game(CF_Title) = 1 ;不在房间也不在活跃主界面
-    {
-        Send, {Blind}{vk87 Down} ;F24 key
-        Send, {Blind}{vk85 Up}
-        Send, {Blind}{vk84 Up}
-    }
-    Else If Not_In_Game(CF_Title) = 2 ;在活跃主界面
-    {
-        Send, {Blind}{vk87 Down} ;F24 key
-        Send, {Blind}{vk85 Up}
-        Send, {Blind}{vk84 Down}
-    }
+    Else If In_Game(CF_Title) = -1 ;不在房间也不在活跃主界面
+        PostStatus(109999)
+    Else If In_Game(CF_Title) = 0 ;在活跃主界面
+        PostStatus(110000)
 }
 ;==================================================================================
 ;通过按下快捷键显示/隐藏提示
@@ -347,7 +343,7 @@ JumpMove(movekey)
     }
     Else
     {
-        If !GetKeyState("vk86")
+        If !CF_Now.Get无尽()
         {
             press_key("Space", 60, 60)
             press_key("Space", 60, 60)

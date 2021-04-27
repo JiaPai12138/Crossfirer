@@ -59,6 +59,7 @@ If (WinExist("ahk_class CrossFire"))
     SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
     Gui, net_status: Show, Hide ;x%XGui9% y%YGui9% NA
     OnMessage(0x1001, "ReceiveMessage")
+    OnMessage(0x1002, "ReceiveMessage")
     NBK_Service_On := True
     Return
 }
@@ -99,7 +100,7 @@ Return
         Gui, net_status: Show, Hide
 Return
 
-#If (WinActive("ahk_class CrossFire") && NBK_Service_On && !GetKeyState("vk87")) ;以下的热键需要相应条件才能激活
+#If (WinActive("ahk_class CrossFire") && NBK_Service_On && CF_Now.GetStatus()) ;以下的热键需要相应条件才能激活
 
 ~*H Up::
     ;保证短时间内无法连续点击破坏断网效果
@@ -110,7 +111,7 @@ Return
 
     press_key("Space", 30, 150) ;跳起来断网可以无敌???
 
-    If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && !GetKeyState("vk87")
+    If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]") && CF_Now.GetStatus()
     {
         Net_On := !Net_On
         If !Net_On
@@ -129,7 +130,7 @@ Return
             Gui, net_status: Show, Hide
         }
     }
-    Else If WinExist("ahk_class Q360NetFosClass") && !GetKeyState("vk87")
+    Else If WinExist("ahk_class Q360NetFosClass") && CF_Now.GetStatus()
     {
         Net_On := !Net_On
         
