@@ -361,9 +361,13 @@ ABSmouseXY(x2, y2, ClickOrNot := False, ClickWhich := 1)
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
 press_key(key_name, press_time, sleep_time)
 {
-    ;click_delay := 0.8 本机鼠标延迟测试,包括按下弹起
-    press_time -= 0.4, sleep_time -= 0.4
-    Send, {Blind}{%key_name% DownTemp}
+    ;本机鼠标延迟测试,包括按下弹起
+    If InStr(key_name, "Button")
+		press_time -= 2.75, sleep_time -= 2.75
+	Else
+		press_time -= 0.4, sleep_time -= 0.4
+    If !GetKeyState(key_name)
+		Send, {%key_name% DownTemp}
     HyperSleep(press_time)
     Send, {Blind}{%key_name% Up}
     HyperSleep(sleep_time)

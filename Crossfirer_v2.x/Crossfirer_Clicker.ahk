@@ -80,7 +80,7 @@ Return
     cnt := 0
     While, StayLoop("LButton") && cnt <= 10
     {
-        press_key("RButton", 10.0, 270.0) ;炼狱右键
+        press_key("RButton", 10.0, 290.0) ;炼狱右键
         press_key("LButton", 10.0, 10.0) ;炼狱左键枪刺归位
         cnt += 1
     }
