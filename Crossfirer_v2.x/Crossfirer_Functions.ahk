@@ -309,6 +309,22 @@ In_Game(CF_Title)
             }
         }
 
+        ImageSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1, Y1 + H1, HBITMAP:*%Load_000000% ;#000000 160*90
+        If !ErrorLevel
+            Return 2 ;无尽挑战黑暗中
+
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 30), 0x89876C, 0, Fast ;#6C8789 #89876C
+        If !ErrorLevel
+            Return 1 ;非挑战房间中
+
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 30), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
+        If !ErrorLevel
+            Return 2 ;挑战房间中
+
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 30), 0xB6B6B6, 0, Fast ;#B6B6B6
+        If !ErrorLevel
+            Return 1 ;人机爆破
+
         Return -1 ;不在房间也不在活跃主界面
     }
 }
