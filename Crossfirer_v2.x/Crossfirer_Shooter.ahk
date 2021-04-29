@@ -307,13 +307,13 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
                                 Loop ;确保及时退出循环
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                    ImageSearch, sp_x, sp_y, (X1 + W1 // 2) - 3, Y1 + H1 // 2, (X1 + W1 // 2) + 3, Y1 + H1 // 2 + Round(H1 / 9 * 2), *0 HBITMAP:*%Snipe_000000%
+                                    ImageSearch, sp_x, sp_y, (X1 + W1 // 2) - 3, Y1 + H1 // 2 - Round(H1 / 9 * 2), (X1 + W1 // 2) + 3, Y1 + H1 // 2 + Round(H1 / 9 * 2), *0 HBITMAP:*%Snipe_000000%
                                 } Until, (!ErrorLevel || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || !CF_Now.GetStatus())
 
                                 Loop
                                 {
                                     press_key("RButton", small_rand, small_rand - Color_Delay)
-                                    ImageSearch, sp_x1, sp_y1, (X1 + W1 // 2) - 3, Y1 + H1 // 2, (X1 + W1 // 2) + 3, Y1 + H1 // 2 + Round(H1 / 9 * 2), *0 HBITMAP:*%Snipe_000000%
+                                    ImageSearch, sp_x1, sp_y1, (X1 + W1 // 2) - 3, Y1 + H1 // 2 - Round(H1 / 9 * 2), (X1 + W1 // 2) + 3, Y1 + H1 // 2 + Round(H1 / 9 * 2), *0 HBITMAP:*%Snipe_000000%
                                 } Until, (ErrorLevel || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || !AutoMode || mo_shi != 8 || !CF_Now.GetStatus())
                             }
                         }
