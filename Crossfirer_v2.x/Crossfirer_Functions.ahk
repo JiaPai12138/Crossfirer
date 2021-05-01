@@ -478,16 +478,16 @@ ReceiveMessage(Message)
             ExitApp ;退出当前脚本
 
         Case 109999:
-            CF_Now.SetStaus(-1)
+            CF_Now.SetStatus(-1)
 
         Case 110000:
-            CF_Now.SetStaus(0)
+            CF_Now.SetStatus(0)
 
         Case 110001:
-            CF_Now.SetStaus(1)
+            CF_Now.SetStatus(1)
 
         Case 110002:
-            CF_Now.SetStaus(2)
+            CF_Now.SetStatus(2)
         
         Case 110003:
             CF_Now.SetHuman(1)
@@ -659,10 +659,11 @@ class CF_Game_Status
         this.无尽 := False
     }
 
-    SetStaus(newvar)
+    SetStatus(newvar)
     {
-        this.status := newvar
-        If !(newvar > 0)
+        If this.status != newvar
+            this.status := newvar
+        If newvar <= 0
             this.Human := False
     }
 
