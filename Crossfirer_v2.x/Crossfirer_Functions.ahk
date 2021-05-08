@@ -27,6 +27,8 @@ Preset(Script_Icon)
     #SingleInstance, Force           ;跳过对话框并自动替换旧实例
     #IfWinExist, ahk_class CrossFire ;热键仅当窗口存在时可以激活
     #KeyHistory, 0                   ;禁用按键历史
+    #InstallMouseHook                ;强制无条件安装鼠标钩子
+    #InstallKeybdHook                ;强制无条件安装键盘钩子
     ListLines, Off                   ;不显示最近执行的脚本行
     SendMode, Input                  ;使用更速度和可靠方式发送键鼠点击
     SetWorkingDir, %A_ScriptDir%     ;保证一致的脚本起始工作目录
@@ -385,7 +387,8 @@ press_key(key_name, press_time, sleep_time)
     If !GetKeyState(key_name)
 		Send, {%key_name% DownTemp}
     HyperSleep(press_time)
-    Send, {Blind}{%key_name% Up}
+    If !GetKeyState(key_name, "P")
+        Send, {Blind}{%key_name% Up}
     HyperSleep(sleep_time)
 }
 ;==================================================================================
@@ -441,8 +444,7 @@ UpdateText(Gui_Number, ControlID, NewText, X, Y)
 SystemTime()
 {
     freq := 0, tick := 0
-    If (!freq)
-        DllCall("QueryPerformanceFrequency", "Int64*", freq)
+    DllCall("QueryPerformanceFrequency", "Int64*", freq)
     DllCall("QueryPerformanceCounter", "Int64*", tick)
     Return tick / freq * 1000
 } 
