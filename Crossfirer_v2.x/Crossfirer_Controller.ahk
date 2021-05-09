@@ -362,7 +362,7 @@ HasWGTooltip()
     PixelSearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x282622, 0, Fast ;#222628 #282622
     If !ErrorLevel
     {
-        PixelSearch, OutputVara, Outpu1tVarb, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x919191, 0, Fast ;#919191
+        PixelSearch, OutputVarx, Outpu1tVary, Xl, Yl, Xl + Round(Wl / 5), Yl + Round(Hl / 18), 0x919191, 0, Fast ;#919191
         Return !ErrorLevel
     }
     Return False
@@ -371,7 +371,7 @@ HasWGTooltip()
 ;查看生化追击模式中是否变僵尸
 IsMutant()
 {
-    PixelSearch, Outputa, Outpu1tb, Xl + Round(Wl * 0.95), Yl + Round(Hl * 0.24), Xl + Wl, Yl + Hl // 2, 0x91AB2F, 0, Fast ;#2FAB91 #91AB2F
+    PixelSearch, Outputa, Outputb, Xl + Round(Wl * 0.95), Yl + Round(Hl * 0.24), Xl + Wl, Yl + Hl // 2, 0x91AB2F, 0, Fast ;#2FAB91 #91AB2F
     Return !ErrorLevel
 }
 ;==================================================================================
