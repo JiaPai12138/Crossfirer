@@ -325,7 +325,7 @@ AutoFire(Gui_Number1, Gui_Number2, ModeID, StatusID, game_title, XGui1, YGui1, X
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText(Gui_Number1, ModeID, "通用模式中", XGui1, YGui1)
                         press_key("LButton", 30, small_rand * 2.7 - Color_Delay) ;靠近600发每分的射速
-                        mouseXY(0, 3) ;小小压枪
+                        mouseXY(0, 1) ;小小压枪
                 }
             }
             Var += 1

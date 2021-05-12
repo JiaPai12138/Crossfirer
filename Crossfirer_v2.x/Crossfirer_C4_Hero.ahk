@@ -16,10 +16,10 @@ If WinExist("ahk_class CrossFire")
     Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
     Gui, C4: Color, 333333 ;#333333
-    Gui, C4: Font, S10 Q5 C00FFFF, Microsoft YaHei
-    Gui, C4: Add, Text, hwndGui_3 vC4Status, 剩余%C4_Time%秒钟 ;#00FFFF
+    Gui, C4: Font, S10 Q5 C00FF00, Microsoft YaHei ;#00FF00
+    Gui, C4: Add, Text, hwndGui_3 vC4Status, 剩余%C4_Time%秒钟
     GuiControlGet, P3, Pos, %Gui_3%
-    Gui, C4: Add, Progress, w%P3W% h4 c00FFFF Background333333 vC4Progress Range0-40, %C4_Time% ;#00FFFF
+    Gui, C4: Add, Progress, w%P3W% h4 c00FF00 Background333333 vC4Progress Range0-40, %C4_Time% ;#00FF00
     
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
@@ -29,7 +29,7 @@ If WinExist("ahk_class CrossFire")
     Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Human_Hero: Margin, 0, 0
     Gui, Human_Hero: Color, 333333 ;333333
-    Gui, Human_Hero: Font, S10 Q5 C00FFFF, Microsoft YaHei ;#00FFFF
+    Gui, Human_Hero: Font, S10 Q5 C00FF00, Microsoft YaHei ;#00FF00
     Gui, Human_Hero: Add, Text, hwndhero vIMHero, 猎|▁|▁|手
     GuiControlGet, PH, Pos, %hero%
     WinSet, TransColor, 333333 255 ;#333333
@@ -189,6 +189,11 @@ class C4Timer
                     GuiControl, C4: +cFF0000 +Redraw, C4Status ;#FF0000
                     GuiControl, C4: +cFF0000 +Redraw, C4Progress ;#FF0000
                 }
+                Else
+                {
+                    GuiControl, C4: +c00FFFF +Redraw, C4Status ;#00FFFF
+                    GuiControl, C4: +c00FFFF +Redraw, C4Progress ;#00FFFF
+                }
                 GuiControl, C4: , C4Progress, % this.C4_Time
                 this.C4Show()
             }
@@ -199,9 +204,9 @@ class C4Timer
                 this.C4_Start := 0
             If this.C4_Time != 40
                 this.C4_Time := 40
-            GuiControl, C4: +c00FFFF +Redraw, C4Status ;#00FFFF
+            GuiControl, C4: +c00FF00 +Redraw, C4Status ;#00FF00
             GuiControl, C4: , C4Progress, % this.C4_Time
-            GuiControl, C4: +c00FFFF +Redraw, C4Progress ;#00FFFF
+            GuiControl, C4: +c00FF00 +Redraw, C4Progress ;#00FF00
             this.C4Show()
         }
     }
@@ -232,6 +237,7 @@ class E_Hero
         this.interval := 50
         this.IsReloading := 0
         this.EHero := ObjBindMethod(this, "UpdatE_Hero")
+        this.IsHero := 0
     }
 
     Start()
@@ -257,7 +263,7 @@ class E_Hero
 
     UpdatE_Hero() ;精度0.05s
     {
-        global Be_Hero
+        global Be_Hero, XGui8, YGui8
         this.UpdatePos()
         If (Be_Hero && CF_Now.GetStatus() && WinActive("ahk_class CrossFire"))
         {
@@ -266,13 +272,23 @@ class E_Hero
             {
                 PixelSearch, HeroX2, HeroY2, this.X + this.W // 2 - Round(this.W / 10), this.Y + Round(this.H / 3.1), this.X + this.W // 2 + Round(this.W / 10), this.Y + Round(this.H / 3), 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
                 If !ErrorLevel
-                    press_key("e", 10, 10)
+                {
+                    press_key("e", 10, 10), this.IsHero := 1
+                    GuiControl, Human_Hero: +c00FFFF +Redraw, IMHero ;#00FFFF
+                }
+                Else If ErrorLevel && this.IsHero = 1
+				{
+					GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
+					this.IsHero := 0
+				}
             }
 
             PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - Round(this.W / 10), this.Y + Round(this.H / 4), this.X + this.W // 2 + Round(this.W / 10), this.Y + Round(this.H / 3), 0xB7780B, 0, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
             If !ErrorLevel
             {
                 Send, {Blind}{e Down}
+                GuiControl, Human_Hero: +c00FFFF +Redraw, IMHero ;#00FFFF
+                UpdateText("Human_Hero", "IMHero", "弹|▁|▁|药", XGui8, YGui8)
                 this.IsReloading += 1
                 If this.IsReloading > 2
                 {
@@ -284,10 +300,13 @@ class E_Hero
                     }
                 }
             }
-            Else If ErrorLevel && GetKeyState("e") && !GetKeyState("e", "P")
+            Else If ErrorLevel
             {
-                Send, {Blind}{e Up}
+                GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
+                UpdateText("Human_Hero", "IMHero", "猎|▁|▁|手", XGui8, YGui8)
                 this.IsReloading := 0
+                If GetKeyState("e") && !GetKeyState("e", "P")
+					Send, {Blind}{e Up}
             }
         }
     }

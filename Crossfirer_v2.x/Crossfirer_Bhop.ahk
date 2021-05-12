@@ -3,6 +3,8 @@ global BHP_Service_On := False
 Preset("身")
 CheckPermission("基础身法")
 ;==================================================================================
+global BhopStatus := 0
+
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, "CrossFire")
@@ -53,6 +55,7 @@ Return
 #If (WinActive("ahk_class CrossFire") && BHP_Service_On && CF_Now.GetStatus()) ;以下的热键需要相应条件才能激活
 
 ~W & ~LCtrl Up:: ;BUG小道,可能会掉血
+    BhopStatus := 1
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "Bug小道", XGui4, YGui4)
     HyperSleep(100)
@@ -61,10 +64,11 @@ Return
     press_key("LShift", 50, 50)
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~W & ~F:: ;基本鬼跳,落地少掉血
-    cnt := 0
+    cnt := 0, BhopStatus := 2
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "基本鬼跳", XGui4, YGui4)
     press_key("space", 100, 100)
@@ -74,28 +78,30 @@ Return
     {
         press_key("space", 10, 0)   
         cnt += 1
-    } Until, (!GetKeyState("W", "P") || cnt >= 300 || !WinActive("ahk_class CrossFire"))
+    } Until, (!GetKeyState("W", "P") || cnt >= 300 || !WinActive("ahk_class CrossFire") || BhopStatus != 2)
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     Send, {Blind}{LCtrl Up}
+    BhopStatus := 0
 Return
 
 ~W & ~C:: ;前进上箱子
-    cnt := 0
+    cnt := 0, BhopStatus := 3
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "前跳跳蹲", XGui4, YGui4)
     Loop 
     {
         press_key("Space", 10, 10)
         cnt += 1
-    } Until, (cnt >= 40 || !WinActive("ahk_class CrossFire"))
+    } Until, (cnt >= 40 || !WinActive("ahk_class CrossFire") || BhopStatus != 3)
     press_key("LCtrl", 100, 20)
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~W & ~LAlt:: ;空中连蹲跳 w+alt
-    cnt := 0
+    cnt := 0, BhopStatus := 4
     press_key("Space", 40, 20)
     If GetKeyState("LButton", "P")
     {
@@ -108,7 +114,7 @@ Return
         UpdateText("jump_mode", "ModeJump", "空中连蹲", XGui4, YGui4)
     }
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
-    While, GetKeyState("LAlt", "P") && WinActive("ahk_class CrossFire")
+    While, (GetKeyState("LAlt", "P") && WinActive("ahk_class CrossFire") && BhopStatus = 4)
     {
         If cnt < 10
         {
@@ -124,10 +130,11 @@ Return
     Send, {Blind}{LCtrl Up}
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~S & ~F:: ;跳蹲上坡
-    cnt := 0
+    cnt := 0, BhopStatus := 5
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "跳蹲上坡", XGui4, YGui4)
     Loop
@@ -142,7 +149,7 @@ Return
         Send, {Blind}{Shift Down}
         HyperSleep(30)
         cnt += 1
-    } Until, (cnt > 50 || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire"))
+    } Until, (cnt > 50 || GetKeyState("LButton", "P") || !WinActive("ahk_class CrossFire") || BhopStatus != 5)
     Send, {Blind}{Space Up}
     Send, {Blind}{LCtrl Up}
     Send, {Blind}{Shift Up}
@@ -150,9 +157,11 @@ Return
         press_key("Shift", 30, 30)
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~S & ~C:: ;背Esc跳
+    BhopStatus := 6
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "ESC跳箱", XGui4, YGui4)
     press_key("Esc", 30, 30)
@@ -166,25 +175,28 @@ Return
     Send, {Blind}{Space Up}
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~S & ~LAlt:: ;后跳闪蹲 s+alt
+    BhopStatus := 7
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "后跳闪蹲", XGui4, YGui4)
     cnt := 0
     press_key("Space", 30, 30)
     press_key("LCtrl", 700, 20)
-    While, GetKeyState("LAlt", "P") && WinActive("ahk_class CrossFire")
+    While, (GetKeyState("LAlt", "P") && WinActive("ahk_class CrossFire") && BhopStatus = 7)
     {
         press_key("LCtrl", 20, 10)
     }
     Send, {Blind}{LCtrl Up}
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~Z & ~X:: ;单纯滑步
-    cnt := 0
+    cnt := 0, BhopStatus := 8
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "前后滑步", XGui4, YGui4)
     Loop
@@ -192,12 +204,14 @@ Return
         press_key("w", 30, 60)
         press_key("s", 30, 60)
         cnt += 1
-    } Until, (cnt >= 20 || !WinActive("ahk_class CrossFire"))
+    } Until, (cnt >= 20 || !WinActive("ahk_class CrossFire") || BhopStatus != 8)
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return 
 
 ~Z & ~C:: ;六级跳 需要特定角度和条件
+    BhopStatus := 9
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "六级跳箱", XGui4, YGui4)
     Send, {Blind}{s Down}
@@ -216,17 +230,19 @@ Return
     {
         press_key("Space", 10, 10)
         cnt += 1
-    } Until, (cnt >= 40 || !WinActive("ahk_class CrossFire"))
+    } Until, (cnt >= 40 || !WinActive("ahk_class CrossFire") || BhopStatus != 9)
     press_key("LCtrl", 100, 20)
     press_key("Space", 10, 10)
     Send, {Blind}{s Up}
     
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~*<::
 ~*,::
+    BhopStatus := 10
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "左旋转跳", XGui4, YGui4)
     Send, {Blind}{s Down}
@@ -254,10 +270,12 @@ Return
     Send, {Blind}{LCtrl Up}
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 
 ~*>::
 ~*.::
+    BhopStatus := 11
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "右旋转跳", XGui4, YGui4)
     Send, {Blind}{s Down}
@@ -285,5 +303,6 @@ Return
     Send, {Blind}{LCtrl Up}
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+    BhopStatus := 0
 Return
 ;==================================================================================

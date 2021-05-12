@@ -9,6 +9,8 @@ If Mouse_Buttons < 5
     ;ExitApp
 }
 ;==================================================================================
+global CLKStatus := 0
+
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, "CrossFire")
@@ -62,9 +64,10 @@ Return
 Return
 
 ~*MButton:: ;爆裂者轰炸
+    CLKStatus := 1
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "右键速点", XGui3, YGui3)
-    While, StayLoop("LButton") ;避免切换窗口时影响
+    While, StayLoop("LButton") && CLKStatus = 1 ;避免切换窗口时影响
     {
         Random, RanClick1, (10.0 - AccRem), (10.0 + AccRem)
         press_key("RButton", RanClick1, 60.0 - RanClick1)
@@ -72,13 +75,15 @@ Return
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
     Send, {Blind}{RButton Up}
+    CLKStatus := 0
 Return
 
 ~*XButton2:: ;炼狱连刺
+    CLKStatus := 2
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "炼狱连刺", XGui3, YGui3)
     cnt := 0
-    While, StayLoop("LButton") && cnt <= 10
+    While, StayLoop("LButton") && cnt <= 10 && CLKStatus = 2
     {
         press_key("RButton", 10.0, 290.0) ;炼狱右键
         press_key("LButton", 10.0, 10.0) ;炼狱左键枪刺归位
@@ -86,13 +91,15 @@ Return
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+    CLKStatus := 0
 Return
 
 ~*T:: ;防止鼠标不符合要求
-~*XButton1:: ;半自动速点,适合加特林速点,不适合USP
+~*XButton1:: ;半自动速点,适合加特林速点,适合USP
+    CLKStatus := 3
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
-    While, StayLoop("RButton")
+    While, StayLoop("RButton") && CLKStatus = 3
     {
         If !GetKeyState("E")
         {
@@ -106,29 +113,33 @@ Return
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
     Send, {Blind}{LButton Up}
+    CLKStatus := 0
 Return
 
 ~*":: ;大宝剑二段连击
 ~*'::
+    CLKStatus := 4
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "二段连击", XGui3, YGui3)
     press_key("RButton", 1050, 150)
     press_key("RButton", 90, 10)
-    While, StayLoop("LButton")
+    While, StayLoop("LButton") && CLKStatus = 4
     {
         press_key("RButton", 490, 10)
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+    CLKStatus := 0
 Return
 
 ~*|:: ;左键直射
 ~*\::
+    CLKStatus := 5
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "左键不放", XGui3, YGui3)
     Send, {Blind}{LButton Up}
     Send, {LButton Down}
-    While, StayLoop("RButton")
+    While, StayLoop("RButton") && CLKStatus = 5
     {
         If !GetKeyState("LButton")
             Send, {LButton Down}
@@ -137,18 +148,21 @@ Return
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
     Send, {Blind}{LButton Up}
+    CLKStatus := 0
 Return
 
 ~*::: ;炼狱热管
 ~*;:: 
+    CLKStatus := 6
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)
-    While, StayLoop("LButton") && !GetKeyState("XButton1", "P") ;炼狱速点时结束
+    While, (StayLoop("LButton") && !GetKeyState("XButton1", "P") && CLKStatus = 6) ;炼狱速点时结束
     {
         press_key("LButton", 10.0, 110.0)
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
+    CLKStatus := 0
 Return
 ;==================================================================================
 ;跳出连点循环
