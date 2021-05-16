@@ -98,6 +98,8 @@ ExitApp
         Gui, Ran: Show, Hide
         Gui, Helper: Show, Hide
         Gui, T_Hour: Show, Hide
+        HyperSleep(100)
+        MouseMove, A_ScreenWidth // 2, A_ScreenHeight // 2 ;The middle of screen
     }
     Else
     {

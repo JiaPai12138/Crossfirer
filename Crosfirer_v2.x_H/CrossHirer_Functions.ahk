@@ -336,9 +336,9 @@ In_Game(CF_Title)
 }
 ;==================================================================================
 ;检测点位颜色状态(颜色是否在颜色库中)
-GetColorStatus(X, Y, CX1, CX2, color_lib)
+GetColorStatus(X, Y, color_lib)
 {
-    PixelGetColor, color_got, (X + CX1), (Y + CX2)
+    PixelGetColor, color_got, X, Y
     Return InStr(color_lib, color_got)
 }
 ;==================================================================================
@@ -420,7 +420,7 @@ SetGuiPosition(ByRef XGui, ByRef YGui, GuiPosition, OffsetX, OffsetY)
         XGui := X1 + OffsetX
         YGui := Y1 + H1 + OffsetY
     }
-    Else If InStr("_", GuiPosition) ;左下角显示
+    Else If InStr("_", GuiPosition) ;下方显示
     {
         XGui := X1 + W1 // 2 + OffsetX
         YGui := Y1 + H1 + OffsetY
