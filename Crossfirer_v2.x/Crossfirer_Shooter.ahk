@@ -30,7 +30,7 @@ If WinExist("ahk_class CrossFire")
     Gui, fcn_status: Margin, 0, 0
     Gui, fcn_status: Color, 333333 ;#333333
     Gui, fcn_status: Font, S10 Q5, Microsoft YaHei
-    Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFun cFFFF00, 自火已关闭 ;#FFFF00
+    Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFcn cFFFF00, 自火已关闭 ;#FFFF00
     GuiControlGet, P2, Pos, %Gui_2%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
@@ -224,8 +224,8 @@ ChangeMode(ByRef AutoMode, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         GuiControl, fcn_status: +c00FF00 +Redraw, StatusOfFcn ;#00FF00
-        UpdateText(Gui_Number1, ModeID, "加载模式中", XGui1, YGui1)
-        UpdateText(Gui_Number2, StatusID, "自火暂停中", XGui2, YGui2)
+        UpdateText("fcn_mode", "ModeOfFcn", "加载模式中", XGui1, YGui1)
+        UpdateText("fcn_status", "StatusOfFcn", "自火暂停中", XGui2, YGui2)
         Gui, cross_hair: Color, 00FF00 ;#00FF00
         Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
     }
@@ -233,8 +233,8 @@ ChangeMode(ByRef AutoMode, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
     {
         GuiControl, fcn_mode: +cFFFF00 +Redraw, ModeOfFcn ;#FFFF00
         GuiControl, fcn_status: +cFFFF00 +Redraw, StatusOfFcn ;#FFFF00
-        UpdateText(Gui_Number1, ModeID, "已暂停加载", XGui1, YGui1)
-        UpdateText(Gui_Number2, StatusID, "自火已关闭", XGui2, YGui2)
+        UpdateText("fcn_mode", "ModeOfFcn", "已暂停加载", XGui1, YGui1)
+        UpdateText("fcn_status", "StatusOfFcn", "自火已关闭", XGui2, YGui2)
         Gui, cross_hair: Color, FFFF00 ;#FFFF00
         Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
     }
@@ -253,15 +253,15 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
         small_rand := rand / 2
         Var := W1 // 2 - 15 ;788
         GuiControl, fcn_status: +c00FFFF +Redraw, StatusOfFcn ;#00FFFF
-        UpdateText(Gui_Number2, StatusID, "搜寻敌人中", XGui2, YGui2)
+        UpdateText("fcn_status", "StatusOfFcn", "搜寻敌人中", XGui2, YGui2)
         Loop
         {
             If ExitMode()
             {
                 GuiControl, fcn_status: +c00FF00 +Redraw, StatusOfFcn ;#00FF00
-                UpdateText(Gui_Number2, StatusID, "自火暂停中", XGui2, YGui2)
+                UpdateText("fcn_status", "StatusOfFcn", "自火暂停中", XGui2, YGui2)
                 GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
-                UpdateText(Gui_Number1, ModeID, "加载模式中", XGui1, YGui1)
+                UpdateText("fcn_mode", "ModeOfFcn", "加载模式中", XGui1, YGui1)
                 Gui, cross_hair: Color, 00FF00 ;#00FF00
                 Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
                 Exit ;退出自动开火循环
@@ -271,16 +271,16 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
             {
                 GuiControl, fcn_mode: +c00FFFF +Redraw, ModeOfFcn ;#00FFFF
                 GuiControl, fcn_status: +cFF0000 +Redraw, StatusOfFcn ;#FF0000
-                UpdateText(Gui_Number2, StatusID, "正对准敌人", XGui2, YGui2)
+                UpdateText("fcn_status", "StatusOfFcn", "正对准敌人", XGui2, YGui2)
                 Switch mo_shi
                 {
                     Case 2:
-                        UpdateText(Gui_Number1, ModeID, "手枪模式中", XGui1, YGui1)
+                        UpdateText("fcn_mode", "ModeOfFcn", "手枪模式中", XGui1, YGui1)
                         press_key("LButton", 30, small_rand * 3 - Color_Delay) ;控制USP射速
                         mouseXY(0, 1)
 
                     Case 8:
-                        UpdateText(Gui_Number1, ModeID, "瞬狙模式中", XGui1, YGui1)
+                        UpdateText("fcn_mode", "ModeOfFcn", "瞬狙模式中", XGui1, YGui1)
                         If !CheckSnipe(X1, Y1, W1, H1)
                         {
                             press_key("RButton", small_rand, small_rand)
@@ -293,7 +293,7 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                         If (GamePing <= 250) ;允许切枪减少换弹时间
                         {
                             GuiControl, fcn_status: +c00FF00 +Redraw, StatusOfFcn ;#00FF00
-                            UpdateText(Gui_Number2, StatusID, "双切换弹中", XGui2, YGui2)
+                            UpdateText("fcn_status", "StatusOfFcn", "双切换弹中", XGui2, YGui2)
                             Send, {3 DownTemp}
                             HyperSleep(GamePing + 80)
                             Send, {1 DownTemp}
@@ -317,11 +317,11 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                         }
 
                     Case 111:
-                        UpdateText(Gui_Number1, ModeID, "连发速点中", XGui1, YGui1)
+                        UpdateText("fcn_mode", "ModeOfFcn", "连发速点中", XGui1, YGui1)
                         press_key("LButton", 3 * rand, small_rand - Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
                     
                     Default: ;通用模式不适合射速高的冲锋枪
-                        UpdateText(Gui_Number1, ModeID, "通用模式中", XGui1, YGui1)
+                        UpdateText("fcn_mode", "ModeOfFcn", "通用模式中", XGui1, YGui1)
                         press_key("LButton", 30, small_rand * 2.7 - Color_Delay) ;靠近600发每分的射速
                         mouseXY(0, 1) ;小小压枪
                 }
