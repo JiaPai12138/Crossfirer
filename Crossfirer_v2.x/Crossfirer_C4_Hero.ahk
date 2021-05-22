@@ -133,7 +133,7 @@ class C4Timer
         this.W := 1600
         this.H := 900
         this.interval := 100
-        this.IsReloading := 0
+        this.Defusing := 0
         this.C4T := ObjBindMethod(this, "UpdateC4")
     }
 
@@ -172,42 +172,66 @@ class C4Timer
 
     UpdateC4()
     {
-        If this.IsC4Time() && CF_Now.GetStatus()
+        If CF_Now.GetStatus()
         {
-            If this.C4_Start = 0
-                this.C4_Start := SystemTime()
-            Else If this.C4_Start > 0
+            If this.IsC4Time()
             {
-                this.C4_Time := SubStr("00" . Format("{:.0f}", (40.5 - (SystemTime() - this.C4_Start) / 1000)), -1) ;强行显示两位数,00起爆
-                If (this.C4_Time < 21 && this.C4_Time >= 11)
+                If this.C4_Start = 0
+                    this.C4_Start := SystemTime()
+                Else If this.C4_Start > 0
                 {
-                    GuiControl, C4: +cFFFF00 +Redraw, C4Status ;#FFFF00
-                    GuiControl, C4: +cFFFF00 +Redraw, C4Progress ;#FFFF00
+                    this.C4_Time := SubStr("00" . Format("{:.0f}", (40.5 - (SystemTime() - this.C4_Start) / 1000)), -1) ;强行显示两位数,00起爆
+                    If (this.C4_Time < 21 && this.C4_Time >= 11)
+                    {
+                        GuiControl, C4: +cFFFF00 +Redraw, C4Status ;#FFFF00
+                        GuiControl, C4: +cFFFF00 +Redraw, C4Progress ;#FFFF00
+                    }
+                    Else If this.C4_Time < 11
+                    {
+                        GuiControl, C4: +cFF0000 +Redraw, C4Status ;#FF0000
+                        GuiControl, C4: +cFF0000 +Redraw, C4Progress ;#FF0000
+                    }
+                    Else
+                    {
+                        GuiControl, C4: +c00FFFF +Redraw, C4Status ;#00FFFF
+                        GuiControl, C4: +c00FFFF +Redraw, C4Progress ;#00FFFF
+                    }
+                    GuiControl, C4: , C4Progress, % this.C4_Time
+                    this.C4Show()
                 }
-                Else If this.C4_Time < 11
-                {
-                    GuiControl, C4: +cFF0000 +Redraw, C4Status ;#FF0000
-                    GuiControl, C4: +cFF0000 +Redraw, C4Progress ;#FF0000
-                }
-                Else
-                {
-                    GuiControl, C4: +c00FFFF +Redraw, C4Status ;#00FFFF
-                    GuiControl, C4: +c00FFFF +Redraw, C4Progress ;#00FFFF
-                }
+            }
+            Else
+            {
+                If this.C4_Start > 0
+                    this.C4_Start := 0
+                If this.C4_Time != 40
+                    this.C4_Time := 40
+                GuiControl, C4: +c00FF00 +Redraw, C4Status ;#00FF00
                 GuiControl, C4: , C4Progress, % this.C4_Time
+                GuiControl, C4: +c00FF00 +Redraw, C4Progress ;#00FF00
                 this.C4Show()
             }
-        }
-        Else
-        {
-            If this.C4_Start > 0
-                this.C4_Start := 0
-            If this.C4_Time != 40
-                this.C4_Time := 40
-            GuiControl, C4: +c00FF00 +Redraw, C4Status ;#00FF00
-            GuiControl, C4: , C4Progress, % this.C4_Time
-            GuiControl, C4: +c00FF00 +Redraw, C4Progress ;#00FF00
-            this.C4Show()
+
+            If this.IsDefusing()
+            {
+                If !GetKeyState("e")
+                    Send, {Blind}{e Down}
+                this.Defusing := 1
+            }
+            Else
+            {
+                If this.Defusing > 0 && this.Defusing <= 3
+                {
+                    If !GetKeyState("e")
+                        Send, {Blind}{e Down}
+                    this.Defusing += 1
+                }
+                If this.Defusing > 3
+                {
+                    Send, {Blind}{e Up}
+                    this.Defusing := 0
+                }
+            }
         }
     }
 
@@ -223,6 +247,21 @@ class C4Timer
         Else
             Return False
     }
+
+    IsDefusing()
+    {
+        this.UpdatePos()
+
+        PixelSearch, IsDefX, IsDefY, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 非C4加速
+        If !ErrorLevel
+            Return True
+
+        PixelSearch, IsDefX1, IsDefY1, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0x4C81C7, 0, Fast ;#C7814C #4C81C7 C4加速
+        If !ErrorLevel
+            Return True
+        
+        Return False
+    }
 }
 ;==================================================================================
 ;E键快速反应,可以及时补充弹药以及变成猎手
@@ -236,8 +275,10 @@ class E_Hero
         this.H := 900
         this.interval := 50
         this.IsReloading := 0
+        this.IsEating := 0
         this.EHero := ObjBindMethod(this, "UpdatE_Hero")
         this.IsHero := 0
+        this.HeroColor := 0
     }
 
     Start()
@@ -275,11 +316,21 @@ class E_Hero
                 {
                     press_key("e", 10, 10), this.IsHero := 1
                     GuiControl, Human_Hero: +c00FFFF +Redraw, IMHero ;#00FFFF
+                    Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+                    this.HeroColor := 1
                 }
-                Else If ErrorLevel && this.IsHero = 1
+                Else
 				{
-					GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
-					this.IsHero := 0
+					If this.HeroColor > 0
+						this.HeroColor += 1
+					If this.IsHero = 1
+						this.IsHero := 0
+					If this.HeroColor >= 20
+					{
+						GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
+						Gui, Human_Hero: Show, x%XGui8% y%YGui8% NA
+						this.HeroColor := 0
+					}
 				}
             }
 
@@ -290,23 +341,38 @@ class E_Hero
                 GuiControl, Human_Hero: +c00FFFF +Redraw, IMHero ;#00FFFF
                 UpdateText("Human_Hero", "IMHero", "弹|▁|▁|药", XGui8, YGui8)
                 this.IsReloading += 1
-                If this.IsReloading > 2
-                {
-                    PixelSearch, IsReloadX, IsReloadY, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B
-                    If ErrorLevel
-                    {
-                        Send, {Blind}{e Up}
-                        this.IsReloading := 0
-                    }
-                }
             }
-            Else If ErrorLevel
+            Else
             {
-                GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
+				If !this.HeroColor
+					GuiControl, Human_Hero: +c00FF00 +Redraw, IMHero ;#00FF00
                 UpdateText("Human_Hero", "IMHero", "猎|▁|▁|手", XGui8, YGui8)
                 this.IsReloading := 0
                 If GetKeyState("e") && !GetKeyState("e", "P")
 					Send, {Blind}{e Up}
+            }
+
+            PixelSearch, IsX, IsY, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 补充弹药进度或者吸血进度
+            If !ErrorLevel
+            {
+                If !GetKeyState("e")
+                    Send, {Blind}{e Down}
+                this.IsEating := 1
+            }
+            Else
+            {
+                If this.IsEating > 0 && this.IsEating <= 3
+                {
+                    If !GetKeyState("e")
+                        Send, {Blind}{e Down}
+                    this.IsEating += 1
+                }
+                If this.IsReloading > 2 || this.IsEating > 3
+                {
+                    Send, {Blind}{e Up}
+                    this.IsReloading := 0
+                    this.IsEating := 0
+                }
             }
         }
     }

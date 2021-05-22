@@ -377,3 +377,10 @@ IsMutant()
     Return !ErrorLevel
 }
 ;==================================================================================
+;查看是否死亡
+IsDead()
+{
+    PixelSearch, Outputa, Outputb, Xl + Round(Wl * 0.8), Yl + Round(Hl * 0.95), Xl + Wl, Yl + Hl, 0xD9D5B9, 0, Fast ;#B9D5D9 #D9D5B9
+    Return !ErrorLevel    
+}
+;==================================================================================

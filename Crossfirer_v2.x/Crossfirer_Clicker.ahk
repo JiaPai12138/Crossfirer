@@ -96,19 +96,25 @@ Return
 
 ~*T:: ;防止鼠标不符合要求
 ~*XButton1:: ;半自动速点,适合加特林速点,适合USP
-    CLKStatus := 3
+    CLKStatus := 3, GetE := 0, estart := SystemTime(), stime := 0
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
+    clicknow := 0
     While, StayLoop("RButton") && CLKStatus = 3
     {
-        If !GetKeyState("E")
+        If GetKeyState("e") && !clicknow
+            clicknow := 1
+        Else If GetKeyState("e") && clicknow
+			clicknow += 1
+        Else If !GetKeyState("e")
+            clicknow := 0
+        If clicknow < 3
         {
             Random, RanClick2, (90.0 - AccRem), (90.0 + AccRem)
             press_key("LButton", RanClick2, 120.0 - RanClick2) ;略微增加散布的代价大幅降低被检测几率
-            ;press_key("LButton", 30.0, 30.0) ;炼狱加特林射速1000发/分
         }
         Else
-            HyperSleep(100)
+            HyperSleep(120)
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)

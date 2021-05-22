@@ -199,12 +199,14 @@ Return
     cnt := 0, BhopStatus := 8
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "前后滑步", XGui4, YGui4)
+    Send, {Blind}{LCtrl Down}
     Loop
     {
         press_key("w", 30, 60)
         press_key("s", 30, 60)
         cnt += 1
     } Until, (cnt >= 20 || !WinActive("ahk_class CrossFire") || BhopStatus != 8)
+    Send, {Blind}{LCtrl Up}
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     BhopStatus := 0
