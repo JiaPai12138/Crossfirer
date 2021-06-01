@@ -276,18 +276,18 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                 {
                     Case 2:
                         UpdateText("fcn_mode", "ModeOfFcn", "手枪模式中", XGui1, YGui1)
-                        press_key("LButton", 30, small_rand * 3 - Color_Delay) ;控制USP射速
+                        press_key("LButton", small_rand * 1.5, small_rand * 2.5 - Color_Delay) ;控制USP射速
                         mouseXY(0, 1)
 
                     Case 8:
                         UpdateText("fcn_mode", "ModeOfFcn", "瞬狙模式中", XGui1, YGui1)
                         If !CheckSnipe(X1, Y1, W1, H1)
                         {
-                            press_key("RButton", small_rand, small_rand)
-                            press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
+                            press_key("RButton", small_rand * 1.5, small_rand)
+                            press_key("LButton", small_rand * 1.5 - Color_Delay, small_rand - Color_Delay)
                         }
                         Else
-                            press_key("LButton", small_rand - Color_Delay, small_rand - Color_Delay)
+                            press_key("LButton", small_rand * 1.5 - Color_Delay, small_rand - Color_Delay)
                         ;开镜瞬狙或连狙
 
                         If (GamePing <= 250) ;允许切枪减少换弹时间
@@ -305,13 +305,13 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                                 press_cnt := 0
                                 Loop ;确保及时退出循环
                                 {
-                                    press_key("RButton", small_rand, small_rand - Color_Delay)
+                                    press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
                                     press_cnt += 1
                                 } Until, (CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher() || press_cnt >= 30)
 
                                 Loop
                                 {
-                                    press_key("RButton", small_rand, small_rand - Color_Delay)
+                                    press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
                                 } Until, (!CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher())
                             }
                         }
@@ -322,7 +322,7 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                     
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText("fcn_mode", "ModeOfFcn", "通用模式中", XGui1, YGui1)
-                        press_key("LButton", 30, small_rand * 2.7 - Color_Delay) ;靠近600发每分的射速
+                        press_key("LButton", small_rand * 1.2, small_rand * 1.8 - Color_Delay) ;3.7*30=111
                         mouseXY(0, 1) ;小小压枪
                 }
             }
