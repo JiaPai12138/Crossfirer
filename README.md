@@ -3,7 +3,7 @@
 [![img](https://img.shields.io/github/stars/JiaPai12138/Crossfirer?label=点赞)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/last-commit/JiaPai12138/Crossfirer?label=最近提交)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/release/JiaPai12138/Crossfirer?label=最新版本)](https://github.com/JiaPai12138/Crossfirer/releases)  [![img](https://img.shields.io/github/license/JiaPai12138/Crossfirer?label=许可证)](https://github.com/JiaPai12138/Crossfirer/blob/main/LICENSE)  [![img](https://img.shields.io/badge/URL-帮助文档-blue)](https://github.com/JiaPai12138/Crossfirer/blob/main/README.pdf)
 
 ## 介绍(不会有英文介绍的)
-火线娱乐辅助，拥有红名自动开火、鼠标连点、跳蹲、扫射压枪、C4计时、秒变猎手、无尽挂机等功能。适用于Win7+系统。适合手残党以及高手挂机。建议**窗口化**运行。这是个学习性质脚本，恳请在以下方面提供意见与帮助:
+火线娱乐辅助，拥有红名自动开火、鼠标连点、跳蹲、扫射压枪、C4计时、秒变猎手、无尽挂机、神经自瞄等功能。适用于Win7+系统。适合手残党以及高手挂机。建议**窗口化**运行。这是个学习性质脚本，恳请在以下方面提供意见与帮助:
 * ~~窗口捕获句柄发送消息(尤其是可以精确控制360流量防火墙以及Netlimiter4规则的开关)~~
 * AHK_H多线程(我正在设法将脚本合一，并想保留脚本运行时状态的及时更新)
 * 图像识别(基于神经网络)
@@ -68,6 +68,7 @@
 * 按"i"键开/关自瞄功能，开启时桌面左上角会显示截屏识别区域小视频
 * 自瞄只截屏识别准星附近区域，对于16:9游戏窗口的识别区域大小为(高=游戏窗口高*3/5，宽=高*4/3)
 * 小视频窗口左上角会显示fps数值
+* 本程序使用python语言以及自源码编译的opencv-cuda加速
 
 ## 额外说明
 * **[50_CPS_Test](https://github.com/JiaPai12138/Crossfirer/tree/main/50_CPS_Test)文件夹内不是我的作品，而是引用了其他人的项目，放在一起方便使用**
