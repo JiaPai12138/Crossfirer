@@ -95,7 +95,7 @@ while not (aim_mode == "1" or aim_mode == "2"):
 if aim_mode == "1":
     CONFIG_FILE = './yolov4-tiny.cfg'
     WEIGHT_FILE = './yolov4-tiny.weights'
-    std_confidence = 0.1
+    std_confidence = 0.3
 else:
     CONFIG_FILE = './yolov4.cfg'
     WEIGHT_FILE = './yolov4.weights'
