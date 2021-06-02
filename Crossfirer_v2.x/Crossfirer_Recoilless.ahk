@@ -9,7 +9,7 @@ Vertices := 40
 Radius := 0
 Diameter := 2 * Radius
 Angle := 8 * ATan(1) / Vertices
-Hole = 
+Hole =
 
 If WinExist("ahk_class CrossFire")
 {
@@ -48,7 +48,7 @@ If WinExist("ahk_class CrossFire")
     Loop, %Vertices%
         Hole .= Floor(Xcc + Radius * Cos(A_Index * Angle)) "-" Floor(Ycc + Radius * Sin(A_Index * Angle)) " "
     Hole .= Floor(Xcc + Radius * Cos(Angle)) "-" Floor(Ycc + Radius * Sin(Angle))
-    WinSet, Region, %Hole%, ahk_id %cc% 
+    WinSet, Region, %Hole%, ahk_id %cc%
     Hole = ;free memory
     Gui, circle: Show, Hide
     OnMessage(0x1001, "ReceiveMessage")
@@ -80,7 +80,7 @@ Return
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If Is_Chatting()
-        Suspend, On 
+        Suspend, On
     Suspended()
 Return
 
@@ -257,7 +257,7 @@ Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
         Default:
             Continue
         }
-    } Until !GetKeyState("LButton", "P") 
+    } Until !GetKeyState("LButton", "P")
     Return ;复原StartTime
 }
 ;==================================================================================

@@ -20,7 +20,7 @@ If WinExist("ahk_class CrossFire")
     Gui, C4: Add, Text, hwndGui_3 vC4Status, 剩余%C4_Time%秒钟
     GuiControlGet, P3, Pos, %Gui_3%
     Gui, C4: Add, Progress, w%P3W% h4 c00FF00 Background333333 vC4Progress Range0-40, %C4_Time% ;#00FF00
-    
+
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2) ;避开狙击枪秒准线确认点
@@ -69,7 +69,7 @@ Return
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If Is_Chatting()
-        Suspend, On 
+        Suspend, On
     Suspended()
 Return
 
@@ -259,7 +259,7 @@ class C4Timer
         PixelSearch, IsDefX1, IsDefY1, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0x4C81C7, 0, Fast ;#C7814C #4C81C7 C4加速
         If !ErrorLevel
             Return True
-        
+
         Return False
     }
 }

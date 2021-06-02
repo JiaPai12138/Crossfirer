@@ -86,7 +86,7 @@ Return
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If Is_Chatting()
-        Suspend, On 
+        Suspend, On
     Suspended()
 Return
 
@@ -131,7 +131,7 @@ Return
     Else If WinExist("ahk_class Q360NetFosClass") && CF_Now.GetStatus()
     {
         Net_On := !Net_On
-        
+
         Gui, net_status: Show, x%XGui9% y%YGui9% NA
         FlashPress(clickx, clicky, "ahk_class Q360NetFosClass", "ahk_class #32768")
         If !Net_On

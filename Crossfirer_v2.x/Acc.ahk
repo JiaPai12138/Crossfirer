@@ -100,7 +100,7 @@ Acc_Location(Acc, ChildId=0, byref Position="") { ; adapted from Sean's code
     Return {x:NumGet(x,0,"int"), y:NumGet(y,0,"int"), w:NumGet(w,0,"int"), h:NumGet(h,0,"int")}
 }
 
-Acc_Parent(Acc) { 
+Acc_Parent(Acc) {
     Try parent:=Acc.accParent
     Return parent?Acc_Query(parent):
 }

@@ -41,7 +41,7 @@ Return
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If Is_Chatting()
-        Suspend, On 
+        Suspend, On
     Suspended()
 Return
 
@@ -74,9 +74,9 @@ Return
     press_key("space", 100, 100)
     Send, {LCtrl Down}
     HyperSleep(100)
-    Loop 
+    Loop
     {
-        press_key("space", 10, 0)   
+        press_key("space", 10, 0)
         cnt += 1
     } Until, (!GetKeyState("W", "P") || cnt >= 300 || !WinActive("ahk_class CrossFire") || BhopStatus != 2)
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
@@ -89,7 +89,7 @@ Return
     cnt := 0, BhopStatus := 3
     GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
     UpdateText("jump_mode", "ModeJump", "前跳跳蹲", XGui4, YGui4)
-    Loop 
+    Loop
     {
         press_key("Space", 10, 10)
         cnt += 1
@@ -210,7 +210,7 @@ Return
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     BhopStatus := 0
-Return 
+Return
 
 ~Z & ~C:: ;六级跳 需要特定角度和条件
     BhopStatus := 9
@@ -228,7 +228,7 @@ Return
     HyperSleep(100)
     Send, {Blind}{w Up}
     cnt := 0
-    Loop 
+    Loop
     {
         press_key("Space", 10, 10)
         cnt += 1
@@ -236,7 +236,7 @@ Return
     press_key("LCtrl", 100, 20)
     press_key("Space", 10, 10)
     Send, {Blind}{s Up}
-    
+
     GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
     UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
     BhopStatus := 0

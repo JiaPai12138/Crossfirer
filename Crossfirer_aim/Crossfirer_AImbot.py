@@ -13,9 +13,11 @@ import win32con
 import win32gui
 import win32ui
 import keyboard
-from PIL import ImageGrab
+# from PIL import ImageGrab
+from statistics import mean
 from time import sleep
 import time
+import math
 import mss
 
 
@@ -77,15 +79,19 @@ def targeting(monitor):
         y = int(boxes[min_at][1] + boxes[min_at][3] / 2 - frame_height / 2) - boxes[min_at][3] * 0.4  # For head shot
         mousexy(x, y)
 
-    size_scale = 3
-    fps = str(int(1 / (time.time() - ini_frame_time)))
+    fps = int(1 / (time.time() - ini_frame_time))
+    fps_list.append(fps)
     font = cv2.FONT_HERSHEY_SIMPLEX
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    if left_point[0] > frame.shape[1]:
+        size_scale = 1
+    else:
+        size_scale = int(math.ceil(frame.shape[1] / left_point[0]))
+
     frame = cv2.resize(frame, (frame.shape[1] // size_scale, frame.shape[0] // size_scale))
-    cv2.putText(frame, fps, (10, 40), font, 1, (127, 255, 0), 3, cv2.LINE_AA)  # show fps
+    cv2.putText(frame, str(round(mean(fps_list), 1)), (10, 40), font, 1, (127, 255, 0), 3, cv2.LINE_AA)  # show fps
     cv2.imshow("frame", frame)
     cv2.waitKey(1)
-    # sleep(0.001)
 
 
 aim_mode = 0  # 选择加载模型
@@ -96,10 +102,11 @@ if aim_mode == "1":
     CONFIG_FILE = './yolov4-tiny.cfg'
     WEIGHT_FILE = './yolov4-tiny.weights'
     std_confidence = 0.3
-else:
+elif aim_mode == "2":
     CONFIG_FILE = './yolov4.cfg'
     WEIGHT_FILE = './yolov4.weights'
     std_confidence = 0.7
+
 
 net = cv2.dnn.readNetFromDarknet(CONFIG_FILE, WEIGHT_FILE)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
@@ -128,9 +135,11 @@ cfw = int(cfh * cf_modifier)
 cfx = int(rect[0] + (rect[2] - rect[0] - cfw) / 2)
 cfy = int(rect[1] + (rect[3] - rect[1] - cfh) / 2)
 point = win32gui.ClientToScreen(hwnd, (cfx, cfy))  # get client area
+left_point = win32gui.ClientToScreen(hwnd, (0, 0))
 region = {"top": point[1], "left": point[0], "width": cfw, "height": cfh}
 print(f"x, y, w, h: {cfx, cfy, cfw, cfh}")  # confirm client area
 aim = False
+fps_list = []
 sct = mss.mss()
 
 
@@ -139,6 +148,7 @@ while win32gui.FindWindow(windclass, None):
     cfx = int(rect[0] + (rect[2] - rect[0] - cfw) / 2)
     cfy = int(rect[1] + (rect[3] - rect[1] - cfh) / 2)
     point = win32gui.ClientToScreen(hwnd, (cfx, cfy))
+    left_point = win32gui.ClientToScreen(hwnd, (0, 0))
     region = {"top": point[1], "left": point[0], "width": cfw, "height": cfh}
     if keyboard.is_pressed('i'):
         aim = not aim
@@ -146,5 +156,6 @@ while win32gui.FindWindow(windclass, None):
         targeting(region)
         dcObj.DrawFocusRect((point[0], point[1], point[0] + cfw, point[1] + cfh))
     else:
+        fps_list = []
         cv2.destroyAllWindows()
-        sleep(0.05)
+        sleep(0.1)

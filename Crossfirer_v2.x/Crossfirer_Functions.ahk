@@ -53,31 +53,31 @@ Preset(Script_Icon)
 
     Switch Script_Icon
     {
-        Case "断": 
+        Case "断":
             脚本图标 := 2
             Menu, Tray, Tip, 火线一键限速
 
-        Case "控": 
+        Case "控":
             脚本图标 := 3
             Menu, Tray, Tip, 火线助手控制
 
-        Case "身": 
+        Case "身":
             脚本图标 := 4
             Menu, Tray, Tip, 火线基础身法
 
-        Case "压": 
+        Case "压":
             脚本图标 := 5
             Menu, Tray, Tip, 火线基础压枪
-        
-        Case "尽": 
+
+        Case "尽":
             脚本图标 := 6
             Menu, Tray, Tip, 火线无尽挂机
 
-        Case "猎": 
+        Case "猎":
             脚本图标 := 7
             Menu, Tray, Tip, 火线战斗猎手
 
-        Case "火": 
+        Case "火":
             脚本图标 := 8
             Menu, Tray, Tip, 火线自动开火
 
@@ -287,18 +287,22 @@ In_Game(CF_Title)
         If !ErrorLevel
             Return 2 ;无尽挑战黑暗中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 30), 0x89876C, 0, Fast ;#6C8789 #89876C
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0x89876C, 0, Fast ;#6C8789 #89876C
         If !ErrorLevel
             Return 1 ;非挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 30), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xBDBDBD, 0, Fast ;#BDBDBD
+        If !ErrorLevel
+            Return 1 ;个人竞技
+
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
         If !ErrorLevel
             Return 2 ;挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 30), 0xB6B6B6, 0, Fast ;#B6B6B6
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xB6B6B6, 0, Fast ;#B6B6B6
         If !ErrorLevel
             Return 1 ;人机爆破
-        
+
         Return -1 ;不在房间也不在活跃主界面也不是黑暗视觉
     }
     Else If CF_Title = CROSSFIRE
@@ -319,15 +323,19 @@ In_Game(CF_Title)
         If !ErrorLevel
             Return 2 ;无尽挑战黑暗中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 30), 0x89876C, 0, Fast ;#6C8789 #89876C
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 18), 0x89876C, 0, Fast ;#6C8789 #89876C
         If !ErrorLevel
             Return 1 ;非挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 30), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xBDBDBD, 0, Fast ;#BDBDBD
+        If !ErrorLevel
+            Return 1 ;个人竞技
+
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 18), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
         If !ErrorLevel
             Return 2 ;挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 30), 0xB6B6B6, 0, Fast ;#B6B6B6
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 18), 0xB6B6B6, 0, Fast ;#B6B6B6
         If !ErrorLevel
             Return 1 ;人机爆破
 
@@ -368,7 +376,7 @@ ABSmouseXY(x2, y2, ClickOrNot := False, ClickWhich := 1)
             Case 1:
                 DllCall("mouse_event", "UInt", 0x02) ;左键按下
                 DllCall("mouse_event", "UInt", 0x04) ;左键弹起
-            
+
             Case 2:
                 DllCall("mouse_event", "UInt", 0x08) ;右键按下
                 DllCall("mouse_event", "UInt", 0x10) ;右键弹起
@@ -451,7 +459,7 @@ SystemTime()
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
     DllCall("QueryPerformanceCounter", "Int64*", tick)
     Return tick / freq * 1000
-} 
+}
 ;==================================================================================
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
@@ -459,7 +467,7 @@ HyperSleep(value)
     s_begin_time := SystemTime()
     freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
-    s_end_time := (s_begin_time + value) * freq / 1000 
+    s_end_time := (s_begin_time + value) * freq / 1000
     While, (t_current < s_end_time)
     {
         If (s_end_time - t_current) > 20000 ;大于二毫秒时不暴力轮询,以减少CPU占用
@@ -474,7 +482,7 @@ HyperSleep(value)
 }
 ;==================================================================================
 ;学习自AHK论坛中的多脚本间通过端口简单通信函数,接受信息
-ReceiveMessage(Message) 
+ReceiveMessage(Message)
 {
     Switch Message
     {
@@ -492,16 +500,16 @@ ReceiveMessage(Message)
 
         Case 110002:
             CF_Now.SetStatus(2)
-        
+
         Case 110003:
             CF_Now.SetHuman(1)
-        
+
         Case 110004:
             CF_Now.SetHuman(0)
-        
+
         Case 110005:
             CF_Now.Set无尽(1)
-        
+
         Case 110006:
             CF_Now.Set无尽(0)
     }
@@ -572,7 +580,7 @@ Median(values)
 }
 ;==================================================================================
 ;将指定数据与一个范围比较,有点多此一举
-InRange(Min, x, Max) 
+InRange(Min, x, Max)
 {
     If (x >= Min) && (x < Max)
         Return True
@@ -581,13 +589,13 @@ InRange(Min, x, Max)
 }
 ;==================================================================================
 ;托盘退出选项
-Exit_Script() 
+Exit_Script()
 {
     ExitApp
 }
 ;==================================================================================
 ;托盘重新加载选项
-Re_load() 
+Re_load()
 {
     Reload
 }
@@ -637,7 +645,7 @@ Is_Chatting()
     HyperSleep(30) ;稳定性
     WinGetTitle, cftitle, ahk_class CrossFire
     If cftitle = 穿越火线
-        Chat_Color := "0x8AFBFF" ;#FFFB8A 
+        Chat_Color := "0x8AFBFF" ;#FFFB8A
     Else If cftitle = CROSSFIRE
         Chat_Color := "0x43FFFF" ;#FFFF43
     CheckPosition(controlX, controlY, controlW, controlH, "CrossFire")

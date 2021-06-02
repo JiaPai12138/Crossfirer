@@ -48,7 +48,7 @@ Return
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If Is_Chatting()
-        Suspend, On 
+        Suspend, On
     Suspended()
 Return
 
@@ -158,7 +158,7 @@ Return
 Return
 
 ~*::: ;炼狱热管
-~*;:: 
+~*;::
     CLKStatus := 6
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)

@@ -78,7 +78,7 @@ If WinExist("ahk_class CrossFire")
     Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
     OnMessage(0x1003, "ReceiveMessage")
     CTL_Service_On := True
-} 
+}
 ;==================================================================================
 ~*-::
     WinClose, ahk_class ConsoleWindowClass
@@ -115,7 +115,7 @@ Return
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If Is_Chatting()
-        Suspend, On 
+        Suspend, On
     Suspended()
 Return
 
@@ -178,7 +178,7 @@ UpdateGui() ;精度0.5s
     Minute_Left := SubStr("00" . Minute_Left, -1) ;格式
     Second_Left := SubStr("00" . Second_Left, -1) ;格式
     Time_Text := "剩余" . Hour_Left . "小时" . Minute_Left . "分" . Second_Left . "秒"
-    
+
     If WinActive("ahk_class CrossFire")
         UpdateText("T_Hour", "T_Left", Time_Text, XGui12, YGui12)
 
@@ -187,7 +187,7 @@ UpdateGui() ;精度0.5s
 
     If !InStr(A_ScreenDPI, DPI_Initial)
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
-    
+
     If !GetKeyState("LAlt", "P") && GetKeyState("LAlt")
         Send, {Blind}{LAlt Up} ;双重保险防止意外激活
 
@@ -224,7 +224,7 @@ UpdateGui() ;精度0.5s
             PostStatus(110004)
         Else
             PostStatus(110003)
-        
+
         If HasWGTooltip()
             press_key("F11", 50, 50)
 
@@ -381,6 +381,6 @@ IsMutant()
 IsDead()
 {
     PixelSearch, Outputa, Outputb, Xl + Round(Wl * 0.8), Yl + Round(Hl * 0.95), Xl + Wl, Yl + Hl, 0xD9D5B9, 0, Fast ;#B9D5D9 #D9D5B9
-    Return !ErrorLevel    
+    Return !ErrorLevel
 }
 ;==================================================================================

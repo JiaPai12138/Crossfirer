@@ -46,7 +46,7 @@ Return
 ~*Enter Up::
     Suspend, Off ;恢复热键,首行为挂起关闭才有效
     If Is_Chatting()
-        Suspend, On 
+        Suspend, On
     Suspended()
 Return
 
@@ -120,7 +120,7 @@ Exit ;退出当前线程
         ClickWait(0.94, 0.823) ;点击开始游戏
         ClickWait(0.5, 0.648) ;离开原本退出的比赛
         ClickWait(0.94, 0.823) ;点击开始游戏
-        
+
         Loop
         {
             ToolTip, 等待进入游戏, , , 19
@@ -130,11 +130,11 @@ Exit ;退出当前线程
     }
     Else If CF_Now.GetStatus() = 2
         正式游戏 := True
-    
+
     If 正式游戏
     {
         Game_Start_Min := A_Min, Game_Start_Sec := A_Sec
-        
+
         确认成绩x := 0, 确认成绩y := 0, 确认成绩a := 0, 确认成绩b := 0, 升级x := 0, 升级y := 0
         Boss_x := 0, Boss_y := 0, Boss_x1 := 0, Boss_y1 := 0, Found_Boss := False, 枪口上 := False, 后退 := False, Lose_Boss := 0
         Loop
@@ -149,7 +149,7 @@ Exit ;退出当前线程
             If !ErrorLevel
                 IsDead += 1
 
-            If IsDead  
+            If IsDead
             {
                 Lose_Boss := 0
                 Char_Dead := True
@@ -160,14 +160,14 @@ Exit ;退出当前线程
             Else
                 Char_Dead := False
 
-            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x2E619A, 0, Fast ;#9A612E #2E619A 确认Boss 
+            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x2E619A, 0, Fast ;#9A612E #2E619A 确认Boss
             If !ErrorLevel
                 Boss_Come := 1
 
-            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x0947C4, 0, Fast ;#C44709 #0947C4 确认黄金Boss 
+            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x0947C4, 0, Fast ;#C44709 #0947C4 确认黄金Boss
             If !ErrorLevel
                 Boss_Come := 2
-            
+
             Send, {Blind}{LAlt Up} ;偶发按键影响
 
             PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
@@ -237,7 +237,7 @@ Exit ;退出当前线程
                     Send, {Blind}{LButton Down}
                 press_key("e", 10, 10) ;佣兵觉醒
                 LRMoveX := 0, LRMoveY := 0
-            
+
                 If Boss_Come := 1
                     ImageSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, *4 HBITMAP:*%Load_FFFF14% ;#FFFF14
                 Else If Boss_Come := 2
@@ -304,7 +304,7 @@ Exit ;退出当前线程
         ToolTip, , , , 18
         ToolTip, , , , 17
         Send, {Blind}{LButton Up}
-        
+
         If Time_Minute > 18 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && CF_Now.GetStatus() != 0 ;超时无法通关则降低等级
         {
             global XGui10, YGui10
@@ -345,7 +345,7 @@ Exit ;退出当前线程
             ClickWait(0.1, 0.25) ;无尽挑战
             PixelSearch, 地图选择x, 地图选择y, Xj + Wj // 2 - Round(Wj / 16), Yj, Xj + Wj // 2 + Round(Wj / 16), Yj + Round(Hj / 9), 0x4CCDFF, 0, Fast ;#FFCD4C #4CCDFF
         } Until, (地图选择x > 0 && 地图选择y > 0) || JumpLoop()
-        
+
         Loop
         {
             ClickWait(0.844, 0.95) ;点击确认
