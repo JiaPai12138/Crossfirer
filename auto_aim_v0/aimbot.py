@@ -16,6 +16,7 @@ import keyboard
 from PIL import ImageGrab
 from time import sleep
 import time
+import mss
 
 
 def mousexy(a, b):  # Move mouse
@@ -24,10 +25,11 @@ def mousexy(a, b):  # Move mouse
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, x, y, 0, 0)
 
 
-def targeting():
+def targeting(monitor):
     ini_frame_time = time.time()  # used to record the time at which we processed frames
     # Get image of screen
-    frame = np.array(ImageGrab.grab(bbox=(cfx, cfy, cfx+cfw, cfy+cfh)))
+    frame = cv2.cvtColor(np.array(sct.grab(monitor)), cv2.COLOR_BGRA2RGB)
+    # frame = np.array(ImageGrab.grab(bbox=(cfx, cfy, cfx+cfw, cfy+cfh)))
     # frame = np.array(pyautogui.screenshot(region=region))
     frame_height, frame_width = frame.shape[:2]
 
@@ -125,19 +127,24 @@ cfh = int((rect[3] - rect[1]) * 3/5)  # 416*416 (rect[3] - rect[1]) 608*608
 cfw = int(cfh * cf_modifier)
 cfx = int(rect[0] + (rect[2] - rect[0] - cfw) / 2)
 cfy = int(rect[1] + (rect[3] - rect[1] - cfh) / 2)
-cfx, cfy = win32gui.ClientToScreen(hwnd, (cfx, cfy))  # get client area
-region = (cfx, cfy, cfw, cfh)
+point = win32gui.ClientToScreen(hwnd, (cfx, cfy))  # get client area
+region = {"top": point[1], "left": point[0], "width": cfw, "height": cfh}
 print(f"x, y, w, h: {cfx, cfy, cfw, cfh}")  # confirm client area
 aim = False
+sct = mss.mss()
 
 
 while win32gui.FindWindow(windclass, None):
-    # cfx, cfy = win32gui.ClientToScreen(hwnd, (cfx, cfy))
+    rect = win32gui.GetClientRect(hwnd)
+    cfx = int(rect[0] + (rect[2] - rect[0] - cfw) / 2)
+    cfy = int(rect[1] + (rect[3] - rect[1] - cfh) / 2)
+    point = win32gui.ClientToScreen(hwnd, (cfx, cfy))
+    region = {"top": point[1], "left": point[0], "width": cfw, "height": cfh}
     if keyboard.is_pressed('i'):
         aim = not aim
     if aim:
-        targeting()
-        dcObj.DrawFocusRect((cfx, cfy, cfx + cfw, cfy + cfh))
+        targeting(region)
+        dcObj.DrawFocusRect((point[0], point[1], point[0] + cfw, point[1] + cfh))
     else:
         cv2.destroyAllWindows()
         sleep(0.05)
