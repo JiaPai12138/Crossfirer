@@ -1,3 +1,9 @@
+"""
+Modified from project AIMBOT-YOLO
+Original Author: monokim
+Original project website: https://github.com/monokim/AIMBOT-YOLO
+Original project video: https://www.youtube.com/watch?v=vQlb0tK1DH0
+"""
 import math
 import mss
 import time
@@ -57,6 +63,8 @@ def mouse_move(a, b):  # Move mouse
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    # 检查管理员权限
+
     # 初始化mss截图,截图用时,自瞄开关,展示开关,计数器,初始化检测
     sct = mss.mss()
     screenshot_time = deque()
@@ -84,11 +92,11 @@ if __name__ == '__main__':
 
     # 检测并设置在GPU上运行图像识别
     if cv2.cuda.getCudaEnabledDeviceCount():
-        processor = "GPU"
+        processor = "=GPU"
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     else:
-        processor = "CPU"
+        processor = "-CPU"
 
     # 读取YOLO神经网络内容
     ln = net.getLayerNames()
@@ -100,7 +108,7 @@ if __name__ == '__main__':
     while not hwnd:  # 等待游戏窗口出现
         print("未启动穿越火线!!!请启动后重试!!!")
         hwnd = win32gui.FindWindow(window_class, None)
-        sleep(3)
+        sleep(5)
     regions = get_region(hwnd)
 
     while win32gui.FindWindow(window_class, None):
@@ -205,4 +213,4 @@ if __name__ == '__main__':
             if len(screenshot_time) > 20:
                 screenshot_time.popleft()
 
-        print(f"{processor}: FPS={round(mean(screenshot_time), 1)}; {len(indices)}人")
+        print(f"\033[1;32;40m使用{processor}; \033[1;36;40mFPS={round(mean(screenshot_time), 1)}; \033[1;31;40m检测{len(indices)}人", end="\r")
