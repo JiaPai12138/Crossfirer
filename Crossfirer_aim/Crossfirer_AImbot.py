@@ -82,10 +82,12 @@ if __name__ == '__main__':
         CONFIG_FILE = './yolov4-tiny.cfg'
         WEIGHT_FILE = './yolov4-tiny.weights'
         std_confidence = 0.3
+        side_length = 416
     elif aim_mode == "2":  # 标准自瞄
         CONFIG_FILE = './yolov4.cfg'
         WEIGHT_FILE = './yolov4.weights'
         std_confidence = 0.7
+        side_length = 320
 
     # 读取权重与配置文件
     net = cv2.dnn.readNetFromDarknet(CONFIG_FILE, WEIGHT_FILE)
@@ -144,7 +146,7 @@ if __name__ == '__main__':
         cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
 
         # 检测
-        blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (416, 416), swapRB=True, crop=False)  # 转换为二进制大型对象
+        blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (side_length, side_length), swapRB=True, crop=False)  # 转换为二进制大型对象
         net.setInput(blob)
         layerOutputs = net.forward(ln)  # 前向传播
 
