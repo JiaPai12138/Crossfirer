@@ -323,7 +323,8 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText("fcn_mode", "ModeOfFcn", "通用模式中", XGui1, YGui1)
                         press_key("LButton", small_rand * 1.2, small_rand * 1.8 - Color_Delay) ;3.7*30=111
-                        mouseXY(0, 1) ;小小压枪
+                        Random, rand_down, 1, 2
+                        mouseXY(0, rand_down) ;小小随机压枪
                 }
             }
             Var += 1

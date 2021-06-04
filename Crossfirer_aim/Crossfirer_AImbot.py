@@ -10,6 +10,12 @@ from time import sleep
 from win32api import mouse_event
 import keyboard
 from collections import deque
+from os import system
+
+
+# 清空命令指示符输出
+def clear():
+    _ = system('cls')
 
 
 # 获取截图区域
@@ -44,8 +50,8 @@ def shot_screen(region_screen):
 
 # 移动鼠标
 def mouse_move(a, b):  # Move mouse
-    x1 = int(a / 4.2)
-    y1 = int(b / 5.6)
+    x1 = int(a / 3)
+    y1 = int(b / 4)
     mouse_event(win32con.MOUSEEVENTF_MOVE, x1, y1, 0, 0)
 
 
@@ -78,11 +84,11 @@ if __name__ == '__main__':
 
     # 检测并设置在GPU上运行图像识别
     if cv2.cuda.getCudaEnabledDeviceCount():
-        print("正在使用GPU......")
+        processor = "GPU"
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     else:
-        print("正在使用CPU......")
+        processor = "CPU"
 
     # 读取YOLO神经网络内容
     ln = net.getLayerNames()
@@ -97,14 +103,7 @@ if __name__ == '__main__':
         sleep(3)
     regions = get_region(hwnd)
 
-    while True:
-        # 每60次运行查看游戏窗口是否存在,不存在则退出程序
-        count_frame += 1
-        if count_frame > 29:
-            count_frame = 0
-            if not win32gui.FindWindow(window_class, None):
-                break
-
+    while win32gui.FindWindow(window_class, None):
         if not begin:
             begin = True
             print("程序初始化完成")
@@ -119,12 +118,13 @@ if __name__ == '__main__':
 
         # 自瞄开关,关则跳过后续
         if not aim:
-            print("======自瞄停止")
+            clear()
             count_frame = 0
             show_frame = False
-            sleep(0.1)
+            sleep(0.05)
             continue
 
+        display_text = True
         ini_frame_time = time.time()  # 开始记时点
 
         # 截取帧
@@ -132,8 +132,8 @@ if __name__ == '__main__':
         frame_height, frame_width = frames.shape[:2]
 
         # 画实心框避免错误检测武器
-        cv2.rectangle(frames, (int(frame_width*3/4), int(frame_height*2/3)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
-        cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
+        cv2.rectangle(frames, (int(frame_width*11/16), int(frame_height*2/3)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
+        cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
 
         # 检测
         blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (416, 416), swapRB=True, crop=False)  # 转换为二进制大型对象
@@ -163,13 +163,12 @@ if __name__ == '__main__':
 
         # 计算距离框中心距离最小的人类目标
         if len(indices) > 0:
-            print(f"检测到: {len(indices)} 位人类")
             min_var = 99999
             min_at = 0
             for i in indices.flatten():
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
-                cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 2)
+                cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 1)
 
                 # 计算最小直线距离
                 dist = math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 2), 2))
@@ -200,10 +199,10 @@ if __name__ == '__main__':
 
         # 计算用时与帧率
         time_used = time.time() - ini_frame_time
-        # print(time_used)
         if time_used:
             fps = 1 / time_used
             screenshot_time.append(fps)
             if len(screenshot_time) > 20:
                 screenshot_time.popleft()
-        print(f"======FPS: {round(mean(screenshot_time), 2)}")
+
+        print(f"{processor}: FPS={round(mean(screenshot_time), 1)}; {len(indices)}人")
