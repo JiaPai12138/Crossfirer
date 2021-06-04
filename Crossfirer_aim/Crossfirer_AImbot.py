@@ -118,6 +118,9 @@ if __name__ == '__main__':
             begin = True
             print("程序初始化完成")
 
+        # 更新窗口位置
+        regions = get_region(hwnd)
+
         # o键控制展示
         if keyboard.is_pressed('o'):
             show_frame = not show_frame
