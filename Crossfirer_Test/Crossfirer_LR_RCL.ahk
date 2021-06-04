@@ -71,7 +71,7 @@ Return
 
 LRController()
 {
-    global LRColor, X8, Y8, W8, H8, 
+    global LRColor, X8, Y8, W8, H8
     If !WinActive("ahk_class CrossFire")
         SetTimer, LRController, Off
     CheckPosition(X8, Y8, W8, H8, "CrossFire")
@@ -107,7 +107,7 @@ LRController()
         {
             LRColorPos%A_Index% := Abs(LRTempPos%A_Index%A - X8 - W8 // 2) > Abs(LRTempPos%A_Index%B - X8 - W8 // 2) ? LRTempPos%A_Index%B : LRTempPos%A_Index%A ;选取离中线近的
             If Abs(LRTempPos%A_Index%A - X8 - W8 // 2) = Abs(LRTempPos%A_Index%B - X8 - W8 // 2) ;极其稀有情况,左右间距相等
-                LRColorPos%A_Index% := X8 + W8 // 2
+            LRColorPos%A_Index% := X8 + W8 // 2
         }
     }
 
@@ -122,7 +122,7 @@ LRController()
                 LR_Points .= ","
         }
     }
-    
+
     LRMoveX := (Median(LR_Points) - (X8 + W8 // 2)) ** 1/3
     mouseXY(LRMoveX, 0)
     LR_Points := "" ;重置

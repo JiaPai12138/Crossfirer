@@ -3,12 +3,12 @@
 #MenuMaskKey vkFF  ; vkFF is no mapping
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
-#SingleInstance, force 
+#SingleInstance, force
 #KeyHistory 0
 ListLines Off
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-;CoordMode, Pixel, Screen ;Client 
+;CoordMode, Pixel, Screen ;Client
 ;CoordMode, Mouse, Screen
 Process, Priority, , H  ;进程高优先级
 SetBatchLines -1  ;全速运行,且因为全速运行,部分代码不得不调整
@@ -37,7 +37,7 @@ SystemTime()
         DllCall("QueryPerformanceFrequency", "Int64*", freq)
     DllCall("QueryPerformanceCounter", "Int64*", tick)
     Return tick / freq * 1000
-} 
+}
 ;==================================================================================
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
@@ -47,7 +47,7 @@ HyperSleep(value)
 	begin_time := SystemTime()
 	freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
-	t_tmp := (begin_time + value) * freq / 1000 
+	t_tmp := (begin_time + value) * freq / 1000
     While (t_current < t_tmp)
     {
         If (t_tmp - t_current) > 20000 ;减少CPU占用

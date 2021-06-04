@@ -147,7 +147,7 @@ Return hBitmap
       If !ErrorLevel
          nb_block := True
       Else
-      {   
+      {
          ImageSearch, Block_nbClickX, Block_nbClickY, Xnb, Ynb, Wnb, Hnb, *63 *TransFFFFFF HBITMAP:*%启用规则2%
          If !ErrorLevel
             nb_block := True
@@ -156,7 +156,7 @@ Return hBitmap
       If !ErrorLevel
          nb_allow := True
       Else
-      {   
+      {
          ImageSearch, Allow_nbClickX, Allow_nbClickY, Xnb, Ynb, Wnb, Hnb, *63 *TransFFFFFF HBITMAP:*%禁用规则2%
          If !ErrorLevel
             nb_allow := True

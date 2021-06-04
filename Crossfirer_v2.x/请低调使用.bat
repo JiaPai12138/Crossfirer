@@ -1,4 +1,4 @@
-@echo off 
+@echo off
 CHCP 936
 title 辅助启动助手 名侦探柯南战队专用
 ::随机可读颜色
@@ -35,11 +35,11 @@ echo.
 echo       请选择需要运行的辅助/Please select an option
 echo         ╔════════════════════════════════════╗
 echo         ║ [1]Run All assistants  运行所有辅助
-echo         ║ [2]Run Shooter only    运行自动开火  
-echo         ║ [3]Run C4 Hero only    运行战斗猎手  
-echo         ║ [4]Run Bhop only       运行普通身法  
-echo         ║ [5]Run Clicker only    运行连点助手  
-echo         ║ [6]Run Recoilless only 运行基础压枪  
+echo         ║ [2]Run Shooter only    运行自动开火
+echo         ║ [3]Run C4 Hero only    运行战斗猎手
+echo         ║ [4]Run Bhop only       运行普通身法
+echo         ║ [5]Run Clicker only    运行连点助手
+echo         ║ [6]Run Recoilless only 运行基础压枪
 echo         ║ [7]Run NetBlocker only 运行一键限网
 echo         ║ [8]Run Challenger only 运行无尽挂机
 echo         ║ [9]Exit Starter now    退出启动助手

@@ -35,9 +35,9 @@ PosColor_red1 := "0x174AF2"
     CounterBefore := 0, CounterAfter := 0, Frequency := 0
     DllCall("QueryPerformanceCounter", "Int64*", CounterBefore)
 
-    Loop, 1000 
+    Loop, 1000
     {
-        PixelSearch, Px, Py, 0, 0, 100, 100, %PosColor_red1%, 0, Fast 
+        PixelSearch, Px, Py, 0, 0, 100, 100, %PosColor_red1%, 0, Fast
     }
 
     DllCall("QueryPerformanceCounter", "Int64*", CounterAfter)
@@ -48,7 +48,7 @@ Return
 ~*H Up::
     CounterBefore := 0, CounterAfter := 0, Frequency := 0
     DllCall("QueryPerformanceCounter", "Int64*", CounterBefore)
-    
+
     Loop, 1000
         checkcolor(0, 0, 80, 16)
 
@@ -98,14 +98,14 @@ SystemTime()
         DllCall("QueryPerformanceFrequency", "Int64*", freq)
     DllCall("QueryPerformanceCounter", "Int64*", tick)
     Return tick / freq * 1000
-} 
+}
 
 HyperSleep(value)
 {
     s_begin_time := SystemTime()
     freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)
-    s_end_time := (s_begin_time + value) * freq / 1000 
+    s_end_time := (s_begin_time + value) * freq / 1000
     While, (t_current < s_end_time)
     {
         If (s_end_time - t_current) > 20000 ;大于二毫秒时不暴力轮询,以减少CPU占用
@@ -118,7 +118,7 @@ HyperSleep(value)
     }
 }
 
-ARGBtoRGB(ARGB) 
+ARGBtoRGB(ARGB)
 {
     VarSetCapacity(RGB, 6, 0)
     DllCall("msvcrt.dll\sprintf", Str, RGB, Str, "%06X", UInt, ARGB<<8)
