@@ -17,6 +17,17 @@ from win32api import mouse_event
 import keyboard
 from collections import deque
 from os import system
+import ctypes
+import sys
+
+
+# 检查是否为管理员权限
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except OSError as err:
+        print("OS error: {0}".format(err))
+        return False
 
 
 # 清空命令指示符输出
@@ -64,6 +75,9 @@ def mouse_move(a, b):  # Move mouse
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # 检查管理员权限
+    if not is_admin():
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+        sys.exit(0)
 
     # 初始化mss截图,截图用时,自瞄开关,展示开关,初始化检测,效果展示帧数,效果展示字体
     sct = mss.mss()
