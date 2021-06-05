@@ -17,8 +17,23 @@ from win32api import mouse_event
 import keyboard
 from collections import deque
 from os import system
+from os import path
 import ctypes
 import sys
+
+
+# 检测是否存在配置与权重文件
+def check_file(file, config_filename, weight_filename):
+    cfg_filename = file + ".cfg"
+    weights_filename = file + ".weights"
+    if path.isfile(cfg_filename) and path.isfile(weights_filename):
+        config_filename[0] += cfg_filename
+        weight_filename[0] += weights_filename
+        return
+    else:
+        print(f"请下载{file}相关文件!!!")
+        sleep(3)
+        sys.exit(0)
 
 
 # 检查是否为管理员权限
@@ -87,25 +102,29 @@ if __name__ == '__main__':
     begin = False
     show_fps = 0
     font = cv2.FONT_HERSHEY_SIMPLEX
+    CONFIG_FILE = ["./"]
+    WEIGHT_FILE = ["./"]
 
     # 选择加载模型
     aim_mode = 0
-    while not (aim_mode == "1" or aim_mode == "2"):
-        aim_mode = input("你想要的自瞄模式是?(1:快速, 2:标准): ")
+    while not (3 >= int(aim_mode) >= 1):
+        aim_mode = input("你想要的自瞄模式是?(1:快速, 2:标准, 3:标改): ")
 
     if aim_mode == "1":  # 快速自瞄
-        CONFIG_FILE = './yolov4-tiny.cfg'
-        WEIGHT_FILE = './yolov4-tiny.weights'
+        check_file("yolov4-tiny", CONFIG_FILE, WEIGHT_FILE)
         std_confidence = 0.3
         side_length = 416
     elif aim_mode == "2":  # 标准自瞄
-        CONFIG_FILE = './yolov4.cfg'
-        WEIGHT_FILE = './yolov4.weights'
-        std_confidence = 0.7
+        check_file("yolov4", CONFIG_FILE, WEIGHT_FILE)
         side_length = 320
+        std_confidence = 0.5
+    elif aim_mode == "3":  # 标改自瞄
+        check_file("yolov4-csp-sam", CONFIG_FILE, WEIGHT_FILE)
+        side_length = 320
+        std_confidence = 0.5
 
     # 读取权重与配置文件
-    net = cv2.dnn.readNetFromDarknet(CONFIG_FILE, WEIGHT_FILE)
+    net = cv2.dnn.readNetFromDarknet(CONFIG_FILE[0], WEIGHT_FILE[0])
 
     # 检测并设置在GPU上运行图像识别
     if cv2.cuda.getCudaEnabledDeviceCount():
@@ -187,7 +206,7 @@ if __name__ == '__main__':
                     confidences.append(float(confidence))
 
         # 移除重复框
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.3)
 
         # 计算距离框中心距离最小的人类目标
         if len(indices) > 0:
