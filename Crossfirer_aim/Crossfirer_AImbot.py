@@ -65,13 +65,14 @@ def mouse_move(a, b):  # Move mouse
 if __name__ == '__main__':
     # 检查管理员权限
 
-    # 初始化mss截图,截图用时,自瞄开关,展示开关,计数器,初始化检测
+    # 初始化mss截图,截图用时,自瞄开关,展示开关,初始化检测,效果展示帧数,效果展示字体
     sct = mss.mss()
     screenshot_time = deque()
     aim = False
     show_frame = False
-    count_frame = 0
     begin = False
+    show_fps = 0
+    font = cv2.FONT_HERSHEY_SIMPLEX
 
     # 选择加载模型
     aim_mode = 0
@@ -132,7 +133,7 @@ if __name__ == '__main__':
         # 自瞄开关,关则跳过后续
         if not aim:
             clear()
-            count_frame = 0
+            cv2.destroyAllWindows()
             show_frame = False
             sleep(0.05)
             continue
@@ -205,6 +206,7 @@ if __name__ == '__main__':
                     size_scale = int(math.ceil(frames.shape[1] / left_distance))
                     frames = cv2.resize(frames, (frames.shape[1] // size_scale, frames.shape[0] // size_scale))
 
+            cv2.putText(frames, str(show_fps), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)  # show fps
             cv2.imshow("frame", frames)
             cv2.waitKey(1)
         else:
@@ -218,4 +220,5 @@ if __name__ == '__main__':
             if len(screenshot_time) > 20:
                 screenshot_time.popleft()
 
-        print(f"\033[1;32;40m使用{processor}; \033[1;36;40mFPS={round(mean(screenshot_time), 1)}; \033[1;31;40m检测{len(indices)}人", end="\r")
+        show_fps = round(mean(screenshot_time), 1)
+        print(f"\033[1;32;40m使用{processor}; \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
