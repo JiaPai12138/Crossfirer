@@ -95,11 +95,11 @@ if __name__ == '__main__':
 
     # 检测并设置在GPU上运行图像识别
     if cv2.cuda.getCudaEnabledDeviceCount():
-        processor = "=GPU"
+        processor = "=使用GPU="
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     else:
-        processor = "-CPU"
+        processor = "-使用CPU-"
 
     # 读取YOLO神经网络内容
     ln = net.getLayerNames()
@@ -221,4 +221,4 @@ if __name__ == '__main__':
                 screenshot_time.popleft()
 
         show_fps = round(mean(screenshot_time), 1)
-        print(f"\033[1;32;40m使用{processor}; \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
+        print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
