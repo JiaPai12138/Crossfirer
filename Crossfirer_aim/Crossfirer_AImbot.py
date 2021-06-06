@@ -22,6 +22,11 @@ import ctypes
 import sys
 
 
+def restart():
+    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+    sys.exit(0)
+
+
 # 检测是否存在配置与权重文件
 def check_file(file, config_filename, weight_filename):
     cfg_filename = file + ".cfg"
@@ -91,34 +96,40 @@ def mouse_move(a, b):  # Move mouse
 if __name__ == '__main__':
     # 检查管理员权限
     if not is_admin():
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
-        sys.exit(0)
+        restart()
 
-    # 初始化mss截图,截图用时,自瞄开关,展示开关,初始化检测,效果展示帧数,效果展示字体
-    sct = mss.mss()
-    screenshot_time = deque()
-    aim = False
-    show_frame = False
-    begin = False
-    show_fps = 0
-    font = cv2.FONT_HERSHEY_SIMPLEX
+    # 初始化变量
+    sct = mss.mss()  # mss截图
+    screenshot_time = deque()  # 截图用时
+    aim = False  # 自瞄开关
+    show_frame = False  # 展示开关
+    begin = False  # 初始化检测
+    show_fps = 0  # 效果展示帧数
+    font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     CONFIG_FILE = ["./"]
     WEIGHT_FILE = ["./"]
+    i_pressed_times = 0
+    o_pressed_times = 0
+    p_pressed_times = 0
 
     # 选择加载模型
     aim_mode = 0
-    while not (3 >= int(aim_mode) >= 1):
-        aim_mode = input("你想要的自瞄模式是?(1:快速, 2:标准, 3:标改): ")
+    while not (3 >= aim_mode >= 1):
+        user_input = input("你想要的自瞄模式是?(1:快速, 2:标准, 3:标改): ")
+        try:
+            aim_mode = int(user_input)
+        except ValueError:
+            print("呵呵...请重新输入")
 
-    if aim_mode == "1":  # 快速自瞄
+    if aim_mode == 1:  # 快速自瞄
         check_file("yolov4-tiny", CONFIG_FILE, WEIGHT_FILE)
         std_confidence = 0.3
         side_length = 416
-    elif aim_mode == "2":  # 标准自瞄
+    elif aim_mode == 2:  # 标准自瞄
         check_file("yolov4", CONFIG_FILE, WEIGHT_FILE)
         side_length = 320
         std_confidence = 0.5
-    elif aim_mode == "3":  # 标改自瞄
+    elif aim_mode == 3:  # 标改自瞄
         check_file("yolov4-csp-sam", CONFIG_FILE, WEIGHT_FILE)
         side_length = 320
         std_confidence = 0.5
@@ -157,11 +168,32 @@ if __name__ == '__main__':
 
         # o键控制展示
         if keyboard.is_pressed('o'):
-            show_frame = not show_frame
+            if o_pressed_times == 0:
+                o_pressed_times = time.time()
+            if time.time() - o_pressed_times > 0.3:
+                show_frame = not show_frame
+                o_pressed_times = 0
+        else:
+            o_pressed_times = 0
 
         # i键控制开关
         if keyboard.is_pressed('i'):
-            aim = not aim
+            if i_pressed_times == 0:
+                i_pressed_times = time.time()
+            if time.time() - i_pressed_times > 0.3:
+                aim = not aim
+                i_pressed_times = 0
+        else:
+            i_pressed_times = 0
+
+        # p键控制重启
+        if keyboard.is_pressed('p'):
+            if p_pressed_times == 0:
+                p_pressed_times = time.time()
+            if time.time() - p_pressed_times > 0.3:
+                restart()
+        else:
+            p_pressed_times = 0
 
         # 自瞄开关,关则跳过后续
         if not aim:
@@ -179,8 +211,8 @@ if __name__ == '__main__':
         frame_height, frame_width = frames.shape[:2]
 
         # 画实心框避免错误检测武器
-        cv2.rectangle(frames, (int(frame_width*11/16), int(frame_height*2/3)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
-        cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
+        cv2.rectangle(frames, (int(frame_width*11/16), int(frame_height*3/5)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
+        cv2.rectangle(frames, (0, int(frame_height*3/5)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
 
         # 检测
         blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (side_length, side_length), swapRB=True, crop=False)  # 转换为二进制大型对象

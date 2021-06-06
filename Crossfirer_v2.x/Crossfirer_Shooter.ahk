@@ -244,6 +244,10 @@ ChangeMode(ByRef AutoMode, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
 AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
+    If game_title = 穿越火线
+        default_shooter := 3.0
+    Else
+        default_shooter := 3.4
     static Color_Delay := 7 ;本机i5-10300H测试结果,使用color_speed_test.ahk测试
     Gui, cross_hair: Color, 00FFFF ;#00FFFF
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
@@ -322,7 +326,7 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
 
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText("fcn_mode", "ModeOfFcn", "通用模式中", XGui1, YGui1)
-                        press_key("LButton", small_rand * 1.2, small_rand * 1.8 - Color_Delay) ;3.7*30=111
+                        press_key("LButton", small_rand * 1.2, small_rand * (default_shooter - 1.2) - Color_Delay) ;3.7*30=111
                         Random, rand_down, 1, 2
                         mouseXY(0, rand_down) ;小小随机压枪
                 }
