@@ -14,6 +14,7 @@ import win32con
 import win32gui
 from time import sleep
 from win32api import mouse_event
+import win32api
 import keyboard
 from collections import deque
 from os import system
@@ -22,6 +23,7 @@ import ctypes
 import sys
 
 
+# 重启脚本
 def restart():
     ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
     sys.exit(0)
@@ -52,7 +54,7 @@ def is_admin():
 
 # 清空命令指示符输出
 def clear():
-    _ = system('cls')
+    _ = system("cls")
 
 
 # 获取截图区域
@@ -61,15 +63,18 @@ def get_region(window_hwnd):
     rect = win32gui.GetClientRect(window_hwnd)
 
     # 通过窗口宽高比例确认截取区域宽高比例
-    cf_modifier = (rect[2] - rect[0]) / (rect[3] - rect[1]) / (4 / 3)
+    cut_modifier = 1
+    if window_class[0] == "CrossFire":
+        cut_modifier = (rect[2] - rect[0]) / (rect[3] - rect[1])
+        cut_modifier /= (4 / 3)
 
     # 确认截取区域(宽高+左上角顶端坐标)
-    cfh = int((rect[3] - rect[1]) * 3 / 5)  # 416*416 (rect[3] - rect[1])
-    cfw = int(cfh * cf_modifier)
-    inner_cfx = int(rect[0] + (rect[2] - rect[0] - cfw) / 2)
-    inner_cfy = int(rect[1] + (rect[3] - rect[1] - cfh) / 2)
-    cf_point = win32gui.ClientToScreen(hwnd, (inner_cfx, inner_cfy))  # 读取客户端内点相对全屏位置
-    region = {"top": cf_point[1], "left": cf_point[0], "width": cfw, "height": cfh}
+    cut_h = int((rect[3] - rect[1]) * 2 / 3)
+    cut_w = int(cut_h * cut_modifier)
+    inner_cut_x = int(rect[0] + (rect[2] - rect[0] - cut_w) / 2)
+    inner_cut_y = int(rect[1] + (rect[3] - rect[1] - cut_h) / 2)
+    cut_point = win32gui.ClientToScreen(hwnd, (inner_cut_x, inner_cut_y))  # 读取客户端内点相对全屏位置
+    region = {"top": cut_point[1], "left": cut_point[0], "width": cut_w, "height": cut_h}
     return region
 
 
@@ -87,13 +92,31 @@ def shot_screen(region_screen):
 
 # 移动鼠标
 def mouse_move(a, b):  # Move mouse
-    x1 = int(a / 3)
-    y1 = int(b / 4)
+    if window_class[0] == "CrossFire":
+        x1 = int(a / 3)
+        y1 = int(b / 4)
+    elif window_class[0] == "Valve001":
+        x1 = int(a / 1.2)
+        y1 = int(b / 1.6)
     mouse_event(win32con.MOUSEEVENTF_MOVE, x1, y1, 0, 0)
+
+    # 不分敌友射击
+    if window_class[0] != "CrossFire":
+        if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < 20:
+            if (time.time() - button_time[1]) > 0.05:
+                if not win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
+                    mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
+                    button_time[0] = time.time()
+            mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 8, 0, 0)
+        else:
+            if (time.time() - button_time[0]) > 0.05:
+                if win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
+                    button_time[1] = time.time()
+            mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
 
 
 # Press the green button in the gutter to run the script.
-if __name__ == '__main__':
+if __name__ == "__main__":
     # 检查管理员权限
     if not is_admin():
         restart()
@@ -111,54 +134,62 @@ if __name__ == '__main__':
     i_pressed_times = 0
     o_pressed_times = 0
     p_pressed_times = 0
+    button_time = [time.time(), time.time()]
+    move_mouse = True
+    hwnd = 0  # 窗口句柄
 
     # 选择加载模型
     aim_mode = 0
     while not (3 >= aim_mode >= 1):
-        user_input = input("你想要的自瞄模式是?(1:快速, 2:标准, 3:标改): ")
+        user_input = input("你想要的自瞄模式是?(1:极速, 2:标准, 3:高精): ")
         try:
             aim_mode = int(user_input)
         except ValueError:
             print("呵呵...请重新输入")
 
-    if aim_mode == 1:  # 快速自瞄
-        check_file("yolov4-tiny", CONFIG_FILE, WEIGHT_FILE)
-        std_confidence = 0.3
+    check_file("yolov4-tiny", CONFIG_FILE, WEIGHT_FILE)
+    std_confidence = 0.3
+    if aim_mode == 1:  # 极速自瞄
         side_length = 416
     elif aim_mode == 2:  # 标准自瞄
-        check_file("yolov4", CONFIG_FILE, WEIGHT_FILE)
-        side_length = 320
-        std_confidence = 0.5
-    elif aim_mode == 3:  # 标改自瞄
-        check_file("yolov4-csp-sam", CONFIG_FILE, WEIGHT_FILE)
-        side_length = 320
-        std_confidence = 0.5
+        side_length = 512
+    elif aim_mode == 3:  # 高精自瞄
+        side_length = 608
 
     # 读取权重与配置文件
     net = cv2.dnn.readNetFromDarknet(CONFIG_FILE[0], WEIGHT_FILE[0])
 
     # 检测并设置在GPU上运行图像识别
     if cv2.cuda.getCudaEnabledDeviceCount():
-        processor = "=使用GPU="
+        processor = " [使用GPU]"
         net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
         net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
     else:
-        processor = "-使用CPU-"
+        processor = " [使用CPU]"
 
     # 读取YOLO神经网络内容
     ln = net.getLayerNames()
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
-    # 寻找读取穿越火线窗口类型并确认截取位置
-    window_class = 'CrossFire'  # Notepad3 CrossFire
-    hwnd = win32gui.FindWindow(window_class, None)
+    # 寻找读取游戏窗口类型并确认截取位置
+    supported_games = "Valve001 CrossFire Notepad3"  # Notepad3为了测试
     while not hwnd:  # 等待游戏窗口出现
-        print("未启动穿越火线!!!请启动后重试!!!")
-        hwnd = win32gui.FindWindow(window_class, None)
+        hwnd_active = win32gui.GetForegroundWindow()
+        window_class = [win32gui.GetClassName(hwnd_active)]
+        if window_class[0] not in supported_games:
+            print("未启动可支持游戏!!!请启动后重试!!!")
+        else:
+            hwnd = win32gui.FindWindow(window_class[0], None)
         sleep(5)
     regions = get_region(hwnd)
 
-    while win32gui.FindWindow(window_class, None):
+    # 爆头位置
+    if window_class[0] == "CrossFire" or window_class[0] == "Valve001":
+        head_pos = 0.4
+    else:
+        head_pos = 0.4
+
+    while win32gui.FindWindow(window_class[0], None):
         if not begin:
             begin = True
             print("程序初始化完成")
@@ -166,8 +197,16 @@ if __name__ == '__main__':
         # 更新窗口位置
         regions = get_region(hwnd)
 
+        # 1键/2键控制瞄准
+        if keyboard.is_pressed("1") or keyboard.is_pressed("2"):
+            move_mouse = True
+
+        # 3键/4键取消瞄准
+        if keyboard.is_pressed("3") or keyboard.is_pressed("4"):
+            move_mouse = False
+
         # o键控制展示
-        if keyboard.is_pressed('o'):
+        if keyboard.is_pressed("o"):
             if o_pressed_times == 0:
                 o_pressed_times = time.time()
             if time.time() - o_pressed_times > 0.3:
@@ -177,7 +216,7 @@ if __name__ == '__main__':
             o_pressed_times = 0
 
         # i键控制开关
-        if keyboard.is_pressed('i'):
+        if keyboard.is_pressed("i"):
             if i_pressed_times == 0:
                 i_pressed_times = time.time()
             if time.time() - i_pressed_times > 0.3:
@@ -187,7 +226,7 @@ if __name__ == '__main__':
             i_pressed_times = 0
 
         # p键控制重启
-        if keyboard.is_pressed('p'):
+        if keyboard.is_pressed("p"):
             if p_pressed_times == 0:
                 p_pressed_times = time.time()
             if time.time() - p_pressed_times > 0.3:
@@ -211,8 +250,12 @@ if __name__ == '__main__':
         frame_height, frame_width = frames.shape[:2]
 
         # 画实心框避免错误检测武器
-        cv2.rectangle(frames, (int(frame_width*11/16), int(frame_height*3/5)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
-        cv2.rectangle(frames, (0, int(frame_height*3/5)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
+        if window_class[0] == "CrossFire":
+            cv2.rectangle(frames, (int(frame_width*11/16), int(frame_height*3/5)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
+            cv2.rectangle(frames, (0, int(frame_height*3/5)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
+        elif window_class[0] == "Valve001":
+            cv2.rectangle(frames, (int(frame_width*3/4), int(frame_height*2/3)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
+            cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
 
         # 检测
         blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (side_length, side_length), swapRB=True, crop=False)  # 转换为二进制大型对象
@@ -247,7 +290,7 @@ if __name__ == '__main__':
             for i in indices.flatten():
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
-                cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 1)
+                cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 2)
 
                 # 计算最小直线距离
                 dist = math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 2), 2))
@@ -256,9 +299,13 @@ if __name__ == '__main__':
                     min_at = i
 
             # 移动鼠标指向距离最近的敌人
-            x = int(boxes[min_at][0] + boxes[min_at][2] / 2 - frame_width / 2)
-            y = int(boxes[min_at][1] + boxes[min_at][3] / 2 - frame_height / 2) - boxes[min_at][3] * 0.4  # 爆头优先
-            mouse_move(x, y)
+            if move_mouse:
+                x = int(boxes[min_at][0] + boxes[min_at][2] / 2 - frame_width / 2)
+                y = int(boxes[min_at][1] + boxes[min_at][3] / 2 - frame_height / 2) - boxes[min_at][3] * head_pos  # 爆头优先
+                mouse_move(x, y)
+
+        elif len(indices) <= 0 and window_class[0] != "CrossFire":
+            mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
 
         # 展示效果
         if show_frame:
@@ -285,5 +332,8 @@ if __name__ == '__main__':
             if len(screenshot_time) > 20:
                 screenshot_time.popleft()
 
-        show_fps = round(mean(screenshot_time), 1)
-        print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
+        show_fps = round(mean(screenshot_time), 1)  # 计算fps
+        if move_mouse:  # 控制瞄准标识
+            print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
+        else:
+            print(f"\033[0m{processor} FPS={show_fps}; 检测{len(indices)}人", end="\r")
