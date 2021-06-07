@@ -102,14 +102,14 @@ def mouse_move(a, b):  # Move mouse
 
     # 不分敌友射击
     if window_class[0] != "CrossFire":
-        if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < 20:
-            if (time.time() - button_time[1]) > 0.05:
+        if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < 22:
+            if (time.time() - button_time[1]) > 0.06:
                 if not win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
                     button_time[0] = time.time()
             mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 8, 0, 0)
         else:
-            if (time.time() - button_time[0]) > 0.05:
+            if (time.time() - button_time[0]) > 0.06:
                 if win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     button_time[1] = time.time()
             mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
