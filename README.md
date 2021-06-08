@@ -73,7 +73,7 @@
 * 按"3"/"4"键保持自瞄状态但不控制鼠标
 * 自瞄只截屏识别准星附近区域，对于16:9的CF游戏窗口识别区域大小为(高=游戏窗口高*3/5，宽=高*4/3)
 * 本程序使用python语言以及自源码编译的opencv-cuda加速库
-* 本程序使用yolov4-tiny模型，只因其快
+* 本程序使用yolov4-tiny模型，只因其快(目前使用b站大佬[VeniVediVeci](https://space.bilibili.com/196421117)训练的权值)
 
 ## 额外说明
 * **[50_CPS_Test](https://github.com/JiaPai12138/Crossfirer/tree/main/50_CPS_Test)文件夹内不是我的作品，而是引用了其他人的项目，放在一起方便使用**
