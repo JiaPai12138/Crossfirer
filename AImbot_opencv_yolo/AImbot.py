@@ -103,13 +103,13 @@ def mouse_move(a, b):  # Move mouse
     # 不分敌友射击
     if window_class[0] != "CrossFire":
         if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < 22:
-            if (time.time() - button_time[1]) > 0.06:
+            if (time.time() - button_time[1]) > 0.15:
                 if not win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
                     button_time[0] = time.time()
             mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 8, 0, 0)
         else:
-            if (time.time() - button_time[0]) > 0.06:
+            if (time.time() - button_time[0]) > 0.05:
                 if win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     button_time[1] = time.time()
             mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
@@ -147,7 +147,7 @@ if __name__ == "__main__":
         except ValueError:
             print("呵呵...请重新输入")
 
-    check_file("yolov4-tiny", CONFIG_FILE, WEIGHT_FILE)
+    check_file("yolov4-tiny-vvv", CONFIG_FILE, WEIGHT_FILE)
     std_confidence = 0.3
     if aim_mode == 1:  # 极速自瞄
         side_length = 416
@@ -304,6 +304,7 @@ if __name__ == "__main__":
                 y = int(boxes[min_at][1] + boxes[min_at][3] / 2 - frame_height / 2) - boxes[min_at][3] * head_pos  # 爆头优先
                 mouse_move(x, y)
 
+        # 防止按住不放
         elif len(indices) <= 0 and window_class[0] != "CrossFire":
             mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
 
