@@ -203,7 +203,7 @@ if __name__ == "__main__":
             print("程序初始化完成")
 
         check_window[0] += 1
-        if check_window[0] > 29:
+        if check_window[0] > 59:
             check_window[0] = 0
             hwnd = win32gui.FindWindow(window_class[0], None)
             try:
