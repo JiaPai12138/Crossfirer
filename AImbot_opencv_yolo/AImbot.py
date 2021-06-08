@@ -21,6 +21,7 @@ from os import system
 from os import path
 import ctypes
 import sys
+import pywintypes
 
 
 # 重启脚本
@@ -86,7 +87,10 @@ def get_left(window_hwnd):
 
 # 截图转换为frame
 def shot_screen(region_screen):
-    frame = cv2.cvtColor(np.array(sct.grab(region_screen)), cv2.COLOR_BGRA2RGB)
+    try:
+        frame = cv2.cvtColor(np.array(sct.grab(region_screen)), cv2.COLOR_BGRA2RGB)
+    except cv2.error:
+        frame = False
     return frame
 
 
@@ -98,6 +102,9 @@ def mouse_move(a, b):  # Move mouse
     elif window_class[0] == "Valve001":
         x1 = int(a / 1.2)
         y1 = int(b / 1.6)
+    else:
+        x1 = int(a / 3)
+        y1 = int(b / 4)
     mouse_event(win32con.MOUSEEVENTF_MOVE, x1, y1, 0, 0)
 
     # 不分敌友射击
@@ -131,6 +138,7 @@ if __name__ == "__main__":
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     CONFIG_FILE = ["./"]
     WEIGHT_FILE = ["./"]
+    check_window = [0]
     i_pressed_times = 0
     o_pressed_times = 0
     p_pressed_times = 0
@@ -172,7 +180,7 @@ if __name__ == "__main__":
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
     # 寻找读取游戏窗口类型并确认截取位置
-    supported_games = "Valve001 CrossFire Notepad3"  # Notepad3为了测试
+    supported_games = "Valve001 CrossFire Notepad3 LaunchUnrealUWindowsClient"  # Notepad3为了测试
     while not hwnd:  # 等待游戏窗口出现
         hwnd_active = win32gui.GetForegroundWindow()
         window_class = [win32gui.GetClassName(hwnd_active)]
@@ -189,13 +197,19 @@ if __name__ == "__main__":
     else:
         head_pos = 0.4
 
-    while win32gui.FindWindow(window_class[0], None):
+    while True:
         if not begin:
             begin = True
             print("程序初始化完成")
 
-        # 更新窗口位置
-        regions = get_region(hwnd)
+        check_window[0] += 1
+        if check_window[0] > 29:
+            check_window[0] = 0
+            hwnd = win32gui.FindWindow(window_class[0], None)
+            try:
+                regions = get_region(hwnd)  # 更新窗口位置
+            except pywintypes.error:
+                break
 
         # 1键/2键控制瞄准
         if keyboard.is_pressed("1") or keyboard.is_pressed("2"):
@@ -247,9 +261,13 @@ if __name__ == "__main__":
 
         # 截取帧
         frames = shot_screen(regions)
-        frame_height, frame_width = frames.shape[:2]
+        try:
+            if frames.any():
+                frame_height, frame_width = frames.shape[:2]
+        except AttributeError:  # 游戏窗口意外最小化后不强制(报错)退出
+            continue
 
-        # 画实心框避免错误检测武器
+        # 画实心框避免错误检测武器与手
         if window_class[0] == "CrossFire":
             cv2.rectangle(frames, (int(frame_width*11/16), int(frame_height*3/5)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
             cv2.rectangle(frames, (0, int(frame_height*3/5)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
@@ -265,13 +283,13 @@ if __name__ == "__main__":
         boxes = []
         confidences = []
 
-        # 检测目标,画框,计算框内目标到框中心距离
+        # 检测目标,计算框内目标到框中心距离
         for output in layerOutputs:
             for detection in output:
                 scores = detection[5:]
                 classID = np.argmax(scores)
                 confidence = scores[classID]
-                if confidence > std_confidence and classID == 0:  # 人类为0
+                if confidence > std_confidence and classID == 0:  # 人类/body为0
                     box = detection[:4] * np.array([frame_width, frame_height, frame_width, frame_height])
                     (centerX, centerY, width, height) = box.astype("int")
                     x = int(centerX - (width / 2))
@@ -280,10 +298,10 @@ if __name__ == "__main__":
                     boxes.append(box)
                     confidences.append(float(confidence))
 
-        # 移除重复框
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.3)
+        # 移除重复
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
-        # 计算距离框中心距离最小的人类目标
+        # 画框,计算距离框中心距离最小的人类目标
         if len(indices) > 0:
             min_var = 99999
             min_at = 0
@@ -291,7 +309,7 @@ if __name__ == "__main__":
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
                 cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 2)
-
+                # dist = boxes[i][2]  # 最近敌人
                 # 计算最小直线距离
                 dist = math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 2), 2))
                 if dist < min_var:
@@ -313,15 +331,19 @@ if __name__ == "__main__":
             frames = cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)  # 颜色转换回正常
 
             # 动态改变自瞄显示框大小
-            left_distance = get_left(hwnd)
-            if left_distance < frames.shape[1]:
-                if left_distance > 0:
-                    size_scale = int(math.ceil(frames.shape[1] / left_distance))
-                    frames = cv2.resize(frames, (frames.shape[1] // size_scale, frames.shape[0] // size_scale))
+            try:
+                left_distance = get_left(hwnd)
+                if left_distance < frames.shape[1]:
+                    if left_distance > 0:
+                        size_scale = int(math.ceil(frames.shape[1] / left_distance))
+                        frames = cv2.resize(frames, (frames.shape[1] // size_scale, frames.shape[0] // size_scale))
 
-            cv2.putText(frames, str(show_fps), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)  # show fps
-            cv2.imshow("frame", frames)
-            cv2.waitKey(1)
+                cv2.putText(frames, str(show_fps), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)  # show fps
+                cv2.imshow("frame", frames)
+                cv2.waitKey(1)
+            except pywintypes.error:
+                print("窗口不可见!!!")
+
         else:
             cv2.destroyAllWindows()
 
@@ -330,7 +352,7 @@ if __name__ == "__main__":
         if time_used:
             fps = 1 / time_used
             screenshot_time.append(fps)
-            if len(screenshot_time) > 20:
+            if len(screenshot_time) > 29:
                 screenshot_time.popleft()
 
         show_fps = round(mean(screenshot_time), 1)  # 计算fps
@@ -338,3 +360,5 @@ if __name__ == "__main__":
             print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
         else:
             print(f"\033[0m{processor} FPS={show_fps}; 检测{len(indices)}人", end="\r")
+
+    sys.exit(0)
