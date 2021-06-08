@@ -156,7 +156,7 @@ if __name__ == "__main__":
             print("呵呵...请重新输入")
 
     check_file("yolov4-tiny-vvv", CONFIG_FILE, WEIGHT_FILE)
-    std_confidence = 0.3
+    std_confidence = 0.7
     if aim_mode == 1:  # 极速自瞄
         side_length = 416
     elif aim_mode == 2:  # 标准自瞄
@@ -301,25 +301,25 @@ if __name__ == "__main__":
         # 移除重复
         indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
 
-        # 画框,计算距离框中心距离最小的人类目标
+        # 画框,计算距离框中心距离最小的威胁目标
         if len(indices) > 0:
-            min_var = 99999
-            min_at = 0
+            max_var = 0
+            max_at = 0
             for i in indices.flatten():
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
                 cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 2)
-                # dist = boxes[i][2]  # 最近敌人
-                # 计算最小直线距离
-                dist = math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 2), 2))
-                if dist < min_var:
-                    min_var = dist
-                    min_at = i
 
-            # 移动鼠标指向距离最近的敌人
+                # 计算威胁指数(正面画框面积除以鼠标移动到近似爆头点距离)
+                threat_var = math.sqrt(boxes[i][2] * boxes[i][3]) / math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 10), 2))
+                if threat_var > max_var:
+                    max_var = threat_var
+                    max_at = i
+
+            # 移动鼠标指向距离最近的威胁
             if move_mouse:
-                x = int(boxes[min_at][0] + boxes[min_at][2] / 2 - frame_width / 2)
-                y = int(boxes[min_at][1] + boxes[min_at][3] / 2 - frame_height / 2) - boxes[min_at][3] * head_pos  # 爆头优先
+                x = int(boxes[max_at][0] + boxes[max_at][2] / 2 - frame_width / 2)
+                y = int(boxes[max_at][1] + boxes[max_at][3] / 10 - frame_height / 2)  # 爆头优先
                 mouse_move(x, y)
 
         # 防止按住不放
