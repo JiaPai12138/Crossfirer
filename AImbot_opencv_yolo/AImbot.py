@@ -144,7 +144,8 @@ def grab_win(que, array):
             hwnd = win32gui.FindWindow(window_class[0], None)
             if hwnd:
                 try:
-                    regions = get_region(hwnd)  # 更新窗口位置
+                    if get_region(hwnd):
+                        regions = get_region(hwnd)  # 更新窗口位置
                 except pywintypes.error:
                     print("窗口消失")
             else:
