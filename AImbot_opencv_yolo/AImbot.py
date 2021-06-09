@@ -22,7 +22,7 @@ from os import path
 import ctypes
 import sys
 import pywintypes
-from multiprocessing import Process, Array, Pipe
+from multiprocessing import Process, Array, Pipe, freeze_support
 import multiprocessing
 
 
@@ -94,7 +94,7 @@ def get_left(window_hwnd):
 # 多线程展示效果
 def show_frames(f_pipe, array):
     cv2.namedWindow("Show frame")
-    cv2.moveWindow("Show frame", 0, 18)
+    cv2.moveWindow("Show frame", 0, 15)
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     while True:
         show_img = f_pipe.recv()
@@ -200,6 +200,9 @@ def mouse_move(a, b):  # Move mouse
 
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
+    # 为了Pyinstaller顺利生成exe
+    freeze_support()
+
     # 检查管理员权限
     if not is_admin():
         restart()
