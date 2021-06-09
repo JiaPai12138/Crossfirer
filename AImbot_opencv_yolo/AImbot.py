@@ -22,7 +22,7 @@ from os import path
 import ctypes
 import sys
 import pywintypes
-from multiprocessing import Process, Array
+from multiprocessing import Process, Array, Pipe
 import multiprocessing
 
 
@@ -69,8 +69,9 @@ def get_region(window_hwnd):
         # 通过窗口宽高比例确认截取区域宽高比例
         cut_modifier = 1
         if win32gui.GetClassName(window_hwnd) == "CrossFire":
-            cut_modifier = (rect[2] - rect[0]) / (rect[3] - rect[1])
-            cut_modifier /= (4 / 3)
+            if rect[3] - rect[1]:
+                cut_modifier = (rect[2] - rect[0]) / (rect[3] - rect[1])
+                cut_modifier /= (4 / 3)
 
         # 确认截取区域(宽高+左上角顶端坐标)
         cut_h = int((rect[3] - rect[1]) * 2 / 3)
@@ -88,6 +89,22 @@ def get_region(window_hwnd):
 def get_left(window_hwnd):
     distance_left = win32gui.ClientToScreen(window_hwnd, (0, 0))  # 读取客户端与屏幕左侧间距
     return distance_left[0]
+
+
+# 多线程展示效果
+def show_frames(f_pipe, array):
+    cv2.namedWindow("Show frame")
+    cv2.moveWindow("Show frame", 0, 18)
+    font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
+    while True:
+        show_img = f_pipe.recv()
+        if show_img.any():
+            show_img = cv2.resize(show_img, (show_img.shape[1] // array[1], show_img.shape[0] // array[1]))
+            cv2.putText(show_img, str(array[2]), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)
+            cv2.imshow("Show frame", show_img)
+            cv2.waitKey(1)
+        else:
+            cv2.waitKey(0)
 
 
 # 多线程截图
@@ -187,13 +204,13 @@ if __name__ == "__main__":
         restart()
 
     # 初始化变量
-    queue = multiprocessing.JoinableQueue()  # 初始化队列
+    queue = multiprocessing.JoinableQueue()  # 初始化队列1
+    frame_output, frame_input = Pipe()
     prediction_time = deque()  # 预测用时
     aim = False  # 自瞄开关
     show_frame = False  # 展示开关
     begin = False  # 初始化检测
     show_fps = 0  # 效果展示帧数
-    font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     CONFIG_FILE = ["./"]
     WEIGHT_FILE = ["./"]
     check_process = [0]
@@ -237,9 +254,11 @@ if __name__ == "__main__":
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
     # 分享数据以及截图新进程
-    arr = Array('i', range(1))
-    proc = Process(target=grab_win, args=(queue, arr,))
-    proc.start()
+    arr = Array('i', range(3))
+    proc1 = Process(target=grab_win, args=(queue, arr,))
+    proc2 = Process(target=show_frames, args=(frame_output, arr,))
+    proc1.start()
+    proc2.start()
 
     while True:
         ini_frame_time = time.time()  # 开始记时点
@@ -293,7 +312,8 @@ if __name__ == "__main__":
                 try:
                     win32gui.FindWindow(win32gui.GetClassName(arr[0]), None)
                 except pywintypes.error:
-                    proc.terminate()
+                    proc1.terminate()
+                    proc2.terminate()
                     break
 
         # 自瞄开关,关则跳过后续
@@ -389,17 +409,13 @@ if __name__ == "__main__":
             if show_frame:
                 frames = cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)  # 颜色转换回正常
 
-                # 动态改变自瞄显示框大小
                 try:
                     left_distance = get_left(arr[0])
                     if left_distance < frames.shape[1]:
                         if left_distance > 0:
-                            size_scale = int(math.ceil(frames.shape[1] / left_distance))
-                            frames = cv2.resize(frames, (frames.shape[1] // size_scale, frames.shape[0] // size_scale))
+                            arr[1] = int(math.ceil(frames.shape[1] / left_distance))
 
-                    cv2.putText(frames, str(show_fps), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)  # show fps
-                    cv2.imshow("frame", frames)
-                    cv2.waitKey(1)
+                    frame_input.send(frames)
                 except pywintypes.error:
                     print("窗口不可见!!!")
 
@@ -415,6 +431,7 @@ if __name__ == "__main__":
                     prediction_time.popleft()
 
             show_fps = round(mean(prediction_time), 1)  # 计算fps
+            arr[2] = int(show_fps)
             if move_mouse:  # 控制瞄准标识
                 print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
             else:
