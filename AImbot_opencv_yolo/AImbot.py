@@ -175,14 +175,14 @@ def grab_win(que, array):
 # 移动鼠标
 def mouse_move(a, b):  # Move mouse
     if win32gui.GetClassName(arr[0]) == "CrossFire":
-        x1 = int(a / 4.5)
-        y1 = int(b / 6)
+        x1 = int(a / 6)
+        y1 = int(b / 8)
     elif win32gui.GetClassName(arr[0]) == "Valve001":
         x1 = int(a / 2.1)
         y1 = int(b / 2.8)
     else:
-        x1 = int(a / 4.5)
-        y1 = int(b / 6)
+        x1 = int(a / 6)
+        y1 = int(b / 8)
     mouse_event(win32con.MOUSEEVENTF_MOVE, x1, y1, 0, 0)
 
     # 不分敌友射击
