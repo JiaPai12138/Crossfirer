@@ -13,7 +13,9 @@ from statistics import mean
 import win32con
 import win32gui
 from time import sleep
+import win32ui
 from win32api import mouse_event
+from win32api import GetSystemMetrics
 import win32api
 import keyboard
 from collections import deque
@@ -24,6 +26,10 @@ import sys
 import pywintypes
 from multiprocessing import Process, Array, Pipe, freeze_support
 import multiprocessing
+
+dc = win32gui.GetDC(0)
+dcObj = win32ui.CreateDCFromHandle(dc)
+monitor = (0, 0, GetSystemMetrics(0), GetSystemMetrics(1))
 
 
 # 重启脚本
@@ -80,6 +86,8 @@ def get_region(window_hwnd):
         inner_cut_y = int(rect[1] + (rect[3] - rect[1] - cut_h) / 2)
         cut_point = win32gui.ClientToScreen(window_hwnd, (inner_cut_x, inner_cut_y))  # 读取客户端内点相对全屏位置
         region = {"top": cut_point[1], "left": cut_point[0], "width": cut_w, "height": cut_h}
+        dcObj.DrawFocusRect((cut_point[0], cut_point[1], cut_point[0] + cut_w, cut_point[1] + cut_h))
+        win32gui.InvalidateRect(window_hwnd, monitor, True)
         return region
     except pywintypes.error:
         return False
@@ -105,6 +113,7 @@ def show_frames(f_pipe, array):
             cv2.waitKey(1)
         else:
             cv2.waitKey(0)
+            # cv2.destroyAllWindows()
 
 
 # 多线程截图
@@ -112,7 +121,6 @@ def grab_win(que, array):
     # 寻找读取游戏窗口类型并确认截取位置
     supported_games = "Notepad3 Valve001 CrossFire LaunchUnrealUWindowsClient"  # Notepad3为了测试
     # screenshot_time = deque()  # 预测用时
-    check_windows = [0]
     array[0] = 0  # 窗口句柄
     array[3] = 0  # 窗口截图准备情况
     show_text = True
@@ -133,25 +141,21 @@ def grab_win(que, array):
 
     regions = get_region(hwnd)
     print("开始截图")
-    clear()
     array[3] = 1
 
     while True:
         # ini_sct_time = time.time()  # 开始记时点
 
         # 检测游戏窗口是否存在
-        check_windows[0] += 1
-        if check_windows[0] > 59:
-            check_windows[0] = 0
-            hwnd = win32gui.FindWindow(window_class[0], None)
-            if hwnd:
-                try:
-                    if get_region(hwnd):
-                        regions = get_region(hwnd)  # 更新窗口位置
-                except pywintypes.error:
-                    print("窗口消失")
-            else:
-                que.join()
+        hwnd = win32gui.FindWindow(window_class[0], None)
+        if hwnd:
+            try:
+                if get_region(hwnd):
+                    regions = get_region(hwnd)  # 更新窗口位置
+            except pywintypes.error:
+                print("窗口消失")
+        else:
+            que.join()
 
         que.put_nowait(sct.grab(regions))
         if que.qsize() > 3:  # 防止内存过大
@@ -175,14 +179,14 @@ def grab_win(que, array):
 # 移动鼠标
 def mouse_move(a, b):  # Move mouse
     if win32gui.GetClassName(arr[0]) == "CrossFire":
-        x1 = int(a / 6)
-        y1 = int(b / 8)
+        x1 = int(a / 4.5)
+        y1 = int(b / 6)
     elif win32gui.GetClassName(arr[0]) == "Valve001":
-        x1 = int(a / 2.1)
-        y1 = int(b / 2.8)
+        x1 = int(a / 1.5)
+        y1 = int(b / 2.0)
     else:
-        x1 = int(a / 6)
-        y1 = int(b / 8)
+        x1 = int(a / 4.5)
+        y1 = int(b / 6)
     mouse_event(win32con.MOUSEEVENTF_MOVE, x1, y1, 0, 0)
 
     # 不分敌友射击
@@ -329,7 +333,6 @@ if __name__ == "__main__":
             if arr[3]:
                 clear()
             show_frame = False
-            sleep(0.05)
             continue
 
         if not queue.empty():
@@ -392,7 +395,7 @@ if __name__ == "__main__":
                     (w, h) = (boxes[i][2], boxes[i][3])
                     cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 2)
 
-                    # 计算威胁指数(正面画框面积除以鼠标移动到近似爆头点距离)
+                    # 计算威胁指数(正面画框面积的平方根除以鼠标移动到近似爆头点距离)
                     threat_var = math.sqrt(boxes[i][2] * boxes[i][3]) / math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 10), 2))
                     if threat_var > max_var:
                         max_var = threat_var
@@ -426,9 +429,6 @@ if __name__ == "__main__":
                     frame_input.send(frames)
                 except pywintypes.error:
                     print("窗口不可见!!!")
-
-            else:
-                cv2.destroyAllWindows()
 
             # 计算用时与帧率
             time_used = time.time() - ini_frame_time
