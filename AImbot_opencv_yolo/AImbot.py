@@ -113,7 +113,8 @@ def grab_win(que, array):
     supported_games = "Notepad3 Valve001 CrossFire LaunchUnrealUWindowsClient"  # Notepad3为了测试
     # screenshot_time = deque()  # 预测用时
     check_windows = [0]
-    array[0] = 0
+    array[0] = 0  # 窗口句柄
+    array[3] = 0  # 窗口截图准备情况
     show_text = True
     sct = mss.mss()
     hwnd = 0
@@ -133,6 +134,7 @@ def grab_win(que, array):
     regions = get_region(hwnd)
     print("开始截图")
     clear()
+    array[3] = 1
 
     while True:
         # ini_sct_time = time.time()  # 开始记时点
@@ -173,14 +175,14 @@ def grab_win(que, array):
 # 移动鼠标
 def mouse_move(a, b):  # Move mouse
     if win32gui.GetClassName(arr[0]) == "CrossFire":
-        x1 = int(a / 3)
-        y1 = int(b / 4)
+        x1 = int(a / 4.5)
+        y1 = int(b / 6)
     elif win32gui.GetClassName(arr[0]) == "Valve001":
-        x1 = int(a / 1.2)
-        y1 = int(b / 1.6)
+        x1 = int(a / 2.1)
+        y1 = int(b / 2.8)
     else:
-        x1 = int(a / 3)
-        y1 = int(b / 4)
+        x1 = int(a / 4.5)
+        y1 = int(b / 6)
     mouse_event(win32con.MOUSEEVENTF_MOVE, x1, y1, 0, 0)
 
     # 不分敌友射击
@@ -258,7 +260,7 @@ if __name__ == "__main__":
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
     # 分享数据以及截图新进程
-    arr = Array('i', range(3))
+    arr = Array('i', range(4))
     proc1 = Process(target=grab_win, args=(queue, arr,))
     proc2 = Process(target=show_frames, args=(frame_output, arr,))
     proc1.start()
@@ -304,6 +306,8 @@ if __name__ == "__main__":
             if p_pressed_times == 0:
                 p_pressed_times = time.time()
             if time.time() - p_pressed_times > 0.3:
+                proc1.terminate()
+                proc2.terminate()
                 restart()
         else:
             p_pressed_times = 0
@@ -322,8 +326,8 @@ if __name__ == "__main__":
 
         # 自瞄开关,关则跳过后续
         if not aim:
-            # clear()
-            cv2.destroyAllWindows()
+            if arr[3]:
+                clear()
             show_frame = False
             sleep(0.05)
             continue
