@@ -236,7 +236,7 @@ if __name__ == "__main__":
             print("呵呵...请重新输入")
 
     check_file("yolov4-tiny-vvv", CONFIG_FILE, WEIGHT_FILE)
-    std_confidence = 0.7
+    std_confidence = 0.5
     if aim_mode == 1:  # 极速自瞄
         side_length = 416
     elif aim_mode == 2:  # 标准自瞄
