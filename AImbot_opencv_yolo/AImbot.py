@@ -191,8 +191,8 @@ def mouse_move(a, b):  # Move mouse
 
     # 不分敌友射击
     if win32gui.GetClassName(arr[0]) != "CrossFire":
-        if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < 22:
-            if (time.time() - button_time[1]) > 0.10:
+        if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < arr[4]:
+            if (time.time() - button_time[1]) > 0.15:
                 if not win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
                     button_time[0] = time.time()
@@ -240,7 +240,7 @@ if __name__ == "__main__":
             print("呵呵...请重新输入")
 
     check_file("yolov4-tiny-vvv", CONFIG_FILE, WEIGHT_FILE)
-    std_confidence = 0.5
+    std_confidence = 0.6
     if aim_mode == 1:  # 极速自瞄
         side_length = 416
     elif aim_mode == 2:  # 标准自瞄
@@ -264,7 +264,7 @@ if __name__ == "__main__":
     ln = [ln[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
     # 分享数据以及截图新进程
-    arr = Array('i', range(4))
+    arr = Array('i', range(10))
     proc1 = Process(target=grab_win, args=(queue, arr,))
     proc2 = Process(target=show_frames, args=(frame_output, arr,))
     proc1.start()
@@ -384,7 +384,7 @@ if __name__ == "__main__":
                         confidences.append(float(confidence))
 
             # 移除重复
-            indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+            indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
 
             # 画框,计算距离框中心距离最小的威胁目标
             if len(indices) > 0:
@@ -401,8 +401,9 @@ if __name__ == "__main__":
                         max_var = threat_var
                         max_at = i
 
-                # 移动鼠标指向距离最近的威胁
+                # 移动鼠标指向距离最近的威胁(并在限定距离内开火)
                 if move_mouse:
+                    arr[4] = int(math.ceil(math.sqrt(math.pow(boxes[max_at][2] / 4, 2) + math.pow(boxes[max_at][3] / 10, 2)) / 2))
                     x = int(boxes[max_at][0] + boxes[max_at][2] / 2 - frame_width / 2)
                     y = int(boxes[max_at][1] + boxes[max_at][3] / 10 - frame_height / 2)  # - boxes[max_at][3] * head_pos  # 爆头优先
                     mouse_move(x, y)
