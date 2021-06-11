@@ -182,8 +182,8 @@ def mouse_move(a, b):  # Move mouse
         x1 = int(a / 4.5)
         y1 = int(b / 6)
     elif win32gui.GetClassName(arr[0]) == "Valve001":
-        x1 = int(a / 1.5)
-        y1 = int(b / 2.0)
+        x1 = int(a / 1.2)
+        y1 = int(b / 1.6)
     else:
         x1 = int(a / 4.5)
         y1 = int(b / 6)
@@ -192,7 +192,7 @@ def mouse_move(a, b):  # Move mouse
     # 不分敌友射击
     if win32gui.GetClassName(arr[0]) != "CrossFire":
         if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < 22:
-            if (time.time() - button_time[1]) > 0.15:
+            if (time.time() - button_time[1]) > 0.10:
                 if not win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
                     button_time[0] = time.time()
