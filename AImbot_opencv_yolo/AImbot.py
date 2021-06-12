@@ -1,12 +1,17 @@
 """
-Modified from project AIMBOT-YOLO
-Original Author: monokim
-Original project website: https://github.com/monokim/AIMBOT-YOLO
-Original project video: https://www.youtube.com/watch?v=vQlb0tK1DH0
+Detection code modified from project AIMBOT-YOLO
+Detection code Author: monokim
+Detection project website: https://github.com/monokim/AIMBOT-YOLO
+Detection project video: https://www.youtube.com/watch?v=vQlb0tK1DH0
+Screenshot method from: https://www.youtube.com/watch?v=WymCpVUPWQ4
+Screenshot method code modified from project: opencv_tutorials
+Screenshot method code Author: Ben Johnson (learncodebygaming)
+Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 """
+
 import math
-import mss
 import time
+import platform
 import numpy as np
 import cv2
 from statistics import mean
@@ -15,7 +20,6 @@ import win32gui
 from time import sleep
 import win32ui
 from win32api import mouse_event
-from win32api import GetSystemMetrics
 import win32api
 import keyboard
 from collections import deque
@@ -26,10 +30,6 @@ import sys
 import pywintypes
 from multiprocessing import Process, Array, Pipe, freeze_support
 import multiprocessing
-
-dc = win32gui.GetDC(0)
-dcObj = win32ui.CreateDCFromHandle(dc)
-monitor = (0, 0, GetSystemMetrics(0), GetSystemMetrics(1))
 
 
 # 重启脚本
@@ -66,43 +66,18 @@ def clear():
     _ = system("cls")
 
 
-# 获取截图区域
-def get_region(window_hwnd):
-    try:
-        # 获取窗口坐标数据
-        rect = win32gui.GetClientRect(window_hwnd)
-
-        # 通过窗口宽高比例确认截取区域宽高比例
-        cut_modifier = 1
-        if win32gui.GetClassName(window_hwnd) == "CrossFire":
-            if rect[3] - rect[1]:
-                cut_modifier = (rect[2] - rect[0]) / (rect[3] - rect[1])
-                cut_modifier /= (4 / 3)
-
-        # 确认截取区域(宽高+左上角顶端坐标)
-        cut_h = int((rect[3] - rect[1]) * 2 / 3)
-        cut_w = int(cut_h * cut_modifier)
-        inner_cut_x = int(rect[0] + (rect[2] - rect[0] - cut_w) / 2)
-        inner_cut_y = int(rect[1] + (rect[3] - rect[1] - cut_h) / 2)
-        cut_point = win32gui.ClientToScreen(window_hwnd, (inner_cut_x, inner_cut_y))  # 读取客户端内点相对全屏位置
-        region = {"top": cut_point[1], "left": cut_point[0], "width": cut_w, "height": cut_h}
-        dcObj.DrawFocusRect((cut_point[0], cut_point[1], cut_point[0] + cut_w, cut_point[1] + cut_h))
-        win32gui.InvalidateRect(window_hwnd, monitor, True)
-        return region
-    except pywintypes.error:
-        return False
-
-
 # 获取到屏幕左侧距离
 def get_left(window_hwnd):
-    distance_left = win32gui.ClientToScreen(window_hwnd, (0, 0))  # 读取客户端与屏幕左侧间距
+    distance_left = win32gui.GetWindowRect(window_hwnd)  # 读取客户端与屏幕左侧间距
     return distance_left[0]
 
 
 # 多线程展示效果
 def show_frames(f_pipe, array):
+    set_dpi()
     cv2.namedWindow("Show frame")
-    cv2.moveWindow("Show frame", 0, 15)
+    cv2.moveWindow("Show frame", 0, 0)
+    cv2.destroyAllWindows()
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     while True:
         show_img = f_pipe.recv()
@@ -111,24 +86,26 @@ def show_frames(f_pipe, array):
             cv2.putText(show_img, str(array[2]), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)
             cv2.imshow("Show frame", show_img)
             cv2.waitKey(1)
-        else:
+        else:  # 节省资源
             cv2.waitKey(0)
-            # cv2.destroyAllWindows()
 
 
 # 多线程截图
 def grab_win(que, array):
-    # 寻找读取游戏窗口类型并确认截取位置
-    supported_games = "Notepad3 Valve001 CrossFire LaunchUnrealUWindowsClient"  # Notepad3为了测试
-    # screenshot_time = deque()  # 预测用时
+    # 寻找读取游戏窗口类型并确认截取位置 Notepad3 PX_WINDOW_CLASS为了测试
+    set_dpi()
+    supported_games = "Notepad3 PX_WINDOW_CLASS Valve001 CrossFire LaunchUnrealUWindowsClient"
+    screenshot_time = deque()  # 预测用时
     array[0] = 0  # 窗口句柄
     array[3] = 0  # 窗口截图准备情况
     show_text = True
-    sct = mss.mss()
     hwnd = 0
     while not hwnd:  # 等待游戏窗口出现
         hwnd_active = win32gui.GetForegroundWindow()
-        window_class = [win32gui.GetClassName(hwnd_active)]
+        try:
+            window_class = [win32gui.GetClassName(hwnd_active)]
+        except pywintypes.error:
+            continue
         if window_class[0] not in supported_games:
             print("请使支持的游戏窗口成为活动(当前)窗口...")
             sleep(3)
@@ -139,31 +116,64 @@ def grab_win(que, array):
                 print("已找到窗口")
                 show_text = False
 
-    regions = get_region(hwnd)
+    window_rect = win32gui.GetWindowRect(hwnd)
+    client_rect = win32gui.GetClientRect(hwnd)
+    left_corner = win32gui.ClientToScreen(hwnd, (0, 0))
+
+    total_w = client_rect[2] - client_rect[0]
+    total_h = client_rect[3] - client_rect[1]
+    cut_h = int(total_h * 2 / 3)
+    cut_w = cut_h
+    if window_class[0] == "CrossFire":
+        cut_w = int(cut_w * total_w / total_h / 4 * 3)
+    other_w = (total_w - cut_w) // 2
+    other_h = (total_h - cut_h) // 2
+
+    border_pixels = left_corner[0] - window_rect[0]
+    title_bar_pixels = left_corner[1] - window_rect[1]
+
+    cropped_x = border_pixels + other_w
+    cropped_y = title_bar_pixels + other_h
+
     print("开始截图")
     array[3] = 1
 
     while True:
-        # ini_sct_time = time.time()  # 开始记时点
+        ini_sct_time = time.time()  # 开始记时点
 
         # 检测游戏窗口是否存在
         hwnd = win32gui.FindWindow(window_class[0], None)
-        if hwnd:
-            try:
-                if get_region(hwnd):
-                    regions = get_region(hwnd)  # 更新窗口位置
-            except pywintypes.error:
-                print("窗口消失")
-        else:
+        if not hwnd:
             que.join()
 
-        que.put_nowait(sct.grab(regions))
-        if que.qsize() > 3:  # 防止内存过大
-            print(3)
-            que.popleft()
+        wDC = win32gui.GetWindowDC(hwnd)
+        dcObj = win32ui.CreateDCFromHandle(wDC)
+        cDC = dcObj.CreateCompatibleDC()
+        dataBitMap = win32ui.CreateBitmap()
+        dataBitMap.CreateCompatibleBitmap(dcObj, cut_w, cut_h)
+        cDC.SelectObject(dataBitMap)
+        try:
+            cDC.BitBlt((0, 0), (cut_w, cut_h), dcObj, (cropped_x, cropped_y), win32con.SRCCOPY)
+        except win32ui.error:
+            que.join()
+
+        # 转换格式使得opencv可以读取
+        signedIntsArray = dataBitMap.GetBitmapBits(True)
+        cap_img = np.frombuffer(signedIntsArray, dtype='uint8')
+        cap_img.shape = (cut_h, cut_w, 4)
+
+        # 释放资源
+        dcObj.DeleteDC()
+        cDC.DeleteDC()
+        win32gui.ReleaseDC(hwnd, wDC)
+        win32gui.DeleteObject(dataBitMap.GetHandle())
+
+        cap_img = cap_img[..., :3]
+        cap_img = np.ascontiguousarray(cap_img)
+
+        que.put_nowait(cap_img)
         que.join()
 
-        """
         sct_time_used = time.time() - ini_sct_time
         if sct_time_used:
             sct_fps = 1 / sct_time_used
@@ -172,22 +182,21 @@ def grab_win(que, array):
                 screenshot_time.popleft()
 
             show_sct_fps = round(mean(screenshot_time), 1)  # 计算fps
-            print(show_sct_fps)
-        """
+            array[5] = int(show_sct_fps)
 
 
 # 移动鼠标
-def mouse_move(a, b):  # Move mouse
+def mouse_move(a, b):
     if win32gui.GetClassName(arr[0]) == "CrossFire":
-        x1 = int(a / 4.5)
-        y1 = int(b / 6)
+        x1 = a // 8.4
+        y1 = b // 11.2
     elif win32gui.GetClassName(arr[0]) == "Valve001":
-        x1 = int(a / 1.2)
-        y1 = int(b / 1.6)
+        x1 = a // 1.2
+        y1 = b // 1.6
     else:
-        x1 = int(a / 4.5)
-        y1 = int(b / 6)
-    mouse_event(win32con.MOUSEEVENTF_MOVE, x1, y1, 0, 0)
+        x1 = a // 3
+        y1 = b // 4
+    mouse_event(win32con.MOUSEEVENTF_MOVE, int(x1), int(y1), 0, 0)
 
     # 不分敌友射击
     if win32gui.GetClassName(arr[0]) != "CrossFire":
@@ -204,6 +213,14 @@ def mouse_move(a, b):  # Move mouse
             mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
 
 
+# 高DPI感知
+def set_dpi():
+    if int(platform.release()) >= 7:
+        ctypes.windll.user32.SetProcessDPIAware()
+    else:
+        sys.exit(0)
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     # 为了Pyinstaller顺利生成exe
@@ -212,6 +229,8 @@ if __name__ == "__main__":
     # 检查管理员权限
     if not is_admin():
         restart()
+
+    set_dpi()
 
     # 初始化变量
     queue = multiprocessing.JoinableQueue()  # 初始化队列1
@@ -340,7 +359,7 @@ if __name__ == "__main__":
             queue.task_done()
 
             try:
-                frames = cv2.cvtColor(np.array(img), cv2.COLOR_BGRA2RGB)  # 从队列中读取帧
+                frames = np.array(img)  # 从队列中读取帧
                 try:
                     if frames.any():
                         frame_height, frame_width = frames.shape[:2]
@@ -349,6 +368,7 @@ if __name__ == "__main__":
             except cv2.error:
                 continue
 
+            """
             # 画实心框避免错误检测武器与手
             try:
                 if win32gui.GetClassName(arr[0]) == "CrossFire":
@@ -359,9 +379,10 @@ if __name__ == "__main__":
                     cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
             except pywintypes.error:
                 continue
+            """
 
             # 检测
-            blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (side_length, side_length), swapRB=True, crop=False)  # 转换为二进制大型对象
+            blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (side_length, side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
             net.setInput(blob)
             layerOutputs = net.forward(ln)  # 前向传播
 
@@ -393,7 +414,7 @@ if __name__ == "__main__":
                 for i in indices.flatten():
                     (x, y) = (boxes[i][0], boxes[i][1])
                     (w, h) = (boxes[i][2], boxes[i][3])
-                    cv2.rectangle(frames, (x, y), (x + w, y + h), (255, 36, 0), 2)
+                    cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
 
                     # 计算威胁指数(正面画框面积的平方根除以鼠标移动到近似爆头点距离)
                     threat_var = math.sqrt(boxes[i][2] * boxes[i][3]) / math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 10), 2))
@@ -403,9 +424,9 @@ if __name__ == "__main__":
 
                 # 移动鼠标指向距离最近的威胁(并在限定距离内开火)
                 if move_mouse:
-                    arr[4] = int(math.ceil(math.sqrt(math.pow(boxes[max_at][2] / 4, 2) + math.pow(boxes[max_at][3] / 10, 2)) / 2))
+                    arr[4] = int(math.ceil(math.sqrt(math.pow(boxes[max_at][2] / 4, 2) + math.pow(boxes[max_at][3] / 9, 2)) / 2))
                     x = int(boxes[max_at][0] + boxes[max_at][2] / 2 - frame_width / 2)
-                    y = int(boxes[max_at][1] + boxes[max_at][3] / 10 - frame_height / 2)  # - boxes[max_at][3] * head_pos  # 爆头优先
+                    y = int(boxes[max_at][1] + boxes[max_at][3] / 9 - frame_height / 2)  # - boxes[max_at][3] * head_pos  # 爆头优先
                     mouse_move(x, y)
 
             # 防止按住不放
@@ -419,13 +440,10 @@ if __name__ == "__main__":
 
             # 展示效果
             if show_frame:
-                frames = cv2.cvtColor(frames, cv2.COLOR_BGR2RGB)  # 颜色转换回正常
-
                 try:
                     left_distance = get_left(arr[0])
-                    if left_distance < frames.shape[1]:
-                        if left_distance > 0:
-                            arr[1] = int(math.ceil(frames.shape[1] / left_distance))
+                    if 0 < left_distance < frame_width:
+                        arr[1] = int(math.ceil(frame_width / left_distance))
 
                     frame_input.send(frames)
                 except pywintypes.error:
@@ -442,8 +460,8 @@ if __name__ == "__main__":
             show_fps = round(mean(prediction_time), 1)  # 计算fps
             arr[2] = int(show_fps)
             if move_mouse:  # 控制瞄准标识
-                print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; \033[1;31;40m检测{len(indices)}人", end="\r")
+                print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; Cap_FPS={arr[5]}; \033[1;31;40m检测{len(indices)}人", end="\r")
             else:
-                print(f"\033[0m{processor} FPS={show_fps}; 检测{len(indices)}人", end="\r")
+                print(f"\033[0m{processor} FPS={show_fps}; Cap_FPS={arr[5]}; 检测{len(indices)}人", end="\r")
 
     sys.exit(0)
