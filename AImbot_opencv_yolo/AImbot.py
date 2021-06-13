@@ -186,31 +186,32 @@ def grab_win(que, array):
 
 
 # 移动鼠标
-def mouse_move(a, b):
-    if win32gui.GetClassName(arr[0]) == "CrossFire":
-        x1 = a // 8.4
-        y1 = b // 11.2
-    elif win32gui.GetClassName(arr[0]) == "Valve001":
-        x1 = a // 1.2
-        y1 = b // 1.6
+def mouse_move(a, b, fps_var, range):
+    if fps_var:
+        if win32gui.GetClassName(arr[0]) == "CrossFire":
+            x0 = a // (fps_var / 4)
+            y0 = b // (fps_var / 3)
+        elif win32gui.GetClassName(arr[0]) == "Valve001":
+            x0 = a // (fps_var / 18)
+            y0 = b // (fps_var / 13.5)
     else:
-        x1 = a // 3
-        y1 = b // 4
-    mouse_event(win32con.MOUSEEVENTF_MOVE, int(x1), int(y1), 0, 0)
+        x0 = a // 6
+        y0 = b // 8
+    mouse_event(win32con.MOUSEEVENTF_MOVE, int(x0), int(y0), 0, 0)
 
     # 不分敌友射击
     if win32gui.GetClassName(arr[0]) != "CrossFire":
-        if math.sqrt(math.pow(a, 2) + math.pow(b, 2)) < arr[4]:
-            if (time.time() - button_time[1]) > 0.15:
+        if math.floor(math.sqrt(math.pow(a, 2) + math.pow(b, 2))) <= range:
+            if (time.time() - button_time[1]) > 0.1:
                 if not win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
                     button_time[0] = time.time()
-            mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 8, 0, 0)
+            mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 3, 0, 0)  # 压枪
         else:
             if (time.time() - button_time[0]) > 0.05:
                 if win32api.GetAsyncKeyState(win32con.VK_LBUTTON):
                     button_time[1] = time.time()
-            mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+                mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
 
 
 # 高DPI感知
@@ -259,7 +260,7 @@ if __name__ == "__main__":
             print("呵呵...请重新输入")
 
     check_file("yolov4-tiny-vvv", CONFIG_FILE, WEIGHT_FILE)
-    std_confidence = 0.6
+    std_confidence = 0.4
     if aim_mode == 1:  # 极速自瞄
         side_length = 416
     elif aim_mode == 2:  # 标准自瞄
@@ -368,7 +369,6 @@ if __name__ == "__main__":
             except cv2.error:
                 continue
 
-            """
             # 画实心框避免错误检测武器与手
             try:
                 if win32gui.GetClassName(arr[0]) == "CrossFire":
@@ -379,7 +379,6 @@ if __name__ == "__main__":
                     cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
             except pywintypes.error:
                 continue
-            """
 
             # 检测
             blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (side_length, side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
@@ -405,7 +404,7 @@ if __name__ == "__main__":
                         confidences.append(float(confidence))
 
             # 移除重复
-            indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
+            indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.3)
 
             # 画框,计算距离框中心距离最小的威胁目标
             if len(indices) > 0:
@@ -416,18 +415,24 @@ if __name__ == "__main__":
                     (w, h) = (boxes[i][2], boxes[i][3])
                     cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
 
-                    # 计算威胁指数(正面画框面积的平方根除以鼠标移动到近似爆头点距离)
-                    threat_var = math.sqrt(boxes[i][2] * boxes[i][3]) / math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 10), 2))
+                    # 计算威胁指数(正面画框面积的平方根除以鼠标移动到近似胸大肌距离)
+                    threat_var = math.pow(boxes[i][2] * boxes[i][3], 1/3) / math.sqrt(math.pow(frame_width / 2 - (x + w / 2), 2) + math.pow(frame_height / 2 - (y + h / 4), 2))
                     if threat_var > max_var:
                         max_var = threat_var
                         max_at = i
 
                 # 移动鼠标指向距离最近的威胁(并在限定距离内开火)
                 if move_mouse:
-                    arr[4] = int(math.ceil(math.sqrt(math.pow(boxes[max_at][2] / 4, 2) + math.pow(boxes[max_at][3] / 9, 2)) / 2))
                     x = int(boxes[max_at][0] + boxes[max_at][2] / 2 - frame_width / 2)
-                    y = int(boxes[max_at][1] + boxes[max_at][3] / 9 - frame_height / 2)  # - boxes[max_at][3] * head_pos  # 爆头优先
-                    mouse_move(x, y)
+                    y1 = int(boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2)  # 爆头优先
+                    y2 = int(boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2)  # 击中优先
+                    if y1 <= y2:
+                        y = y1
+                        arr[4] = int(math.ceil(boxes[max_at][2] / 5))  # 头宽约占肩宽二点五分之一
+                    else:
+                        y = y2
+                        arr[4] = int(math.ceil(boxes[max_at][2] / 3))
+                    mouse_move(x, y, show_fps, arr[4])
 
             # 防止按住不放
             else:
@@ -460,8 +465,8 @@ if __name__ == "__main__":
             show_fps = round(mean(prediction_time), 1)  # 计算fps
             arr[2] = int(show_fps)
             if move_mouse:  # 控制瞄准标识
-                print(f"\033[1;32;40m{processor} \033[1;36;40mFPS={show_fps}; Cap_FPS={arr[5]}; \033[1;31;40m检测{len(indices)}人", end="\r")
+                print(f" \033[1;36;40mFPS={show_fps}; Cap_FPS={arr[5]}; \033[1;31;40m检测{len(indices)}人;\033[1;32;40m{processor}" , end="\r")
             else:
-                print(f"\033[0m{processor} FPS={show_fps}; Cap_FPS={arr[5]}; 检测{len(indices)}人", end="\r")
+                print(f" \033[0mFPS={show_fps}; Cap_FPS={arr[5]}; 检测{len(indices)}人;{processor}", end="\r")
 
     sys.exit(0)
