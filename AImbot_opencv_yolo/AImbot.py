@@ -189,11 +189,11 @@ def grab_win(que, array):
 def mouse_move(a, b, fps_var, range):
     if fps_var:
         if win32gui.GetClassName(arr[0]) == "CrossFire":
-            x0 = a // (fps_var / 4)
-            y0 = b // (fps_var / 3)
+            x0 = a // (fps_var / 5.2)
+            y0 = b // (fps_var / 3.9)
         elif win32gui.GetClassName(arr[0]) == "Valve001":
-            x0 = a // (fps_var / 18)
-            y0 = b // (fps_var / 13.5)
+            x0 = a // (fps_var / 18.8)
+            y0 = b // (fps_var / 14.1)
     else:
         x0 = a // 6
         y0 = b // 8
@@ -260,7 +260,6 @@ if __name__ == "__main__":
             print("呵呵...请重新输入")
 
     check_file("yolov4-tiny-vvv", CONFIG_FILE, WEIGHT_FILE)
-    std_confidence = 0.4
     if aim_mode == 1:  # 极速自瞄
         side_length = 416
     elif aim_mode == 2:  # 标准自瞄
@@ -289,6 +288,14 @@ if __name__ == "__main__":
     proc2 = Process(target=show_frames, args=(frame_output, arr,))
     proc1.start()
     proc2.start()
+
+    while not arr[0]:
+        sleep(0.5)
+
+    if win32gui.GetClassName(arr[0]) == "CrossFire":
+        std_confidence = 0.6
+    elif win32gui.GetClassName(arr[0]) == "Valve001":
+        std_confidence = 0.4
 
     while True:
         ini_frame_time = time.time()  # 开始记时点
@@ -350,6 +357,7 @@ if __name__ == "__main__":
 
         # 自瞄开关,关则跳过后续
         if not aim:
+            sleep(0.01)
             if arr[3]:
                 clear()
             show_frame = False
@@ -369,16 +377,18 @@ if __name__ == "__main__":
             except cv2.error:
                 continue
 
+            """
             # 画实心框避免错误检测武器与手
             try:
                 if win32gui.GetClassName(arr[0]) == "CrossFire":
                     cv2.rectangle(frames, (int(frame_width*11/16), int(frame_height*3/5)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
                     cv2.rectangle(frames, (0, int(frame_height*3/5)), (int(frame_width*5/16), frame_height), (127, 127, 127), cv2.FILLED)
                 elif win32gui.GetClassName(arr[0]) == "Valve001":
-                    cv2.rectangle(frames, (int(frame_width*3/4), int(frame_height*2/3)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
-                    cv2.rectangle(frames, (0, int(frame_height*2/3)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
+                    cv2.rectangle(frames, (int(frame_width*3/4), int(frame_height*11/15)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
+                    cv2.rectangle(frames, (0, int(frame_height*11/15)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
             except pywintypes.error:
                 continue
+            """
 
             # 检测
             blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (side_length, side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
