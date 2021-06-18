@@ -67,7 +67,7 @@ checkcolor(a, b, aw, bh)
 	{
 		new_y := 2 * (A_Index - 1)
 		If !Mod(new_x, 4)
-			HyperSleep(0.0001)
+			HyperSleep(0.001)
 		If new_y < bh
 		{
 			Loop, %aw%
