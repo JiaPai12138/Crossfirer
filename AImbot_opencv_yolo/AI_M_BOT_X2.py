@@ -21,6 +21,7 @@ from sys import exit, executable
 from time import sleep, time
 from platform import release
 from statistics import mean
+import queue
 import numpy as np
 import cv2
 import win32gui
@@ -95,7 +96,7 @@ class WindowCapture:
             # 转换减少错误
             cut_img = np.ascontiguousarray(cut_img)
             return cut_img
-        except pywintypes.error:
+        except (pywintypes.error, win32ui.error):
             return None
 
     def get_cut_info(self):
@@ -263,6 +264,7 @@ def get_window_info():
     test_window = 'Notepad3 PX_WINDOW_CLASS Notepad++'
     class_name = ''
     hwnd_var = ''
+    testing_purpose = False
     while not hwnd_var:  # 等待游戏窗口出现
         hwnd_active = win32gui.GetForegroundWindow()
         try:
@@ -275,8 +277,10 @@ def get_window_info():
         else:
             hwnd_var = win32gui.FindWindow(class_name, None)
             print('已找到窗口')
+            if class_name in test_window:
+                testing_purpose = True
         sleep(3)
-    return class_name, hwnd_var
+    return class_name, hwnd_var, testing_purpose
 
 
 # 重启脚本
@@ -356,6 +360,8 @@ def check_status(exit0, mouse):
         arr[4] = 1
     if is_pressed('p'):
         show_proc.terminate()
+        detect1_proc.terminate()
+        detect2_proc.terminate()
         restart()
 
     return exit0, mouse
@@ -366,6 +372,7 @@ def show_frames(output_pipe, array):
     set_dpi()
     cv2.namedWindow('Show frame')
     cv2.moveWindow('Show frame', 0, 0)
+    cv2.resizeWindow('Show frame', 100,100)
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     while True:
         show_img = output_pipe.recv()
@@ -379,30 +386,43 @@ def show_frames(output_pipe, array):
             cv2.destroyAllWindows()
 
 
-# 第一分析进程
-def detection1(que, array):
-    Analysis1 = FrameDetection(1, array[0], 2)
+# 第一分析进程(主)
+def detection1(que, array, frame_in):
+    Analysis1 = FrameDetection(array[10], array[0], 2)
+    array[1] = 1
     while True:
         if not que.empty():
-            img1 = que.get_nowait()
-            que.task_done()
-            array[1] = 1
-            Analysis1.detect(img1)
-        array[1] = 0
-        sleep(0.001)
+            try:
+                frame1 = que.get_nowait()
+                que.task_done()
+                array[1] = 2
+                array[11], array[7], array[8], array[9], frame = Analysis1.detect(frame1)
+
+                if array[4]:
+                    frame_in.send(frame)
+                else:
+                    frame_in.send(0)
+            except queue.Empty:
+                continue
+        array[1] = 1
+        # sleep(0.001)
 
 
-# 第二分析进程
+# 第二分析进程(备)
 def detection2(que, array):
-    Analysis2 = FrameDetection(1, array[0], 2)
+    Analysis2 = FrameDetection(array[10], array[0], 2)
+    array[2] = 1
     while True:
-        if not que.empty() and array[1]:
-            img2 = que.get_nowait()
-            que.task_done()
-            array[2] = 1
-            Analysis2.detect(img2)
-        array[2] = 0
-        sleep(0.001)
+        if array[1] == 2 and not que.empty():
+            try:
+                frame2 = que.get_nowait()
+                que.task_done()
+                array[2] = 2
+                array[11], array[7], array[8], array[9], frame = Analysis2.detect(frame2)
+            except queue.Empty:
+                continue
+        array[2] = 1
+        # sleep(0.001)
 
 
 # 主程序
@@ -450,24 +470,40 @@ if __name__ == '__main__':
     7  鼠标移动x
     8  鼠标移动y
     9  鼠标开火r
-    10
-    11
+    10 自瞄模式
+    11 敌人数量
+    12
+    13
     '''
 
     show_proc = Process(target=show_frames, args=(frame_output, arr,))
     show_proc.start()
+    arr[1] = 0  # 第一分析进程状态
+    arr[2] = 0  # 第二分析进程状态
     arr[3] = 0  # FPS值
     arr[4] = 0  # 开关效果展示
+    arr[7] = 0  # 鼠标移动x
+    arr[8] = 0  # 鼠标移动r
+    arr[9] = 0  # 鼠标开火r
+    arr[10] = aim_mode  # 自瞄模式
+    arr[11] = 0 # 敌人数量
+    detect1_proc = Process(target=detection1, args=(queue, arr, frame_input,))
+    detect2_proc = Process(target=detection2, args=(queue, arr,))
 
     # 寻找读取游戏窗口类型并确认截取位置
-    window_class_name, window_hwnd = get_window_info()
+    window_class_name, window_hwnd, test_win = get_window_info()
     arr[0] = window_hwnd
 
     # 初始化截图类
     win_cap = WindowCapture(window_class_name)
 
-    # 初始化分析类
-    Analysis = FrameDetection(aim_mode, window_hwnd, 1)
+    # 开始分析进程
+    detect1_proc.start()
+    detect2_proc.start()
+
+    # 等待分析类初始化
+    while not (arr[1]and arr[2]):
+        sleep(1)
 
     # 清空命令指示符面板
     clear()
@@ -475,31 +511,28 @@ if __name__ == '__main__':
     while True:
         ini_sct_time = time()  # 计时
         screenshot = win_cap.get_screenshot()  # 截屏
-        check_point = time()  # 计时
-        # cap_time_used = check_point - ini_sct_time
         try:
-            enemy, move_x, move_y, move_range, show_frame = Analysis.detect(screenshot)
-        except UnboundLocalError:
+            screenshot.any()
+        except AttributeError:
             break
-        # anaysis_time = time() - check_point
+        queue.put_nowait(screenshot)
+        queue.join()
+
         exit_program, move_mouse = check_status(exit_program, move_mouse)
 
         if exit_program:
             break
 
-        if enemy and move_mouse:
-            control_mouse(move_x, move_y, show_fps[0], move_range, window_class_name)
-        elif GetAsyncKeyState(VK_LBUTTON) and window_class_name != 'CrossFire':
+        if arr[11] and move_mouse:
+            control_mouse(arr[7], arr[8], show_fps[0], arr[9], window_class_name)
+        elif GetAsyncKeyState(VK_LBUTTON) and window_class_name != 'CrossFire' and not test_win:
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
 
         if arr[4]:
             try:
-                arr[5] = int(ceil(show_frame.shape[1] / win_cap.get_window_left()))
-                frame_input.send(show_frame)
+                arr[5] = int(ceil(screenshot.shape[1] / win_cap.get_window_left()))
             except pywintypes.error:
                 break
-        else:
-            frame_input.send(0)
 
         time_used = time() - ini_sct_time
         if time_used:  # 防止被0除
@@ -512,9 +545,11 @@ if __name__ == '__main__':
             arr[3] = int(show_fps[0])
 
         if move_mouse:  # {cap_time_used:.3f} {anaysis_time:.3f}
-            print(f'\033[1;37;44m FPS={show_fps[0]:.2f};\033[1;37;41m 检测{enemy}人 ', end='\r')
+            print(f'\033[1;37;44m FPS={show_fps[0]:.2f};\033[1;37;41m 检测{arr[11]}人 ', end='\r')
         else:
-            print(f'\033[0m FPS={show_fps[0]:.2f}; 检测{enemy}人 ', end='\r')
+            print(f'\033[0m FPS={show_fps[0]:.2f}; 检测{arr[11]}人 ', end='\r')
 
+    detect1_proc.terminate()
+    detect2_proc.terminate()
     show_proc.terminate()
     exit(0)
