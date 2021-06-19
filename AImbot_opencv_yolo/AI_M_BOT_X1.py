@@ -222,10 +222,15 @@ class FrameDetection:
                 cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
 
                 # 计算威胁指数(正面画框面积的平方根除以鼠标移动到近似胸大肌距离)
-                threat_var = pow(boxes[j][2] * boxes[j][3], 1/3) / sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 4), 2))
-                if threat_var > max_var:
-                    max_var = threat_var
+                dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 4), 2))
+                if dist:
+                    threat_var = pow(boxes[j][2] * boxes[j][3], 1/3) / dist
+                    if threat_var > max_var:
+                        max_var = threat_var
+                        max_at = j
+                else:
                     max_at = j
+                    break
 
             # 指向距离最近威胁的位移
             x = int(boxes[max_at][0] + boxes[max_at][2] / 2 - frame_width / 2)
