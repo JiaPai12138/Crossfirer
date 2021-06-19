@@ -170,8 +170,8 @@ class FrameDetection:
 
         # 画实心框避免错误检测武器与手
         if self.win_class_name == 'CrossFire':
-            cv2.rectangle(frames, (int(frame_width*3/5), int(frame_height*3/4)), (int(frame_width*4/5), frame_height), (127, 127, 127), cv2.FILLED)
-            cv2.rectangle(frames, (int(frame_width*1/5), int(frame_height*3/4)), (int(frame_width*2/5), frame_height), (127, 127, 127), cv2.FILLED)
+            cv2.rectangle(frames, (int(frame_width*3/5), int(frame_height*3/4)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
+            cv2.rectangle(frames, (0, int(frame_height*3/4)), (int(frame_width*2/5), frame_height), (127, 127, 127), cv2.FILLED)
             if frame_width / frame_height > 1.3:
                 frame_width = int(frame_width / 4 * 3)
                 dim = (frame_width, frame_height)
@@ -321,8 +321,8 @@ def clear():
 def control_mouse(a, b, fps_var, ranges, win_class):
     if fps_var:
         if win_class == 'CrossFire':
-            x0 = a / 4 / (fps_var / 19.2)
-            y0 = b / 4 / (fps_var / 14.4)
+            x0 = a / 4 / (fps_var / 20.8)
+            y0 = b / 4 / (fps_var / 15.6)
         elif win_class == 'Valve001':
             x0 = a / 1.56 / (fps_var / 28)
             y0 = b / 1.56 / (fps_var / 21)
@@ -372,7 +372,7 @@ def show_frames(output_pipe, array):
     set_dpi()
     cv2.namedWindow('Show frame')
     cv2.moveWindow('Show frame', 0, 0)
-    cv2.resizeWindow('Show frame', 100,100)
+    cv2.resizeWindow('Show frame', 100, 100)
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     while True:
         show_img = output_pipe.recv()
