@@ -165,6 +165,12 @@ class FrameDetection:
         except cv2.error:
             return
 
+        try:
+            frame_height += 0
+            frame_width += 0
+        except UnboundLocalError:
+            return
+
         # 初始化返回数值
         x, y, fire_range = 0, 0, 0
 
