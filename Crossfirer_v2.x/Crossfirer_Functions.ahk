@@ -126,7 +126,7 @@ CheckPermission(SectionName := "助手控制")
             Else
             {
                 MsgBox, 262148, 警告/Warning, 请问你开启UIA了吗?`nDo you have UIAccess enabled?
-                IfMsgBox Yes
+                IfMsgBox, Yes
                     Run, "%A_ProgramFiles%\AutoHotkey\AutoHotkeyU64_UIA.exe" "%A_ScriptFullPath%"
                 Else
                     Run, *RunAs "%A_ScriptFullPath%"
@@ -162,8 +162,7 @@ CheckAdmin(SectionName)
         IniWrite, %memory_used%, 助手数据.ini, %SectionName%, MEMORY
         Return True
     }
-    Else
-        Return False
+    Return False
 }
 ;==================================================================================
 ;检查脚本是否由指定的UIA权限运行
@@ -180,8 +179,7 @@ CheckUIA(SectionName)
         IniWrite, %memory_used%MB, 助手数据.ini, %SectionName%, MEMORY
         Return True
     }
-    Else
-        Return False
+    Return False
 }
 ;==================================================================================
 ;拷贝自 https://github.com/camerb/AHKs/blob/master/thirdParty/ProcessInfo.ahk ,检测脚本运行的进程ID
@@ -584,8 +582,7 @@ InRange(Min, x, Max)
 {
     If (x >= Min) && (x < Max)
         Return True
-    Else
-        Return False
+    Return False
 }
 ;==================================================================================
 ;托盘退出选项
@@ -652,8 +649,7 @@ Is_Chatting()
     PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), %Chat_Color%, 0, Fast
     If !ErrorLevel
         Return True
-    Else
-        Return False
+    Return False
 }
 ;==================================================================================
 ;返回游戏状态
