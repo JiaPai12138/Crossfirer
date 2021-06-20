@@ -55,6 +55,11 @@ CheckWindow(ByRef ClassName, ByRef TitleName)
 ShotAndSave()
 {
     global win_class
+    If !WinExist("ahk_class" . win_class)
+    {
+        MsgBox, 程序已退出/Program Exited
+        ExitApp
+    }
     CheckPosition1(PX, PY, PW, PH, win_class)
     ToolTip, 正在截图中:%PX%|%PY%|%PW%|%PH%, PX, PY, 1
     cap_zoom := (PX + PW // 2 - 304) . "|" . (PY + PH // 2 - 304) . "|" . 608 . "|" . 608
