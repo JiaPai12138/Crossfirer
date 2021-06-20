@@ -389,10 +389,15 @@ def show_frames(output_pipe, array):
         show_img = output_pipe.recv()
         try:
             if show_img.any():
-                show_img = cv2.resize(show_img, (show_img.shape[1] // array[5], show_img.shape[0] // array[5]))
+                try:
+                    show_img = cv2.resize(show_img, (show_img.shape[1] // array[5], show_img.shape[0] // array[5]))
+                except ZeroDivisionError:
+                    show_img = cv2.resize(show_img, (show_img.shape[1] // temp_division, show_img.shape[0] // temp_division))
                 cv2.putText(show_img, str(array[3]), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)
                 cv2.imshow('Show frame', show_img)
                 cv2.waitKey(1)
+                if array[5]:
+                    temp_division = array[5]
         except AttributeError:
             cv2.destroyAllWindows()
 
