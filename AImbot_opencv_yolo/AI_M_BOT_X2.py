@@ -332,11 +332,11 @@ def clear():
 def control_mouse(a, b, fps_var, ranges, win_class):
     if fps_var:
         if win_class == 'CrossFire':
-            x0 = a / 4 / (fps_var / 20.8)
-            y0 = b / 4 / (fps_var / 15.6)
+            x0 = a / 4 / (fps_var / 21.6)
+            y0 = b / 4 / (fps_var / 16.2)
         elif win_class == 'Valve001':
-            x0 = a / 1.56 / (fps_var / 28)
-            y0 = b / 1.56 / (fps_var / 21)
+            x0 = a / 1.56 / (fps_var / 32)
+            y0 = b / 1.56 / (fps_var / 24)
         else:
             x0 = a / 6
             y0 = b / 8
@@ -413,7 +413,7 @@ def detection1(que, array, frame_in):
                     frame_in.send(frame)
                 else:
                     frame_in.send(0)
-            except queue.Empty:
+            except (queue.Empty, TypeError):
                 continue
         array[1] = 1
         # sleep(0.001)
@@ -430,7 +430,7 @@ def detection2(que, array):
                 que.task_done()
                 array[2] = 2
                 array[11], array[7], array[8], array[9], frame = Analysis2.detect(frame2)
-            except queue.Empty:
+            except (queue.Empty, TypeError):
                 continue
         array[2] = 1
         # sleep(0.001)
