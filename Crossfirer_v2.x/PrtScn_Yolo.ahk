@@ -61,8 +61,11 @@ ShotAndSave()
         ExitApp
     }
     CheckPosition1(PX, PY, PW, PH, win_class)
-    ToolTip, 正在截图中:%PX%|%PY%|%PW%|%PH%, PX, PY, 1
+    WH_Rate := Round(PW / PH, 3)
+    ToolTip, 正在截图中:%PX%|%PY%|%PW%|%PH% 比例%WH_Rate%:1, PX, PY, 1
     cap_zoom := (PX + PW // 2 - 304) . "|" . (PY + PH // 2 - 304) . "|" . 608 . "|" . 608
+    If (win_class = "CrossFire") && (WH_Rate > 1.7)
+        cap_zoom := (PX + PW // 2 - 405) . "|" . (PY + PH // 2 - 304) . "|" . 810 . "|" . 608
     Screenshot(A_ScriptDir . "\Screenshots\Screenshot_" . win_class . "_" . A_Now ".jpg", cap_zoom)
 }
 ;==================================================================================
