@@ -96,7 +96,7 @@ class WindowCapture:
             # 转换减少错误
             cut_img = np.ascontiguousarray(cut_img)
             return cut_img
-        except (pywintypes.error, win32ui.error):
+        except (pywintypes.error, win32ui.error, ValueError):
             return None
 
     def get_cut_info(self):
@@ -272,7 +272,7 @@ def set_dpi():
 
 # 确认窗口句柄与类名
 def get_window_info():
-    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient'
+    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient'
     test_window = 'Notepad3 PX_WINDOW_CLASS Notepad++'
     class_name = ''
     hwnd_var = ''
@@ -333,14 +333,17 @@ def clear():
 def control_mouse(a, b, fps_var, ranges, win_class):
     if fps_var:
         if win_class == 'CrossFire':
-            x0 = a / 4 / (fps_var / 21.6)
+            x0 = a / 4 / (fps_var / 21.6)  # 32
             y0 = b / 4 / (fps_var / 16.2)
         elif win_class == 'Valve001':
-            x0 = a / 1.56 / (fps_var / 32)
+            x0 = a / 1.56 / (fps_var / 32)  # 2.5
             y0 = b / 1.56 / (fps_var / 24)
+        elif win_class == 'LaunchCombatUWindowsClient':
+            x0 = a / (fps_var / 24)  # 10.0
+            y0 = b / (fps_var / 18)
         else:
-            x0 = a / 6
-            y0 = b / 8
+            x0 = a / (fps_var / 20)
+            y0 = b / (fps_var / 15)
         mouse_event(MOUSEEVENTF_MOVE, int(round(x0)), int(round(y0)), 0, 0)
 
     # 不分敌友射击
@@ -540,9 +543,9 @@ if __name__ == '__main__':
         if exit_program:
             break
 
-        if arr[11] and move_mouse:
+        if arr[11] and move_mouse and win32gui.GetForegroundWindow() == window_hwnd:
             control_mouse(arr[7], arr[8], show_fps[0], arr[9], window_class_name)
-        elif GetAsyncKeyState(VK_LBUTTON) and window_class_name != 'CrossFire' and not test_win:
+        elif GetAsyncKeyState(VK_LBUTTON) and win32gui.GetForegroundWindow() == window_hwnd and window_class_name != 'CrossFire' and not test_win:
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
 
         if arr[4]:
