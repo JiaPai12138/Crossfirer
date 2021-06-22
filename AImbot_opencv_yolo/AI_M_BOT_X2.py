@@ -138,7 +138,7 @@ class FrameDetection:
         else:
             self.std_confidence = 0.5
 
-        check_file('yolov4-tiny-vvv', self.CONFIG_FILE, self.WEIGHT_FILE)
+        load_file('yolov4-tiny-vvv', self.CONFIG_FILE, self.WEIGHT_FILE)
         self.net = cv2.dnn.readNetFromDarknet(self.CONFIG_FILE[0], self.WEIGHT_FILE[0])  # 读取权重与配置文件
 
         # 读取YOLO神经网络内容
@@ -301,15 +301,20 @@ def restart():
     exit(0)
 
 
-# 检测是否存在配置与权重文件
-def check_file(file, config_filename, weight_filename):
+# 加载配置与权重文件
+def load_file(file, config_filename, weight_filename):
     cfg_filename = file + '.cfg'
     weights_filename = file + '.weights'
-    if path.isfile(cfg_filename) and path.isfile(weights_filename):
-        config_filename[0] += cfg_filename
-        weight_filename[0] += weights_filename
-        return
-    else:
+    config_filename[0] += cfg_filename
+    weight_filename[0] += weights_filename
+    return
+
+
+# 检测是否存在配置与权重文件
+def check_file(file):
+    cfg_file = file + '.cfg'
+    weights_file = file + '.weights'
+    if not (path.isfile(cfg_file) and path.isfile(weights_file)):
         print(f'请下载{file}相关文件!!!')
         sleep(3)
         exit(0)
@@ -477,6 +482,9 @@ if __name__ == '__main__':
     move_mouse = False
     exit_program = False
 
+    # 如果文件不存在则退出
+    check_file('yolov4-tiny-vvv')
+
     # 分享数据以及展示新进程
     arr = Array('i', range(21))
     '''
@@ -513,6 +521,14 @@ if __name__ == '__main__':
     # 寻找读取游戏窗口类型并确认截取位置
     window_class_name, window_hwnd, test_win = get_window_info()
     arr[0] = window_hwnd
+
+    # 等待游戏画面完整出现(拥有大于0的长宽)
+    window_ready = 0
+    while not window_ready:
+        sleep(1)
+        win_client_rect = win32gui.GetClientRect(window_hwnd)
+        if win_client_rect[2] - win_client_rect[0] > 0 and win_client_rect[3] - win_client_rect[1] > 0:
+            window_ready = 1
 
     # 初始化截图类
     win_cap = WindowCapture(window_class_name)
@@ -551,6 +567,8 @@ if __name__ == '__main__':
         if arr[4]:
             try:
                 if win_cap.get_window_left() > 0:
+                    if window_class_name == 'CrossFire':
+                        screenshot.shape[1] *= 4/3
                     arr[5] = int(ceil(screenshot.shape[1] / win_cap.get_window_left()))
                 else:
                     arr[4] = 0  # 全屏或屏幕靠左不显示效果
