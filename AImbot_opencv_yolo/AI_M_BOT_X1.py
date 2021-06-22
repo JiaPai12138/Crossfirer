@@ -220,6 +220,7 @@ class FrameDetection:
                 (x, y) = (boxes[j][0], boxes[j][1])
                 (w, h) = (boxes[j][2], boxes[j][3])
                 cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
+                cv2.putText(frames, str(round(confidences[j], 3)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (127, 255, 0), 1, cv2.LINE_AA)
 
                 # 计算威胁指数(正面画框面积的平方根除以鼠标移动到近似胸大肌距离)
                 dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 4), 2))
@@ -383,7 +384,7 @@ def show_frames(output_pipe, array):
     set_dpi()
     cv2.namedWindow('Show frame')
     cv2.moveWindow('Show frame', 0, 0)
-    cv2.resizeWindow('Show frame', 100, 100)
+    cv2.destroyAllWindows()
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
     while True:
         show_img = output_pipe.recv()
