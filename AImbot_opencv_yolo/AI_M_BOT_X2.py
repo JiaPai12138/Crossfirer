@@ -234,17 +234,29 @@ class FrameDetection:
                     break
 
             # 指向距离最近威胁的位移
-            x = int(boxes[max_at][0] + boxes[max_at][2] / 2 - frame_width / 2)
-            y1 = int(boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2)  # 爆头优先
-            y2 = int(boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2)  # 击中优先
-            if y1 <= y2:
-                y = y1
-                fire_range = int(ceil(boxes[max_at][2] / 5))  # 头宽约占肩宽二点五分之一
+            x = boxes[max_at][0] + (boxes[max_at][2] - frame_width) / 2
+            if boxes[max_at][2] / boxes[max_at][3] > 1.5:
+                y1 = boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2  # 爆头优先
+                y2 = boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2  # 击中优先
+                if abs(y1) <= abs(y2):
+                    y = y1
+                    fire_range = ceil(boxes[max_at][2] / 5)  # 头宽约占肩宽二点五分之一
+                else:
+                    y = y2
+                    fire_range = ceil(boxes[max_at][2] / 3)
             else:
-                y = y2
-                fire_range = int(ceil(boxes[max_at][2] / 3))
+                y = boxes[max_at][1] + (boxes[max_at][3] - frame_height) / 2
+                fire_range = ceil(get_smaller(boxes[max_at][2], boxes[max_at][3]) / 2)
 
-        return len(indices), x, y, fire_range, frames
+        return len(indices), int(x), int(y), int(fire_range), frames
+
+
+# 比较得出较小值
+def get_smaller(var1, var2):
+    if var1 <= var2:
+        return var1
+    else:
+        return var2
 
 
 # 简单检查gpu是否够格
@@ -559,10 +571,11 @@ if __name__ == '__main__':
         if exit_program:
             break
 
-        if arr[11] and move_mouse and win32gui.GetForegroundWindow() == window_hwnd:
-            control_mouse(arr[7], arr[8], show_fps[0], arr[9], window_class_name)
-        elif GetAsyncKeyState(VK_LBUTTON) and win32gui.GetForegroundWindow() == window_hwnd and window_class_name != 'CrossFire' and not test_win:
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
+        if win32gui.GetForegroundWindow() == window_hwnd:
+            if arr[11] and move_mouse:
+                control_mouse(arr[7], arr[8], show_fps[0], arr[9], window_class_name)
+            elif GetAsyncKeyState(VK_LBUTTON) and window_class_name != 'CrossFire' and not test_win:
+                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
 
         if arr[4]:
             try:
