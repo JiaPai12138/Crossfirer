@@ -246,17 +246,9 @@ class FrameDetection:
                     fire_range = ceil(boxes[max_at][2] / 3)
             else:
                 y = boxes[max_at][1] + (boxes[max_at][3] - frame_height) / 2
-                fire_range = ceil(get_smaller(boxes[max_at][2], boxes[max_at][3]) / 2)
+                fire_range = ceil(min(boxes[max_at][2], boxes[max_at][3]) / 2)
 
         return len(indices), int(x), int(y), int(fire_range), frames
-
-
-# 比较得出较小值
-def get_smaller(var1, var2):
-    if var1 <= var2:
-        return var1
-    else:
-        return var2
 
 
 # 简单检查gpu是否够格
