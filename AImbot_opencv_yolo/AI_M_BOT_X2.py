@@ -172,7 +172,7 @@ class FrameDetection:
             return
 
         # 初始化返回数值
-        x, y, fire_range = 0, 0, 0
+        x, y, fire_range, fire_pos = 0, 0, 0, 0
 
         # 画实心框避免错误检测武器与手
         if self.win_class_name == 'CrossFire':
@@ -210,7 +210,7 @@ class FrameDetection:
                     confidences.append(float(confidence))
 
         # 移除重复
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.4, 0.3)
+        indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
 
         # 画框,计算距离框中心距离最小的威胁目标
         if len(indices) > 0:
@@ -220,10 +220,14 @@ class FrameDetection:
                 (x, y) = (boxes[j][0], boxes[j][1])
                 (w, h) = (boxes[j][2], boxes[j][3])
                 cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
-                cv2.putText(frames, str(round(confidences[j], 3)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (127, 255, 0), 1, cv2.LINE_AA)
+                cv2.putText(frames, str(round(confidences[j], 3)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2, cv2.LINE_AA)
 
-                # 计算威胁指数(正面画框面积的平方根除以鼠标移动到近似胸大肌距离)
-                dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 4), 2))
+                # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
+                if h / w > 1.5:
+                    dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * 3/16), 2))
+                else:
+                    dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 2), 2))
+
                 if dist:
                     threat_var = pow(boxes[j][2] * boxes[j][3], 1/2) / dist
                     if threat_var > max_var:
@@ -241,14 +245,17 @@ class FrameDetection:
                 if abs(y1) <= abs(y2):
                     y = y1
                     fire_range = ceil(boxes[max_at][2] / 5)  # 头宽约占肩宽二点五分之一
+                    fire_pos = 1
                 else:
                     y = y2
                     fire_range = ceil(boxes[max_at][2] / 3)
+                    fire_pos = 2
             else:
                 y = boxes[max_at][1] + (boxes[max_at][3] - frame_height) / 2
                 fire_range = ceil(min(boxes[max_at][2], boxes[max_at][3]) / 2)
+                fire_pos = 0
 
-        return len(indices), int(x), int(y), int(fire_range), frames
+        return len(indices), int(x), int(y), int(fire_range), fire_pos, frames
 
 
 # 简单检查gpu是否够格
@@ -262,8 +269,7 @@ def check_gpu(level):
         return True
     elif level == 2 and memory_total > 6140:  # 正常值为6144,减少损耗误报
         return True
-    else:
-        return False
+    return False
 
 
 # 高DPI感知
@@ -345,8 +351,8 @@ def control_mouse(a, b, fps_var, ranges, win_class):
             x0 = a / 4 / (fps_var / 21.6)  # 32
             y0 = b / 4 / (fps_var / 16.2)
         elif win_class == 'Valve001':
-            x0 = a / 1.56 / (fps_var / 32)  # 2.5
-            y0 = b / 1.56 / (fps_var / 24)
+            x0 = a / 1.56 / (fps_var / 36)  # 2.5
+            y0 = b / 1.56 / (fps_var / 27)
         elif win_class == 'LaunchCombatUWindowsClient':
             x0 = a / (fps_var / 24)  # 10.0
             y0 = b / (fps_var / 18)
@@ -358,11 +364,10 @@ def control_mouse(a, b, fps_var, ranges, win_class):
     # 不分敌友射击
     if win_class != 'CrossFire':
         if floor(sqrt(pow(a, 2) + pow(b, 2))) <= ranges:
-            if (time() * 1000 - press_time[0]) > 100:
+            if (time() * 1000 - press_time[0]) > 150:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
                     up_time[0] = int(time() * 1000)
-            mouse_event(MOUSEEVENTF_MOVE, 0, 3, 0, 0)  # 压枪
         else:
             if (time() * 1000 - up_time[0]) > 50:
                 if GetAsyncKeyState(VK_LBUTTON):
@@ -425,7 +430,7 @@ def detection1(que, array, frame_in):
                 frame1 = que.get_nowait()
                 que.task_done()
                 array[1] = 2
-                array[11], array[7], array[8], array[9], frame = Analysis1.detect(frame1)
+                array[11], array[7], array[8], array[9], array[12], frame = Analysis1.detect(frame1)
 
                 if array[4]:
                     frame_in.send(frame)
@@ -434,7 +439,6 @@ def detection1(que, array, frame_in):
             except (queue.Empty, TypeError):
                 continue
         array[1] = 1
-        # sleep(0.001)
 
 
 # 第二分析进程(备)
@@ -447,11 +451,10 @@ def detection2(que, array):
                 frame2 = que.get_nowait()
                 que.task_done()
                 array[2] = 2
-                array[11], array[7], array[8], array[9], frame = Analysis2.detect(frame2)
+                array[11], array[7], array[8], array[9], array[12], frame = Analysis2.detect(frame2)
             except (queue.Empty, TypeError):
                 continue
         array[2] = 1
-        # sleep(0.001)
 
 
 # 主程序
@@ -485,6 +488,7 @@ if __name__ == '__main__':
     process_time = deque()
     move_mouse = False
     exit_program = False
+    fire_target = ["中", "头", "胸"]
 
     # 如果文件不存在则退出
     check_file('yolov4-tiny-vvv')
@@ -504,7 +508,7 @@ if __name__ == '__main__':
     9  鼠标开火r
     10 自瞄模式
     11 敌人数量
-    12
+    12 瞄准位置
     13
     '''
 
@@ -518,7 +522,8 @@ if __name__ == '__main__':
     arr[8] = 0  # 鼠标移动r
     arr[9] = 0  # 鼠标开火r
     arr[10] = aim_mode  # 自瞄模式
-    arr[11] = 0 # 敌人数量
+    arr[11] = 0  # 敌人数量
+    arr[12] = 0  # 瞄准位置
     detect1_proc = Process(target=detection1, args=(queue, arr, frame_input,))
     detect2_proc = Process(target=detection2, args=(queue, arr,))
 
@@ -590,10 +595,10 @@ if __name__ == '__main__':
             show_fps[0] = mean(process_time)  # 计算fps
             arr[3] = int(show_fps[0])
 
-        if move_mouse:  # {cap_time_used:.3f} {anaysis_time:.3f}
-            print(f'\033[1;37;44m FPS={show_fps[0]:.2f};\033[1;37;41m 检测{arr[11]}人 ', end='\r')
+        if move_mouse:
+            print(f'\033[0;30;42m FPS={show_fps[0]:.2f}\033[0;30;43m 检测{arr[11]}人\033[0;30;46m 瞄准{fire_target[arr[12]]}部\033[0m', end='\r')
         else:
-            print(f'\033[0m FPS={show_fps[0]:.2f}; 检测{arr[11]}人 ', end='\r')
+            print(f' FPS={show_fps[0]:.2f} 检测{arr[11]}人 瞄准{fire_target[arr[12]]}部', end='\r')
 
     detect1_proc.terminate()
     detect2_proc.terminate()
