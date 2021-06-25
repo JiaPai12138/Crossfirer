@@ -578,7 +578,7 @@ if __name__ == '__main__':
             try:
                 if win_cap.get_window_left() > 0:
                     if window_class_name == 'CrossFire' and screenshot.shape[1] / screenshot.shape[0] > 1.7:
-                        screenshot.shape[1] *= 4/3
+                        screenshot.shape[1] *= 3/4
                     arr[5] = int(ceil(screenshot.shape[1] / win_cap.get_window_left()))
                 else:
                     arr[4] = 0  # 全屏或屏幕靠左不显示效果
