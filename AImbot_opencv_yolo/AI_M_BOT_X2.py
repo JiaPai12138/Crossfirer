@@ -242,7 +242,7 @@ class FrameDetection:
             if boxes[max_at][3] / boxes[max_at][2] > 1.5:
                 y1 = boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2  # 爆头优先
                 y2 = boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2  # 击中优先
-                if abs(y1) <= abs(y2) or frame_width / boxes[max_at][2] <= 8:
+                if abs(y1) <= abs(y2) or frame_width / boxes[max_at][2] <= 6:
                     y = y1
                     fire_range = ceil(boxes[max_at][2] / 5)  # 头宽约占肩宽二点五分之一
                     fire_pos = 1
@@ -364,15 +364,21 @@ def control_mouse(a, b, fps_var, ranges, win_class):
     # 不分敌友射击
     if win_class != 'CrossFire':
         if floor(sqrt(pow(a, 2) + pow(b, 2))) <= ranges:
-            if (time() * 1000 - press_time[0]) > 150:
+            if (time() * 1000 - up_time[0]) > 111.6:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
-                    up_time[0] = int(time() * 1000)
-        else:
-            if (time() * 1000 - up_time[0]) > 50:
-                if GetAsyncKeyState(VK_LBUTTON):
                     press_time[0] = int(time() * 1000)
-                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
+                if arr[12] == 1:  # 爆头简易压枪
+                    mouse_event(MOUSEEVENTF_MOVE, 0, 2, 0, 0)
+        else:
+            if (time() * 1000 - press_time[0]) > 55:
+                if GetAsyncKeyState(VK_LBUTTON):
+                    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
+                    up_time[0] = int(time() * 1000)
+
+        if GetAsyncKeyState(VK_LBUTTON) and not test_win[0]:
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
+            up_time[0] = int(time() * 1000)
 
 
 # 转变状态
@@ -489,6 +495,7 @@ if __name__ == '__main__':
     move_mouse = False
     exit_program = False
     fire_target = ["中", "头", "胸"]
+    test_win = [False]
 
     # 如果文件不存在则退出
     check_file('yolov4-tiny-vvv')
@@ -528,7 +535,7 @@ if __name__ == '__main__':
     detect2_proc = Process(target=detection2, args=(queue, arr,))
 
     # 寻找读取游戏窗口类型并确认截取位置
-    window_class_name, window_hwnd, test_win = get_window_info()
+    window_class_name, window_hwnd, test_win[0] = get_window_info()
     arr[0] = window_hwnd
 
     # 等待游戏画面完整出现(拥有大于0的长宽)
@@ -571,8 +578,6 @@ if __name__ == '__main__':
         if win32gui.GetForegroundWindow() == window_hwnd:
             if arr[11] and move_mouse:
                 control_mouse(arr[7], arr[8], show_fps[0], arr[9], window_class_name)
-            elif GetAsyncKeyState(VK_LBUTTON) and window_class_name != 'CrossFire' and not test_win:
-                mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
 
         if arr[4]:
             try:
