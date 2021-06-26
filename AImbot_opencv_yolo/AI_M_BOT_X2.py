@@ -172,7 +172,7 @@ class FrameDetection:
             return
 
         # 初始化返回数值
-        x, y, fire_range, fire_pos = 0, 0, 0, 0
+        x, y, fire_range, fire_pos, fire_close = 0, 0, 0, 0, 0
 
         # 画实心框避免错误检测武器与手
         if self.win_class_name == 'CrossFire':
@@ -242,7 +242,8 @@ class FrameDetection:
             if boxes[max_at][3] / boxes[max_at][2] > 1.5:
                 y1 = boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2  # 爆头优先
                 y2 = boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2  # 击中优先
-                if abs(y1) <= abs(y2) or frame_width / boxes[max_at][2] <= 6:
+                fire_close = (1 if frame_width / boxes[max_at][2] <= 6 else 0)
+                if abs(y1) <= abs(y2) or fire_close:
                     y = y1
                     fire_range = ceil(boxes[max_at][2] / 5)  # 头宽约占肩宽二点五分之一
                     fire_pos = 1
@@ -255,7 +256,7 @@ class FrameDetection:
                 fire_range = ceil(min(boxes[max_at][2], boxes[max_at][3]) / 2)
                 fire_pos = 0
 
-        return len(indices), int(x), int(y), int(fire_range), fire_pos, frames
+        return len(indices), int(x), int(y), int(fire_range), fire_pos, fire_close, frames
 
 
 # 简单检查gpu是否够格
@@ -311,6 +312,13 @@ def restart():
     exit(0)
 
 
+# 退出脚本
+def close():
+    show_proc.terminate()
+    detect1_proc.terminate()
+    detect2_proc.terminate()
+
+
 # 加载配置与权重文件
 def load_file(file, config_filename, weight_filename):
     cfg_filename = file + '.cfg'
@@ -345,7 +353,7 @@ def clear():
 
 
 # 移动鼠标(并射击)
-def control_mouse(a, b, fps_var, ranges, win_class):
+def control_mouse(a, b, fps_var, ranges, rate, win_class):
     if fps_var:
         if win_class == 'CrossFire':
             x0 = a / 4 / (fps_var / 21.6)  # 32
@@ -364,14 +372,14 @@ def control_mouse(a, b, fps_var, ranges, win_class):
     # 不分敌友射击
     if win_class != 'CrossFire':
         if floor(sqrt(pow(a, 2) + pow(b, 2))) <= ranges:
-            if (time() * 1000 - up_time[0]) > 111.6:
+            if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
                     press_time[0] = int(time() * 1000)
-                if arr[12] == 1:  # 爆头简易压枪
-                    mouse_event(MOUSEEVENTF_MOVE, 0, 2, 0, 0)
+                if arr[12] == 1 or arr[14]:  # 简易压枪
+                    mouse_event(MOUSEEVENTF_MOVE, 0, 1, 0, 0)
         else:
-            if (time() * 1000 - press_time[0]) > 55:
+            if (time() * 1000 - press_time[0]) > 46.6:
                 if GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
                     up_time[0] = int(time() * 1000)
@@ -385,18 +393,21 @@ def control_mouse(a, b, fps_var, ranges, win_class):
 def check_status(exit0, mouse):
     if is_pressed('end'):
         exit0 = True
-    if is_pressed('1') or is_pressed('2'):
+    if is_pressed('1'):
         mouse = True
+        arr[15] = 1
+    if is_pressed('2'):
+        mouse = True
+        arr[15] = 2
     if is_pressed('3') or is_pressed('4'):
         mouse = False
+        arr[15] = 0
     if is_pressed('i'):
         arr[4] = 0
     if is_pressed('o'):
         arr[4] = 1
     if is_pressed('p'):
-        show_proc.terminate()
-        detect1_proc.terminate()
-        detect2_proc.terminate()
+        close()
         restart()
 
     return exit0, mouse
@@ -436,7 +447,7 @@ def detection1(que, array, frame_in):
                 frame1 = que.get_nowait()
                 que.task_done()
                 array[1] = 2
-                array[11], array[7], array[8], array[9], array[12], frame = Analysis1.detect(frame1)
+                array[11], array[7], array[8], array[9], array[12], array[14], frame = Analysis1.detect(frame1)
 
                 if array[4]:
                     frame_in.send(frame)
@@ -457,7 +468,7 @@ def detection2(que, array):
                 frame2 = que.get_nowait()
                 que.task_done()
                 array[2] = 2
-                array[11], array[7], array[8], array[9], array[12], frame = Analysis2.detect(frame2)
+                array[11], array[7], array[8], array[9], array[12], array[14], frame = Analysis2.detect(frame2)
             except (queue.Empty, TypeError):
                 continue
         array[2] = 1
@@ -516,7 +527,9 @@ if __name__ == '__main__':
     10 自瞄模式
     11 敌人数量
     12 瞄准位置
-    13
+    13 射击速度
+    14 敌人近否
+    15 所持武器
     '''
 
     show_proc = Process(target=show_frames, args=(frame_output, arr,))
@@ -530,7 +543,10 @@ if __name__ == '__main__':
     arr[9] = 0  # 鼠标开火r
     arr[10] = aim_mode  # 自瞄模式
     arr[11] = 0  # 敌人数量
-    arr[12] = 0  # 瞄准位置
+    arr[12] = 0  # 瞄准位置(0中1头2胸)
+    arr[13] = 1200  # 射击速度
+    arr[14] = 0  # 敌人近否
+    arr[15] = 0  # 所持武器(0无1主2副)
     detect1_proc = Process(target=detection1, args=(queue, arr, frame_input,))
     detect2_proc = Process(target=detection2, args=(queue, arr,))
 
@@ -577,7 +593,11 @@ if __name__ == '__main__':
 
         if win32gui.GetForegroundWindow() == window_hwnd:
             if arr[11] and move_mouse:
-                control_mouse(arr[7], arr[8], show_fps[0], arr[9], window_class_name)
+                if arr[15] == 1:
+                    arr[13] = (784 if arr[14] else 1534)
+                elif arr[15] == 2:
+                    arr[13] = (434 if arr[14] else 784)
+                control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, window_class_name)
 
         if arr[4]:
             try:
@@ -601,11 +621,9 @@ if __name__ == '__main__':
             arr[3] = int(show_fps[0])
 
         if move_mouse:
-            print(f'\033[0;30;42m FPS={show_fps[0]:06.2f}\033[0;30;43m 检测{arr[11]:02.0f}人\033[0;30;46m 瞄准{fire_target[arr[12]]}部\033[0m', end='\r')
+            print(f'\033[0;30;42m FPS={show_fps[0]:06.2f}\033[0;30;43m检测={arr[11]:02.0f}\033[0;30;46m瞄准={fire_target[arr[12]]}\033[0;30;47m射速={(10000/(arr[13]+466)):02.0f}\033[0m', end='\r')
         else:
-            print(f' FPS={show_fps[0]:06.2f} 检测{arr[11]:02.0f}人 瞄准{fire_target[arr[12]]}部', end='\r')
+            print(f' FPS={show_fps[0]:06.2f}检测={arr[11]:02.0f}瞄准={fire_target[arr[12]]}射速={(10000/(arr[13]+466)):02.0f}', end='\r')
 
-    detect1_proc.terminate()
-    detect2_proc.terminate()
-    show_proc.terminate()
+    close()
     exit(0)
