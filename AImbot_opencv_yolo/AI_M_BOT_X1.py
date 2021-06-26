@@ -594,9 +594,9 @@ if __name__ == '__main__':
         if win32gui.GetForegroundWindow() == window_hwnd:
             if arr[11] and move_mouse:
                 if arr[15] == 1:
-                    arr[13] = (784 if arr[14] else 1534)
+                    arr[13] = (784 if arr[14] or arr[12] != 1 else 1534)
                 elif arr[15] == 2:
-                    arr[13] = (434 if arr[14] else 784)
+                    arr[13] = (534 if arr[14] or arr[12] != 1 else 784)
                 control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, window_class_name)
 
         if arr[4]:
