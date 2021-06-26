@@ -596,9 +596,9 @@ if __name__ == '__main__':
             arr[3] = int(show_fps[0])
 
         if move_mouse:
-            print(f'\033[0;30;42m FPS={show_fps[0]:.2f}\033[0;30;43m 检测{arr[11]}人\033[0;30;46m 瞄准{fire_target[arr[12]]}部\033[0m', end='\r')
+            print(f'\033[0;30;42m FPS={show_fps[0]:06.2f}\033[0;30;43m 检测{arr[11]:02.0f}人\033[0;30;46m 瞄准{fire_target[arr[12]]}部\033[0m', end='\r')
         else:
-            print(f' FPS={show_fps[0]:.2f} 检测{arr[11]}人 瞄准{fire_target[arr[12]]}部', end='\r')
+            print(f' FPS={show_fps[0]:06.2f} 检测{arr[11]:02.0f}人 瞄准{fire_target[arr[12]]}部', end='\r')
 
     detect1_proc.terminate()
     # detect2_proc.terminate()
