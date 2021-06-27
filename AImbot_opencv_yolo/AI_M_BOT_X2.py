@@ -132,7 +132,7 @@ class FrameDetection:
 
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         if self.win_class_name == 'Valve001':
-            self.std_confidence = 0.4
+            self.std_confidence = 0.45
         elif self.win_class_name == 'CrossFire':
             self.std_confidence = 0.5
         else:
