@@ -245,15 +245,15 @@ class FrameDetection:
                 fire_close = (1 if frame_width / boxes[max_at][2] <= 6 else 0)
                 if abs(y1) <= abs(y2) or fire_close:
                     y = y1
-                    fire_range = ceil(boxes[max_at][2] / 5)  # 头宽约占肩宽二点五分之一
+                    fire_range = boxes[max_at][2] / 5  # 头宽约占肩宽二点五分之一
                     fire_pos = 1
                 else:
                     y = y2
-                    fire_range = ceil(boxes[max_at][2] / 3)
+                    fire_range = boxes[max_at][2] / 3
                     fire_pos = 2
             else:
                 y = boxes[max_at][1] + (boxes[max_at][3] - frame_height) / 2
-                fire_range = ceil(min(boxes[max_at][2], boxes[max_at][3]) / 2)
+                fire_range = min(boxes[max_at][2], boxes[max_at][3]) / 2
                 fire_pos = 0
 
         return len(indices), int(x), int(y), int(fire_range), fire_pos, fire_close, frames
@@ -371,7 +371,7 @@ def control_mouse(a, b, fps_var, ranges, rate, win_class):
 
     # 不分敌友射击
     if win_class != 'CrossFire':
-        if floor(sqrt(pow(a, 2) + pow(b, 2))) <= ranges:
+        if sqrt(pow(a, 2) + pow(b, 2)) <= ranges:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
