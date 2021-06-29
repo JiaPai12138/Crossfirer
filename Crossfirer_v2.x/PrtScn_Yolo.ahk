@@ -17,6 +17,7 @@ CheckPermission1()
 CheckWindow(win_class, win_title)
 MsgBox, %win_title% 出现!!!
 global CapSave = False
+global PrintedScn := 0
 If Not InStr(FileExist("Screenshots"), "D")
     FileCreateDir, Screenshots
 ;==================================================================================
@@ -24,10 +25,11 @@ If Not InStr(FileExist("Screenshots"), "D")
     SoundBeep, 1000, 300
     CapSave := !CapSave
     If CapSave
-        SetTimer, ShotAndSave, 2000
+        SetTimer, ShotAndSave, 3000
     Else
     {
         SetTimer, ShotAndSave, Off
+        PrintedScn := 0
         ToolTip, , , , 1
     }
 Return
@@ -62,11 +64,13 @@ ShotAndSave()
     }
     CheckPosition1(PX, PY, PW, PH, win_class)
     WH_Rate := Round(PW / PH, 3)
-    ToolTip, 正在截图中:%PX%|%PY%|%PW%|%PH% 比例%WH_Rate%:1, PX, PY, 1
+    show_PrintedScn := SubStr("000" . PrintedScn, -2)
+    ToolTip, 正在截图中:%PX%|%PY%|%PW%|%PH% 比例%WH_Rate%:1 数量%show_PrintedScn%, PX, PY, 1
     cap_zoom := (PX + PW // 2 - 304) . "|" . (PY + PH // 2 - 304) . "|" . 608 . "|" . 608
     If (win_class = "CrossFire") && (WH_Rate > 1.7)
         cap_zoom := (PX + PW // 2 - 405) . "|" . (PY + PH // 2 - 304) . "|" . 810 . "|" . 608
     Screenshot(A_ScriptDir . "\Screenshots\Screenshot_" . win_class . "_" . A_Now ".jpg", cap_zoom)
+    PrintedScn += 1
 }
 ;==================================================================================
 ;截图存图,screen: X|Y|W|H

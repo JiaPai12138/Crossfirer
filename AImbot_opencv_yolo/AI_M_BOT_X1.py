@@ -122,12 +122,14 @@ class FrameDetection:
     ln = ''
 
     # 构造函数
-    def __init__(self, aim_mode, hwnd_value, gpu_level):
-        if aim_mode == 1:  # 极速自瞄
+    def __init__(self, aim0mode, hwnd_value, gpu_level):
+        if aim0mode == 1:  # 极速自瞄
+            self.side_length = 320
+        elif aim0mode == 2:  # 标准自瞄
             self.side_length = 416
-        elif aim_mode == 2:  # 标准自瞄
+        elif aim0mode == 2:  # 标准自瞄
             self.side_length = 512
-        elif aim_mode == 3:  # 高精自瞄
+        elif aim0mode == 3:  # 高精自瞄
             self.side_length = 608
 
         self.win_class_name = win32gui.GetClassName(hwnd_value)
@@ -492,7 +494,7 @@ if __name__ == '__main__':
     # 选择分析输入大小
     aim_mode = 0
     while not (3 >= aim_mode >= 1):
-        user_input = input('你想要的自瞄模式是?(1:极速, 2:标准, 3:高精): ')
+        user_input = input('你想要的自瞄模式是?(1:极速, 2:高速, 3:标准, 4:高精): ')
         try:
             aim_mode = int(user_input)
         except ValueError:
