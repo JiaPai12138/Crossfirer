@@ -22,7 +22,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P5, Pos, %Gui_5%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round(He / 3.6) - P5H // 2)
+    SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, He // 3.6 - P5H // 2)
     Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     OnMessage(0x1001, "ReceiveMessage")
     OnMessage(0x1002, "ReceiveMessage")
@@ -55,7 +55,7 @@ Return
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
     Suspended()
-    SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, Round(He / 3.6) - P5H // 2)
+    SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, He // 3.6 - P5H // 2)
     Gui, click_mode: Show, x%XGui3% y%YGui3% NA
 Return
 

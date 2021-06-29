@@ -23,7 +23,7 @@ If WinExist("ahk_class CrossFire")
 
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2) ;避开狙击枪秒准线确认点
+    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, He // 8 - P3H // 2) ;避开狙击枪秒准线确认点
     Gui, C4: Show, Hide
 
     Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -34,7 +34,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, PH, Pos, %hero%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20
-    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2) ;避开狙击枪秒准线确认点
+    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, He // 8 - PHH // 2) ;避开狙击枪秒准线确认点
     Gui, Human_Hero: Show, Hide
     OnMessage(0x1001, "ReceiveMessage")
     OnMessage(0x1002, "ReceiveMessage")
@@ -76,8 +76,8 @@ Return
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
     Suspended()
-    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, Round(He / 8) - P3H // 2)
-    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, Round(He / 8) - PHH // 2)
+    SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, He // 8 - P3H // 2)
+    SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, He // 8 - PHH // 2)
     Gui, C4: Show, Hide
     Gui, Human_Hero: Show, Hide
     If Be_Hero
@@ -238,10 +238,10 @@ class C4Timer
     IsC4Time()
     {
         this.UpdatePos()
-        PixelSearch, ColorX, ColorY, this.X + this.W // 2 - Round(this.W / 20), this.Y + Round(this.H / 8), this.X + this.W // 2 + Round(this.W / 20), this.Y + Round(this.H / 4), 0x0096E3, 0, Fast ;#E39600 #0096E3
+        PixelSearch, ColorX, ColorY, this.X + this.W // 2 - this.W // 20, this.Y + this.H // 8, this.X + this.W // 2 + this.W // 20, this.Y + this.H // 4, 0x0096E3, 0, Fast ;#E39600 #0096E3
         If !ErrorLevel
         {
-            PixelSearch, ColorX, ColorY, this.X + this.W // 2 - Round(this.W / 20), this.Y + Round(this.H / 8), this.X + this.W // 2 + Round(this.W / 20), this.Y + Round(this.H / 4), 0xFFFFFF, 0, Fast ;#FFFFFF
+            PixelSearch, ColorX, ColorY, this.X + this.W // 2 - this.W // 20, this.Y + this.H // 8, this.X + this.W // 2 + this.W // 20, this.Y + this.H // 4, 0xFFFFFF, 0, Fast ;#FFFFFF
             Return !ErrorLevel
         }
         Else
@@ -252,11 +252,11 @@ class C4Timer
     {
         this.UpdatePos()
 
-        PixelSearch, IsDefX, IsDefY, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 非C4加速
+        PixelSearch, IsDefX, IsDefY, this.X + this.W // 2 - this.W // 8, this.Y + this.H // 1.25, this.X + this.W // 2 + this.W // 8, this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 非C4加速
         If !ErrorLevel
             Return True
 
-        PixelSearch, IsDefX1, IsDefY1, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0x4C81C7, 0, Fast ;#C7814C #4C81C7 C4加速
+        PixelSearch, IsDefX1, IsDefY1, this.X + this.W // 2 - this.W // 8, this.Y + this.H // 1.25, this.X + this.W // 2 + this.W // 8, this.Y + this.H, 0x4C81C7, 0, Fast ;#C7814C #4C81C7 C4加速
         If !ErrorLevel
             Return True
 
@@ -308,10 +308,10 @@ class E_Hero
         this.UpdatePos()
         If (Be_Hero && CF_Now.GetStatus() && WinActive("ahk_class CrossFire"))
         {
-            PixelSearch, HeroX1, HeroY1, this.X + this.W // 2 - Round(this.W / 20), this.Y + Round(this.H / 8.5), this.X + this.W // 2 + Round(this.W / 20), this.Y + Round(this.H / 6.5), 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
+            PixelSearch, HeroX1, HeroY1, this.X + this.W // 2 - this.W // 20, this.Y + this.H // 8.5, this.X + this.W // 2 + this.W // 20, this.Y + this.H // 6.5, 0xFFFFFF, 0, Fast ;#FFFFFF 猎手vs幽灵数字
             If !ErrorLevel
             {
-                PixelSearch, HeroX2, HeroY2, this.X + this.W // 2 - Round(this.W / 10), this.Y + Round(this.H / 3.1), this.X + this.W // 2 + Round(this.W / 10), this.Y + Round(this.H / 3), 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
+                PixelSearch, HeroX2, HeroY2, this.X + this.W // 2 - this.W // 10, this.Y + this.H // 3.1, this.X + this.W // 2 + this.W // 10, this.Y + this.H // 3, 0x1EB4FF, 0, Fast ;#FFB41E #1EB4FF 变猎手字样
                 If !ErrorLevel
                 {
                     press_key("e", 10, 10), this.IsHero := 1
@@ -334,7 +334,7 @@ class E_Hero
 				}
             }
 
-            PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - Round(this.W / 10), this.Y + Round(this.H / 4), this.X + this.W // 2 + Round(this.W / 10), this.Y + Round(this.H / 3), 0xB7780B, 0, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
+            PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - this.W // 10, this.Y + this.H // 4, this.X + this.W // 2 + this.W // 10, this.Y + this.H // 3, 0xB7780B, 0, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
             If !ErrorLevel
             {
                 Send, {Blind}{e Down}
@@ -352,7 +352,7 @@ class E_Hero
 					Send, {Blind}{e Up}
             }
 
-            PixelSearch, IsX, IsY, this.X + this.W // 2 - Round(this.W / 8), this.Y + Round(this.H * 0.8), this.X + this.W // 2 + Round(this.W / 8), this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 补充弹药进度或者吸血进度
+            PixelSearch, IsX, IsY, this.X + this.W // 2 - this.W // 8, this.Y + this.H // 1.25, this.X + this.W // 2 + this.W // 8, this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 补充弹药进度或者吸血进度
             If !ErrorLevel
             {
                 If !GetKeyState("e")

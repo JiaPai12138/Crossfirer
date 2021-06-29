@@ -21,7 +21,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P10, Pos, %Gui_10%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui10, YGui10, "H", -P10W // 2, Round(Hj / 18) - P10H // 2)
+    SetGuiPosition(XGui10, YGui10, "H", -P10W // 2, Hj // 18 - P10H // 2)
     Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
     OnMessage(0x1001, "ReceiveMessage")
     OnMessage(0x1002, "ReceiveMessage")
@@ -53,7 +53,7 @@ Return
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
     Suspended()
-    SetGuiPosition(XGui10, YGui10, "H", -P10W // 2, Round(Hj / 18) - P10H // 2)
+    SetGuiPosition(XGui10, YGui10, "H", -P10W // 2, Hj // 18 - P10H // 2)
     Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
 Return
 
@@ -141,11 +141,11 @@ Exit ;退出当前线程
         {
             确认死亡x := 0, 确认死亡y := 0, Boss_Come := 0, IsDead := 0
             CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
-            PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj * 0.39), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Round(Hj * 0.425), 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
+            PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Wj // 20, Yj + Round(Hj * 0.39), Xj + Wj // 2 + Wj // 20, Yj + Round(Hj * 0.425), 0x00FFFF, 0, Fast ;#FFFF00 #00FFFF 确认死亡
             If !ErrorLevel
                 IsDead += 1
 
-            PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Round(Wj * 0.05), Yj + Round(Hj * 0.39), Xj + Wj // 2 + Round(Wj * 0.05), Yj + Round(Hj * 0.425), 0x00E4E4, 0, Fast ;#E4E400 #00E4E4 确认死亡
+            PixelSearch, 确认死亡x, 确认死亡y, Xj + Wj // 2 - Wj // 20, Yj + Round(Hj * 0.39), Xj + Wj // 2 + Wj // 20, Yj + Round(Hj * 0.425), 0x00E4E4, 0, Fast ;#E4E400 #00E4E4 确认死亡
             If !ErrorLevel
                 IsDead += 1
 
@@ -160,24 +160,24 @@ Exit ;退出当前线程
             Else
                 Char_Dead := False
 
-            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x2E619A, 0, Fast ;#9A612E #2E619A 确认Boss
+            PixelSearch, Boss_x, Boss_y, Xj + Wj // 2.5, Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Hj // 5, 0x2E619A, 0, Fast ;#9A612E #2E619A 确认Boss
             If !ErrorLevel
                 Boss_Come := 1
 
-            PixelSearch, Boss_x, Boss_y, Xj + Round(Wj * 0.4), Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Round(Hj * 0.2), 0x0947C4, 0, Fast ;#C44709 #0947C4 确认黄金Boss
+            PixelSearch, Boss_x, Boss_y, Xj + Wj // 2.5, Yj + Round(Hj * 0.14), Xj + Round(Wj * 0.44), Yj + Hj // 5, 0x0947C4, 0, Fast ;#C44709 #0947C4 确认黄金Boss
             If !ErrorLevel
                 Boss_Come := 2
 
             Send, {Blind}{LAlt Up} ;偶发按键影响
 
-            PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
+            PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Wj // 32, Yj + Hj // 5, Xj + Wj // 2 + Wj // 32, Yj + Hj // 4, 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
             If !ErrorLevel
                 press_key("~", 30, 30) ;退出佣兵管理界面
 
             If !Mod(A_Sec, 12) && !Char_Dead && !Boss_Come ;增强佣兵
             {
                 press_key("~", 30, 30)
-                PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Round(Wj // 32), Yj + Round(Hj * 0.2), Xj + Wj // 2 + Round(Wj // 32), Yj + Round(Hj * 0.25), 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
+                PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Wj // 32, Yj + Hj // 5, Xj + Wj // 2 + Wj // 32, Yj + Hj // 4, 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
                 If !ErrorLevel
                 {
                     If Mod(A_Min, 2)
@@ -247,7 +247,7 @@ Exit ;退出当前线程
                     Lose_Boss := 0
                     Found_Boss := True
                     LRMoveX := (Boss_x1 - (Xj + Wj // 2)) // 4
-                    LRMoveY := (Boss_y1 - (Yj + Round(Hj * 0.666))) // 7 ;枪口上抬
+                    LRMoveY := (Boss_y1 - (Yj + Hj / 1.5)) // 7 ;枪口上抬
                     ToolTip, 锁定Boss 鼠标移动%LRMoveX%|%LRMoveY%, Xj, , 17
                 }
                 Else If ErrorLevel && Found_Boss
@@ -286,13 +286,13 @@ Exit ;退出当前线程
             Time_Sec := SubStr("00" . Time_Sec, -1) ;格式
             ToolTip, 目前用时约: %Time_Minute%分%Time_Sec%秒, Xj, Yj, 18
 
-            PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
+            PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Wj // 20, Yj + Round(Hj * 0.54), Xj + Wj // 2 + Wj // 20, Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
             If !ErrorLevel
             {
                 Loop
                 {
                     ClickWait(0.44, 0.765)
-                    PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Round(Wj / 20), Yj + Round(Hj * 0.54), Xj + Wj // 2 + Round(Wj / 20), Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
+                    PixelSearch, 升级x, 升级y, Xj + Wj // 2 - Wj // 20, Yj + Round(Hj * 0.54), Xj + Wj // 2 + Wj // 20, Yj + Round(Hj * 0.62), 0x00D4FF, 0, Fast ;#FFD400 #00D4FF 挑战升级
                 } Until, CF_Now.GetStatus() = 0 || JumpLoop() || ErrorLevel
             }
 
@@ -311,7 +311,7 @@ Exit ;退出当前线程
             Loop
             {
                 press_key("Esc", 100, 100)
-                PixelSearch, ESCx, ESCy, Xj + Wj // 2 - Round(Wj / 32), Yj + Round(Hj / 3), Xj + Wj // 2 + Round(Wj / 32), Yj + Round(Hj / 2.25), 0xFAFEFF, 0, Fast ;#FFFEFA #FAFEFF Esc目录
+                PixelSearch, ESCx, ESCy, Xj + Wj // 2 - Wj // 32, Yj + Hj // 3, Xj + Wj // 2 + Wj // 32, Yj + Hj // 2.25, 0xFAFEFF, 0, Fast ;#FFFEFA #FAFEFF Esc目录
             } Until !ErrorLevel
             press_key("Enter", 100, 100)
             press_key("Enter", 100, 100)
@@ -343,7 +343,7 @@ Exit ;退出当前线程
             ClickWait(0.8125, 0.805) ;选择模式
             ClickWait(0.4125, 0.141) ;挑战模式
             ClickWait(0.1, 0.25) ;无尽挑战
-            PixelSearch, 地图选择x, 地图选择y, Xj + Wj // 2 - Round(Wj / 16), Yj, Xj + Wj // 2 + Round(Wj / 16), Yj + Round(Hj / 9), 0x4CCDFF, 0, Fast ;#FFCD4C #4CCDFF
+            PixelSearch, 地图选择x, 地图选择y, Xj + Wj // 2 - Wj // 16, Yj, Xj + Wj // 2 + Wj // 16, Yj + Hj // 9, 0x4CCDFF, 0, Fast ;#FFCD4C #4CCDFF
         } Until, (地图选择x > 0 && 地图选择y > 0) || JumpLoop()
 
         Loop
@@ -377,7 +377,7 @@ Exit ;退出当前线程
     Loop
     {
         ClickWait(0.589, 0.913) ;确认称号
-        PixelSearch, 称号升级X, 称号升级Y, Xj + Wj // 2 - Round(Wj / 8), Yj + Hj // 2 - Round(Hj / 20), Xj + Wj // 2 + Round(Wj / 8), Yj + Hj // 2 + Round(Hj / 20), 0xFF972F, 0, Fast ;#2F97FF #FF972F
+        PixelSearch, 称号升级X, 称号升级Y, Xj + Wj // 2 - Wj // 8, Yj + Hj // 2 - Hj // 20, Xj + Wj // 2 + Wj // 8, Yj + Hj // 2 + Hj // 20, 0xFF972F, 0, Fast ;#2F97FF #FF972F
         If ErrorLevel
             称号升级 := False
     } Until, JumpLoop() || !称号升级
@@ -387,7 +387,7 @@ Exit ;退出当前线程
     Loop
     {
         ClickWait(0.51, 0.63) ;确认军衔
-        PixelSearch, 军衔提升X, 军衔提升Y, Xj + Round(Wj / 2.1), Yj + Round(Hj / 2.7), Xj + Round(Wj / 1.5), Yj + Round(Hj / 2.4), 0x91FFFF, 0, Fast ;#FFFF91 #91FFFF
+        PixelSearch, 军衔提升X, 军衔提升Y, Xj + Wj // 2.1, Yj + Hj // 2.7, Xj + Wj // 1.5, Yj + Hj // 2.4, 0x91FFFF, 0, Fast ;#FFFF91 #91FFFF
         If ErrorLevel
             军衔提升 := False
     } Until, JumpLoop() || !军衔提升

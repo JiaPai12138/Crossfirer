@@ -269,13 +269,13 @@ In_Game(CF_Title)
     Load_000000 := Create_000000_png()
     If CF_Title = 穿越火线
     {
-        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x7A91B1, 0, Fast ;show color in editor: #B1917A #7A91B1
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1 // 4, Y1 + H1 // 9, 0x7A91B1, 0, Fast ;show color in editor: #B1917A #7A91B1
         If !ErrorLevel
         {
-            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B4341, 0, Fast ;show color in editor: #41434B #4B4341
+            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1 // 4, Y1 + H1 // 9, 0x4B4341, 0, Fast ;show color in editor: #41434B #4B4341
             If !ErrorLevel
             {
-                PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x676665, 0, Fast ;show color in editor: #656667 #676665
+                PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1 // 4, Y1 + H1 // 9, 0x676665, 0, Fast ;show color in editor: #656667 #676665
                 If !ErrorLevel
                     Return 0 ;在游戏开始界面
             }
@@ -285,19 +285,19 @@ In_Game(CF_Title)
         If !ErrorLevel
             Return 2 ;无尽挑战黑暗中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0x89876C, 0, Fast ;#6C8789 #89876C
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 8, Y1, X1 + W1 // 2 + W1 // 8, Y1 + H1 // 18, 0x89876C, 0, Fast ;#6C8789 #89876C
         If !ErrorLevel
             Return 1 ;非挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xBDBDBD, 0, Fast ;#BDBDBD
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 8, Y1, X1 + W1 // 2 + W1 // 8, Y1 + H1 // 18, 0xBDBDBD, 0, Fast ;#BDBDBD
         If !ErrorLevel
             Return 1 ;个人竞技
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 8, Y1, X1 + W1 // 2 + W1 // 8, Y1 + H1 // 18, 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
         If !ErrorLevel
             Return 2 ;挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xB6B6B6, 0, Fast ;#B6B6B6
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 8, Y1, X1 + W1 // 2 + W1 // 8, Y1 + H1 // 18, 0xB6B6B6, 0, Fast ;#B6B6B6
         If !ErrorLevel
             Return 1 ;人机爆破
 
@@ -305,13 +305,13 @@ In_Game(CF_Title)
     }
     Else If CF_Title = CROSSFIRE
     {
-        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x959B95, 0, Fast ;show color in editor: #959B95
+        PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1 // 4, Y1 + H1 // 9, 0x959B95, 0, Fast ;show color in editor: #959B95
         If !ErrorLevel
         {
-            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x3C4B61, 0, Fast ;show color in editor: #614B3C #3C4B61
+            PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1 // 4, Y1 + H1 // 9, 0x3C4B61, 0, Fast ;show color in editor: #614B3C #3C4B61
             If !ErrorLevel
             {
-                PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + Round(W1 / 4), Y1 + Round(H1 / 9), 0x4B53F4, 0, Fast ;show color in editor: #F4534B #4B53F4
+                PixelSearch, OutputVarX, OutputVarY, X1, Y1, X1 + W1 // 4, Y1 + H1 // 9, 0x4B53F4, 0, Fast ;show color in editor: #F4534B #4B53F4
                 If !ErrorLevel
                     Return 0 ;在游戏开始界面
             }
@@ -321,19 +321,19 @@ In_Game(CF_Title)
         If !ErrorLevel
             Return 2 ;无尽挑战黑暗中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 18), 0x89876C, 0, Fast ;#6C8789 #89876C
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 6, Y1, X1 + W1 // 2 + W1 // 6, Y1 + H1 // 18, 0x89876C, 0, Fast ;#6C8789 #89876C
         If !ErrorLevel
             Return 1 ;非挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 8), Y1, X1 + W1 // 2 + Round(W1 / 8), Y1 + Round(H1 / 18), 0xBDBDBD, 0, Fast ;#BDBDBD
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 8, Y1, X1 + W1 // 2 + W1 // 8, Y1 + H1 // 18, 0xBDBDBD, 0, Fast ;#BDBDBD
         If !ErrorLevel
             Return 1 ;个人竞技
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 18), 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 6, Y1, X1 + W1 // 2 + W1 // 6, Y1 + H1 // 18, 0xEBE6CA, 0, Fast ;#CAE6EB #EBE6CA
         If !ErrorLevel
             Return 2 ;挑战房间中
 
-        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - Round(W1 / 6), Y1, X1 + W1 // 2 + Round(W1 / 6), Y1 + Round(H1 / 18), 0xB6B6B6, 0, Fast ;#B6B6B6
+        PixelSearch, OutputVarX, OutputVarY, X1 + W1 // 2 - W1 // 6, Y1, X1 + W1 // 2 + W1 // 6, Y1 + H1 // 18, 0xB6B6B6, 0, Fast ;#B6B6B6
         If !ErrorLevel
             Return 1 ;人机爆破
 
@@ -646,7 +646,7 @@ Is_Chatting()
     Else If cftitle = CROSSFIRE
         Chat_Color := "0x43FFFF" ;#FFFF43
     CheckPosition(controlX, controlY, controlW, controlH, "CrossFire")
-    PixelSearch, chatx, chaty, controlX, controlY + Round(controlH * 0.6), controlX + Round(controlW / 16), controlY + Round(controlH / 1.2), %Chat_Color%, 0, Fast
+    PixelSearch, chatx, chaty, controlX, controlY + controlH // 1.67, controlX + controlW // 16, controlY + controlH // 1.2, %Chat_Color%, 0, Fast
     If !ErrorLevel
         Return True
     Return False

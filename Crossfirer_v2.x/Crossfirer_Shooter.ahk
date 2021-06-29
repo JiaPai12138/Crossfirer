@@ -23,7 +23,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P1, Pos, %Gui_1%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 10) - P1W // 2, Round(ValueH / 9) - P1H // 2)
+    SetGuiPosition(XGui1, YGui1, "M", -ValueW // 10 - P1W // 2, ValueH // 9 - P1H // 2)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
 
     Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -34,7 +34,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P2, Pos, %Gui_2%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 10) - P2W // 2, Round(ValueH / 7.2) - P2H // 2)
+    SetGuiPosition(XGui2, YGui2, "M", -ValueW // 10 - P2W // 2, ValueH // 7.2 - P2H // 2)
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
 
     Gui, cross_hair: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcr -DPIScale, Listening
@@ -93,8 +93,8 @@ Return
 ~*RAlt::
     Suspend, Off ;恢复热键,双保险
     Suspended()
-    SetGuiPosition(XGui1, YGui1, "M", -Round(ValueW / 10) - P1W // 2, Round(ValueH / 9) - P1H // 2)
-    SetGuiPosition(XGui2, YGui2, "M", -Round(ValueW / 10) - P2W // 2, Round(ValueH / 7.2) - P2H // 2)
+    SetGuiPosition(XGui1, YGui1, "M", -ValueW // 10 - P1W // 2, ValueH // 9 - P1H // 2)
+    SetGuiPosition(XGui2, YGui2, "M", -ValueW // 10 - P2W // 2, ValueH // 7.2 - P2H // 2)
     SetGuiPosition(Xch, Ych, "M", -34, -35)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
@@ -349,11 +349,11 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     HyperSleep(1) ;减小平均cpu占用
     If game_title = CROSSFIRE ;检测客户端标题来确定检测位置和颜色库
     {
-        PixelSearch, ColorX, ColorY, X + W // 2 - Round(W / 20), Y + H // 2, X + W // 2 + Round(W / 20), Y + H // 2 + Round(H / 15 * 2), %PosColor_NA_red%, 0, Fast
+        PixelSearch, ColorX, ColorY, X + W // 2 - W // 20, Y + H // 2, X + W // 2 + W // 20, Y + H // 2 + H // 7.5, %PosColor_NA_red%, 0, Fast
         Return !ErrorLevel
     }
     Else If game_title = 穿越火线
-        Return GetColorStatus(X + Var, Y + (H // 2) + Round(H / 15), PosColor_red) ;图形界面一半+到红名的距离, 510 对应 1600*900
+        Return GetColorStatus(X + Var, Y + H // 2 + H // 15, PosColor_red) ;图形界面一半+到红名的距离, 510 对应 1600*900
 }
 ;==================================================================================
 ;检测是否退出模式,由按键触发
@@ -374,11 +374,11 @@ CheckSnipe(Xvar, Yvar, Wvar, Hvar)
     global Snipe_000000
     If Wvar >= 1280
     {
-        ImageSearch, sp_x, sp_y, (Xvar + Wvar // 2) - 3, Yvar + Hvar // 2, (Xvar + Wvar // 2) + 3, Yvar + Hvar // 2 + Round(Hvar / 9 * 2), HBITMAP:*%Snipe_000000% ;检测狙击镜准心 #000000
+        ImageSearch, sp_x, sp_y, Xvar + Wvar // 2 - 3, Yvar + Hvar // 2, Xvar + Wvar // 2 + 3, Yvar + Hvar // 2 + Hvar // 4.5, HBITMAP:*%Snipe_000000% ;检测狙击镜准心 #000000
         Return !ErrorLevel
     }
     Else
-        Return GetColorStatus(Xvar + (Wvar // 2) + 1, Yvar + (Hvar // 2) + Round(Hvar / 9 * 2), "0x000000")
+        Return GetColorStatus(Xvar + Wvar // 2 + 1, Yvar + Hvar // 2 + Hvar // 4.5), "0x000000")
     Return False
 }
 ;==================================================================================

@@ -66,9 +66,9 @@ ShotAndSave()
     WH_Rate := Round(PW / PH, 3)
     show_PrintedScn := SubStr("000" . PrintedScn, -2)
     ToolTip, 正在截图中:%PX%|%PY%|%PW%|%PH% 比例%WH_Rate%:1 数量%show_PrintedScn%, PX, PY, 1
-    cap_zoom := (PX + PW // 2 - 304) . "|" . (PY + PH // 2 - 304) . "|" . 608 . "|" . 608
+    cap_zoom := (PX + PW // 2 - PH // 2) . "|" . PY . "|" . PH . "|" . PH
     If (win_class = "CrossFire") && (WH_Rate > 1.7)
-        cap_zoom := (PX + PW // 2 - 405) . "|" . (PY + PH // 2 - 304) . "|" . 810 . "|" . 608
+        cap_zoom := (PX + PW // 2 - PH * 2 // 3) . "|" . PY . "|" . PH * 4 // 3 . "|" . PH
     Screenshot(A_ScriptDir . "\Screenshots\Screenshot_" . win_class . "_" . A_Now ".jpg", cap_zoom)
     PrintedScn += 1
 }

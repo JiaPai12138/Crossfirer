@@ -14,7 +14,7 @@ Hole =
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xrs, Yrs, Wrs, Hrs, "CrossFire")
-    Radius := Round(Hrs / 18)
+    Radius := Hrs // 18
     Diameter := 2 * Radius
     Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
@@ -24,7 +24,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P6, Pos, %Gui_6%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 10) - P6W // 2, Round(Hrs / 9) - P6H // 2)
+    SetGuiPosition(XGui5, YGui5, "M", Wrs // 10 - P6W // 2, Hrs // 9 - P6H // 2)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
 
     Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
@@ -35,7 +35,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P7, Pos, %Gui_7%
     WinSet, TransColor, 333333 255 ;#333333
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
-    SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 10) - P7W // 2, Round(Hrs / 7.2) - P7H // 2)
+    SetGuiPosition(XGui6, YGui6, "M", Wrs // 10 - P7W // 2, Hrs // 7.2 - P7H // 2)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
 
     Gui, circle: New, +lastfound +ToolWindow -Caption +AlwaysOnTop +Hwndcc -DPIScale, Listening
@@ -87,9 +87,9 @@ Return
 ~*RAlt::
     Suspend, Off ;双保险
     Suspended()
-    SetGuiPosition(XGui5, YGui5, "M", Round(Wrs / 10) - P6W // 2, Round(Hrs / 9) - P6H // 2)
+    SetGuiPosition(XGui5, YGui5, "M", Wrs // 10 - P6W // 2, Hrs // 9 - P6H // 2)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
-    SetGuiPosition(XGui6, YGui6, "M", Round(Wrs / 10) - P7W // 2, Round(Hrs / 7.2) - P7H // 2)
+    SetGuiPosition(XGui6, YGui6, "M", Wrs // 10 - P7W // 2, Hrs // 7.2 - P7H // 2)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA
 Return
 
