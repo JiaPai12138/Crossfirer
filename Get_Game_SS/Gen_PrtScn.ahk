@@ -18,14 +18,14 @@ CheckWindow(win_class, win_title)
 MsgBox, %win_title% 出现!!!
 global CapSave = False
 global PrintedScn := 0
-If Not InStr(FileExist("Screenshots"), "D")
-    FileCreateDir, Screenshots
+If Not InStr(FileExist("游戏截图"), "D")
+    FileCreateDir, 游戏截图
 ;==================================================================================
 ~*PrintScreen Up::
     SoundBeep, 1000, 300
     CapSave := !CapSave
     If CapSave
-        SetTimer, ShotAndSave, 3000
+        SetTimer, ShotAndSave, 2400
     Else
     {
         SetTimer, ShotAndSave, Off
@@ -50,7 +50,6 @@ CheckWindow(ByRef ClassName, ByRef TitleName)
             confirmed = True
             ClassName := Class_Name, TitleName := Title_Name
     } Until (confirmed && ClassName && TitleName)
-    ;CrossFire Valve001 LaunchUnrealUWindowsClient
 }
 ;==================================================================================
 ;重复截图
@@ -64,13 +63,13 @@ ShotAndSave()
     }
     CheckPosition1(PX, PY, PW, PH, win_class)
     WH_Rate := Round(PW / PH, 3)
+    PrintedScn += 1
     show_PrintedScn := SubStr("000" . PrintedScn, -2)
     ToolTip, 正在截图中:%PX%|%PY%|%PW%|%PH% 比例%WH_Rate%:1 数量%show_PrintedScn%, PX, PY, 1
     cap_zoom := (PX + PW // 2 - PH // 2) . "|" . PY . "|" . PH . "|" . PH
     If (win_class = "CrossFire") && (WH_Rate > 1.7)
         cap_zoom := (PX + PW // 2 - PH * 2 // 3) . "|" . PY . "|" . PH * 4 // 3 . "|" . PH
-    Screenshot(A_ScriptDir . "\Screenshots\Screenshot_" . win_class . "_" . A_Now ".jpg", cap_zoom)
-    PrintedScn += 1
+    Screenshot(A_ScriptDir . "\游戏截图\Screenshot_" . win_class . "_" . A_TickCount * A_MSec + A_NowUTC . ".jpg", cap_zoom)
 }
 ;==================================================================================
 ;截图存图,screen: X|Y|W|H
