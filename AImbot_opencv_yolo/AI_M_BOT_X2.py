@@ -603,7 +603,7 @@ if __name__ == '__main__':
                 if win_cap.get_window_left() > 0:
                     if window_class_name == 'CrossFire' and screenshot.shape[0] / screenshot.shape[1] > 1.7:
                         screenshot.shape[0] *= 3/4
-                    arr[5] = (100 if win_cap.get_window_left() - 30 < 100 else win_cap.get_window_left() - 30)
+                    arr[5] = (100 if win_cap.get_window_left() - 10 < 100 else win_cap.get_window_left() - 10)
                 else:
                     arr[4] = 0  # 全屏或屏幕靠左不显示效果
             except pywintypes.error:
