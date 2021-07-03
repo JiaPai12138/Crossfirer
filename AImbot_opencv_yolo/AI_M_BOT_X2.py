@@ -268,9 +268,9 @@ def check_gpu(level):
     info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
     memory_total = info.total / 1024 / 1024
     nvidia_smi.nvmlShutdown()
-    if level == 1 and memory_total > 4092:  # 正常值为4096,减少损耗误报
+    if level == 1 and memory_total > 4000:  # 正常值为4096,减少损耗误报
         return True
-    elif level == 2 and memory_total > 6140:  # 正常值为6144,减少损耗误报
+    elif level == 2 and memory_total > 6000:  # 正常值为6144,减少损耗误报
         return True
     return False
 
