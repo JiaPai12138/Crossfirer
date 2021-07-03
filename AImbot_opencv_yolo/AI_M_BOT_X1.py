@@ -426,10 +426,7 @@ def show_frames(output_pipe, array):
         show_img = output_pipe.recv()
         try:
             if show_img.any():
-                try:
-                    show_img = cv2.resize(show_img, (show_img.shape[1] // array[5], show_img.shape[0] // array[5]))
-                except ZeroDivisionError:
-                    show_img = cv2.resize(show_img, (show_img.shape[1] // temp_division, show_img.shape[0] // temp_division))
+                show_img = cv2.resize(show_img, (array[5], array[5]))
                 cv2.putText(show_img, str(array[3]), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)
                 cv2.imshow('Show frame', show_img)
                 cv2.waitKey(1)
@@ -606,7 +603,7 @@ if __name__ == '__main__':
                 if win_cap.get_window_left() > 0:
                     if window_class_name == 'CrossFire' and screenshot.shape[0] / screenshot.shape[1] > 1.7:
                         screenshot.shape[0] *= 3/4
-                    arr[5] = int(ceil(screenshot.shape[0] / win_cap.get_window_left()))
+                    arr[5] = (100 if win_cap.get_window_left() - 30 < 100 else win_cap.get_window_left() - 30)
                 else:
                     arr[4] = 0  # 全屏或屏幕靠左不显示效果
             except pywintypes.error:
