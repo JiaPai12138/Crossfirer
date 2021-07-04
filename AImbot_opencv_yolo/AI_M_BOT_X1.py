@@ -379,7 +379,7 @@ def control_mouse(a, b, fps_var, ranges, rate, win_class):
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
-                    mouse_event(MOUSEEVENTF_MOVE, 0, 1, 0, 0)
+                    mouse_event(MOUSEEVENTF_MOVE, 0, 2, 0, 0)
         else:
             if (time() * 1000 - press_time[0]) > 46.6:
                 if GetAsyncKeyState(VK_LBUTTON):
