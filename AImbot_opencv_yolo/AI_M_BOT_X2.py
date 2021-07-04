@@ -247,11 +247,11 @@ class FrameDetection:
                 fire_close = (1 if frame_width / boxes[max_at][2] <= 8 else 0)
                 if abs(y1) <= abs(y2) or fire_close:
                     y = y1
-                    fire_range = boxes[max_at][2] / 5  # 头宽约占肩宽二点五分之一
+                    fire_range = boxes[max_at][2] / 9
                     fire_pos = 1
                 else:
                     y = y2
-                    fire_range = boxes[max_at][2] / 3
+                    fire_range = boxes[max_at][2] / 4
                     fire_pos = 2
             else:
                 y = boxes[max_at][1] + (boxes[max_at][3] - frame_height) / 2
