@@ -244,7 +244,7 @@ class FrameDetection:
             if boxes[max_at][3] / boxes[max_at][2] > 1.5:
                 y1 = boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2  # 爆头优先
                 y2 = boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2  # 击中优先
-                fire_close = (1 if frame_width / boxes[max_at][2] <= 10 else 0)
+                fire_close = (1 if frame_width / boxes[max_at][2] <= 8 else 0)
                 if abs(y1) <= abs(y2) or fire_close:
                     y = y1
                     fire_range = boxes[max_at][2] / 5  # 头宽约占肩宽二点五分之一
