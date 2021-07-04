@@ -241,7 +241,7 @@ class FrameDetection:
 
             # 指向距离最近威胁的位移
             x = boxes[max_at][0] + (boxes[max_at][2] - frame_width) / 2
-            if boxes[max_at][3] / boxes[max_at][2] > 1.5:
+            if boxes[max_at][3] > boxes[max_at][2]:
                 y1 = boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2  # 爆头优先
                 y2 = boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2  # 击中优先
                 fire_close = (1 if frame_width / boxes[max_at][2] <= 8 else 0)
