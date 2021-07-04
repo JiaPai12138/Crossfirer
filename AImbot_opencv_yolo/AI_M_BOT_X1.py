@@ -21,6 +21,7 @@ from sys import exit, executable
 from time import sleep, time
 from platform import release
 from statistics import mean
+from random import uniform
 import queue
 import numpy as np
 import cv2
@@ -356,24 +357,26 @@ def clear():
 
 # 移动鼠标(并射击)
 def control_mouse(a, b, fps_var, ranges, rate, win_class):
+    move_range = sqrt(pow(a, 2) + pow(b, 2))
     if fps_var:
-        if win_class == 'CrossFire':
-            x0 = a / 4 / (fps_var / 21.6)  # 32
-            y0 = b / 4 / (fps_var / 16.2)
-        elif win_class == 'Valve001':
-            x0 = a / 1.56 / (fps_var / 36)  # 2.5
-            y0 = b / 1.56 / (fps_var / 27)
-        elif win_class == 'LaunchCombatUWindowsClient':
-            x0 = a / (fps_var / 24)  # 10.0
-            y0 = b / (fps_var / 18)
-        else:
-            x0 = a / (fps_var / 20)
-            y0 = b / (fps_var / 15)
+        if move_range > 5 * ranges:
+            a = uniform(0.8 * a, 1.2 * a)
+            b = uniform(0.8 * b, 1.2 * b)
+        x0 = {
+            'CrossFire': a / 4 / (fps_var / 21.6),  # 32
+            'Valve001': a / 1.56 / (fps_var / 36),  # 2.5
+            'LaunchCombatUWindowsClient': a / (fps_var / 24),  # 10.0
+        }.get(win_class, a / (fps_var / 20))
+        y0 = {
+            'CrossFire': b / 4 / (fps_var / 16.2),  # 32
+            'Valve001': b / 1.56 / (fps_var / 27),  # 2.5
+            'LaunchCombatUWindowsClient': b / (fps_var / 18),  # 10.0
+        }.get(win_class, b / (fps_var / 15))
         mouse_event(MOUSEEVENTF_MOVE, int(round(x0)), int(round(y0)), 0, 0)
 
     # 不分敌友射击
     if win_class != 'CrossFire':
-        if sqrt(pow(a, 2) + pow(b, 2)) <= ranges:
+        if move_range <= ranges:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
