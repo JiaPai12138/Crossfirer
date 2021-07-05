@@ -22,6 +22,7 @@ from time import sleep, time
 from platform import release
 from statistics import mean
 from random import uniform
+from reprint import output
 import queue
 import numpy as np
 import cv2
@@ -124,9 +125,9 @@ class FrameDetection:
 
     # 构造函数
     def __init__(self, aim0mode, hwnd_value, gpu_level):
-        if aim0mode == 1:  # 极速自瞄
-            self.side_length = 320
-        elif aim0mode == 2:  # 标准自瞄
+        # if aim0mode == 1:  # 极速自瞄
+        #     self.side_length = 320
+        if aim0mode == 1:  # 高速自瞄
             self.side_length = 416
         elif aim0mode == 2:  # 标准自瞄
             self.side_length = 512
@@ -175,7 +176,7 @@ class FrameDetection:
             return
 
         # 初始化返回数值
-        x, y, fire_range, fire_pos, fire_close = 0, 0, 0, 0, 0
+        x, y, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
 
         # 画实心框避免错误检测武器与手
         if self.win_class_name == 'CrossFire':
@@ -226,7 +227,7 @@ class FrameDetection:
                 cv2.putText(frames, str(round(confidences[j], 3)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2, cv2.LINE_AA)
 
                 # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
-                if h / w > 1.5:
+                if h > w:
                     dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * 3/16), 2))
                 else:
                     dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 2), 2))
@@ -259,7 +260,11 @@ class FrameDetection:
                 fire_range = min(boxes[max_at][2], boxes[max_at][3]) / 2
                 fire_pos = 0
 
-        return len(indices), int(x), int(y), int(fire_range), fire_pos, fire_close, frames
+            # 查看是否已经指向目标
+            if 1/4 * boxes[max_at][2] < frame_width / 2 - boxes[max_at][0] < 3/4 * boxes[max_at][2] and 1/12 * boxes[max_at][3] < frame_height / 2 - boxes[max_at][1] < 11/12 * boxes[max_at][3]:
+                fire_ok = 1
+
+        return len(indices), int(x), int(y), int(fire_range), fire_pos, fire_close, fire_ok, frames
 
 
 # 简单检查gpu是否够格
@@ -356,12 +361,12 @@ def clear():
 
 
 # 移动鼠标(并射击)
-def control_mouse(a, b, fps_var, ranges, rate, win_class):
+def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class):
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     if fps_var:
         if move_range > 5 * ranges:
-            a = uniform(0.8 * a, 1.2 * a)
-            b = uniform(0.8 * b, 1.2 * b)
+            a = uniform(0.9 * a, 1.1 * a)
+            b = uniform(0.5 * b, 1.5 * b)
         x0 = {
             'CrossFire': a / 4 / (fps_var / 21.6),  # 32
             'Valve001': a / 1.56 / (fps_var / 36),  # 2.5
@@ -376,7 +381,7 @@ def control_mouse(a, b, fps_var, ranges, rate, win_class):
 
     # 不分敌友射击
     if win_class != 'CrossFire':
-        if move_range <= ranges:
+        if move_range <= ranges or go_fire:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
@@ -449,7 +454,7 @@ def detection1(que, array, frame_in):
                 frame1 = que.get_nowait()
                 que.task_done()
                 array[1] = 2
-                array[11], array[7], array[8], array[9], array[12], array[14], frame = Analysis1.detect(frame1)
+                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis1.detect(frame1)
 
                 if array[4]:
                     frame_in.send(frame)
@@ -470,7 +475,7 @@ def detection2(que, array):
                 frame2 = que.get_nowait()
                 que.task_done()
                 array[2] = 2
-                array[11], array[7], array[8], array[9], array[12], array[14], frame = Analysis2.detect(frame2)
+                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis2.detect(frame2)
             except (queue.Empty, TypeError):
                 continue
         array[2] = 1
@@ -494,7 +499,7 @@ if __name__ == '__main__':
     # 选择分析输入大小
     aim_mode = 0
     while not (3 >= aim_mode >= 1):
-        user_input = input('你想要的自瞄模式是?(1:极速, 2:高速, 3:标准, 4:高精): ')
+        user_input = input('你想要的自瞄模式是?(1:高速, 2:标准, 3:高精): ')
         try:
             aim_mode = int(user_input)
         except ValueError:
@@ -532,6 +537,7 @@ if __name__ == '__main__':
     13 射击速度
     14 敌人近否
     15 所持武器
+    16 指向身体
     '''
 
     show_proc = Process(target=show_frames, args=(frame_output, arr,))
@@ -549,6 +555,7 @@ if __name__ == '__main__':
     arr[13] = 1200  # 射击速度
     arr[14] = 0  # 敌人近否
     arr[15] = 0  # 所持武器(0无1主2副)
+    arr[16] = 0  # 指向身体
     detect1_proc = Process(target=detection1, args=(queue, arr, frame_input,))
     detect2_proc = Process(target=detection2, args=(queue, arr,))
 
@@ -578,54 +585,62 @@ if __name__ == '__main__':
     # 清空命令指示符面板
     clear()
 
-    while True:
-        ini_sct_time = time()  # 计时
-        screenshot = win_cap.get_screenshot()  # 截屏
-        try:
-            screenshot.any()
-        except AttributeError:
-            break
-        queue.put_nowait(screenshot)
-        queue.join()
-
-        exit_program, move_mouse = check_status(exit_program, move_mouse)
-
-        if exit_program:
-            break
-
-        if win32gui.GetForegroundWindow() == window_hwnd:
-            if arr[11] and move_mouse:
-                if arr[15] == 1:
-                    arr[13] = (784 if arr[14] or arr[12] != 1 else 1534)
-                elif arr[15] == 2:
-                    arr[13] = (534 if arr[14] or arr[12] != 1 else 784)
-                control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, window_class_name)
-
-        if arr[4]:
+    # 初始化多行刷新
+    with output(output_type="list", initial_len = 4, interval = 0) as output_list:
+        while True:
+            ini_sct_time = time()  # 计时
+            screenshot = win_cap.get_screenshot()  # 截屏
             try:
-                if win_cap.get_window_left() > 0:
-                    if window_class_name == 'CrossFire' and screenshot.shape[0] / screenshot.shape[1] > 1.7:
-                        screenshot.shape[0] *= 3/4
-                    arr[5] = (100 if win_cap.get_window_left() - 10 < 100 else win_cap.get_window_left() - 10)
-                else:
-                    arr[4] = 0  # 全屏或屏幕靠左不显示效果
-            except pywintypes.error:
+                screenshot.any()
+            except AttributeError:
+                break
+            queue.put_nowait(screenshot)
+            queue.join()
+
+            exit_program, move_mouse = check_status(exit_program, move_mouse)
+
+            if exit_program:
                 break
 
-        time_used = time() - ini_sct_time
-        if time_used:  # 防止被0除
-            current_fps = 1 / time_used
-            process_time.append(current_fps)
-            if len(process_time) > 59:
-                process_time.popleft()
+            if win32gui.GetForegroundWindow() == window_hwnd:
+                if arr[11] and move_mouse:
+                    if arr[15] == 1:
+                        arr[13] = (784 if arr[14] or arr[12] != 1 else 1534)
+                    elif arr[15] == 2:
+                        arr[13] = (534 if arr[14] or arr[12] != 1 else 784)
+                    control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, arr[16], window_class_name)
 
-            show_fps[0] = mean(process_time)  # 计算fps
-            arr[3] = int(show_fps[0])
+            if arr[4]:
+                try:
+                    if win_cap.get_window_left() > 0:
+                        if window_class_name == 'CrossFire' and screenshot.shape[0] / screenshot.shape[1] > 1.7:
+                            screenshot.shape[0] *= 3/4
+                        arr[5] = (100 if win_cap.get_window_left() - 10 < 100 else win_cap.get_window_left() - 10)
+                    else:
+                        arr[4] = 0  # 全屏或屏幕靠左不显示效果
+                except pywintypes.error:
+                    break
 
-        if move_mouse:
-            print(f'\033[0;30;42m FPS={show_fps[0]:06.2f}\033[0;30;43m检测={arr[11]:02.0f}\033[0;30;46m瞄准={fire_target[arr[12]]}\033[0;30;47m射速={(10000/(arr[13]+466)):02.0f}\033[0m', end='\r')
-        else:
-            print(f' FPS={show_fps[0]:06.2f}检测={arr[11]:02.0f}瞄准={fire_target[arr[12]]}射速={(10000/(arr[13]+466)):02.0f}', end='\r')
+            time_used = time() - ini_sct_time
+            if time_used:  # 防止被0除
+                current_fps = 1 / time_used
+                process_time.append(current_fps)
+                if len(process_time) > 59:
+                    process_time.popleft()
+
+                show_fps[0] = mean(process_time)  # 计算fps
+                arr[3] = int(show_fps[0])
+
+            if move_mouse:
+                output_list[0] = f'\033[0;30;42m 帧数={show_fps[0]:03.0f}\033[0m'
+                output_list[1] = f'\033[0;30;43m 检测= {arr[11]:02.0f}\033[0m'
+                output_list[2] = f'\033[0;30;46m 瞄准= {fire_target[arr[12]]}\033[0m'
+                output_list[3] = f'\033[0;30;47m 射速= {(10000/(arr[13]+466)):02.0f}\033[0m'
+            else:
+                output_list[0] = f' 帧数={show_fps[0]:03.0f}'
+                output_list[1] = f' 检测= {arr[11]:02.0f}'
+                output_list[2] = f' 瞄准= {fire_target[arr[12]]}'
+                output_list[3] = f' 射速= {(10000/(arr[13]+466)):02.0f}'
 
     close()
     exit(0)
