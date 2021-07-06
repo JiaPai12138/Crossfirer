@@ -365,16 +365,15 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class):
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     if fps_var:
         if move_range > 5 * ranges:
-            a = uniform(0.9 * a, 1.1 * a)
             b = uniform(0.5 * b, 1.5 * b)
         x0 = {
             'CrossFire': a / 4 / (fps_var / 21.6),  # 32
-            'Valve001': a / 1.56 / (fps_var / 36),  # 2.5
+            'Valve001': a / 1.56 / (fps_var / 40),  # 2.5
             'LaunchCombatUWindowsClient': a / (fps_var / 24),  # 10.0
         }.get(win_class, a / (fps_var / 20))
         y0 = {
             'CrossFire': b / 4 / (fps_var / 16.2),  # 32
-            'Valve001': b / 1.56 / (fps_var / 27),  # 2.5
+            'Valve001': b / 1.56 / (fps_var / 30),  # 2.5
             'LaunchCombatUWindowsClient': b / (fps_var / 18),  # 10.0
         }.get(win_class, b / (fps_var / 15))
         mouse_event(MOUSEEVENTF_MOVE, int(round(x0)), int(round(y0)), 0, 0)
