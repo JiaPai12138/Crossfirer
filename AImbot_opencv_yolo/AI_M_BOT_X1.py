@@ -438,8 +438,6 @@ def show_frames(output_pipe, array):
                 cv2.putText(show_img, str(array[3]), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)
                 cv2.imshow('Show frame', show_img)
                 cv2.waitKey(1)
-                if array[5]:
-                    temp_division = array[5]
         except AttributeError:
             cv2.destroyAllWindows()
 
