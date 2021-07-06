@@ -585,10 +585,11 @@ if __name__ == '__main__':
     # 清空命令指示符面板
     clear()
 
+    ini_sct_time = 0  # 初始化计时
+
     # 初始化多行刷新
     with output(output_type="list", initial_len = 4, interval = 0) as output_list:
         while True:
-            ini_sct_time = time()  # 计时
             screenshot = win_cap.get_screenshot()  # 截屏
             try:
                 screenshot.any()
@@ -622,6 +623,7 @@ if __name__ == '__main__':
                     break
 
             time_used = time() - ini_sct_time
+            ini_sct_time = time()
             if time_used:  # 防止被0除
                 current_fps = 1 / time_used
                 process_time.append(current_fps)
