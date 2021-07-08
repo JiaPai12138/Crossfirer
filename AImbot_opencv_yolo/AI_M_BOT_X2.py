@@ -600,7 +600,7 @@ if __name__ == '__main__':
     detect2_proc.start()
 
     # 等待分析类初始化
-    while not (arr[1]and arr[2]):
+    while not (arr[1] and arr[2]):
         sleep(1)
 
     # 清空命令指示符面板
