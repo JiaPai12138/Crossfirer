@@ -412,7 +412,7 @@ def track_opt(record_list, range, move):
         else:
             record_list.clear()
         if len(record_list) > 6:
-            move *= 2.0
+            move *= 3.0
             record_list.clear()
     else:
         record_list.append(range)
