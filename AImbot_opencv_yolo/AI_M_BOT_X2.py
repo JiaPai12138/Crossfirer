@@ -9,7 +9,7 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from math import sqrt, pow, ceil, floor
+from math import sqrt, pow
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP
 from win32api import mouse_event, GetAsyncKeyState
@@ -20,7 +20,6 @@ from ctypes import windll
 from sys import exit, executable
 from time import sleep, time
 from platform import release
-from statistics import mean
 from random import uniform
 from reprint import output
 import queue
