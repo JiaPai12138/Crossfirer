@@ -29,6 +29,7 @@ import cv2
 import win32gui
 import win32ui
 import pywintypes
+import statistics
 import nvidia_smi
 
 
@@ -261,7 +262,7 @@ class FrameDetection:
                 fire_pos = 0
 
             # 查看是否已经指向目标
-            if 1/4 * boxes[max_at][2] < frame_width / 2 - boxes[max_at][0] < 3/4 * boxes[max_at][2] and 1/12 * boxes[max_at][3] < frame_height / 2 - boxes[max_at][1] < 11/12 * boxes[max_at][3]:
+            if 1/4 * boxes[max_at][2] < frame_width / 2 - boxes[max_at][0] < 3/4 * boxes[max_at][2] and 1/4 * boxes[max_at][3] < frame_height / 2 - boxes[max_at][1] < 11/12 * boxes[max_at][3]:
                 fire_ok = 1
 
         return len(indices), int(x), int(y), int(fire_range), fire_pos, fire_close, fire_ok, frames
@@ -361,7 +362,7 @@ def clear():
 
 
 # 移动鼠标(并射击)
-def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class):
+def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move_ry):
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     if fps_var:
         if move_range > 5 * ranges:
@@ -376,6 +377,10 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class):
             'Valve001': b / 1.56 / (fps_var / 30),  # 2.5
             'LaunchCombatUWindowsClient': b / (fps_var / 18),  # 10.0
         }.get(win_class, b / (fps_var / 15))
+
+        move_rx, x0 = track_opt(move_rx, a, x0)
+        move_ry, y0 = track_opt(move_ry, b, y0)
+
         mouse_event(MOUSEEVENTF_MOVE, int(round(x0)), int(round(y0)), 0, 0)
 
     # 不分敌友射击
@@ -396,6 +401,24 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class):
         if GetAsyncKeyState(VK_LBUTTON) and not test_win[0]:
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
             up_time[0] = int(time() * 1000)
+
+    return move_rx, move_ry
+
+
+# 追踪优化
+def track_opt(record_list, range, move):
+    if len(record_list):
+        if abs(statistics.median(record_list) - range) <= 15 and range <= 60:
+            record_list.append(range)
+        else:
+            record_list.clear()
+        if len(record_list) > 6:
+            move *= 2.0
+            record_list.clear()
+    else:
+        record_list.append(range)
+
+    return record_list, move
 
 
 # 转变状态
@@ -511,6 +534,8 @@ if __name__ == '__main__':
     exit_program = False
     fire_target = ["中", "头", "胸"]
     test_win = [False]
+    move_recordx = []
+    move_recordy = []
 
     # 如果文件不存在则退出
     check_file('yolov4-tiny-vvv')
@@ -627,7 +652,7 @@ if __name__ == '__main__':
                 if len(process_time) > 59:
                     process_time.popleft()
 
-                show_fps[0] = mean(process_time)  # 计算fps
+                show_fps[0] = statistics.median(process_time)  # 计算fps
                 arr[3] = int(show_fps[0])
 
             if move_mouse:
