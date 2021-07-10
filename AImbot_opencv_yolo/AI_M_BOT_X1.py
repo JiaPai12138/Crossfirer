@@ -29,11 +29,13 @@ import win32ui
 import pywintypes
 import statistics
 import nvidia_smi
+import mss
 
 
 # 截图类
 class WindowCapture:
     # 类属性
+    windows_class = ''  # 窗口类名
     total_w = 0  # 窗口内宽
     total_h = 0  # 窗口内高
     cut_w = 0  # 截取宽
@@ -43,33 +45,37 @@ class WindowCapture:
     offset_y = 0  # 窗口内偏移y
     actual_x = 0  # 截图左上角屏幕位置x
     actual_y = 0  # 截图左上角屏幕位置y
-    left_var = 0  # 窗口距离左侧距离
+    left_corner = [0, 0]  # 窗口左上角屏幕位置
+    sct = ''
 
     # 构造函数
     def __init__(self, window_class):
+        self.windows_class = window_class
         self.hwnd = win32gui.FindWindow(window_class, None)
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
+        self.update_window_info()
+        self.sct = mss.mss()  # 初始化mss截图
 
+    def update_window_info(self):
         # 获取窗口数据
         window_rect = win32gui.GetWindowRect(self.hwnd)
         client_rect = win32gui.GetClientRect(self.hwnd)
-        left_corner = win32gui.ClientToScreen(self.hwnd, (0, 0))
+        self.left_corner = win32gui.ClientToScreen(self.hwnd, (0, 0))
 
         # 确认截图相关数据
-        self.left_var = window_rect[0]
         self.total_w = client_rect[2] - client_rect[0]
         self.total_h = client_rect[3] - client_rect[1]
         self.cut_h = int(self.total_h * 2 / 3)
         self.cut_w = self.cut_h
-        if window_class == 'CrossFire':  # 画面实际4:3简单拉平
+        if self.windows_class == 'CrossFire':  # 画面实际4:3简单拉平
             self.cut_w = int(self.cut_w * (self.total_w / self.total_h) / 4 * 3)
-        self.offset_x = (self.total_w - self.cut_w) // 2 + left_corner[0] - window_rect[0]
-        self.offset_y = (self.total_h - self.cut_h) // 2 + left_corner[1] - window_rect[1]
+        self.offset_x = (self.total_w - self.cut_w) // 2 + self.left_corner[0] - window_rect[0]
+        self.offset_y = (self.total_h - self.cut_h) // 2 + self.left_corner[1] - window_rect[1]
         self.actual_x = window_rect[0] + self.offset_x
         self.actual_y = window_rect[1] + self.offset_y
 
-    def get_screenshot(self):
+    def get_screenshot(self):  # 只能在windows上使用
         # 获取截图相关
         try:
             wDC = win32gui.GetWindowDC(self.hwnd)
@@ -107,8 +113,16 @@ class WindowCapture:
         return self.actual_x, self.actual_y
 
     def get_window_left(self):
-        self.left_var = win32gui.GetWindowRect(self.hwnd)[0]
-        return self.left_var
+        return win32gui.GetWindowRect(self.hwnd)[0]
+
+    def get_region(self):
+        if self.cut_w and self.cut_h:
+            return {"top": self.actual_y, "left": self.actual_x, "width": self.cut_w, "height": self.cut_h}
+        else:
+            return {"top": 400, "left": 400, "width": 400, "height": 400}
+
+    def grab_screenshot(self):
+        return cv2.cvtColor(np.array(self.sct.grab(self.get_region())), cv2.COLOR_RGBA2RGB)
 
 
 # 分析类
@@ -432,10 +446,8 @@ def check_status(exit0, mouse):
     if is_pressed('3') or is_pressed('4'):
         mouse = 0
         arr[15] = 0
-    if is_pressed('i'):
-        arr[4] = 0
-    if is_pressed('o'):
-        arr[4] = 1
+    if is_pressed('alt'):
+        win_cap.update_window_info()
     if is_pressed('p'):
         close()
         restart()
@@ -620,7 +632,8 @@ if __name__ == '__main__':
     ini_sct_time = 0  # 初始化计时
 
     while True:
-        screenshot = win_cap.get_screenshot()  # 截屏
+        # screenshot = win_cap.get_screenshot()  # 截屏
+        screenshot = win_cap.grab_screenshot()  # mss截图
         try:
             screenshot.any()
         except AttributeError:
