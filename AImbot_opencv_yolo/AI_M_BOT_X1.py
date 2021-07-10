@@ -21,7 +21,6 @@ from sys import exit, executable
 from time import sleep, time
 from platform import release
 from random import uniform
-from reprint import output
 import queue
 import numpy as np
 import cv2
@@ -199,8 +198,8 @@ class FrameDetection:
         confidences = []
 
         # 检测目标,计算框内目标到框中心距离
-        for output in layerOutputs:
-            for detection in output:
+        for outputs in layerOutputs:
+            for detection in outputs:
                 scores = detection[5:]
                 classID = np.argmax(scores)
                 confidence = scores[classID]
@@ -292,7 +291,7 @@ def set_dpi():
 # 确认窗口句柄与类名
 def get_window_info():
     supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient'
-    test_window = 'Notepad3 PX_WINDOW_CLASS Notepad++'
+    test_window = 'Notepad3 PX_WINDOW_CLASS Notepad Notepad++'
     class_name = ''
     hwnd_var = ''
     testing_purpose = False
@@ -303,7 +302,7 @@ def get_window_info():
         except pywintypes.error:
             continue
 
-        if class_name not in supported_games and class_name not in test_window:
+        if class_name not in (supported_games + test_window):
             print('请使支持的游戏/程序窗口成为活动窗口...')
         else:
             hwnd_var = win32gui.FindWindow(class_name, None)
@@ -390,14 +389,14 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
-                    mouse_event(MOUSEEVENTF_MOVE, 0, 2, 0, 0)
+                    mouse_event(MOUSEEVENTF_MOVE, 0, 3, 0, 0)
         else:
             if (time() * 1000 - press_time[0]) > 46.6:
                 if GetAsyncKeyState(VK_LBUTTON):
                     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
                     up_time[0] = int(time() * 1000)
 
-        if GetAsyncKeyState(VK_LBUTTON) and not test_win[0]:
+        if GetAsyncKeyState(VK_LBUTTON) and not test_win[0] and not arr[11]:
             mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
             up_time[0] = int(time() * 1000)
 
@@ -405,17 +404,17 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 
 
 # 追踪优化
-def track_opt(record_list, range, move):
+def track_opt(record_list, range_m, move):
     if len(record_list):
-        if abs(statistics.median(record_list) - range) <= 15 and range <= 75:
-            record_list.append(range)
+        if abs(statistics.median(record_list) - range_m) <= 15 and range_m <= 75:
+            record_list.append(range_m)
         else:
             record_list.clear()
-        if len(record_list) > 6:
+        if len(record_list) > 5:
             move *= 3.0
             record_list.clear()
     else:
-        record_list.append(range)
+        record_list.append(range_m)
 
     return record_list, move
 
@@ -425,13 +424,13 @@ def check_status(exit0, mouse):
     if is_pressed('end'):
         exit0 = True
     if is_pressed('1'):
-        mouse = True
+        mouse = 1
         arr[15] = 1
     if is_pressed('2'):
-        mouse = True
+        mouse = 2
         arr[15] = 2
     if is_pressed('3') or is_pressed('4'):
-        mouse = False
+        mouse = 0
         arr[15] = 0
     if is_pressed('i'):
         arr[4] = 0
@@ -447,19 +446,37 @@ def check_status(exit0, mouse):
 # 多线程展示效果
 def show_frames(output_pipe, array):
     set_dpi()
-    cv2.namedWindow('Show frame')
+    cv2.namedWindow('Show frame', cv2.WINDOW_KEEPRATIO)
     cv2.moveWindow('Show frame', 0, 0)
     cv2.destroyAllWindows()
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
+    fire_target_show = ["middle", "head", "chest"]
     while True:
         show_img = output_pipe.recv()
+        show_color = {
+            0: (127, 127, 127),
+            1: (255, 255, 0),
+            2: (0, 255, 0)
+        }.get(array[4])
         try:
+            img_ex = np.zeros((1, 1, 3), np.uint8)
+            show_str0 = str('{:03.0f}'.format(array[3]))
+            show_str1 = 'Detected ' + str('{:02.0f}'.format(array[11])) + ' targets'
+            show_str2 = 'Aiming at ' + fire_target_show[array[12]] + ' position'
+            show_str3 = 'Fire rate is ' + str('{:02.0f}'.format((10000 / (array[13] + 466)))) + ' RPS'
+            show_str4 = 'Please enjoy coding ^_^'
             if show_img.any():
                 show_img = cv2.resize(show_img, (array[5], array[5]))
-                cv2.putText(show_img, str(array[3]), (10, 25), font, 0.5, (127, 255, 0), 2, cv2.LINE_AA)
-                cv2.imshow('Show frame', show_img)
+                img_ex = cv2.resize(img_ex, (array[5], int(array[5] / 2)))
+                cv2.putText(show_img, show_str0, (int(array[5] / 25), int(array[5] / 12)), font, array[5] / 600, (127, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(img_ex, show_str1, (10, int(array[5] / 9)), font, array[5] / 450, show_color, 1, cv2.LINE_AA)
+                cv2.putText(img_ex, show_str2, (10, int(array[5] / 9) * 2), font, array[5] / 450, show_color, 1, cv2.LINE_AA)
+                cv2.putText(img_ex, show_str3, (10, int(array[5] / 9) * 3), font, array[5] / 450, show_color, 1, cv2.LINE_AA)
+                cv2.putText(img_ex, show_str4, (10, int(array[5] / 9) * 4), font, array[5] / 450, show_color, 1, cv2.LINE_AA)
+                show_image = cv2.vconcat([show_img, img_ex])
+                cv2.imshow('Show frame', show_image)
                 cv2.waitKey(1)
-        except AttributeError:
+        except (AttributeError, cv2.error):
             cv2.destroyAllWindows()
 
 
@@ -474,11 +491,7 @@ def detection1(que, array, frame_in):
                 que.task_done()
                 array[1] = 2
                 array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis1.detect(frame1)
-
-                if array[4]:
-                    frame_in.send(frame)
-                else:
-                    frame_in.send(0)
+                frame_in.send(frame)
             except (queue.Empty, TypeError):
                 continue
         array[1] = 1
@@ -529,12 +542,10 @@ if __name__ == '__main__':
     frame_output, frame_input = Pipe(False)  # 初始化管道(receiving,sending)
     press_time, up_time, show_fps = [0], [0], [1]
     process_time = deque()
-    move_mouse = False
     exit_program = False
-    fire_target = ["中", "头", "胸"]
     test_win = [False]
-    move_recordx = []
-    move_recordy = []
+    move_record_x = []
+    move_record_y = []
 
     # 如果文件不存在则退出
     check_file('yolov4-tiny-vvv')
@@ -546,7 +557,7 @@ if __name__ == '__main__':
     1  第一分析进程状态
     2  第二分析进程状态
     3  截图FPS整数值
-    4  开关特效显示
+    4  控制鼠标
     5  左侧距离除数
     6  使用GPU/CPU(1/0)
     7  鼠标移动x
@@ -566,7 +577,7 @@ if __name__ == '__main__':
     arr[1] = 0  # 第一分析进程状态
     arr[2] = 0  # 第二分析进程状态
     arr[3] = 0  # FPS值
-    arr[4] = 0  # 开关效果展示
+    arr[4] = 0  # 控制鼠标
     arr[7] = 0  # 鼠标移动x
     arr[8] = 0  # 鼠标移动r
     arr[9] = 0  # 鼠标开火r
@@ -608,62 +619,45 @@ if __name__ == '__main__':
 
     ini_sct_time = 0  # 初始化计时
 
-    # 初始化多行刷新
-    with output(output_type="list", initial_len = 4, interval = 0) as output_list:
-        while True:
-            screenshot = win_cap.get_screenshot()  # 截屏
-            try:
-                screenshot.any()
-            except AttributeError:
-                break
-            queue.put_nowait(screenshot)
-            queue.join()
+    while True:
+        screenshot = win_cap.get_screenshot()  # 截屏
+        try:
+            screenshot.any()
+        except AttributeError:
+            break
+        queue.put_nowait(screenshot)
+        queue.join()
 
-            exit_program, move_mouse = check_status(exit_program, move_mouse)
+        exit_program, arr[4] = check_status(exit_program, arr[4])
 
-            if exit_program:
-                break
+        if exit_program:
+            break
 
-            if win32gui.GetForegroundWindow() == window_hwnd:
-                if arr[11] and move_mouse:
-                    if arr[15] == 1:
-                        arr[13] = (784 if arr[14] or arr[12] != 1 else 1534)
-                    elif arr[15] == 2:
-                        arr[13] = (534 if arr[14] or arr[12] != 1 else 784)
-                    move_recordx, move_recordy = control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, arr[16], window_class_name, move_recordx, move_recordy)
+        if win32gui.GetForegroundWindow() == window_hwnd:
+            if arr[11] and arr[4]:
+                if arr[15] == 1:
+                    arr[13] = (784 if arr[14] or arr[12] != 1 else 1534)
+                elif arr[15] == 2:
+                    arr[13] = (534 if arr[14] or arr[12] != 1 else 784)
+                move_record_x, move_record_y = control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, arr[16], window_class_name, move_record_x, move_record_y)
 
-            if arr[4]:
-                try:
-                    if win_cap.get_window_left() > 0:
-                        if window_class_name == 'CrossFire' and screenshot.shape[0] / screenshot.shape[1] > 1.7:
-                            screenshot.shape[0] *= 3/4
-                        arr[5] = (100 if win_cap.get_window_left() - 10 < 100 else win_cap.get_window_left() - 10)
-                    else:
-                        arr[4] = 0  # 全屏或屏幕靠左不显示效果
-                except pywintypes.error:
-                    break
+        try:
+            if window_class_name == 'CrossFire' and screenshot.shape[0] / screenshot.shape[1] > 1.7:
+                screenshot.shape[0] *= 3/4
+            arr[5] = (150 if win_cap.get_window_left() - 10 < 150 else win_cap.get_window_left() - 10)
+        except pywintypes.error:
+            break
 
-            time_used = time() - ini_sct_time
-            ini_sct_time = time()
-            if time_used:  # 防止被0除
-                current_fps = 1 / time_used
-                process_time.append(current_fps)
-                if len(process_time) > 59:
-                    process_time.popleft()
+        time_used = time() - ini_sct_time
+        ini_sct_time = time()
+        if time_used:  # 防止被0除
+            current_fps = 1 / time_used
+            process_time.append(current_fps)
+            if len(process_time) > 59:
+                process_time.popleft()
 
-                show_fps[0] = statistics.median(process_time)  # 计算fps
-                arr[3] = int(show_fps[0])
-
-            if move_mouse:
-                output_list[0] = f'\033[0;30;42m 帧数={show_fps[0]:03.0f}\033[0m'
-                output_list[1] = f'\033[0;30;43m 检测= {arr[11]:02.0f}\033[0m'
-                output_list[2] = f'\033[0;30;46m 瞄准= {fire_target[arr[12]]}\033[0m'
-                output_list[3] = f'\033[0;30;47m 射速= {(10000/(arr[13]+466)):02.0f}\033[0m'
-            else:
-                output_list[0] = f' 帧数={show_fps[0]:03.0f}'
-                output_list[1] = f' 检测= {arr[11]:02.0f}'
-                output_list[2] = f' 瞄准= {fire_target[arr[12]]}'
-                output_list[3] = f' 射速= {(10000/(arr[13]+466)):02.0f}'
+            show_fps[0] = statistics.median(process_time)  # 计算fps
+            arr[3] = int(show_fps[0])
 
     close()
     exit(0)
