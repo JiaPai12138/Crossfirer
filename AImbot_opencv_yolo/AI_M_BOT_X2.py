@@ -29,7 +29,6 @@ import win32ui
 import pywintypes
 import statistics
 import nvidia_smi
-import mss
 
 
 # 截图类
@@ -56,6 +55,7 @@ class WindowCapture:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
         self.update_window_info()
         if platform != 'win32':
+            import mss
             self.sct = mss.mss()  # 初始化mss截图
 
     def update_window_info(self):
@@ -559,6 +559,7 @@ if __name__ == '__main__':
     test_win = [False]
     move_record_x = []
     move_record_y = []
+    run_platform = platform
 
     # 如果文件不存在则退出
     check_file('yolov4-tiny-vvv')
@@ -634,7 +635,7 @@ if __name__ == '__main__':
 
     while True:
         # 选择截图方式
-        screenshot = (win_cap.get_screenshot() if platform == 'win32' else win_cap.grab_screenshot())
+        screenshot = (win_cap.get_screenshot() if run_platform == 'win32' else win_cap.grab_screenshot())
 
         try:
             screenshot.any()
