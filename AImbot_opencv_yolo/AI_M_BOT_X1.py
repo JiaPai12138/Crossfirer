@@ -55,7 +55,8 @@ class WindowCapture:
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
         self.update_window_info()
-        self.sct = mss.mss()  # 初始化mss截图
+        if platform != 'win32':
+            self.sct = mss.mss()  # 初始化mss截图
 
     def update_window_info(self):
         # 获取窗口数据
@@ -632,10 +633,9 @@ if __name__ == '__main__':
     ini_sct_time = 0  # 初始化计时
 
     while True:
-        if platform == 'win32':
-            screenshot = win_cap.get_screenshot()  # 截屏
-        else:
-            screenshot = win_cap.grab_screenshot()  # mss截图
+        # 选择截图方式
+        screenshot = (win_cap.get_screenshot() if platform == 'win32' else win_cap.grab_screenshot())
+
         try:
             screenshot.any()
         except AttributeError:
