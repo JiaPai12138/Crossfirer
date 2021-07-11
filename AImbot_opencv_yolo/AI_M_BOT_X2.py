@@ -17,7 +17,7 @@ from keyboard import is_pressed
 from collections import deque
 from os import system, path, chdir
 from ctypes import windll
-from sys import exit, executable
+from sys import exit, executable, platform
 from time import sleep, time
 from platform import release
 from random import uniform
@@ -117,9 +117,9 @@ class WindowCapture:
 
     def get_region(self):
         if self.cut_w and self.cut_h:
-            return {"top": self.actual_y, "left": self.actual_x, "width": self.cut_w, "height": self.cut_h}
+            return {'top': self.actual_y, 'left': self.actual_x, 'width': self.cut_w, 'height': self.cut_h}
         else:
-            return {"top": 400, "left": 400, "width": 400, "height": 400}
+            return {'top': 400, 'left': 400, 'width': 400, 'height': 400}
 
     def grab_screenshot(self):
         return cv2.cvtColor(np.array(self.sct.grab(self.get_region())), cv2.COLOR_RGBA2RGB)
@@ -446,7 +446,7 @@ def check_status(exit0, mouse):
     if is_pressed('3') or is_pressed('4'):
         mouse = 0
         arr[15] = 0
-    if is_pressed('alt'):
+    if is_pressed('alt') and platform != 'win32':
         win_cap.update_window_info()
     if is_pressed('p'):
         close()
@@ -462,7 +462,7 @@ def show_frames(output_pipe, array):
     cv2.moveWindow('Show frame', 0, 0)
     cv2.destroyAllWindows()
     font = cv2.FONT_HERSHEY_SIMPLEX  # 效果展示字体
-    fire_target_show = ["middle", "head", "chest"]
+    fire_target_show = ['middle', 'head', 'chest']
     while True:
         show_img = output_pipe.recv()
         show_color = {
@@ -632,8 +632,10 @@ if __name__ == '__main__':
     ini_sct_time = 0  # 初始化计时
 
     while True:
-        # screenshot = win_cap.get_screenshot()  # 截屏
-        screenshot = win_cap.grab_screenshot()  # mss截图
+        if platform == 'win32':
+            screenshot = win_cap.get_screenshot()  # 截屏
+        else:
+            screenshot = win_cap.grab_screenshot()  # mss截图
         try:
             screenshot.any()
         except AttributeError:
