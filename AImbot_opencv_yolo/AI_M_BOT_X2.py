@@ -416,7 +416,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 # 追踪优化
 def track_opt(record_list, range_m, move):
     if len(record_list):
-        if abs(statistics.median(record_list) - range_m) <= 15 and range_m <= 75:
+        if abs(statistics.median(record_list) - range_m) <= 6 and range_m <= 75:
             record_list.append(range_m)
         else:
             record_list.clear()
