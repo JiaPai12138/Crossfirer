@@ -9,7 +9,7 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from math import sqrt, pow
+from math import sqrt, pow, log as lg
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP
 from win32api import mouse_event, GetAsyncKeyState
@@ -379,17 +379,17 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     if fps_var:
         if move_range > 5 * ranges:
-            b = uniform(0.5 * b, 1.5 * b)
+            b = uniform(0.6 * b, 1.4 * b)
         x0 = {
-            'CrossFire': a / 4 / (fps_var / 21.6),  # 32
-            'Valve001': a / 1.56 / (fps_var / 40),  # 2.5
-            'LaunchCombatUWindowsClient': a / (fps_var / 24),  # 10.0
-        }.get(win_class, a / (fps_var / 20))
+            'CrossFire': a / 4 / pow(lg(fps_var, 20), 3),  # 32
+            'Valve001': a / 1.56 / (0.68 + pow(lg(fps_var, 78), 3)),  # 2.5+
+            'LaunchCombatUWindowsClient': a / pow(lg(fps_var, 20), 3),  # 10.0
+        }.get(win_class, a / (0.36 + pow(lg(fps_var, 32), 3)))
         y0 = {
-            'CrossFire': b / 4 / (fps_var / 16.2),  # 32
-            'Valve001': b / 1.56 / (fps_var / 30),  # 2.5
-            'LaunchCombatUWindowsClient': b / (fps_var / 18),  # 10.0
-        }.get(win_class, b / (fps_var / 15))
+            'CrossFire': b / 4 / pow(lg(fps_var, 20), 3),  # 32
+            'Valve001': b / 1.56 / (0.68 + pow(lg(fps_var, 78), 3)),  # 2.5+
+            'LaunchCombatUWindowsClient': b / pow(lg(fps_var, 20), 3),  # 10.0
+        }.get(win_class, b / (0.36 + pow(lg(fps_var, 32), 3)))
 
         move_rx, x0 = track_opt(move_rx, a, x0)
         move_ry, y0 = track_opt(move_ry, b, y0)
@@ -405,14 +405,9 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
                     mouse_event(MOUSEEVENTF_MOVE, 0, 3, 0, 0)
-        else:
-            if (time() * 1000 - press_time[0]) > 46.6:
-                if GetAsyncKeyState(VK_LBUTTON):
-                    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
-                    up_time[0] = int(time() * 1000)
 
-        if GetAsyncKeyState(VK_LBUTTON) and not test_win[0] and not arr[11]:
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)  # 防止一次性按太长时间
+        if (time() * 1000 - press_time[0]) > 30.6 and GetAsyncKeyState(VK_LBUTTON):
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
             up_time[0] = int(time() * 1000)
 
     return move_rx, move_ry
@@ -476,7 +471,7 @@ def show_frames(output_pipe, array):
             show_str0 = str('{:03.0f}'.format(array[3]))
             show_str1 = 'Detected ' + str('{:02.0f}'.format(array[11])) + ' targets'
             show_str2 = 'Aiming at ' + fire_target_show[array[12]] + ' position'
-            show_str3 = 'Fire rate is ' + str('{:02.0f}'.format((10000 / (array[13] + 466)))) + ' RPS'
+            show_str3 = 'Fire rate is ' + str('{:02.0f}'.format((10000 / (array[13] + 306)))) + ' RPS'
             show_str4 = 'Please enjoy coding ^_^'
             if show_img.any():
                 show_img = cv2.resize(show_img, (array[5], array[5]))
@@ -649,12 +644,12 @@ if __name__ == '__main__':
         if exit_program:
             break
 
-        if win32gui.GetForegroundWindow() == window_hwnd:
+        if win32gui.GetForegroundWindow() == window_hwnd and not test_win[0]:
             if arr[11] and arr[4]:
                 if arr[15] == 1:
-                    arr[13] = (784 if arr[14] or arr[12] != 1 else 1534)
+                    arr[13] = (944 if arr[14] or arr[12] != 1 else 1694)
                 elif arr[15] == 2:
-                    arr[13] = (534 if arr[14] or arr[12] != 1 else 784)
+                    arr[13] = (694 if arr[14] or arr[12] != 1 else 944)
                 move_record_x, move_record_y = control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, arr[16], window_class_name, move_record_x, move_record_y)
 
         try:
