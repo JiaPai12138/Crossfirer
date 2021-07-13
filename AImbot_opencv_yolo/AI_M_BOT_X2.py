@@ -170,7 +170,7 @@ class FrameDetection:
             if not check_gpu(gpu_level):
                 print('您的显卡配置不够')
         else:
-            print('您的没有可识别的N卡')
+            print('您没有可识别的N卡')
 
     def detect(self, frame):
         try:
