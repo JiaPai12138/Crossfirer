@@ -9,7 +9,7 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from math import sqrt, pow, log as lg
+from math import sqrt, pow, log as lg, ceil
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP
 from win32api import mouse_event, GetAsyncKeyState
@@ -278,7 +278,7 @@ class FrameDetection:
             if 1/4 * boxes[max_at][2] < frame_width / 2 - boxes[max_at][0] < 3/4 * boxes[max_at][2] and 1/4 * boxes[max_at][3] < frame_height / 2 - boxes[max_at][1] < 11/12 * boxes[max_at][3]:
                 fire_ok = 1
 
-        return len(indices), int(x), int(y), int(fire_range), fire_pos, fire_close, fire_ok, frames
+        return len(indices), int(x), int(y), int(ceil(fire_range)), fire_pos, fire_close, fire_ok, frames
 
 
 # 简单检查gpu是否够格
@@ -379,15 +379,15 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     if fps_var:
         if move_range > 5 * ranges:
-            b = uniform(0.6 * b, 1.4 * b)
+            b = uniform(0.7 * b, 1.3 * b)
         x0 = {
-            'CrossFire': a / 4 / pow(lg(fps_var, 20), 3),  # 32
-            'Valve001': a / 1.56 / (0.68 + pow(lg(fps_var, 78), 3)),  # 2.5+
+            'CrossFire': a / 2.56 / (sqrt(1.3 * fps_var / (abs(a)+1)) + pow(abs(a), 1/3)/2),  # 32
+            'Valve001': a / 1.56 / (sqrt(1.5 * fps_var / (abs(a)+1)) + pow(abs(a), 1/3)/3),  # 2.5+
             'LaunchCombatUWindowsClient': a / pow(lg(fps_var, 20), 3),  # 10.0
         }.get(win_class, a / (0.36 + pow(lg(fps_var, 32), 3)))
         y0 = {
-            'CrossFire': b / 4 / pow(lg(fps_var, 20), 3),  # 32
-            'Valve001': b / 1.56 / (0.68 + pow(lg(fps_var, 78), 3)),  # 2.5+
+            'CrossFire': b / 2.56 / (sqrt(1.3 * fps_var / (abs(b)+1)) + pow(abs(b), 1/3)/2),  # 32
+            'Valve001': b / 1.56 / (sqrt(1.5 * fps_var / (abs(b)+1)) + pow(abs(b), 1/3)/3),  # 2.5+
             'LaunchCombatUWindowsClient': b / pow(lg(fps_var, 20), 3),  # 10.0
         }.get(win_class, b / (0.36 + pow(lg(fps_var, 32), 3)))
 
@@ -416,12 +416,12 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 # 追踪优化
 def track_opt(record_list, range_m, move):
     if len(record_list):
-        if abs(statistics.median(record_list) - range_m) <= 6 and range_m <= 75:
+        if abs(statistics.median(record_list) - range_m) <= 15 and range_m <= 75:
             record_list.append(range_m)
         else:
             record_list.clear()
         if len(record_list) > 5:
-            move *= 3.0
+            move *= 4.0
             record_list.clear()
     else:
         record_list.append(range_m)
