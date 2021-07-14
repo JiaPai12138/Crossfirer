@@ -203,7 +203,7 @@ class FrameDetection:
         blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (self.side_length, self.side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
         self.net.setInput(blob)
         layerOutputs = self.net.forward(self.ln)  # 前向传播
-        return frames, layerOutputs, frame_width, frame_height
+        return self.analyze(frames, layerOutputs, frame_width, frame_height)
 
     @jit(forceobj=True)
     def analyze(self, frames, layerOutputs, frame_width, frame_height):
@@ -499,8 +499,7 @@ def detection1(que, array, frame_in):
                 frame1 = que.get_nowait()
                 que.task_done()
                 array[1] = 2
-                framei, layerOutputi, frame_widthi, frame_heighti = Analysis1.detect(frame1)
-                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis1.analyze(framei, layerOutputi, frame_widthi, frame_heighti)
+                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis1.detect(frame1)
                 frame_in.send(frame)
             except (queue.Empty, TypeError):
                 continue
@@ -517,8 +516,7 @@ def detection2(que, array):
                 frame2 = que.get_nowait()
                 que.task_done()
                 array[2] = 2
-                frameii, layerOutputii, frame_widthii, frame_heightii = Analysis2.detect(frame2)
-                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis2.analyze(frameii, layerOutputii, frame_widthii, frame_heightii)
+                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis2.detect(frame2)
             except (queue.Empty, TypeError):
                 continue
         array[2] = 1
