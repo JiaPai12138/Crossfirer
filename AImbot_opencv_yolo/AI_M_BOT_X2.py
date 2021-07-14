@@ -11,18 +11,20 @@ Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 
 from math import sqrt, pow, log as lg, ceil
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
-from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, VK_END, VK_MENU
-from win32api import mouse_event, GetAsyncKeyState
+from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, VK_END, VK_MENU, PROCESS_ALL_ACCESS
+from win32api import mouse_event, GetAsyncKeyState, GetCurrentProcessId, OpenProcess
+from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
 from collections import deque
-from os import system, path, chdir
 from ctypes import windll
 from sys import exit, executable, platform
 from time import sleep, time
 from platform import release
 from random import uniform
+from numba import jit
 import queue
 import numpy as np
 import cv2
+import os
 import win32gui
 import win32ui
 import pywintypes
@@ -138,22 +140,19 @@ class FrameDetection:
 
     # 构造函数
     def __init__(self, aim0mode, hwnd_value, gpu_level):
-        # if aim0mode == 1:  # 极速自瞄
-        #     self.side_length = 320
-        if aim0mode == 1:  # 高速自瞄
-            self.side_length = 416
-        elif aim0mode == 2:  # 标准自瞄
-            self.side_length = 512
-        elif aim0mode == 3:  # 高精自瞄
-            self.side_length = 608
+        self.side_length = {
+            # 0: 224,  # 超速自瞄
+            # 1: 320,  # 极速自瞄
+            1: 416,  # 高速自瞄
+            2: 512,  # 标准自瞄
+            3: 608,  # 高精自瞄
+        }.get(aim0mode)
 
         self.win_class_name = win32gui.GetClassName(hwnd_value)
-        if self.win_class_name == 'Valve001':
-            self.std_confidence = 0.45
-        elif self.win_class_name == 'CrossFire':
-            self.std_confidence = 0.5
-        else:
-            self.std_confidence = 0.5
+        self.std_confidence = {
+            'Valve001': 0.45,
+            'CrossFire': 0.5,
+        }.get(self.win_class_name, 0.5)
 
         load_file('yolov4-tiny-vvv', self.CONFIG_FILE, self.WEIGHT_FILE)
         self.net = cv2.dnn.readNetFromDarknet(self.CONFIG_FILE[0], self.WEIGHT_FILE[0])  # 读取权重与配置文件
@@ -188,9 +187,6 @@ class FrameDetection:
         except UnboundLocalError:
             return
 
-        # 初始化返回数值
-        x, y, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
-
         # 画实心框避免错误检测武器与手
         if self.win_class_name == 'CrossFire':
             cv2.rectangle(frames, (int(frame_width*3/5), int(frame_height*3/4)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
@@ -207,6 +203,12 @@ class FrameDetection:
         blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (self.side_length, self.side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
         self.net.setInput(blob)
         layerOutputs = self.net.forward(self.ln)  # 前向传播
+        return frames, layerOutputs, frame_width, frame_height
+
+    @jit(forceobj=True)
+    def analyze(self, frames, layerOutputs, frame_width, frame_height):
+        # 初始化返回数值
+        x, y, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
 
         boxes = []
         confidences = []
@@ -353,7 +355,7 @@ def load_file(file, config_filename, weight_filename):
 def check_file(file):
     cfg_file = file + '.cfg'
     weights_file = file + '.weights'
-    if not (path.isfile(cfg_file) and path.isfile(weights_file)):
+    if not (os.path.isfile(cfg_file) and os.path.isfile(weights_file)):
         print(f'请下载{file}相关文件!!!')
         sleep(3)
         exit(0)
@@ -370,7 +372,7 @@ def is_admin():
 
 # 清空命令指示符输出
 def clear():
-    _ = system('cls')
+    _ = os.system('cls')
 
 
 # 移动鼠标(并射击)
@@ -497,7 +499,8 @@ def detection1(que, array, frame_in):
                 frame1 = que.get_nowait()
                 que.task_done()
                 array[1] = 2
-                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis1.detect(frame1)
+                framei, layerOutputi, frame_widthi, frame_heighti = Analysis1.detect(frame1)
+                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis1.analyze(framei, layerOutputi, frame_widthi, frame_heighti)
                 frame_in.send(frame)
             except (queue.Empty, TypeError):
                 continue
@@ -514,7 +517,8 @@ def detection2(que, array):
                 frame2 = que.get_nowait()
                 que.task_done()
                 array[2] = 2
-                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis2.detect(frame2)
+                frameii, layerOutputii, frame_widthii, frame_heightii = Analysis2.detect(frame2)
+                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis2.analyze(frameii, layerOutputii, frame_widthii, frame_heightii)
             except (queue.Empty, TypeError):
                 continue
         array[2] = 1
@@ -533,10 +537,10 @@ if __name__ == '__main__':
     set_dpi()
 
     # 设置工作路径
-    chdir(path.dirname(path.abspath(__file__)))
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # 选择分析输入大小
-    aim_mode = 0
+    aim_mode = -1
     while not (3 >= aim_mode >= 1):
         user_input = input('你想要的自瞄模式是?(1:高速, 2:标准, 3:高精): ')
         try:
@@ -544,7 +548,14 @@ if __name__ == '__main__':
         except ValueError:
             print('呵呵...请重新输入')
 
-    # 初始化变量
+    # 初始化变量以及提升进程优先级
+    run_platform = platform
+    if run_platform == 'win32':
+        pid = GetCurrentProcessId()
+        handle = OpenProcess(PROCESS_ALL_ACCESS, True, pid)
+        SetPriorityClass(handle, ABOVE_NORMAL_PRIORITY_CLASS)
+    else:
+        os.nice(1)
     queue = JoinableQueue()  # 初始化队列
     frame_output, frame_input = Pipe(False)  # 初始化管道(receiving,sending)
     press_time, up_time, show_fps = [0], [0], [1]
@@ -553,7 +564,6 @@ if __name__ == '__main__':
     test_win = [False]
     move_record_x = []
     move_record_y = []
-    run_platform = platform
 
     # 如果文件不存在则退出
     check_file('yolov4-tiny-vvv')
