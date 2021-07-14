@@ -36,7 +36,7 @@ Preset(Script_Icon)
     ListLines, Off                   ;不显示最近执行的脚本行
     SendMode, Input                  ;使用更速度和可靠方式发送键鼠点击
     SetWorkingDir, %A_ScriptDir%     ;保证一致的脚本起始工作目录
-    Process, Priority, , H           ;进程高优先级
+    Process, Priority, , A           ;进程高于一般优先级
     SetBatchLines, -1                ;全速运行,且因为全速运行,部分代码不得不调整
     SetKeyDelay, -1, -1              ;设置每次Send和ControlSend发送键击后无延时
     SetMouseDelay, -1                ;设置每次鼠标移动或点击后无延时
