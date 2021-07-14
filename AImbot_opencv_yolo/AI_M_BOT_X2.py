@@ -11,9 +11,8 @@ Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 
 from math import sqrt, pow, log as lg, ceil
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
-from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP
+from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, VK_END, VK_MENU
 from win32api import mouse_event, GetAsyncKeyState
-from keyboard import is_pressed
 from collections import deque
 from os import system, path, chdir
 from ctypes import windll
@@ -382,12 +381,12 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
             b = uniform(0.7 * b, 1.3 * b)
         x0 = {
             'CrossFire': a / 2.56 / (sqrt(1.3 * fps_var / (abs(a)+1)) + pow(abs(a), 1/3)/2),  # 32
-            'Valve001': a / 1.56 / (sqrt(1.5 * fps_var / (abs(a)+1)) + pow(abs(a), 1/3)/3),  # 2.5+
+            'Valve001': a / 1.56 / (sqrt(1.5 * fps_var / (abs(a)+1)) + pow(abs(a), 1/3)/4),  # 2.5+
             'LaunchCombatUWindowsClient': a / pow(lg(fps_var, 20), 3),  # 10.0
         }.get(win_class, a / (0.36 + pow(lg(fps_var, 32), 3)))
         y0 = {
             'CrossFire': b / 2.56 / (sqrt(1.3 * fps_var / (abs(b)+1)) + pow(abs(b), 1/3)/2),  # 32
-            'Valve001': b / 1.56 / (sqrt(1.5 * fps_var / (abs(b)+1)) + pow(abs(b), 1/3)/3),  # 2.5+
+            'Valve001': b / 1.56 / (sqrt(1.5 * fps_var / (abs(b)+1)) + pow(abs(b), 1/3)/4),  # 2.5+
             'LaunchCombatUWindowsClient': b / pow(lg(fps_var, 20), 3),  # 10.0
         }.get(win_class, b / (0.36 + pow(lg(fps_var, 32), 3)))
 
@@ -416,7 +415,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 # 追踪优化
 def track_opt(record_list, range_m, move):
     if len(record_list):
-        if abs(statistics.median(record_list) - range_m) <= 15 and range_m <= 75:
+        if abs(statistics.median(record_list) - range_m) <= 15 and range_m <= 80:
             record_list.append(range_m)
         else:
             record_list.clear()
@@ -431,20 +430,20 @@ def track_opt(record_list, range_m, move):
 
 # 转变状态
 def check_status(exit0, mouse):
-    if is_pressed('end'):
+    if GetAsyncKeyState(VK_END):  # End
         exit0 = True
-    if is_pressed('1'):
+    if GetAsyncKeyState(0x31):  # 1
         mouse = 1
         arr[15] = 1
-    if is_pressed('2'):
+    if GetAsyncKeyState(0x32):  # 2
         mouse = 2
         arr[15] = 2
-    if is_pressed('3') or is_pressed('4'):
+    if GetAsyncKeyState(0x33) or GetAsyncKeyState(0x34):  # 3,4
         mouse = 0
         arr[15] = 0
-    if is_pressed('alt') and platform != 'win32':
+    if GetAsyncKeyState(VK_MENU) and platform != 'win32':  # Alt
         win_cap.update_window_info()
-    if is_pressed('p'):
+    if GetAsyncKeyState(0x50):  # P
         close()
         restart()
 
