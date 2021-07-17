@@ -9,27 +9,27 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from math import sqrt, pow, log as lg, ceil
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
-from win32con import SRCCOPY, MOUSEEVENTF_MOVE, VK_LBUTTON, MOUSEEVENTF_LEFTDOWN, MOUSEEVENTF_LEFTUP, VK_END, VK_MENU, PROCESS_ALL_ACCESS
-from win32api import mouse_event, GetAsyncKeyState, GetCurrentProcessId, OpenProcess
+from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS
+from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
-from collections import deque
-from ctypes import windll
 from sys import exit, executable, platform
+from math import sqrt, pow, ceil
+from collections import deque
 from time import sleep, time
 from platform import release
 from random import uniform
+from ctypes import windll
 from numba import jit
-import queue
 import numpy as np
-import cv2
-import os
-import win32gui
-import win32ui
 import pywintypes
 import statistics
 import nvidia_smi
+import win32gui
+import win32ui
+import queue
+import cv2
+import os
 
 
 # 截图类
@@ -382,33 +382,35 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
         if move_range > 5 * ranges:
             b = uniform(0.7 * b, 1.3 * b)
         x0 = {
-            'CrossFire': a / 2.56 / (sqrt(1.3 * fps_var / (abs(a)+1)) + pow(abs(a), 1/3)/2),  # 32
-            'Valve001': a / 1.56 / (sqrt(1.5 * fps_var / (abs(a)+1)) + pow(abs(a), 1/3)/4),  # 2.5+
-            'LaunchCombatUWindowsClient': a / pow(lg(fps_var, 20), 3),  # 10.0
-        }.get(win_class, a / (0.36 + pow(lg(fps_var, 32), 3)))
+            'CrossFire': a / 2.6 / (3/4) / pow(fps_var, 1/3),  # 32
+            'Valve001': a * 1.3 / pow(fps_var, 1/3),  # 2.5+
+            'LaunchCombatUWindowsClient': a / pow(fps_var, 1/3),  # 10.0
+            'LaunchUnrealUWindowsClient': a / 2.56 / pow(fps_var, 1/3),  # 20
+        }.get(win_class, a / pow(fps_var, 1/3))
         y0 = {
-            'CrossFire': b / 2.56 / (sqrt(1.3 * fps_var / (abs(b)+1)) + pow(abs(b), 1/3)/2),  # 32
-            'Valve001': b / 1.56 / (sqrt(1.5 * fps_var / (abs(b)+1)) + pow(abs(b), 1/3)/4),  # 2.5+
-            'LaunchCombatUWindowsClient': b / pow(lg(fps_var, 20), 3),  # 10.0
-        }.get(win_class, b / (0.36 + pow(lg(fps_var, 32), 3)))
+            'CrossFire': b / 2.6 / (3/4) / pow(fps_var, 1/3),  # 32
+            'Valve001': b * 1.3 / pow(fps_var, 1/3),  # 2.5+
+            'LaunchCombatUWindowsClient': b / pow(fps_var, 1/3),  # 10.0
+            'LaunchUnrealUWindowsClient': b / 2.56 / pow(fps_var, 1/3),  # 20
+        }.get(win_class, b / pow(fps_var, 1/3))
 
         move_rx, x0 = track_opt(move_rx, a, x0)
         move_ry, y0 = track_opt(move_ry, b, y0)
 
-        mouse_event(MOUSEEVENTF_MOVE, int(round(x0)), int(round(y0)), 0, 0)
+        windll.user32.mouse_event(0x0001, int(round(x0)), int(round(y0)), 0, 0)
 
     # 不分敌友射击
     if win_class != 'CrossFire':
-        if move_range <= ranges or go_fire:
+        if move_range < ranges or go_fire:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
-                    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0)
+                    windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
-                    mouse_event(MOUSEEVENTF_MOVE, 0, 3, 0, 0)
+                    windll.user32.mouse_event(0x0001, 0, 2, 0, 0)
 
         if (time() * 1000 - press_time[0]) > 30.6 and GetAsyncKeyState(VK_LBUTTON):
-            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0)
+            windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
             up_time[0] = int(time() * 1000)
 
     return move_rx, move_ry
