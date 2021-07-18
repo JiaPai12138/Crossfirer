@@ -203,59 +203,17 @@ class FrameDetection:
         blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (self.side_length, self.side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
         self.net.setInput(blob)
         layerOutputs = self.net.forward(self.ln)  # 前向传播
-        return self.analyze(frames, layerOutputs, frame_width, frame_height)
+        boxes, confidences = self.analyze(layerOutputs, frame_width, frame_height)
 
-    @jit(forceobj=True)
-    def analyze(self, frames, layerOutputs, frame_width, frame_height):
         # 初始化返回数值
         x, y, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
-
-        boxes = []
-        confidences = []
-
-        # 检测目标,计算框内目标到框中心距离
-        for outputs in layerOutputs:
-            for detection in outputs:
-                scores = detection[5:]
-                classID = np.argmax(scores)
-                confidence = scores[classID]
-                if confidence > self.std_confidence and classID == 0:  # 人类/body为0
-                    box = detection[:4] * np.array([frame_width, frame_height, frame_width, frame_height])
-                    (centerX, centerY, width, height) = box.astype('int')
-                    x = int(centerX - (width / 2))
-                    y = int(centerY - (height / 2))
-                    box = [x, y, int(width), int(height)]
-                    boxes.append(box)
-                    confidences.append(float(confidence))
 
         # 移除重复
         indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.3, 0.3)
 
-        # 画框,计算距离框中心距离最小的威胁目标
+        max_at, frames = self.drawboxc(indices, boxes, frames, confidences, frame_width, frame_height)
+
         if len(indices) > 0:
-            max_var = 0
-            max_at = 0
-            for j in indices.flatten():
-                (x, y) = (boxes[j][0], boxes[j][1])
-                (w, h) = (boxes[j][2], boxes[j][3])
-                cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
-                cv2.putText(frames, str(round(confidences[j], 3)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2, cv2.LINE_AA)
-
-                # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
-                if h > w:
-                    dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * 3/16), 2))
-                else:
-                    dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 2), 2))
-
-                if dist:
-                    threat_var = pow(boxes[j][2] * boxes[j][3], 1/2) / dist
-                    if threat_var > max_var:
-                        max_var = threat_var
-                        max_at = j
-                else:
-                    max_at = j
-                    break
-
             # 指向距离最近威胁的位移
             x = boxes[max_at][0] + (boxes[max_at][2] - frame_width) / 2
             if boxes[max_at][3] > boxes[max_at][2]:
@@ -280,6 +238,57 @@ class FrameDetection:
                 fire_ok = 1
 
         return len(indices), int(x), int(y), int(ceil(fire_range)), fire_pos, fire_close, fire_ok, frames
+
+    @jit(forceobj=True)
+    def analyze(self, layerOutputs, frame_width, frame_height):
+        boxes = []
+        confidences = []
+
+        # 检测目标,计算框内目标到框中心距离
+        for outputs in layerOutputs:
+            for detection in outputs:
+                scores = detection[5:]
+                classID = np.argmax(scores)
+                confidence = scores[classID]
+                if confidence > self.std_confidence and classID == 0:  # 人类/body为0
+                    box = detection[:4] * np.array([frame_width, frame_height, frame_width, frame_height])
+                    (centerX, centerY, width, height) = box.astype('int')
+                    x = int(centerX - (width / 2))
+                    y = int(centerY - (height / 2))
+                    box = [x, y, int(width), int(height)]
+                    boxes.append(box)
+                    confidences.append(float(confidence))
+
+        return boxes, confidences
+
+    @jit(forceobj=True)
+    def drawboxc(self, indices, boxes, frames, confidences, frame_width, frame_height):
+        # 画框,计算距离框中心距离最小的威胁目标
+        max_var = 0
+        max_at = 0
+        if len(indices) > 0:
+            for j in indices.flatten():
+                (x, y) = (boxes[j][0], boxes[j][1])
+                (w, h) = (boxes[j][2], boxes[j][3])
+                cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
+                cv2.putText(frames, str(round(confidences[j], 3)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2, cv2.LINE_AA)
+
+                # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
+                if h > w:
+                    dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * 3/16), 2))
+                else:
+                    dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h / 2), 2))
+
+                if dist:
+                    threat_var = pow(boxes[j][2] * boxes[j][3], 1/2) / dist
+                    if threat_var > max_var:
+                        max_var = threat_var
+                        max_at = j
+                else:
+                    max_at = j
+                    break
+
+        return max_at, frames
 
 
 # 简单检查gpu是否够格
