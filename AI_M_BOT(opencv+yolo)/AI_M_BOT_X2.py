@@ -409,9 +409,10 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                 if arr[12] == 1 or arr[14]:  # 简易压枪
                     windll.user32.mouse_event(0x0001, 0, 2, 0, 0)
 
-        if (time() * 1000 - press_time[0]) > 30.6 and GetAsyncKeyState(VK_LBUTTON):
-            windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
-            up_time[0] = int(time() * 1000)
+        if GetAsyncKeyState(VK_LBUTTON):
+            if (time() * 1000 - press_time[0]) > 30.6 or not arr[11]:
+                windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
+                up_time[0] = int(time() * 1000)
 
     return move_rx, move_ry
 
