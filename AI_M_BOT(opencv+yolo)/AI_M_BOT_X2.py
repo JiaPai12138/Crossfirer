@@ -207,7 +207,7 @@ class FrameDetection:
         boxes, confidences = analyze(layerOutputs, self.std_confidence, frame_width, frame_height)
 
         # 初始化返回数值
-        x, y, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
+        x0, y0, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
 
         # 移除重复
         indices = cv2.dnn.NMSBoxes(boxes, confidences, self.nms_conf, self.nms_conf - 0.1)
