@@ -142,8 +142,6 @@ class FrameDetection:
     # 构造函数
     def __init__(self, aim0mode, hwnd_value, gpu_level):
         self.side_length = {
-            # 0: 224,  # 超速自瞄
-            # 1: 320,  # 极速自瞄
             1: 416,  # 高速自瞄
             2: 512,  # 标准自瞄
             3: 608,  # 高精自瞄
@@ -151,8 +149,8 @@ class FrameDetection:
 
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         self.std_confidence = {
-            'Valve001': 0.45,
-            'CrossFire': 0.5,
+            'Valve001': 0.42,
+            'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
 
         load_file('yolov4-tiny-vvv', self.CONFIG_FILE, self.WEIGHT_FILE)
@@ -165,7 +163,7 @@ class FrameDetection:
         # 检测并设置在GPU上运行图像识别
         if cv2.cuda.getCudaEnabledDeviceCount():
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)  # _FP16
             if not check_gpu(gpu_level):
                 print('您的显卡配置不够')
         else:
@@ -174,18 +172,11 @@ class FrameDetection:
     def detect(self, frame):
         try:
             frames = np.array(frame)  # 从队列中读取帧
-            try:
-                if frames.any():
-                    frame_height, frame_width = frames.shape[:2]
-            except AttributeError:  # 游戏窗口意外最小化后不强制(报错)退出
-                return
-        except cv2.error:
-            return
-
-        try:
+            if frames.any():
+                frame_height, frame_width = frames.shape[:2]
             frame_height += 0
             frame_width += 0
-        except UnboundLocalError:
+        except (cv2.error, AttributeError, UnboundLocalError):
             return
 
         # 画实心框避免错误检测武器与手
@@ -473,7 +464,7 @@ def show_frames(output_pipe, array):
             show_str0 = str('{:03.0f}'.format(array[3]))
             show_str1 = 'Detected ' + str('{:02.0f}'.format(array[11])) + ' targets'
             show_str2 = 'Aiming at ' + fire_target_show[array[12]] + ' position'
-            show_str3 = 'Fire rate is ' + str('{:02.0f}'.format((10000 / (array[13] + 306)))) + ' RPS'
+            show_str3 = 'Fire rate is at ' + str('{:02.0f}'.format((10000 / (array[13] + 306)))) + ' RPS'
             show_str4 = 'Please enjoy coding ^_^'
             if show_img.any():
                 show_img = cv2.resize(show_img, (array[5], array[5]))
@@ -601,7 +592,7 @@ if __name__ == '__main__':
     arr[10] = aim_mode  # 自瞄模式
     arr[11] = 0  # 敌人数量
     arr[12] = 0  # 瞄准位置(0中1头2胸)
-    arr[13] = 1200  # 射击速度
+    arr[13] = 944  # 射击速度
     arr[14] = 0  # 敌人近否
     arr[15] = 0  # 所持武器(0无1主2副)
     arr[16] = 0  # 指向身体
@@ -672,7 +663,7 @@ if __name__ == '__main__':
         if time_used:  # 防止被0除
             current_fps = 1 / time_used
             process_time.append(current_fps)
-            if len(process_time) > 59:
+            if len(process_time) > 119:
                 process_time.popleft()
 
             show_fps[0] = statistics.median(process_time)  # 计算fps

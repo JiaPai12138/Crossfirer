@@ -20,7 +20,6 @@ from time import sleep, time
 from platform import release
 from random import uniform
 from ctypes import windll
-from numba import jit
 import numpy as np
 import pywintypes
 import statistics
@@ -134,10 +133,12 @@ class FrameDetection:
     std_confidence = 0  # 置信度阀值
     nms_conf = 0.3  # 非极大值抑制
     win_class_name = ''  # 窗口类名
+    class_names = ''  # 检测类名
     CONFIG_FILE = ['./']
     WEIGHT_FILE = ['./']
+    COLORS = [(0, 0, 255), (255, 0, 0), (0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 127, 0), (0, 127, 255), (255, 0, 127), (127, 0, 255)]
+    model = ''  # 建立模型
     net = ''  # 建立网络
-    ln = ''
 
     # 构造函数
     def __init__(self, aim0mode, hwnd_value, gpu_level):
@@ -145,27 +146,28 @@ class FrameDetection:
             0: 224,  # 超速自瞄
             1: 320,  # 极速自瞄
             2: 416,  # 高速自瞄
-            # 3: 512,  # 标准自瞄
-            # 4: 608,  # 高精自瞄
         }.get(aim0mode)
 
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         self.std_confidence = {
-            'Valve001': 0.45,
-            'CrossFire': 0.5,
+            'Valve001': 0.42,
+            'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
 
         load_file('yolov4-tiny-vvv', self.CONFIG_FILE, self.WEIGHT_FILE)
-        self.net = cv2.dnn.readNetFromDarknet(self.CONFIG_FILE[0], self.WEIGHT_FILE[0])  # 读取权重与配置文件
-
-        # 读取YOLO神经网络内容
-        self.ln = self.net.getLayerNames()
-        self.ln = [self.ln[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
+        self.net = cv2.dnn.readNet(self.CONFIG_FILE[0], self.WEIGHT_FILE[0])  # 读取权重与配置文件
+        self.model = cv2.dnn_DetectionModel(self.net)
+        self.model.setInputParams(size=(self.side_length, self.side_length), scale=1/255, swapRB=False)
+        try:
+            with open('classes.txt', 'r') as f:
+                self.class_names = [cname.strip() for cname in f.readlines()]
+        except FileNotFoundError:
+            self.class_names = ['body']
 
         # 检测并设置在GPU上运行图像识别
         if cv2.cuda.getCudaEnabledDeviceCount():
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)  # _FP16
             if not check_gpu(gpu_level):
                 print('您的显卡配置不够')
         else:
@@ -174,18 +176,11 @@ class FrameDetection:
     def detect(self, frame):
         try:
             frames = np.array(frame)  # 从队列中读取帧
-            try:
-                if frames.any():
-                    frame_height, frame_width = frames.shape[:2]
-            except AttributeError:  # 游戏窗口意外最小化后不强制(报错)退出
-                return
-        except cv2.error:
-            return
-
-        try:
+            if frames.any():
+                frame_height, frame_width = frames.shape[:2]
             frame_height += 0
             frame_width += 0
-        except UnboundLocalError:
+        except (cv2.error, AttributeError, UnboundLocalError):
             return
 
         # 画实心框避免错误检测武器与手
@@ -200,84 +195,56 @@ class FrameDetection:
             cv2.rectangle(frames, (int(frame_width*3/4), int(frame_height*3/5)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
             cv2.rectangle(frames, (0, int(frame_height*3/5)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
 
-        # 检测
-        blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (self.side_length, self.side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
-        self.net.setInput(blob)
-        layerOutputs = np.vstack(self.net.forward(self.ln))  # 前向传播
-        boxes, confidences = analyze(layerOutputs, self.std_confidence, frame_width, frame_height)
-
         # 初始化返回数值
         x0, y0, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
 
-        # 移除重复
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, self.nms_conf, self.nms_conf - 0.1)
+        # 检测
+        classes, scores, boxes = self.model.detect(frames, self.std_confidence, self.nms_conf)
+        threat_list = []
 
-        # 画框,计算距离框中心距离最小的威胁目标
-        max_var = 0
-        max_at = 0
-        if len(indices) > 0:
-            for j in indices.flatten():
-                (x, y) = (boxes[j][0], boxes[j][1])
-                (w, h) = (boxes[j][2], boxes[j][3])
-                cv2.rectangle(frames, (x, y), (x + w, y + h), (0, 36, 255), 2)
-                cv2.putText(frames, str(round(confidences[j], 3)), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2, cv2.LINE_AA)
+        # 画框
+        for (classid, score, box) in zip(classes, scores, boxes):
+            color = self.COLORS[int(classid) % len(self.COLORS)]
+            label = self.class_names[classid[0]] + ': ' + str(round(score[0], 3))
+            x, y, w, h = box
+            cv2.rectangle(frames, (x, y), (x + w, y + h), color, 2)
+            cv2.putText(frames, label, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
-                # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
+            # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
+            if classid == 0:
                 h_factor = (0.1875 if h > w else 0.5)
                 dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * h_factor), 2))
+                threat_var = (pow(w * h, 1/2) / dist if dist else 999)
+                threat_list.append([-threat_var, box])
 
-                if dist:
-                    threat_var = pow(boxes[j][2] * boxes[j][3], 1/2) / dist
-                    if threat_var > max_var:
-                        max_var = threat_var
-                        max_at = j
-                else:
-                    max_at = j
-                    break
+        if len(threat_list):
+            threat_list.sort(key=lambda x:x[0])
+            x_tht, y_tht, w_tht, h_tht = threat_list[0][1]
 
             # 指向距离最近威胁的位移
-            x0 = boxes[max_at][0] + (boxes[max_at][2] - frame_width) / 2
-            if boxes[max_at][3] > boxes[max_at][2]:
-                y1 = boxes[max_at][1] + boxes[max_at][3] / 8 - frame_height / 2  # 爆头优先
-                y2 = boxes[max_at][1] + boxes[max_at][3] / 4 - frame_height / 2  # 击中优先
-                fire_close = (1 if frame_width / boxes[max_at][2] <= 8 else 0)
+            x0 = x_tht + (w_tht - frame_width) / 2
+            if h_tht > w_tht:
+                y1 = y_tht + h_tht / 8 - frame_height / 2  # 爆头优先
+                y2 = y_tht + h_tht / 4 - frame_height / 2  # 击中优先
+                fire_close = (1 if frame_width / w_tht <= 8 else 0)
                 if abs(y1) <= abs(y2) or fire_close:
                     y0 = y1
-                    fire_range = boxes[max_at][2] / 8
+                    fire_range = w_tht / 8
                     fire_pos = 1
                 else:
                     y0 = y2
-                    fire_range = boxes[max_at][2] / 4
+                    fire_range = w_tht / 4
                     fire_pos = 2
             else:
-                y0 = boxes[max_at][1] + (boxes[max_at][3] - frame_height) / 2
-                fire_range = min(boxes[max_at][2], boxes[max_at][3]) / 2
+                y0 = y_tht + (h_tht - frame_height) / 2
+                fire_range = min(w_tht, h_tht) / 2
                 fire_pos = 0
 
             # 查看是否已经指向目标
-            if 1/4 * boxes[max_at][2] < frame_width / 2 - boxes[max_at][0] < 3/4 * boxes[max_at][2] and 1/4 * boxes[max_at][3] < frame_height / 2 - boxes[max_at][1] < 11/12 * boxes[max_at][3]:
+            if 1/4 * w_tht < frame_width / 2 - x_tht < 3/4 * w_tht and 1/4 * h_tht < frame_height / 2 - y_tht < 11/12 * h_tht:
                 fire_ok = 1
 
-        return len(indices), int(x0), int(y0), int(ceil(fire_range)), fire_pos, fire_close, fire_ok, frames
-
-
-# 分析预测数据
-@jit(nopython=True)
-def analyze(layerOutputs, std_confidence, frame_width, frame_height):
-    boxes = []
-    confidences = []
-
-    # 检测目标,计算框内目标到框中心距离
-    for outputs in layerOutputs:
-        scores = outputs[5:]
-        classID = np.argmax(scores)
-        confidence = scores[classID]
-        if confidence > std_confidence and classID == 0:  # 人类/body为0
-            X, Y, W, H = outputs[:4] * np.array([frame_width, frame_height, frame_width, frame_height])
-            boxes.append([int(X - (W / 2)), int(Y - (H / 2)), int(W), int(H)])
-            confidences.append(float(confidence))
-
-    return boxes, confidences
+        return len(threat_list), int(x0), int(y0), int(ceil(fire_range)), fire_pos, fire_close, fire_ok, frames
 
 
 # 简单检查gpu是否够格
@@ -473,7 +440,7 @@ def show_frames(output_pipe, array):
             show_str0 = str('{:03.0f}'.format(array[3]))
             show_str1 = 'Detected ' + str('{:02.0f}'.format(array[11])) + ' targets'
             show_str2 = 'Aiming at ' + fire_target_show[array[12]] + ' position'
-            show_str3 = 'Fire rate is ' + str('{:02.0f}'.format((10000 / (array[13] + 306)))) + ' RPS'
+            show_str3 = 'Fire rate is at ' + str('{:02.0f}'.format((10000 / (array[13] + 306)))) + ' RPS'
             show_str4 = 'Please enjoy coding ^_^'
             if show_img.any():
                 show_img = cv2.resize(show_img, (array[5], array[5]))
@@ -601,7 +568,7 @@ if __name__ == '__main__':
     arr[10] = aim_mode  # 自瞄模式
     arr[11] = 0  # 敌人数量
     arr[12] = 0  # 瞄准位置(0中1头2胸)
-    arr[13] = 1200  # 射击速度
+    arr[13] = 944  # 射击速度
     arr[14] = 0  # 敌人近否
     arr[15] = 0  # 所持武器(0无1主2副)
     arr[16] = 0  # 指向身体
@@ -672,7 +639,7 @@ if __name__ == '__main__':
         if time_used:  # 防止被0除
             current_fps = 1 / time_used
             process_time.append(current_fps)
-            if len(process_time) > 59:
+            if len(process_time) > 119:
                 process_time.popleft()
 
             show_fps[0] = statistics.median(process_time)  # 计算fps
