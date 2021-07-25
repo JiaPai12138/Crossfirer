@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppID "1729353B-4A53-489D-9DE7-34F75512CB74"
-#define MyAppName "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
-#define MyAppName_std "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¼ï¿½ï¿½"
-#define MyAppName_ex "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¿ï¿½ï¿½ï¿½"
-#define MyAppVersion "2.5.1"
-#define MyAppPublisher "ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½ï¿½"
+#define MyAppName "Éñ¾­×ÔÃé"
+#define MyAppName_std "Éñ¾­×ÔÃé±ê×¼°æ"
+#define MyAppName_ex "Éñ¾­×ÔÃéÉÕ¿¨°æ"
+#define MyAppVersion "2.5.5"
+#define MyAppPublisher "ÃûÕìÌ½¿ÂÄÏÕ½¶Ó"
 #define MyAppURL "https://space.bilibili.com/637136569"
 #define MyAppExeName1 "AI_M_BOT_X1.exe"
 #define MyAppExeName2 "AI_M_BOT_X2.exe"
@@ -29,13 +29,13 @@ DefaultDirName=D:\Program Files\AI-M-BOT
 DisableProgramGroupPage=yes
 DisableDirPage=auto
 LicenseFile=.\Neurotic AImbot\LICENSE.txt
-InfoAfterFile=.\Neurotic AImbot\Ê¹ï¿½ï¿½Ëµï¿½ï¿½.rtf
+InfoAfterFile=.\Neurotic AImbot\Ê¹ÓÃËµÃ÷.rtf
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=.
-OutputBaseFilename=ï¿½ï¿½ï¿½ï¿½ï¿½é°²×°{#MyAppVersion}
+OutputBaseFilename=Éñ¾­×ÔÃé¸üÐÂ{#MyAppVersion}
 SetupIconFile=.\Logo\AI-M-BOT1.ico
-Password=ï¿½ï¿½ï¿½ï¿½Ì½ï¿½ï¿½ï¿½ï¿½Õ½ï¿½Ó³ï¿½Æ·
+Password=ÃûÕìÌ½¿ÂÄÏÕ½¶Ó³öÆ·
 Encryption=yes
 Compression=lzma2/ultra64
 SolidCompression=yes

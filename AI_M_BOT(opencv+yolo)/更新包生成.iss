@@ -5,7 +5,7 @@
 #define MyAppName "神经自瞄"
 #define MyAppName_std "神经自瞄标准版"
 #define MyAppName_ex "神经自瞄烧卡版"
-#define MyAppVersion "2.5.1"
+#define MyAppVersion "2.5.5"
 #define MyAppPublisher "名侦探柯南战队"
 #define MyAppURL "https://space.bilibili.com/637136569"
 #define MyAppExeName1 "AI_M_BOT_X1.exe"

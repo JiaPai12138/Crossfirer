@@ -185,7 +185,7 @@ CheckUIA(SectionName)
 ;拷贝自 https://github.com/camerb/AHKs/blob/master/thirdParty/ProcessInfo.ahk ,检测脚本运行的进程ID
 ProcessInfo_GetCurrentProcessID()
 {
-	Return DllCall("GetCurrentProcessId")
+    Return DllCall("GetCurrentProcessId")
 }
 ;==================================================================================
 ;拷贝自 https://www.reddit.com/r/AutoHotkey/comments/6zftle/process_name_from_pid/ ,通过进程ID得到进程完整路径
@@ -196,7 +196,7 @@ GetProcessName(ProcessID)
         size := VarSetCapacity(buf, 0x0104 << 1, 0)
         If (DllCall("psapi\GetModuleFileNameEx", "ptr", hProcess, "ptr", 0, "ptr", &buf, "uint", size))
             Return StrGet(&buf), DllCall("CloseHandle", "ptr", hProcess)
-		DllCall("CloseHandle", "ptr", hProcess)
+        DllCall("CloseHandle", "ptr", hProcess)
     }
     Return False
 }
@@ -348,15 +348,45 @@ GetColorStatus(X, Y, color_lib)
     Return InStr(color_lib, color_got)
 }
 ;==================================================================================
-;控制鼠标上下左右相对移动,减少大幅度直线移动的几率以避免16-2
+;控制鼠标精确上下左右相对移动,减少大幅度直线移动的几率以避免16-2
 mouseXY(x1, y1)
 {
+    DPI_Ratio := Round(A_ScreenDPI / 96, 3)
+    x1 := (x1 != 0) ? (x1 / Abs(x1) * Ceil(Abs(x1) / DPI_Ratio)) : 0
+    y1 := (y1 != 0) ? (y1 / Abs(y1) * Ceil(Abs(y1) / DPI_Ratio)) : 0
+    Origin_Status := SPI_GETMOUSE()
+    If Origin_Status
+        SPI_SETMOUSE(0)
+
     Random, RandXY, -1, 1
     If (x1 = 0) && (y1 > 2)
         x1 := RandXY
     Else If (y1 = 0) && (x1 > 2)
         y1 := RandXY
     DllCall("mouse_event", uint, 0x0001, int, x1, int, y1, uint, 0, int, 0)
+
+    If Origin_Status
+        SPI_SETMOUSE(1)
+}
+;==================================================================================
+;检测鼠标加速状态,拷贝自 https://autohotkey.com/board/topic/43700-mouse-acceleration-onoff/
+SPI_GETMOUSE()
+{
+    VarSetCapacity(SpeedValue, 12)
+    If !DllCall("SystemParametersInfo", "uint", 3, "uint", 0, "uint", &SpeedValue, "uint", 0)
+        Return False ;失败
+    Return NumGet(SpeedValue, 4) ;最大临界点
+}
+;==================================================================================
+;设置鼠标加速,拷贝自 https://autohotkey.com/board/topic/43700-mouse-acceleration-onoff/
+;fWinIni:(0),(1:更新用户资料),(2:通知程序),(3:1与2)
+SPI_SETMOUSE(accel, low := "", high := "", fWinIni := 0)
+{
+    VarSetCapacity(SpeedValue, 12)
+    , NumPut(accel
+    , NumPut(high != "" ? high : accel ? 10 : 0
+    , NumPut(low != "" ? low : accel ? 6 : 0, SpeedValue)))
+    Return 0 != DllCall("SystemParametersInfo", "uint", 4, "uint", 0, "uint", &SpeedValue, "uint", 0)
 }
 ;==================================================================================
 ;拷贝自 https://autohotkey.com/board/topic/53956-fast-mouse-control/ 控制鼠标上下左右绝对屏幕移动,相当于CoordMode,Mouse,Screen下的MouseMove
@@ -391,14 +421,30 @@ press_key(key_name, press_time, sleep_time)
 {
     ;本机鼠标延迟测试,包括按下弹起
     If InStr(key_name, "Button")
-		press_time -= 2.75, sleep_time -= 2.75
-	Else
-		press_time -= 0.4, sleep_time -= 0.4
+        press_time -= 2.75, sleep_time -= 2.75
+    Else
+        press_time -= 0.4, sleep_time -= 0.4
+
     If !GetKeyState(key_name)
-		Send, {%key_name% DownTemp}
+    {
+        Switch key_name
+        {
+            Case "LButton": DllCall("mouse_event", "UInt", 0x02) ;左键按下
+            Case "RButton": DllCall("mouse_event", "UInt", 0x08) ;右键按下
+            Default: Send, {%key_name% DownTemp}
+        }
+    }
     HyperSleep(press_time)
+
     If !GetKeyState(key_name, "P")
-        Send, {Blind}{%key_name% Up}
+    {
+        Switch key_name
+        {
+            Case "LButton": DllCall("mouse_event", "UInt", 0x04) ;左键弹起
+            Case "RButton": DllCall("mouse_event", "UInt", 0x10) ;右键弹起
+            Default: Send, {Blind}{%key_name% Up}
+        }
+    }
     HyperSleep(sleep_time)
 }
 ;==================================================================================

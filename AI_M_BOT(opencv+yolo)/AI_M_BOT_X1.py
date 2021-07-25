@@ -9,20 +9,20 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
+from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
-from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
 from sys import exit, executable, platform
 from math import sqrt, pow, ceil
 from collections import deque
+from statistics import median
 from time import sleep, time
 from platform import release
 from random import uniform
 from ctypes import windll
 import numpy as np
 import pywintypes
-import statistics
 import nvidia_smi
 import win32gui
 import win32ui
@@ -131,30 +131,30 @@ class FrameDetection:
     # 类属性
     side_length = 0  # 输入尺寸
     std_confidence = 0  # 置信度阀值
-    nms_conf = 0.3  # 非极大值抑制
+    conf_thd = 0.4  # 置信度阀值
+    nms_thd = 0.3  # 非极大值抑制
     win_class_name = ''  # 窗口类名
     class_names = ''  # 检测类名
     CONFIG_FILE = ['./']
     WEIGHT_FILE = ['./']
-    COLORS = [(0, 0, 255), (255, 0, 0), (0, 255, 255), (255, 255, 0), (0, 255, 0), (255, 127, 0), (0, 127, 255), (255, 0, 127), (127, 0, 255)]
+    COLORS = []
     model = ''  # 建立模型
     net = ''  # 建立网络
 
     # 构造函数
     def __init__(self, aim0mode, hwnd_value, gpu_level):
         self.side_length = {
-            0: 224,  # 超速自瞄
-            1: 320,  # 极速自瞄
-            2: 416,  # 高速自瞄
+            1: 416,  # 高速自瞄
+            2: 416,  # 高精自瞄
         }.get(aim0mode)
 
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         self.std_confidence = {
-            'Valve001': 0.42,
+            'Valve001': 0.45,
             'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
 
-        load_file('yolov4-tiny-vvv', self.CONFIG_FILE, self.WEIGHT_FILE)
+        load_file('yolov4-tiny', self.CONFIG_FILE, self.WEIGHT_FILE)
         self.net = cv2.dnn.readNet(self.CONFIG_FILE[0], self.WEIGHT_FILE[0])  # 读取权重与配置文件
         self.model = cv2.dnn_DetectionModel(self.net)
         self.model.setInputParams(size=(self.side_length, self.side_length), scale=1/255, swapRB=False)
@@ -162,7 +162,9 @@ class FrameDetection:
             with open('classes.txt', 'r') as f:
                 self.class_names = [cname.strip() for cname in f.readlines()]
         except FileNotFoundError:
-            self.class_names = ['body']
+            self.class_names = ['live-body', 'dead-body']
+        for i in range(len(self.class_names)):
+            self.COLORS.append(tuple(np.random.randint(256, size=3).tolist()))
 
         # 检测并设置在GPU上运行图像识别
         if cv2.cuda.getCudaEnabledDeviceCount():
@@ -199,7 +201,7 @@ class FrameDetection:
         x0, y0, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
 
         # 检测
-        classes, scores, boxes = self.model.detect(frames, self.std_confidence, self.nms_conf)
+        classes, scores, boxes = self.model.detect(frames, self.conf_thd, self.nms_thd)
         threat_list = []
 
         # 画框
@@ -208,14 +210,14 @@ class FrameDetection:
             label = self.class_names[classid[0]] + ': ' + str(round(score[0], 3))
             x, y, w, h = box
             cv2.rectangle(frames, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(frames, label, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            cv2.putText(frames, label, (int(x + w/2 - 4*len(label)), int(y + h/2 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
             # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
-            if classid == 0:
+            if classid == 0 and score > self.std_confidence:
                 h_factor = (0.1875 if h > w else 0.5)
                 dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * h_factor), 2))
-                threat_var = (pow(w * h, 1/2) / dist if dist else 999)
-                threat_list.append([-threat_var, box])
+                threat_var = -(pow(w * h, 1/2) / dist if dist else 999)
+                threat_list.append([threat_var, box])
 
         if len(threat_list):
             threat_list.sort(key=lambda x:x[0])
@@ -241,7 +243,7 @@ class FrameDetection:
                 fire_pos = 0
 
             # 查看是否已经指向目标
-            if 1/4 * w_tht < frame_width / 2 - x_tht < 3/4 * w_tht and 1/4 * h_tht < frame_height / 2 - y_tht < 11/12 * h_tht:
+            if 1/4 * w_tht > abs(frame_width / 2 - x_tht - w_tht / 2) and 2/5 * h_tht > abs(frame_height / 2 - y_tht - h_tht / 2):
                 fire_ok = 1
 
         return len(threat_list), int(x0), int(y0), int(ceil(fire_range)), fire_pos, fire_close, fire_ok, frames
@@ -264,7 +266,10 @@ def check_gpu(level):
 # 高DPI感知
 def set_dpi():
     if int(release()) >= 7:
-        windll.user32.SetProcessDPIAware()
+        try:
+            windll.shcore.SetProcessDpiAwareness(1)
+        except:
+            windll.user32.SetProcessDPIAware()
     else:
         exit(0)
 
@@ -304,7 +309,8 @@ def restart():
 def close():
     show_proc.terminate()
     detect1_proc.terminate()
-    # detect2_proc.terminate()
+    if not MP_setting:
+        detect2_proc.terminate()
 
 
 # 加载配置与权重文件
@@ -343,20 +349,27 @@ def clear():
 # 移动鼠标(并射击)
 def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move_ry):
     move_range = sqrt(pow(a, 2) + pow(b, 2))
+    DPI_Var = windll.user32.GetDpiForWindow(window_hwnd) / 96
+    enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
+    if enhanced_holdback[1]:
+        win32gui.SystemParametersInfo(SPI_SETMOUSE, [0, 0, 0], 0)
+
     if fps_var:
         if move_range > 5 * ranges:
             b = uniform(0.7 * b, 1.3 * b)
+        a /= DPI_Var
+        b /= DPI_Var
         x0 = {
-            'CrossFire': a / 2.6 / (3/4) / pow(fps_var, 1/3),  # 32
-            'Valve001': a * 1.3 / pow(fps_var, 1/3),  # 2.5+
-            'LaunchCombatUWindowsClient': a * 1.36 / pow(fps_var, 1/3),  # 10.0
-            'LaunchUnrealUWindowsClient': a / 2.56 / pow(fps_var, 1/3),  # 20
+            'CrossFire': a / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3),  # 32
+            'Valve001': a * 1.92 / pow(fps_var, 1/3),  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': a * 1.52 / pow(fps_var, 1/3),  # 10.0
+            'LaunchUnrealUWindowsClient': a / 2.22 / pow(fps_var, 1/3),  # 20
         }.get(win_class, a / pow(fps_var, 1/3))
         y0 = {
-            'CrossFire': b / 2.6 / (3/4) / pow(fps_var, 1/3),  # 32
-            'Valve001': b * 1.3 / pow(fps_var, 1/3),  # 2.5+
-            'LaunchCombatUWindowsClient': b * 1.36 / pow(fps_var, 1/3),  # 10.0
-            'LaunchUnrealUWindowsClient': b / 2.56 / pow(fps_var, 1/3),  # 20
+            'CrossFire': b / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3),  # 32
+            'Valve001': b * 1.92 / pow(fps_var, 1/3),  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': b * 1.52 / pow(fps_var, 1/3),  # 10.0
+            'LaunchUnrealUWindowsClient': b / 2.22 / pow(fps_var, 1/3),  # 20
         }.get(win_class, b / pow(fps_var, 1/3))
 
         move_rx, x0 = track_opt(move_rx, a, x0)
@@ -366,7 +379,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 
     # 不分敌友射击
     if win_class != 'CrossFire':
-        if move_range < ranges or go_fire:
+        if go_fire or move_range < ranges:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
@@ -379,13 +392,16 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                 windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
                 up_time[0] = int(time() * 1000)
 
+    if enhanced_holdback[1]:
+        win32gui.SystemParametersInfo(SPI_SETMOUSE, enhanced_holdback, 0)
+
     return move_rx, move_ry
 
 
 # 追踪优化
 def track_opt(record_list, range_m, move):
     if len(record_list):
-        if abs(statistics.median(record_list) - range_m) <= 15 and range_m <= 80:
+        if abs(median(record_list) - range_m) <= 15 and range_m <= 80:
             record_list.append(range_m)
         else:
             record_list.clear()
@@ -505,14 +521,23 @@ if __name__ == '__main__':
     # 设置工作路径
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    # 选择分析输入大小
+    # 选择YOLO模型(YOLOv4-tiny或YOLOv5m)
     aim_mode = -1
-    while not (2 >= aim_mode >= 0):
-        user_input = input('你想要的自瞄模式是?(0: 超速, 1:极速, 2:高速): ')
+    while not (2 >= aim_mode >= 1):
+        user_input = input('你想要的自瞄模型是?(1:高速, 2:高精): ')
         try:
             aim_mode = int(user_input)
         except ValueError:
             print('呵呵...请重新输入')
+
+    # 选择是否需要双检测进程
+    MP_setting = -1
+    while not (2 >= MP_setting >= 0):
+        user_choice = input('你需要第二检测进程吗?(1:不要, 2:要个头, 0:要): ')
+        try:
+            MP_setting = int(user_choice)
+        except ValueError:
+            print('呵呵...请重新选择')
 
     # 初始化变量以及提升进程优先级
     run_platform = platform
@@ -532,7 +557,7 @@ if __name__ == '__main__':
     move_record_y = []
 
     # 如果文件不存在则退出
-    check_file('yolov4-tiny-vvv')
+    check_file('yolov4-tiny')
 
     # 分享数据以及展示新进程
     arr = Array('i', range(21))
@@ -565,7 +590,7 @@ if __name__ == '__main__':
     arr[7] = 0  # 鼠标移动x
     arr[8] = 0  # 鼠标移动r
     arr[9] = 0  # 鼠标开火r
-    arr[10] = aim_mode  # 自瞄模式
+    arr[10] = aim_mode  # 自瞄模型
     arr[11] = 0  # 敌人数量
     arr[12] = 0  # 瞄准位置(0中1头2胸)
     arr[13] = 944  # 射击速度
@@ -573,7 +598,8 @@ if __name__ == '__main__':
     arr[15] = 0  # 所持武器(0无1主2副)
     arr[16] = 0  # 指向身体
     detect1_proc = Process(target=detection1, args=(queue, arr, frame_input,))
-    # detect2_proc = Process(target=detection2, args=(queue, arr,))
+    if not MP_setting:
+        detect2_proc = Process(target=detection2, args=(queue, arr,))
 
     # 寻找读取游戏窗口类型并确认截取位置
     window_class_name, window_hwnd, test_win[0] = get_window_info()
@@ -586,16 +612,20 @@ if __name__ == '__main__':
         win_client_rect = win32gui.GetClientRect(window_hwnd)
         if win_client_rect[2] - win_client_rect[0] > 0 and win_client_rect[3] - win_client_rect[1] > 0:
             window_ready = 1
+    client_ratio = (win_client_rect[2] - win_client_rect[0]) / (win_client_rect[3] - win_client_rect[1])
 
     # 初始化截图类
     win_cap = WindowCapture(window_class_name)
 
     # 开始分析进程
     detect1_proc.start()
-    # detect2_proc.start()
+    if not MP_setting:
+        detect2_proc.start()
 
     # 等待分析类初始化
-    while not arr[1]:  # and arr[2]
+    while not (arr[1] and arr[2]):
+        if MP_setting:
+            arr[2] = 1
         sleep(1)
 
     # 清空命令指示符面板
@@ -642,7 +672,7 @@ if __name__ == '__main__':
             if len(process_time) > 119:
                 process_time.popleft()
 
-            show_fps[0] = statistics.median(process_time)  # 计算fps
+            show_fps[0] = median(process_time)  # 计算fps
             arr[3] = int(show_fps[0])
 
     close()
