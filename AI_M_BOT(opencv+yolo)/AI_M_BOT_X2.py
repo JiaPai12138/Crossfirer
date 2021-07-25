@@ -376,7 +376,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, [0, 0, 0], 0)
 
-    if fps_var:
+    if fps_var and guide_to_target[0]:
         if move_range > 5 * ranges:
             b = uniform(0.7 * b, 1.3 * b)
         a /= DPI_Var
@@ -450,6 +450,10 @@ def check_status(exit0, mouse):
     if GetAsyncKeyState(0x33) or GetAsyncKeyState(0x34):  # 3,4
         mouse = 0
         arr[15] = 0
+    if GetAsyncKeyState(0x46):  # F
+        guide_to_target[0] = True
+    if GetAsyncKeyState(0x4A):  # J
+        guide_to_target[0] = False
     if GetAsyncKeyState(VK_MENU) and platform != 'win32':  # Alt
         win_cap.update_window_info()
     if GetAsyncKeyState(0x50):  # P
@@ -563,8 +567,7 @@ if __name__ == '__main__':
             print('呵呵...请重新选择')
 
     # 初始化变量以及提升进程优先级
-    run_platform = platform
-    if run_platform == 'win32':
+    if platform == 'win32':
         pid = GetCurrentProcessId()
         handle = OpenProcess(PROCESS_ALL_ACCESS, True, pid)
         SetPriorityClass(handle, ABOVE_NORMAL_PRIORITY_CLASS)
@@ -578,6 +581,7 @@ if __name__ == '__main__':
     test_win = [False]
     move_record_x = []
     move_record_y = []
+    guide_to_target = [True]
 
     # 如果文件不存在则退出
     check_file('yolov4-tiny')
@@ -658,7 +662,7 @@ if __name__ == '__main__':
 
     while True:
         # 选择截图方式
-        screenshot = (win_cap.get_screenshot() if run_platform == 'win32' else win_cap.grab_screenshot())
+        screenshot = (win_cap.get_screenshot() if platform == 'win32' else win_cap.grab_screenshot())
 
         try:
             screenshot.any()
