@@ -33,7 +33,7 @@ InfoAfterFile=.\Neurotic AImbot\使用说明.rtf
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=.
-OutputBaseFilename=神经自瞄更新{#MyAppVersion}
+OutputBaseFilename=神经自瞄安装{#MyAppVersion}
 SetupIconFile=.\Logo\AI-M-BOT1.ico
 Password=名侦探柯南战队出品
 Encryption=yes
