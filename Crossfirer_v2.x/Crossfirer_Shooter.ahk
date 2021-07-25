@@ -378,7 +378,7 @@ CheckSnipe(Xvar, Yvar, Wvar, Hvar)
         Return !ErrorLevel
     }
     Else
-        Return GetColorStatus(Xvar + Wvar // 2 + 1, Yvar + Hvar // 2 + Hvar // 4.5), "0x000000")
+        Return GetColorStatus(Xvar + Wvar // 2 + 1, Yvar + Hvar // 2 + Hvar // 4.5, "0x000000")
     Return False
 }
 ;==================================================================================
