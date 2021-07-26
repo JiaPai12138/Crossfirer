@@ -97,7 +97,7 @@ Return
     If CF_Now.GetStatus()
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
-        Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
+        ;Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
         If Gun_Chosen >= 0
         {
             GuiControl, recoil_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
@@ -109,7 +109,7 @@ Return
 Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
-    Gui, circle: Show, Hide
+    ;Gui, circle: Show, Hide
     GuiControl, recoil_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("recoil_mode", "ModeClick", "压枪准备中", XGui5, YGui5)
 Return
@@ -118,12 +118,12 @@ Return
     If CF_Now.GetStatus()
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
-        Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
+        ;Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
     }
 Return
 
 ~*Rbutton Up::
-    Gui, circle: Show, Hide
+    ;Gui, circle: Show, Hide
 Return
 
 ~*NumpadAdd:: ;按级别压枪
