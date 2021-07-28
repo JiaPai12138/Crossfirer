@@ -421,30 +421,38 @@ press_key(key_name, press_time, sleep_time)
 {
     ;本机鼠标延迟测试,包括按下弹起
     If InStr(key_name, "Button")
-        press_time -= 2.75, sleep_time -= 2.75
+        press_time -= 5.6, sleep_time -= 5.6
     Else
-        press_time -= 0.4, sleep_time -= 0.4
+    {
+        press_time -= 3.2, sleep_time -= 3.2
+        VirtualKey := GetKeyVK(key_name)
+        ScanCode := GetKeySC(key_name)
+    }
 
+    Suspend, On
     If !GetKeyState(key_name)
     {
         Switch key_name
         {
             Case "LButton": DllCall("mouse_event", "UInt", 0x02) ;左键按下
             Case "RButton": DllCall("mouse_event", "UInt", 0x08) ;右键按下
-            Default: Send, {%key_name% DownTemp}
+            Default: DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 0, "Int", 0)
         }
     }
+    Suspend, Off
     HyperSleep(press_time)
 
+    Suspend, On
     If !GetKeyState(key_name, "P")
     {
         Switch key_name
         {
             Case "LButton": DllCall("mouse_event", "UInt", 0x04) ;左键弹起
             Case "RButton": DllCall("mouse_event", "UInt", 0x10) ;右键弹起
-            Default: Send, {Blind}{%key_name% Up}
+            Default: DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 2, "Int", 0)
         }
     }
+    Suspend, Off
     HyperSleep(sleep_time)
 }
 ;==================================================================================
@@ -508,6 +516,8 @@ SystemTime()
 ;学习自Bilibili用户开发的CSGO压枪脚本中的高精度睡眠
 HyperSleep(value)
 {
+    If value <= 0.0
+        Return
     s_begin_time := SystemTime()
     freq := 0, t_current := 0
     DllCall("QueryPerformanceFrequency", "Int64*", freq)

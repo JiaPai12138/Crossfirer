@@ -9,7 +9,7 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE
+from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
@@ -21,6 +21,7 @@ from time import sleep, time
 from platform import release
 from random import uniform
 from ctypes import windll
+import pydirectinput
 import numpy as np
 import pywintypes
 import nvidia_smi
@@ -353,47 +354,52 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
     enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, [0, 0, 0], 0)
+    mouse_speed = win32gui.SystemParametersInfo(SPI_GETMOUSESPEED)
+    if mouse_speed != 10:
+        win32gui.SystemParametersInfo(SPI_SETMOUSESPEED, 10, 0)
 
     if fps_var and arr[17]:
         if move_range > 5 * ranges:
             b = uniform(0.7 * b, 1.3 * b)
         a /= DPI_Var
         b /= DPI_Var
-        x0 = {
-            'CrossFire': a / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3),  # 32
-            'Valve001': a * 1.92 / pow(fps_var, 1/3),  # 2.5 + mouse acceleration
-            'LaunchCombatUWindowsClient': a * 1.52 / pow(fps_var, 1/3),  # 10.0
-            'LaunchUnrealUWindowsClient': a / 2.22 / pow(fps_var, 1/3),  # 20
-        }.get(win_class, a / pow(fps_var, 1/3))
-        y0 = {
-            'CrossFire': b / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3),  # 32
-            'Valve001': b * 1.92 / pow(fps_var, 1/3),  # 2.5 + mouse acceleration
-            'LaunchCombatUWindowsClient': b * 1.52 / pow(fps_var, 1/3),  # 10.0
-            'LaunchUnrealUWindowsClient': b / 2.22 / pow(fps_var, 1/3),  # 20
-        }.get(win_class, b / pow(fps_var, 1/3))
+        (x0, recoil_control) = {
+            'CrossFire': (a / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3), 2), # 32
+            'Valve001': (a * 1.92 / pow(fps_var, 1/3), 2),  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': (a * 1.52 / pow(fps_var, 1/3), 2),  # 10.0
+            'LaunchUnrealUWindowsClient': (a / 2.22 / pow(fps_var, 1/3), 5), # 20
+        }.get(win_class, (a / pow(fps_var, 1/3), 2))
+        (y0, recoil_control) = {
+            'CrossFire': (b / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3), 2),  # 32
+            'Valve001': (b * 1.92 / pow(fps_var, 1/3), 2),  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': (b * 1.52 / pow(fps_var, 1/3), 2), # 10.0
+            'LaunchUnrealUWindowsClient': (b / 2.22 / pow(fps_var, 1/3), 5), # 20
+        }.get(win_class, (b / pow(fps_var, 1/3), 2))
 
         move_rx, x0 = track_opt(move_rx, a, x0)
         move_ry, y0 = track_opt(move_ry, b, y0)
 
-        windll.user32.mouse_event(0x0001, int(round(x0)), int(round(y0)), 0, 0)
+        pydirectinput.moveRel(int(round(x0)), int(round(y0)), relative=True)
 
     # 不分敌友射击
     if win_class != 'CrossFire':
         if go_fire or move_range < ranges:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
-                    windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
+                    pydirectinput.mouseDown()
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
-                    windll.user32.mouse_event(0x0001, 0, 2, 0, 0)
+                    pydirectinput.moveRel(0, recoil_control, relative=True)
 
         if GetAsyncKeyState(VK_LBUTTON):
             if (time() * 1000 - press_time[0]) > 30.6 or not arr[11]:
-                windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
+                pydirectinput.mouseUp()
                 up_time[0] = int(time() * 1000)
 
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, enhanced_holdback, 0)
+    if mouse_speed != 10:
+        win32gui.SystemParametersInfo(SPI_SETMOUSESPEED, mouse_speed, 0)
 
     return move_rx, move_ry
 
