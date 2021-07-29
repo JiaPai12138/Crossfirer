@@ -94,7 +94,7 @@ Return
 Return
 
 ~*$LButton:: ;压枪 正在开发
-    If CF_Now.GetStatus()
+    If CF_Now.GetStatus() && GetKeyState("LButton", "P")
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -103,7 +103,7 @@ Return
             GuiControl, recoil_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
             RCL_Text := "自动压枪 " RCL_Down
             UpdateText("recoil_mode", "ModeClick", RCL_Text, XGui5, YGui5)
-            Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
+            Recoilless(Gun_Chosen, RCL_Down, Ammo_Delay)
         }
     }
 Return
@@ -115,7 +115,7 @@ Return
 Return
 
 ~*RButton:: ;展示圆环
-    If CF_Now.GetStatus()
+    If CF_Now.GetStatus() && GetKeyState("RButton", "P")
     {
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
@@ -178,7 +178,7 @@ Return
 Return
 ;==================================================================================
 ;压枪函数,对相应枪械,均能在中近距离上基本压成一条线,即将标准化
-Recoilless(Gun_Chosen, Ammo_Delay, RCL_Down)
+Recoilless(Gun_Chosen, RCL_Down, Ammo_Delay := 100)
 {
     StartTime := SystemTime()
     Ammo_Count := 0
