@@ -13,7 +13,7 @@ If WinExist("ahk_class CrossFire")
     CheckPosition(Xe, Ye, We, He, "CrossFire")
     HEro_01 := New E_Hero ;秒变猎手类初始化
     C4_Count := New C4Timer ;C4计时类初始化
-    Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, C4: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndc4 -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, C4: Margin, 0, 0
     Gui, C4: Color, 333333 ;#333333
     Gui, C4: Font, S10 Q5 C00FF00, Microsoft YaHei ;#00FF00
@@ -22,17 +22,19 @@ If WinExist("ahk_class CrossFire")
     Gui, C4: Add, Progress, w%P3W% h4 c00FF00 Background333333 vC4Progress Range0-40, %C4_Time% ;#00FF00
 
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %c4%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, He // 8 - P3H // 2) ;避开狙击枪秒准线确认点
     Gui, C4: Show, Hide
 
-    Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Human_Hero: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndhh -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Human_Hero: Margin, 0, 0
     Gui, Human_Hero: Color, 333333 ;333333
     Gui, Human_Hero: Font, S10 Q5 C00FF00, Microsoft YaHei ;#00FF00
     Gui, Human_Hero: Add, Text, hwndhero vIMHero, 猎|▁|▁|手
     GuiControlGet, PH, Pos, %hero%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %hh%
     WinSet, ExStyle, +0x20
     SetGuiPosition(XGui8, YGui8, "M", -PHW // 2, He // 8 - PHH // 2) ;避开狙击枪秒准线确认点
     Gui, Human_Hero: Show, Hide

@@ -14,13 +14,14 @@ global CLKStatus := 0
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, "CrossFire")
-    Gui, click_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, click_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndcm -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, click_mode: Margin, 0, 0
     Gui, click_mode: Color, 333333 ;#333333
     Gui, click_mode: Font, S10 Q5, Microsoft YaHei
     Gui, click_mode: Add, Text, hwndGui_5 vModeClick c00FF00, 连点准备 ;#00FF00
     GuiControlGet, P5, Pos, %Gui_5%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %cm%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, He // 3.6 - P5H // 2)
     Gui, click_mode: Show, x%XGui3% y%YGui3% NA

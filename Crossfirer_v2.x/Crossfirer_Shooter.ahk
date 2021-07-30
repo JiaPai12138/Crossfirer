@@ -15,24 +15,26 @@ If WinExist("ahk_class CrossFire")
 {
     WinGetTitle, game_title, ahk_class CrossFire
     CheckPosition(ValueX, ValueY, ValueW, ValueH, "CrossFire")
-    Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, fcn_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndfm -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_mode: Margin, 0, 0
     Gui, fcn_mode: Color, 333333 ;#333333
     Gui, fcn_mode: Font, S10 Q5, Microsoft YaHei
     Gui, fcn_mode: Add, Text, hwndGui_1 vModeOfFcn cFFFF00, 已暂停加载 ;#FFFF00
     GuiControlGet, P1, Pos, %Gui_1%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %fm%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui1, YGui1, "M", -ValueW // 10 - P1W // 2, ValueH // 9 - P1H // 2)
     Gui, fcn_mode: Show, x%XGui1% y%YGui1% NA
 
-    Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, fcn_status: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndfs -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, fcn_status: Margin, 0, 0
     Gui, fcn_status: Color, 333333 ;#333333
     Gui, fcn_status: Font, S10 Q5, Microsoft YaHei
     Gui, fcn_status: Add, Text, hwndGui_2 vStatusOfFcn cFFFF00, 自火已关闭 ;#FFFF00
     GuiControlGet, P2, Pos, %Gui_2%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %fs%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui2, YGui2, "M", -ValueW // 10 - P2W // 2, ValueH // 7.2 - P2H // 2)
     Gui, fcn_status: Show, x%XGui2% y%YGui2% NA
@@ -42,7 +44,7 @@ If WinExist("ahk_class CrossFire")
     SetGuiPosition(Xch, Ych, "M", -34, -35)
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
     WinSet, Region, %crosshair%, ahk_id %cr%
-    WinSet, Transparent, 255, ahk_id %cr%
+    WinSet, Transparent, 225, ahk_id %cr%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
     Snipe_000000 := Create_000000_snipe()

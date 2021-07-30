@@ -8,13 +8,14 @@ global BhopStatus := 0
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xe, Ye, We, He, "CrossFire")
-    Gui, jump_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, jump_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndjm -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, jump_mode: Margin, 0, 0
     Gui, jump_mode: Color, 333333 ;#333333
     Gui, jump_mode: Font, S10 Q5, Microsoft YaHei
     Gui, jump_mode: Add, Text, hwndGui_4 vModeJump c00FF00, 跳蹲准备 ;#00FF00
     GuiControlGet, P4, Pos, %Gui_4%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %jm%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui4, YGui4, "M", -P4W // 2, He // 4 - P4H // 2)
     Gui, jump_mode: Show, x%XGui4% y%YGui4% NA

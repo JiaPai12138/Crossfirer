@@ -16,24 +16,26 @@ If WinExist("ahk_class CrossFire")
     CheckPosition(Xrs, Yrs, Wrs, Hrs, "CrossFire")
     Radius := Hrs // 18
     Diameter := 2 * Radius
-    Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, recoil_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndrm -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, recoil_mode: Margin, 0, 0
     Gui, recoil_mode: Color, 333333 ;#333333
     Gui, recoil_mode: Font, S10 Q5, Microsoft YaHei
     Gui, recoil_mode: Add, Text, hwndGui_6 vModeClick c00FF00, 压枪准备中 ;#00FF00
     GuiControlGet, P6, Pos, %Gui_6%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %rm%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui5, YGui5, "M", Wrs // 10 - P6W // 2, Hrs // 9 - P6H // 2)
     Gui, recoil_mode: Show, x%XGui5% y%YGui5% NA
 
-    Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, gun_sel: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndgs -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, gun_sel: Margin, 0, 0
     Gui, gun_sel: Color, 333333 ;#333333
     Gui, gun_sel: Font, S10 Q5, Microsoft YaHei
     Gui, gun_sel: Add, Text, hwndGui_7 vModeGun c00FF00, 暂未选枪械 ;#00FF00
     GuiControlGet, P7, Pos, %Gui_7%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %gs%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui6, YGui6, "M", Wrs // 10 - P7W // 2, Hrs // 7.2 - P7H // 2)
     Gui, gun_sel: Show, x%XGui6% y%YGui6% NA

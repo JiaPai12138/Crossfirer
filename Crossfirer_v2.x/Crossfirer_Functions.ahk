@@ -459,8 +459,8 @@ press_key(key_name, press_time, sleep_time)
     Else
     {
         press_time -= 3.2, sleep_time -= 3.2
-        VirtualKey := GetKeyVK(key_name)
-        ScanCode := GetKeySC(key_name)
+        VirtualKey := DecToHex(GetKeyVK(key_name))
+        ScanCode := DecToHex(GetKeySC(key_name))
     }
 
     If !GetKeyState(key_name)
@@ -665,6 +665,20 @@ InRange(Min, x, Max)
     If (x >= Min) && (x < Max)
         Return True
     Return False
+}
+;==================================================================================
+;复制自VxE的函数,转换10进制整数为16进制,"pad"变量可能是应该出现在0x右侧的最小位数
+DecToHex(int, pad := 0)
+{
+	Static hx := "0123456789ABCDEF"
+	If !(0 < int |= 0)
+		Return !int ? "0x0" : "-" DecToHex(-int, pad)
+	s := 1 + Floor(Ln(int) / Ln(16))
+	h := SubStr("0x0000000000000000", 1, pad := pad < s ? s + 2 : pad < 16 ? pad + 2 : 18)
+	u := A_IsUnicode = 1
+	Loop % s
+		NumPut(*(&hx + ((int & 15) << u)), h, pad - A_Index << u, "UChar"), int >>= 4
+	Return h
 }
 ;==================================================================================
 ;托盘退出选项

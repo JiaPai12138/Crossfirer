@@ -13,13 +13,14 @@ global Show_Sel_Level := SubStr("00" . Sel_Level, -1)
 If WinExist("ahk_class CrossFire")
 {
     CheckPosition(Xj, Yj, Wj, Hj, "CrossFire")
-    Gui, challen_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, challen_mode: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndchm -DPIScale, Listening ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, challen_mode: Margin, 0, 0
     Gui, challen_mode: Color, 333333 ;#333333
     Gui, challen_mode: Font, S10 Q5, Microsoft YaHei
     Gui, challen_mode: Add, Text, hwndGui_10 vModeChallen c00FF00, 无尽挂机准备%Show_Sel_Level% ;#00FF00
     GuiControlGet, P10, Pos, %Gui_10%
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %chm%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
     SetGuiPosition(XGui10, YGui10, "H", -P10W // 2, Hj // 18 - P10H // 2)
     Gui, challen_mode: Show, x%XGui10% y%YGui10% NA

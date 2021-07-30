@@ -16,7 +16,7 @@ global Key_Pressed := ""
 
 If WinExist("ahk_class CrossFire")
 {
-    Gui, Helper: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Helper: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndhp -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Helper: Margin, 0, 0
     Gui, Helper: Color, 333333 ;#333333
     Gui, Helper: Font, S8 Q5 C00FF00, Microsoft YaHei ;#00FF00
@@ -24,9 +24,10 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P8, Pos, %Gui_8%
     global P8H ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %hp%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
-    Gui, Hint: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Hint: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndht -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Hint: Margin, 0, 0
     Gui, Hint: Color, 333333 ;#333333
     Gui, Hint: Font, S8 Q5, Microsoft YaHei ;#00FF00
@@ -34,9 +35,10 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P9, Pos, %Gui_9%
     global P9H ;*= (A_ScreenDPI / 96)
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %ht%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
-    Gui, Ran: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, Ran: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndrn -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, Ran: Margin, 0, 0
     Gui, Ran: Color, 333333 ;#333333
     Gui, Ran: Font, s10 Q5, Microsoft YaHei ;#00FF00
@@ -44,9 +46,10 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P11, Pos, %Gui_11%
     global P11H, P11W
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %rn%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
-    Gui, T_Hour: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +MinSize -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
+    Gui, T_Hour: New, +LastFound +AlwaysOnTop -Caption +ToolWindow +Hwndth -DPIScale, CTL ; +ToolWindow avoids a taskbar button and an alt-tab menu item.
     Gui, T_Hour: Margin, 0, 0
     Gui, T_Hour: Color, 333333 ;#333333
     Gui, T_Hour: Font, s8 Q5, Microsoft YaHei ;#00FF00
@@ -54,6 +57,7 @@ If WinExist("ahk_class CrossFire")
     GuiControlGet, P12, Pos, %Gui_12%
     global P12H, P12W
     WinSet, TransColor, 333333 255 ;#333333
+    WinSet, Transparent, 225, ahk_id %th%
     WinSet, ExStyle, +0x20 +0x8; 鼠标穿透以及最顶端
 
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
