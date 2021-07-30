@@ -15,9 +15,9 @@ global CF_Now := New CF_Game_Status ;初始化显示游戏状态
 
 ;加载真正的屏幕大小,即使在UHD放大情况下
 VarSetCapacity(Screen_Info, 156)
-DllCall("EnumDisplaySettingsA", Ptr, 0, UInt, -1, UInt, &Screen_Info) ;真实分辨率
-global Mon_Width := NumGet(Screen_Info, 108, "int")
-global Mon_Hight := NumGet(Screen_Info, 112, "int")
+DllCall("EnumDisplaySettingsA", "Ptr", 0, "UInt", -1, "UInt", &Screen_Info) ;真实分辨率
+global Mon_Width := NumGet(Screen_Info, 108, "Int")
+global Mon_Hight := NumGet(Screen_Info, 112, "Int")
 ;==================================================================================
 ;预设参数
 Preset(Script_Icon)
@@ -191,12 +191,12 @@ ProcessInfo_GetCurrentProcessID()
 ;拷贝自 https://www.reddit.com/r/AutoHotkey/comments/6zftle/process_name_from_pid/ ,通过进程ID得到进程完整路径
 GetProcessName(ProcessID)
 {
-    If (hProcess := DllCall("OpenProcess", "uint", 0x0410, "int", 0, "uint", ProcessID, "ptr"))
+    If (hProcess := DllCall("OpenProcess", "Uint", 0x0410, "Int", 0, "Uint", ProcessID, "Ptr"))
     {
         size := VarSetCapacity(buf, 0x0104 << 1, 0)
-        If (DllCall("psapi\GetModuleFileNameEx", "ptr", hProcess, "ptr", 0, "ptr", &buf, "uint", size))
-            Return StrGet(&buf), DllCall("CloseHandle", "ptr", hProcess)
-        DllCall("CloseHandle", "ptr", hProcess)
+        If (DllCall("psapi\GetModuleFileNameEx", "Ptr", hProcess, "Ptr", 0, "Ptr", &buf, "Uint", size))
+            Return StrGet(&buf), DllCall("CloseHandle", "Ptr", hProcess)
+        DllCall("CloseHandle", "Ptr", hProcess)
     }
     Return False
 }
@@ -225,12 +225,12 @@ CheckPosition(ByRef Xcp, ByRef Ycp, ByRef Wcp, ByRef Hcp, class_name)
     WinGet, CFID, ID, ahk_class %class_name%
 
     VarSetCapacity(rect, 16)
-    DllCall("GetClientRect", "ptr", CFID, "ptr", &rect) ;内在宽高
-    Wcp := NumGet(rect, 8, "int")
-    Hcp := NumGet(rect, 12, "int")
+    DllCall("GetClientRect", "Ptr", CFID, "Ptr", &rect) ;内在宽高
+    Wcp := NumGet(rect, 8, "Int")
+    Hcp := NumGet(rect, 12, "Int")
 
     VarSetCapacity(WINDOWINFO, 60, 0)
-    DllCall("GetWindowInfo", "ptr", CFID, "ptr", &WINDOWINFO) ;内在XY
+    DllCall("GetWindowInfo", "Ptr", CFID, "Ptr", &WINDOWINFO) ;内在XY
     Xcp := NumGet(WINDOWINFO, 20, "Int")
     Ycp := NumGet(WINDOWINFO, 24, "Int")
 
@@ -348,22 +348,83 @@ GetColorStatus(X, Y, color_lib)
     Return InStr(color_lib, color_got)
 }
 ;==================================================================================
-;控制鼠标精确上下左右相对移动,减少大幅度直线移动的几率以避免16-2
-mouseXY(x1, y1)
+;鼠标左右键按下
+MouseDown(key_name := "LButton")
 {
-    DPI_Ratio := Round(A_ScreenDPI / 96, 3)
-    x1 := (x1 != 0) ? (x1 / Abs(x1) * Ceil(Abs(x1) / DPI_Ratio)) : 0
-    y1 := (y1 != 0) ? (y1 / Abs(y1) * Ceil(Abs(y1) / DPI_Ratio)) : 0
+    Suspend, On
+    If !Instr(key_name, "Button")
+        Return False
+    StructSize := A_PtrSize + 4*4 + A_PtrSize*2
+    WhichDown := Instr(key_name, "L") ? 0x0002 : 0x0008
+    ;MOUSEEVENTF_LEFTDOWN := 0x0002, MOUSEEVENTF_RIGHTDOWN := 0x0008
+    VarSetCapacity(Key_Down, StructSize)
+    NumPut(0, Key_Down, "UInt") ;4 bit
+    NumPut(0, Key_Down, A_PtrSize, "UInt")
+    NumPut(0, Key_Down, A_PtrSize + 4, "UInt")
+    NumPut(WhichDown, Key_Down, A_PtrSize + 4*3, "UInt")
+    DllCall("SendInput", "UInt", 1, "Ptr", &Key_Down, "Int", StructSize)
+    Suspend, Off
+    VarSetCapacity(Key_Down, 0) ;释放内存
+}
+;==================================================================================
+;鼠标左右键抬起
+MouseUp(key_name := "LButton")
+{
+    Suspend, On
+    If !Instr(key_name, "Button")
+        Return False
+    StructSize := A_PtrSize + 4*4 + A_PtrSize*2
+    WhichDown := Instr(key_name, "L") ? 0x0004 : 0x0010
+    ;MOUSEEVENTF_LEFTUP := 0x0004, MOUSEEVENTF_RIGHTUP := 0x0010
+    VarSetCapacity(Key_Up, StructSize)
+    NumPut(0, Key_Up, "UInt") ;4 bit
+    NumPut(0, Key_Up, A_PtrSize, "UInt")
+    NumPut(0, Key_Up, A_PtrSize + 4, "UInt")
+    NumPut(WhichDown, Key_Up, A_PtrSize + 4*3, "UInt")
+    DllCall("SendInput", "UInt", 1, "Ptr", &Key_Up, "Int", StructSize)
+    Suspend, Off
+    VarSetCapacity(Key_Up, 0) ;释放内存
+}
+;==================================================================================
+;控制鼠标尽量精确上下左右相对/绝对移动,减少大幅度纵横直线移动的几率以避免16-2
+mouseXY(x1, y1, Absolute := False)
+{
+    global Mon_Width, Mon_Hight
+    ;绝对坐标从0~65535,所以我们要转换到像素坐标
+    static SysX, SysY
+    SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
+    static INPUT_MOUSE := 0, MOUSEEVENTF_MOVE := 0x0001, MOUSEEVENTF_ABSOLUTEMOVE := 0x8001
     Origin_Status := SPI_GETMOUSE()
+    StructSize := A_PtrSize + 4*4 + A_PtrSize*2
+    VarSetCapacity(MouseInput_Move, StructSize)
+    NumPut(INPUT_MOUSE, MouseInput_Move, "UInt")
+
+    If Absolute
+        x1 *= SysX, y1 *= SysY
+    Else
+    {
+        DPI_Ratio := Round(A_ScreenDPI / 96, 3)
+        x1 := (x1 != 0) ? (x1 / Abs(x1) * Ceil(Abs(x1) / DPI_Ratio)) : 0
+        y1 := (y1 != 0) ? (y1 / Abs(y1) * Ceil(Abs(y1) / DPI_Ratio)) : 0
+
+        Random, RandXY, -1, 1
+        If (x1 = 0) && (y1 > 2)
+            x1 := RandXY
+        Else If (y1 = 0) && (x1 > 2)
+            y1 := RandXY
+    }
+
+    NumPut(x1, MouseInput_Move, A_PtrSize, "UInt")
+    NumPut(y1, MouseInput_Move, A_PtrSize + 4, "UInt")
+    If Absolute
+        NumPut(MOUSEEVENTF_ABSOLUTEMOVE, MouseInput_Move, A_PtrSize + 4*3, "UInt")
+    Else
+        NumPut(MOUSEEVENTF_MOVE, MouseInput_Move, A_PtrSize + 4*3, "UInt")
+
     If Origin_Status
         SPI_SETMOUSE(0)
 
-    Random, RandXY, -1, 1
-    If (x1 = 0) && (y1 > 2)
-        x1 := RandXY
-    Else If (y1 = 0) && (x1 > 2)
-        y1 := RandXY
-    DllCall("mouse_event", uint, 0x0001, int, x1, int, y1, uint, 0, int, 0)
+    DllCall("SendInput", "UInt", 1, "Ptr", &MouseInput_Move, "Int", StructSize)
 
     If Origin_Status
         SPI_SETMOUSE(1)
@@ -373,7 +434,7 @@ mouseXY(x1, y1)
 SPI_GETMOUSE()
 {
     VarSetCapacity(SpeedValue, 12)
-    If !DllCall("SystemParametersInfo", "uint", 3, "uint", 0, "uint", &SpeedValue, "uint", 0)
+    If !DllCall("SystemParametersInfo", "Uint", 3, "Uint", 0, "Uint", &SpeedValue, "Uint", 0)
         Return False ;失败
     Return NumGet(SpeedValue, 4) ;最大临界点
 }
@@ -386,34 +447,7 @@ SPI_SETMOUSE(accel, low := "", high := "", fWinIni := 0)
     , NumPut(accel
     , NumPut(high != "" ? high : accel ? 10 : 0
     , NumPut(low != "" ? low : accel ? 6 : 0, SpeedValue)))
-    Return 0 != DllCall("SystemParametersInfo", "uint", 4, "uint", 0, "uint", &SpeedValue, "uint", 0)
-}
-;==================================================================================
-;拷贝自 https://autohotkey.com/board/topic/53956-fast-mouse-control/ 控制鼠标上下左右绝对屏幕移动,相当于CoordMode,Mouse,Screen下的MouseMove
-ABSmouseXY(x2, y2, ClickOrNot := False, ClickWhich := 1)
-{
-    global Mon_Width, Mon_Hight
-    ;绝对坐标从0~65535,所以我们要转换到像素坐标
-    static SysX, SysY
-    SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
-    DllCall("mouse_event", uint, 0x8001, int, x2 * SysX, int, y2 * SysY, uint, 0, int, 0) ;移动到相对屏幕绝对坐标
-    If ClickOrNot
-    {
-        Switch ClickWhich
-        {
-            Case 1:
-                DllCall("mouse_event", "UInt", 0x02) ;左键按下
-                DllCall("mouse_event", "UInt", 0x04) ;左键弹起
-
-            Case 2:
-                DllCall("mouse_event", "UInt", 0x08) ;右键按下
-                DllCall("mouse_event", "UInt", 0x10) ;右键弹起
-
-            Case 3:
-                DllCall("mouse_event", "UInt", 0x20) ;中键按下
-                DllCall("mouse_event", "UInt", 0x40) ;中键弹起
-        }
-    }
+    Return 0 != DllCall("SystemParametersInfo", "Uint", 4, "Uint", 0, "Uint", &SpeedValue, "Uint", 0)
 }
 ;==================================================================================
 ;按键脚本,鉴于Input模式下单纯的send太快而开发
@@ -429,30 +463,22 @@ press_key(key_name, press_time, sleep_time)
         ScanCode := GetKeySC(key_name)
     }
 
-    Suspend, On
     If !GetKeyState(key_name)
     {
-        Switch key_name
-        {
-            Case "LButton": DllCall("mouse_event", "UInt", 0x02) ;左键按下
-            Case "RButton": DllCall("mouse_event", "UInt", 0x08) ;右键按下
-            Default: DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 0, "Int", 0)
-        }
+        If InStr(key_name, "Button")
+            MouseDown(key_name)
+        Else
+            DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 0, "Int", 0)
     }
-    Suspend, Off
     HyperSleep(press_time)
 
-    Suspend, On
     If !GetKeyState(key_name, "P")
     {
-        Switch key_name
-        {
-            Case "LButton": DllCall("mouse_event", "UInt", 0x04) ;左键弹起
-            Case "RButton": DllCall("mouse_event", "UInt", 0x10) ;右键弹起
-            Default: DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 2, "Int", 0)
-        }
+        If InStr(key_name, "Button")
+            MouseUp(key_name)
+        Else
+            DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 2, "Int", 0)
     }
-    Suspend, Off
     HyperSleep(sleep_time)
 }
 ;==================================================================================
