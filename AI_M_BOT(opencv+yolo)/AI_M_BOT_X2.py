@@ -162,9 +162,12 @@ class FrameDetection:
 
         # 检测并设置在GPU上运行图像识别
         if cv2.cuda.getCudaEnabledDeviceCount():
-            self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)  # _FP16
-            if not check_gpu(gpu_level):
+            gpu_eval = check_gpu(gpu_level)
+            if gpu_eval == 2:
+                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
+            else:
+                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+            if gpu_eval == 0:
                 print('您的显卡配置不够')
         else:
             print('您没有可识别的N卡')
@@ -275,14 +278,15 @@ def analyze(layerOutputs, std_confidence, frame_width, frame_height):
 def check_gpu(level):
     nvidia_smi.nvmlInit()
     handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
-    info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-    memory_total = info.total / 1024 / 1024
+    gpu_name = nvidia_smi.nvmlDeviceGetName(handle)
+    momory_info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
     nvidia_smi.nvmlShutdown()
-    if level == 1 and memory_total > 4000:  # 正常值为4096,减少损耗误报
-        return True
-    elif level == 2 and memory_total > 6000:  # 正常值为6144,减少损耗误报
-        return True
-    return False
+    if b'RTX' in gpu_name:
+        return 2
+    memory_total = momory_info.total / 1024 / 1024
+    if (memory_total / level) > 3000:
+        return 1
+    return 0
 
 
 # 高DPI感知
@@ -370,6 +374,7 @@ def clear():
 
 # 移动鼠标(并射击)
 def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move_ry):
+    recoil_control = 0
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     DPI_Var = windll.user32.GetDpiForWindow(window_hwnd) / 96
     enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
@@ -410,7 +415,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                     windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
-                    windll.user32.mouse_event(0x0001, 0, 2, 0, 0)
+                    windll.user32.mouse_event(0x0001, 0, recoil_control, 0, 0)
 
         if GetAsyncKeyState(VK_LBUTTON):
             if (time() * 1000 - press_time[0]) > 30.6 or not arr[11]:

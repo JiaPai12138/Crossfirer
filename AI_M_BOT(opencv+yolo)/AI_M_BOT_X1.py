@@ -10,6 +10,7 @@ Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
 from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
+from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
@@ -20,15 +21,67 @@ from statistics import median
 from time import sleep, time
 from platform import release
 from random import uniform
-from ctypes import windll
 import numpy as np
 import pywintypes
-import nvidia_smi
 import win32gui
 import win32ui
+import pynvml
 import queue
 import cv2
 import os
+
+
+######### 简易鼠标行为模拟,使用SendInput函数 ↓↓↓↓↓↓↓↓↓
+LONG = c_long
+DWORD = c_ulong
+ULONG_PTR = POINTER(DWORD)
+
+class MOUSEINPUT(Structure):
+    _fields_ = (('dx', LONG),
+                ('dy', LONG),
+                ('mouseData', DWORD),
+                ('dwFlags', DWORD),
+                ('time', DWORD),
+                ('dwExtraInfo', ULONG_PTR))
+
+class _INPUTunion(Union):
+    _fields_ = (('mi', MOUSEINPUT), ('mi', MOUSEINPUT))
+
+class INPUT(Structure):
+    _fields_ = (('type', DWORD),
+                ('union', _INPUTunion))
+
+def SendInput(*inputs):
+    nInputs = len(inputs)
+    LPINPUT = INPUT * nInputs
+    pInputs = LPINPUT(*inputs)
+    cbSize = c_int(sizeof(INPUT))
+    return windll.user32.SendInput(nInputs, pInputs, cbSize)
+
+def Input(structure):
+    return INPUT(0, _INPUTunion(mi=structure))
+
+def MouseInput(flags, x, y, data):
+    return MOUSEINPUT(x, y, data, flags, 0, None)
+
+def Mouse(flags, x=0, y=0, data=0):
+    return Input(MouseInput(flags, x, y, data))
+
+def sp_mouse_xy(x, y):
+    return SendInput(Mouse(0x0001, x, y))
+
+def sp_mouse_down(key = 'LButton'):
+    if key == 'LButton':
+        return SendInput(Mouse(0x0002))
+    elif key == 'RButton':
+        return SendInput(Mouse(0x0008))
+
+def sp_mouse_up(key = 'LButton'):
+    if key == 'LButton':
+        return SendInput(Mouse(0x0004))
+    elif key == 'RButton':
+        return SendInput(Mouse(0x0010))
+######### 简易鼠标行为模拟,使用SendInput函数 ↑↑↑↑↑↑↑↑↑
 
 
 # 截图类
@@ -169,8 +222,12 @@ class FrameDetection:
         # 检测并设置在GPU上运行图像识别
         if cv2.cuda.getCudaEnabledDeviceCount():
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)  # _FP16
-            if not check_gpu(gpu_level):
+            gpu_eval = check_gpu(gpu_level)
+            if gpu_eval == 2:
+                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
+            else:
+                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+            if gpu_eval == 0:
                 print('您的显卡配置不够')
         else:
             print('您没有可识别的N卡')
@@ -251,16 +308,17 @@ class FrameDetection:
 
 # 简单检查gpu是否够格
 def check_gpu(level):
-    nvidia_smi.nvmlInit()
-    handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
-    info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-    memory_total = info.total / 1024 / 1024
-    nvidia_smi.nvmlShutdown()
-    if level == 1 and memory_total > 4000:  # 正常值为4096,减少损耗误报
-        return True
-    elif level == 2 and memory_total > 6000:  # 正常值为6144,减少损耗误报
-        return True
-    return False
+    pynvml.nvmlInit()
+    handle = pynvml.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
+    gpu_name = pynvml.nvmlDeviceGetName(handle)
+    momory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+    pynvml.nvmlShutdown()
+    if b'RTX' in gpu_name:
+        return 2
+    memory_total = momory_info.total / 1024 / 1024
+    if (memory_total / level) > 3000:
+        return 1
+    return 0
 
 
 # 高DPI感知
@@ -348,6 +406,7 @@ def clear():
 
 # 移动鼠标(并射击)
 def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move_ry):
+    recoil_control = 0
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     DPI_Var = windll.user32.GetDpiForWindow(window_hwnd) / 96
     enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
@@ -378,21 +437,21 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
         move_rx, x0 = track_opt(move_rx, a, x0)
         move_ry, y0 = track_opt(move_ry, b, y0)
 
-        windll.user32.mouse_event(0x0001, int(round(x0)), int(round(y0)), 0, 0)
+        sp_mouse_xy(int(round(x0)), int(round(y0)))
 
     # 不分敌友射击
     if win_class != 'CrossFire':
         if go_fire or move_range < ranges:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
-                    windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
+                    sp_mouse_down()
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
-                    windll.user32.mouse_event(0x0001, 0, 2, 0, 0)
+                    sp_mouse_xy(0, recoil_control)
 
         if GetAsyncKeyState(VK_LBUTTON):
             if (time() * 1000 - press_time[0]) > 30.6 or not arr[11]:
-                windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
+                sp_mouse_up()
                 up_time[0] = int(time() * 1000)
 
     if enhanced_holdback[1]:
