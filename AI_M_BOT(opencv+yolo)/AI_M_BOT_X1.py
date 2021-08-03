@@ -9,7 +9,7 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
+from win32con import VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
 from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
@@ -24,9 +24,9 @@ from random import uniform
 import numpy as np
 import pywintypes
 import win32gui
-import win32ui
 import pynvml
 import queue
+import mss
 import cv2
 import os
 
@@ -107,9 +107,7 @@ class WindowCapture:
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
         self.update_window_info()
-        if platform != 'win32':
-            import mss
-            self.sct = mss.mss()  # 初始化mss截图
+        self.sct = mss.mss()  # 初始化mss截图
 
     def update_window_info(self):
         # 获取窗口数据
@@ -128,37 +126,6 @@ class WindowCapture:
         self.offset_y = (self.total_h - self.cut_h) // 2 + self.left_corner[1] - window_rect[1]
         self.actual_x = window_rect[0] + self.offset_x
         self.actual_y = window_rect[1] + self.offset_y
-
-    def get_screenshot(self):  # 只能在windows上使用
-        # 获取截图相关
-        try:
-            wDC = win32gui.GetWindowDC(self.hwnd)
-            dcObj = win32ui.CreateDCFromHandle(wDC)
-            cDC = dcObj.CreateCompatibleDC()
-            dataBitMap = win32ui.CreateBitmap()
-            dataBitMap.CreateCompatibleBitmap(dcObj, self.cut_w, self.cut_h)
-            cDC.SelectObject(dataBitMap)
-            cDC.BitBlt((0, 0), (self.cut_w, self.cut_h), dcObj, (self.offset_x, self.offset_y), SRCCOPY)
-
-            # 转换使得opencv可读
-            signedIntsArray = dataBitMap.GetBitmapBits(True)
-            cut_img = np.frombuffer(signedIntsArray, dtype='uint8')
-            cut_img.shape = (self.cut_h, self.cut_w, 4)
-
-            # 释放资源
-            dcObj.DeleteDC()
-            cDC.DeleteDC()
-            win32gui.ReleaseDC(self.hwnd, wDC)
-            win32gui.DeleteObject(dataBitMap.GetHandle())
-
-            # 去除alpha
-            cut_img = cut_img[..., :3]
-
-            # 转换减少错误
-            cut_img = np.ascontiguousarray(cut_img)
-            return cut_img
-        except (pywintypes.error, win32ui.error, ValueError):
-            return None
 
     def get_cut_info(self):
         return self.cut_w, self.cut_h
@@ -263,18 +230,19 @@ class FrameDetection:
 
         # 画框
         for (classid, score, box) in zip(classes, scores, boxes):
-            color = self.COLORS[int(classid) % len(self.COLORS)]
-            label = self.class_names[classid[0]] + ': ' + str(round(score[0], 3))
-            x, y, w, h = box
-            cv2.rectangle(frames, (x, y), (x + w, y + h), color, 2)
-            cv2.putText(frames, label, (int(x + w/2 - 4*len(label)), int(y + h/2 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
+            if score > self.std_confidence:
+                color = self.COLORS[int(classid) % len(self.COLORS)]
+                label = self.class_names[classid[0]] + ': ' + str(round(score[0], 3))
+                x, y, w, h = box
+                cv2.rectangle(frames, (x, y), (x + w, y + h), color, 2)
+                cv2.putText(frames, label, (int(x + w/2 - 4*len(label)), int(y + h/2 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
-            # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
-            if classid == 0 and score > self.std_confidence:
-                h_factor = (0.1875 if h > w else 0.5)
-                dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * h_factor), 2))
-                threat_var = -(pow(w * h, 1/2) / dist if dist else 999)
-                threat_list.append([threat_var, box])
+                # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
+                if classid == 0:
+                    h_factor = (0.1875 if h > w else 0.5)
+                    dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * h_factor), 2))
+                    threat_var = -(pow(w * h, 1/2) / dist if dist else 999)
+                    threat_list.append([threat_var, box])
 
         if len(threat_list):
             threat_list.sort(key=lambda x:x[0])
@@ -704,7 +672,7 @@ if __name__ == '__main__':
 
     while True:
         # 选择截图方式
-        screenshot = (win_cap.get_screenshot() if platform == 'win32' else win_cap.grab_screenshot())
+        screenshot = win_cap.grab_screenshot()
 
         try:
             screenshot.any()
