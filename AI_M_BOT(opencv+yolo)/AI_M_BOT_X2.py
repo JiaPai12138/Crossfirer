@@ -149,7 +149,7 @@ class FrameDetection:
 
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         self.std_confidence = {
-            'Valve001': 0.42,
+            'Valve001': 0.45,
             'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
 
@@ -162,6 +162,7 @@ class FrameDetection:
 
         # 检测并设置在GPU上运行图像识别
         if cv2.cuda.getCudaEnabledDeviceCount():
+            self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
             gpu_eval = check_gpu(gpu_level)
             if gpu_eval == 2:
                 self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
