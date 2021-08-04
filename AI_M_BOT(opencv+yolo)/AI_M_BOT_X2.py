@@ -49,9 +49,12 @@ class WindowCapture:
     sct = ''
 
     # 构造函数
-    def __init__(self, window_class):
+    def __init__(self, window_class, window_hwnd):
         self.windows_class = window_class
-        self.hwnd = win32gui.FindWindow(window_class, None)
+        try:
+            self.hwnd = win32gui.FindWindow(window_class, None)
+        except pywintypes.error:
+            self.hwnd = window_hwnd
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
         self.update_window_info()
@@ -318,7 +321,11 @@ def get_window_info():
         if class_name not in (supported_games + test_window):
             print('请使支持的游戏/程序窗口成为活动窗口...')
         else:
-            hwnd_var = win32gui.FindWindow(class_name, None)
+            try:
+                hwnd_var = win32gui.FindWindow(class_name, None)
+            except pywintypes.error:
+                print('您正使用沙盒')
+                hwnd_var = hwnd_active
             print('已找到窗口')
             if class_name in test_window:
                 testing_purpose = True
@@ -377,7 +384,7 @@ def clear():
 def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move_ry):
     recoil_control = 0
     move_range = sqrt(pow(a, 2) + pow(b, 2))
-    DPI_Var = windll.user32.GetDpiForWindow(window_hwnd) / 96
+    DPI_Var = windll.user32.GetDpiForWindow(window_hwnd_name) / 96
     enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, [0, 0, 0], 0)
@@ -641,20 +648,20 @@ if __name__ == '__main__':
         detect2_proc = Process(target=detection2, args=(queue, arr,))
 
     # 寻找读取游戏窗口类型并确认截取位置
-    window_class_name, window_hwnd, test_win[0] = get_window_info()
-    arr[0] = window_hwnd
+    window_class_name, window_hwnd_name, test_win[0] = get_window_info()
+    arr[0] = window_hwnd_name
 
     # 等待游戏画面完整出现(拥有大于0的长宽)
     window_ready = 0
     while not window_ready:
         sleep(1)
-        win_client_rect = win32gui.GetClientRect(window_hwnd)
+        win_client_rect = win32gui.GetClientRect(window_hwnd_name)
         if win_client_rect[2] - win_client_rect[0] > 0 and win_client_rect[3] - win_client_rect[1] > 0:
             window_ready = 1
     client_ratio = (win_client_rect[2] - win_client_rect[0]) / (win_client_rect[3] - win_client_rect[1])
 
     # 初始化截图类
-    win_cap = WindowCapture(window_class_name)
+    win_cap = WindowCapture(window_class_name, window_hwnd_name)
 
     # 开始分析进程
     detect1_proc.start()
@@ -688,7 +695,7 @@ if __name__ == '__main__':
         if exit_program:
             break
 
-        if win32gui.GetForegroundWindow() == window_hwnd and not test_win[0]:
+        if win32gui.GetForegroundWindow() == window_hwnd_name and not test_win[0]:
             if arr[11] and arr[4]:
                 if arr[15] == 1:
                     arr[13] = (944 if arr[14] or arr[12] != 1 else 1694)
