@@ -121,7 +121,7 @@ class WindowCapture:
         self.cut_h = self.total_h // 2
         self.cut_w = self.cut_h
         if self.windows_class == 'CrossFire':  # 画面实际4:3简单拉平
-            self.cut_w = self.cut_w * (self.total_w / self.total_h) * 3 // 4
+            self.cut_w = int(self.cut_w * (self.total_w / self.total_h) * 3 / 4)
         self.offset_x = (self.total_w - self.cut_w) // 2 + self.left_corner[0] - window_rect[0]
         self.offset_y = (self.total_h - self.cut_h) // 2 + self.left_corner[1] - window_rect[1]
         self.actual_x = window_rect[0] + self.offset_x
