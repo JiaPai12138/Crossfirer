@@ -4,6 +4,7 @@ Preset("身")
 CheckPermission("基础身法")
 ;==================================================================================
 global BhopStatus := 0
+global LCtrl_pressed := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -55,17 +56,26 @@ Return
 
 #If (WinActive("ahk_class CrossFire") && BHP_Service_On && CF_Now.GetStatus()) ;以下的热键需要相应条件才能激活
 
+~*LCtrl:: ;减少误触
+    If GetKeyState("LCtrl", "P")
+        LCtrl_pressed := 1
+Return
+
 ~W & ~LCtrl Up:: ;BUG小道,可能会掉血
-    BhopStatus := 1
-    GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
-    UpdateText("jump_mode", "ModeJump", "Bug小道", XGui4, YGui4)
-    HyperSleep(100)
-    press_key("LShift", 50, 50)
-    press_key("LCtrl", 50, 50)
-    press_key("LShift", 50, 50)
-    GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
-    UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
-    BhopStatus := 0
+    If LCtrl_pressed
+    {
+        BhopStatus := 1
+        GuiControl, jump_mode: +c00FFFF +Redraw, ModeJump ;#00FFFF
+        UpdateText("jump_mode", "ModeJump", "Bug小道", XGui4, YGui4)
+        HyperSleep(100)
+        press_key("LShift", 50, 50)
+        press_key("LCtrl", 50, 50)
+        press_key("LShift", 50, 50)
+        GuiControl, jump_mode: +c00FF00 +Redraw, ModeJump ;#00FF00
+        UpdateText("jump_mode", "ModeJump", "跳蹲准备", XGui4, YGui4)
+        BhopStatus := 0
+        LCtrl_pressed := 0
+    }
 Return
 
 ~W & ~F:: ;基本鬼跳,落地少掉血
