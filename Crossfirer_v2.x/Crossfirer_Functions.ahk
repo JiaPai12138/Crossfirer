@@ -348,10 +348,9 @@ GetColorStatus(X, Y, color_lib)
     Return InStr(color_lib, color_got)
 }
 ;==================================================================================
-;鼠标左右键按下
-MouseDown(key_name := "LButton")
+;鼠标左右键按下(SendInput方式)
+mouse_sendinput_down(key_name := "LButton")
 {
-    Suspend, On
     If !Instr(key_name, "Button")
         Return False
     StructSize := A_PtrSize + 4*4 + A_PtrSize*2
@@ -363,14 +362,12 @@ MouseDown(key_name := "LButton")
     NumPut(0, Key_Down, A_PtrSize + 4, "UInt")
     NumPut(WhichDown, Key_Down, A_PtrSize + 4*3, "UInt")
     DllCall("SendInput", "UInt", 1, "Ptr", &Key_Down, "Int", StructSize)
-    Suspend, Off
     VarSetCapacity(Key_Down, 0) ;释放内存
 }
 ;==================================================================================
-;鼠标左右键抬起
-MouseUp(key_name := "LButton")
+;鼠标左右键抬起(SendInput方式)
+mouse_sendinput_up(key_name := "LButton")
 {
-    Suspend, On
     If !Instr(key_name, "Button")
         Return False
     StructSize := A_PtrSize + 4*4 + A_PtrSize*2
@@ -382,8 +379,80 @@ MouseUp(key_name := "LButton")
     NumPut(0, Key_Up, A_PtrSize + 4, "UInt")
     NumPut(WhichDown, Key_Up, A_PtrSize + 4*3, "UInt")
     DllCall("SendInput", "UInt", 1, "Ptr", &Key_Up, "Int", StructSize)
-    Suspend, Off
     VarSetCapacity(Key_Up, 0) ;释放内存
+}
+;==================================================================================
+;鼠标相对移动(SendInput方式)
+mouse_sendinput_xy(x2, y2, Absolute := False)
+{
+    global Mon_Width, Mon_Hight
+    ;绝对坐标从0~65535,所以我们要转换到像素坐标
+    static SysX, SysY
+    SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
+    static INPUT_MOUSE := 0, MOUSEEVENTF_MOVE := 0x0001, MOUSEEVENTF_ABSOLUTEMOVE := 0x8001
+    Origin_Status := SPI_GETMOUSE()
+    PrevSpeed := SPI_GETMOUSESPEED()
+    StructSize := A_PtrSize + 4*4 + A_PtrSize*2
+    VarSetCapacity(MouseInput_Move, StructSize)
+    NumPut(INPUT_MOUSE, MouseInput_Move, "UInt")
+
+    If Absolute
+        x2 *= SysX, y2 *= SysY
+    Else
+    {
+        DPI_Ratio := Round(A_ScreenDPI / 96, 3)
+        x2 := (x2 != 0) ? (x2 / Abs(x2) * Ceil(Abs(x2) / DPI_Ratio)) : 0
+        y2 := (y2 != 0) ? (y2 / Abs(y2) * Ceil(Abs(y2) / DPI_Ratio)) : 0
+
+        Random, RandXY, -1, 1
+        If (x2 = 0) && (y2 > 2)
+            x1 := RandXY
+        Else If (y2 = 0) && (x2 > 2)
+            y2 := RandXY
+    }
+
+    NumPut(x2, MouseInput_Move, A_PtrSize, "UInt")
+    NumPut(y2, MouseInput_Move, A_PtrSize + 4, "UInt")
+    If Absolute
+        NumPut(MOUSEEVENTF_ABSOLUTEMOVE, MouseInput_Move, A_PtrSize + 4*3, "UInt")
+    Else
+        NumPut(MOUSEEVENTF_MOVE, MouseInput_Move, A_PtrSize + 4*3, "UInt")
+
+    If Origin_Status
+        SPI_SETMOUSE(0)
+    If PrevSpeed != 10
+        SPI_SETMOUSESPEED()
+
+    DllCall("SendInput", "UInt", 1, "Ptr", &MouseInput_Move, "Int", StructSize)
+
+    If Origin_Status
+        SPI_SETMOUSE(1)
+    If PrevSpeed != 10
+        SPI_SETMOUSESPEED(PrevSpeed)
+}
+;==================================================================================
+;鼠标左右键按下
+mouse_down(key_name := "LButton")
+{
+    If !Instr(key_name, "Button")
+        Return False
+    Switch key_name
+    {
+        Case "LButton": DllCall("mouse_event", "UInt", 0x02) ;左键按下
+        Case "RButton": DllCall("mouse_event", "UInt", 0x08) ;右键按下
+    }
+}
+;==================================================================================
+;鼠标左右键抬起
+mouse_up(key_name := "LButton")
+{
+    If !Instr(key_name, "Button")
+        Return False
+    Switch key_name
+    {
+        Case "LButton": DllCall("mouse_event", "UInt", 0x04) ;左键弹起
+        Case "RButton": DllCall("mouse_event", "UInt", 0x10) ;右键弹起
+    }
 }
 ;==================================================================================
 ;控制鼠标尽量精确上下左右相对/绝对移动,减少大幅度纵横直线移动的几率以避免16-2
@@ -393,11 +462,10 @@ mouseXY(x1, y1, Absolute := False)
     ;绝对坐标从0~65535,所以我们要转换到像素坐标
     static SysX, SysY
     SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
-    static INPUT_MOUSE := 0, MOUSEEVENTF_MOVE := 0x0001, MOUSEEVENTF_ABSOLUTEMOVE := 0x8001
+    static MOUSEEVENTF_MOVE := 0x0001, MOUSEEVENTF_ABSOLUTEMOVE := 0x8000
+    dwFlags := (!Absolute ? MOUSEEVENTF_MOVE : MOUSEEVENTF_ABSOLUTEMOVE)
     Origin_Status := SPI_GETMOUSE()
-    StructSize := A_PtrSize + 4*4 + A_PtrSize*2
-    VarSetCapacity(MouseInput_Move, StructSize)
-    NumPut(INPUT_MOUSE, MouseInput_Move, "UInt")
+    PrevSpeed := SPI_GETMOUSESPEED()
 
     If Absolute
         x1 *= SysX, y1 *= SysY
@@ -414,20 +482,31 @@ mouseXY(x1, y1, Absolute := False)
             y1 := RandXY
     }
 
-    NumPut(x1, MouseInput_Move, A_PtrSize, "UInt")
-    NumPut(y1, MouseInput_Move, A_PtrSize + 4, "UInt")
-    If Absolute
-        NumPut(MOUSEEVENTF_ABSOLUTEMOVE, MouseInput_Move, A_PtrSize + 4*3, "UInt")
-    Else
-        NumPut(MOUSEEVENTF_MOVE, MouseInput_Move, A_PtrSize + 4*3, "UInt")
-
     If Origin_Status
         SPI_SETMOUSE(0)
+    If PrevSpeed != 10
+        SPI_SETMOUSESPEED()
 
-    DllCall("SendInput", "UInt", 1, "Ptr", &MouseInput_Move, "Int", StructSize)
+    DllCall("mouse_event", "UInt", dwFlags, "Int", x1, "Int", y1, "UInt", 0, "Int", 0)
 
     If Origin_Status
         SPI_SETMOUSE(1)
+    If PrevSpeed != 10
+        SPI_SETMOUSESPEED(PrevSpeed)
+}
+;==================================================================================
+;获取鼠标移动速度
+SPI_GETMOUSESPEED()
+{
+    PrevSpeed :=
+    DllCall("SystemParametersInfo", "UInt", 0x70, "UInt", 0, "UIntP", PrevSpeed, "UInt", 0)
+    Return PrevSpeed
+}
+;==================================================================================
+;设置鼠标移动速度
+SPI_SETMOUSESPEED(MOUSESPEED := 10)
+{
+    DllCall("SystemParametersInfo", "UInt", 0x71, "UInt", 0, "Ptr", MOUSESPEED, "UInt", 0)
 }
 ;==================================================================================
 ;检测鼠标加速状态,拷贝自 https://autohotkey.com/board/topic/43700-mouse-acceleration-onoff/
@@ -450,34 +529,46 @@ SPI_SETMOUSE(accel, low := "", high := "", fWinIni := 0)
     Return 0 != DllCall("SystemParametersInfo", "Uint", 4, "Uint", 0, "Uint", &SpeedValue, "Uint", 0)
 }
 ;==================================================================================
-;按键脚本,鉴于Input模式下单纯的send太快而开发
+;键位按下
+key_down(key_name)
+{
+    VirtualKey := GetKeyVK(key_name)
+    ScanCode := GetKeySC(key_name)
+    DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 0, "Int", 0)
+}
+;==================================================================================
+;键位弹起
+key_up(key_name)
+{
+    VirtualKey := GetKeyVK(key_name)
+    ScanCode := GetKeySC(key_name)
+    DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 2, "Int", 0)
+}
+;==================================================================================
+;按键函数,鉴于Input模式下单纯的send速度不合要求而开发
 press_key(key_name, press_time, sleep_time)
 {
     ;本机鼠标延迟测试,包括按下弹起
     If InStr(key_name, "Button")
-        press_time -= 5.6, sleep_time -= 5.6
+        press_time -= 0.56, sleep_time -= 0.56
     Else
-    {
-        press_time -= 3.2, sleep_time -= 3.2
-        VirtualKey := DecToHex(GetKeyVK(key_name))
-        ScanCode := DecToHex(GetKeySC(key_name))
-    }
+        press_time -= 0.24, sleep_time -= 0.24
 
     If !GetKeyState(key_name)
     {
         If InStr(key_name, "Button")
-            MouseDown(key_name)
+            mouse_down(key_name)
         Else
-            DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 0, "Int", 0)
+            key_down(key_name)
     }
     HyperSleep(press_time)
 
     If !GetKeyState(key_name, "P")
     {
         If InStr(key_name, "Button")
-            MouseUp(key_name)
+            mouse_up(key_name)
         Else
-            DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 2, "Int", 0)
+            key_up(key_name)
     }
     HyperSleep(sleep_time)
 }

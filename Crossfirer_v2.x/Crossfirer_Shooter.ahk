@@ -5,11 +5,12 @@ CheckPermission("自动开火")
 ;==================================================================================
 global AutoMode := False
 global mo_shi := -1
-XGui1 := 0, YGui1 := 0, XGui2 := 0, YGui2 := 0, Xch := 0, Ych := 0
-Temp_Mode := "", Temp_Run := ""
+XGui1 := YGui1 := XGui2 := YGui2 := Xch := Ych := 0
+Temp_Mode := Temp_Run := ""
+1_pressed := 2_pressed := k_pressed := j_pressed := l_pressed := 0
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
 game_title :=
-global GamePing := 40 ;默认40,涵盖至少85%以上我所常见的国服游戏延迟
+global GamePing := 45 ;默认45,涵盖至少85%以上我所常见的国服游戏延迟
 
 If WinExist("ahk_class CrossFire")
 {
@@ -63,7 +64,10 @@ If WinExist("ahk_class CrossFire")
     Return
 }
 ;==================================================================================
-~*-::ExitApp
+~*-::
+    If !GetKeyState("-", "P")
+        Return
+ExitApp
 
 #If SHT_Service_On ;以下的热键需要相应条件才能激活
 
@@ -81,6 +85,8 @@ If WinExist("ahk_class CrossFire")
         Gui, fcn_status: Show, Hide
         Gui, cross_hair: Show, Hide
     }
+    If GetKeyState("Capslock", "T")
+        Send, {CapsLock}
 Return
 
 #If WinActive("ahk_class CrossFire") && SHT_Service_On ;以下的热键需要相应条件才能激活
@@ -93,6 +99,8 @@ Return
 Return
 
 ~*RAlt::
+    If !GetKeyState("RAlt", "P")
+        Return
     Suspend, Off ;恢复热键,双保险
     Suspended()
     SetGuiPosition(XGui1, YGui1, "M", -ValueW // 10 - P1W // 2, ValueH // 9 - P1H // 2)
@@ -103,19 +111,29 @@ Return
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
 Return
 
-~*F7 Up::
-    FuncPing() ;重新输入ping
+~*F7::
+    If GetKeyState("F7", "P")
+        FuncPing() ;重新输入ping
 Return
 
-~LCtrl & ~` Up::
-~LCtrl & ~~ Up::
-    ChangeMode(AutoMode, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
+~LCtrl & ~`::
+~LCtrl & ~~::
+    If GetKeyState("LCtrl", "P") && GetKeyState("LCtrl", "`")
+        ChangeMode(AutoMode, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
 Return
 
 #If (WinActive("ahk_class CrossFire") && SHT_Service_On && AutoMode && CF_Now.GetStatus() && CF_Now.GetHuman()) ;以下的热键需要相应条件才能激活
 
+~*Tab::
+~*1::
+    If GetKeyState("Tab", "P") || GetKeyState("1", "P")
+        1_pressed := 1
+Return
+
 ~*Tab Up::
 ~*1 Up:: ;还原模式
+    If !1_pressed
+        Return
     If StrLen(Temp_Run) > 0
     {
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
@@ -123,40 +141,73 @@ Return
         mo_shi := Temp_Mode
         AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
     }
+    1_pressed := 0
+Return
+
+~*2::
+    If GetKeyState("2", "P")
+        2_pressed := 1
 Return
 
 ~*2 Up:: ;手枪模式
+    If !2_pressed
+        Return
     mo_shi := 2
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载手枪中", XGui1, YGui1)
     AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
+    2_pressed := 0
+Return
+
+~*K::
+    If GetKeyState("k", "P")
+        k_pressed := 1
 Return
 
 ~K Up:: ;通用模式
+    If !k_pressed
+        Return
     Temp_Mode := 0
     mo_shi := 0
     Temp_Run := "加载通用中"
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载通用中", XGui1, YGui1)
     AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
+    k_pressed := 0
+Return
+
+~*J::
+    If GetKeyState("j", "P")
+        j_pressed := 1
 Return
 
 ~*J Up:: ;瞬狙模式,M200效果上佳
+    If !j_pressed
+        Return
     Temp_Mode := 8
     mo_shi := 8
     Temp_Run := "加载狙击中"
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载狙击中", XGui1, YGui1)
     AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
+    j_pressed := 0
+Return
+
+~*L::
+    If GetKeyState("l", "P")
+        l_pressed := 1
 Return
 
 ~*L Up:: ;连点模式
+    If !l_pressed
+        Return
     Temp_Mode := 111
     mo_shi := 111
     Temp_Run := "加载速点中"
     GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
     UpdateText("fcn_mode", "ModeOfFcn", "加载速点中", XGui1, YGui1)
     AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
+    l_pressed := 0
 Return
 ;==================================================================================
 ;检测ping的图形界面函数,因每次打开仅使用一次故做成函数
@@ -300,26 +351,20 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                         {
                             GuiControl, fcn_status: +c00FF00 +Redraw, StatusOfFcn ;#00FF00
                             UpdateText("fcn_status", "StatusOfFcn", "双切换弹中", XGui2, YGui2)
-                            Send, {3 DownTemp}
-                            HyperSleep(GamePing + 80)
-                            Send, {1 DownTemp}
+                            press_key("3", GamePing, 100)
+                            press_key("1", 25, 25)
 
-                            If (GetKeyState("1") && GetKeyState("3")) ;暴力查询是否上弹
+                            press_cnt := 0
+                            Loop ;确保及时退出循环
                             {
-                                Send, {Blind}{3 Up}
-                                Send, {Blind}{1 Up}
-                                press_cnt := 0
-                                Loop ;确保及时退出循环
-                                {
-                                    press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
-                                    press_cnt += 1
-                                } Until, (CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher() || press_cnt >= 30)
+                                press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
+                                press_cnt += 1
+                            } Until, (CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher() || press_cnt >= 30)
 
-                                Loop
-                                {
-                                    press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
-                                } Until, (!CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher())
-                            }
+                            Loop
+                            {
+                                press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
+                            } Until, (!CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher())
                         }
 
                     Case 111:
@@ -347,8 +392,7 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     ;show color in editor: #963735 #973735 #983735 #993735 #993734 #9A3734 #9A3834 #9B3834 #9C3834 #9C3833 #9D3833 #9E3833 #9F3833 #9F3832 #9F3932 #A03932 #A13932 #A23932 #A23931 #A33931 #A43931 #A43A31 #A53A31 #A53A30 #A63A30 #A73A30 #A83A30 #A83A2F #A93A2F #A93B2F #AA3B2F #AB3B2F #AB3B2E #AC3B2E #AD3B2E #AE3B2E #AE3C2E #AE3C2D #AF3C2D #B03C2D #B13C2D #B13C2C #B23C2C #B33C2C #B33D2C #B43D2C #B43D2B #B53D2B #B63D2B #B73D2B #B73D2A #B73E2A #B83E2A #B93E2A #BA3E2A #BA3E29 #BB3E29 #BC3E29 #BC3F29 #BC3F29 #BD3F29 #BD3F28 #BE3F28 #BF3F28 #C03F28 #C03F27 #C13F27 #C14027 #C24027 #C34027 #C44026 #C54026 #C64026 #C64126 #C74126 #C74125 #C84125 #C94125 #CA4125 #CA4124 #CB4124 #CB4224 #CC4224 #CD4224 #CD4223 #CE4223 #CF4223 #D04223 #D04323 #D04322 #D14322 #D24322 #D34322 #D34321 #D44321 #D44421 #D54421 #D64421 #D64420 #D74420 #D84420 #D94420 #D9441F #D9451F #DA451F #DB451F #DC451F #DC451E #DD451E #DE451E #DE461E #DF461E #DF461D #E0461D #E1461D #E2461D #E2461C #E3461C #E3471C #E4471C #E5471C #E5471B #E6471B #E7471B #E8471B #E8481B #E8481A #E9481A #EA481A #EB481A #EB4819 #EC4819 #ED4819 #ED4919 #EE4919 #EE4918 #EF4918 #F04918 #F14918 #F24A17
     static PosColor_NA_red := "0x174AF2" ;0xF24A17
     ;show color in editor: #F24A17 #174AF2
-
-    HyperSleep(1) ;减小平均cpu占用
+    ;HyperSleep(1) ;减小平均cpu占用
     If game_title = CROSSFIRE ;检测客户端标题来确定检测位置和颜色库
     {
         PixelSearch, ColorX, ColorY, X + W // 2 - W // 20, Y + H // 2, X + W // 2 + W // 20, Y + H // 2 + H // 7.5, %PosColor_NA_red%, 0, Fast
@@ -376,7 +420,7 @@ CheckSnipe(Xvar, Yvar, Wvar, Hvar)
     global Snipe_000000
     If Wvar >= 1280
     {
-        ImageSearch, sp_x, sp_y, Xvar + Wvar // 2 - 3, Yvar + Hvar // 2, Xvar + Wvar // 2 + 3, Yvar + Hvar // 2 + Hvar // 4.5, HBITMAP:*%Snipe_000000% ;检测狙击镜准心 #000000
+        ImageSearch, sp_x, sp_y, Xvar + Wvar // 2 - 3, Yvar + Hvar // 2, Xvar + Wvar // 2 + 3, Yvar + Hvar // 2 + Hvar // 4.5, *1 HBITMAP:*%Snipe_000000% ;检测狙击镜准心 #000000
         Return !ErrorLevel
     }
     Else

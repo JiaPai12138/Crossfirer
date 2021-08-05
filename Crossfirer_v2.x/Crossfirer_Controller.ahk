@@ -85,6 +85,8 @@ If WinExist("ahk_class CrossFire")
 }
 ;==================================================================================
 ~*-::
+    If !GetKeyState("-", "P")
+        Return
     WinClose, ahk_class ConsoleWindowClass
     Try
         Run, .\请低调使用.bat
@@ -112,6 +114,8 @@ ExitApp
         ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
         Gui, T_Hour: Show, x%XGui12% y%YGui12% NA
     }
+    If GetKeyState("Capslock", "T")
+        Send, {CapsLock}
 Return
 
 #If WinActive("ahk_class CrossFire") && CTL_Service_On ;以下的热键需要相应条件才能激活
@@ -124,6 +128,8 @@ Return
 Return
 
 ~*RAlt::
+    If !GetKeyState("RAlt", "P")
+        Return
     Suspend, Off ;恢复热键,双保险
     Suspended()
     SetGuiPosition(XGui9, YGui9, "V", 0, -P8H // 2)
@@ -136,24 +142,32 @@ Return
 Return
 
 ~*Up::
+    If !GetKeyState("Up", "P")
+        Return
     Allowed_Hour += 1
     Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
 Return
 
 ~*Down::
+    If !GetKeyState("Down", "P")
+        Return
     Allowed_Hour -= 1
     Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour + Allowed_Hour - 24) : (Game_Begin_Hour + Allowed_Hour)
 Return
 
 ~*RCtrl::
+    If !GetKeyState("RCtrl", "P")
+        Return
     ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 1)
 Return
 
 ~*?::
 ~*/::
+    If !GetKeyState("/", "P")
+        Return
     Random_Move := !Random_Move
     If Strlen(Key_Pressed) > 0
-        Send, {Blind}{%Key_Pressed% Up}
+        key_up(Key_Pressed)
     Key_Pressed := ""
     If Random_Move
         GuiControl, Ran: +c00FFFF +Redraw, Ran_Moving ;#00FFFF
@@ -193,7 +207,7 @@ UpdateGui() ;精度0.5s
         MsgBox, 262144, 提示/Hint, 请按"-"键重新加载脚本`nPlease restart by pressing "-" key
 
     If !GetKeyState("LAlt", "P") && GetKeyState("LAlt")
-        Send, {Blind}{LAlt Up} ;双重保险防止意外激活
+        key_up("LAlt") ;双重保险防止意外激活
 
     If !WinExist("ahk_class CrossFire")
     {
@@ -222,7 +236,7 @@ UpdateGui() ;精度0.5s
             PostStatus(110002)
 
         If Strlen(Key_Pressed) > 0
-            Send, {Blind}{%Key_Pressed% Up}
+            key_up(Key_Pressed)
 
         If IsMutant() ;僵尸
             PostStatus(110004)
@@ -344,7 +358,7 @@ JumpMove(movekey)
 {
     If Mod(A_Sec, 3)
     {
-        Send, {Blind}{%movekey% DownTemp}
+        key_down(movekey)
         Key_Pressed := movekey
     }
     Else
@@ -356,7 +370,7 @@ JumpMove(movekey)
         }
         Else
         {
-            Send, {Blind}{s DownTemp} ;尽可能向后获得打中场boss的能力
+            key_down("s") ;尽可能向后获得打中场boss的能力
             Key_Pressed := "s"
         }
     }

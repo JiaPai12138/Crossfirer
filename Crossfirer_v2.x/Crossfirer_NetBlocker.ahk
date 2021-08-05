@@ -10,6 +10,7 @@ global Net_On := True
 Net_Start := 0
 nb_block := False
 nb_allow := False
+H_IsPressed := 0
 CheckPermission("一键限网")
 hwndcf := WinExist("ahk_class CrossFire")
 If WinExist("ahk_class HwndWrapper\[NLClientApp.exe;;[\da-f\-]+]")
@@ -65,7 +66,10 @@ If (WinExist("ahk_class CrossFire"))
     Return
 }
 ;==================================================================================
-~*-::ExitApp
+~*-::
+    If !GetKeyState("-", "P")
+        Return
+ExitApp
 
 #If NBK_Service_On ;以下的热键需要相应条件才能激活
 
@@ -80,6 +84,8 @@ If (WinExist("ahk_class CrossFire"))
     }
     Else
         Gui, net_status: Show, Hide
+    If GetKeyState("Capslock", "T")
+        Send, {CapsLock}
 Return
 
 #If WinActive("ahk_class CrossFire") && NBK_Service_On ;以下的热键需要相应条件才能激活
@@ -92,6 +98,8 @@ Return
 Return
 
 ~*RAlt::
+    If !GetKeyState("RAlt", "P")
+        Return
     Suspend, Off ;恢复热键,双保险
     Suspended()
     SetGuiPosition(XGui9, YGui9, "H", -P9W // 2, 0)
@@ -103,7 +111,14 @@ Return
 
 #If (WinActive("ahk_class CrossFire") && NBK_Service_On && CF_Now.GetStatus()) ;以下的热键需要相应条件才能激活
 
+~*H::
+    If GetKeyState("h", "P")
+        H_IsPressed := 1
+Return
+
 ~*H Up::
+    If !H_IsPressed
+        Return
     ;保证短时间内无法连续点击破坏断网效果
     If (100 <= A_TickCount - H_pressed)
         H_pressed := A_TickCount
@@ -144,6 +159,7 @@ Return
             Gui, net_status: Show, Hide
         }
     }
+    H_IsPressed := 0
 Return
 ;==================================================================================
 UpdateNet() ;精度0.1s

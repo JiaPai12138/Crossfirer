@@ -4,6 +4,7 @@ Preset("压")
 CheckPermission("基础压枪")
 ;==================================================================================
 Gun_Chosen := -1, Current_Gun := -1, RCL_Down := 0
+LButton_Pressed := 0, RButton_Pressed := 0
 XGui5 := 0, YGui5 := 0, XGui6 := 0, YGui6 := 0, XGui7 := 0, YGui7 := 0
 Vertices := 40
 Radius := 0
@@ -59,7 +60,10 @@ If WinExist("ahk_class CrossFire")
     Return
 }
 ;==================================================================================
-~*-::ExitApp
+~*-::
+    If !GetKeyState("-", "P")
+        Return
+ExitApp
 
 #If RCL_Service_On ;以下的热键需要相应条件才能激活
 
@@ -75,6 +79,8 @@ If WinExist("ahk_class CrossFire")
         Gui, recoil_mode: Show, Hide
         Gui, gun_sel: Show, Hide
     }
+    If GetKeyState("Capslock", "T")
+        Send, {CapsLock}
 Return
 
 #If WinActive("ahk_class CrossFire") && RCL_Service_On ;以下的热键需要相应条件才能激活
@@ -87,6 +93,8 @@ Return
 Return
 
 ~*RAlt::
+    If !GetKeyState("RAlt", "P")
+        Return
     Suspend, Off ;双保险
     Suspended()
     SetGuiPosition(XGui5, YGui5, "M", Wrs // 10 - P6W // 2, Hrs // 9 - P6H // 2)
@@ -96,8 +104,11 @@ Return
 Return
 
 ~*$LButton:: ;压枪 正在开发
-    If CF_Now.GetStatus() && GetKeyState("LButton", "P")
+    If !GetKeyState("LButton", "P")
+        Return
+    If CF_Now.GetStatus()
     {
+        LButton_Pressed := 1
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
         If Gun_Chosen >= 0
@@ -111,42 +122,58 @@ Return
 Return
 
 ~*Lbutton Up:: ;保障新一轮压枪
+    If !LButton_Pressed
+        Return
     Gui, circle: Show, Hide
     GuiControl, recoil_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("recoil_mode", "ModeClick", "压枪准备中", XGui5, YGui5)
+    LButton_Pressed := 0
 Return
 
 ~*RButton:: ;展示圆环
-    If CF_Now.GetStatus() && GetKeyState("RButton", "P")
+    If !GetKeyState("RButton", "P")
+        Return
+    If CF_Now.GetStatus()
     {
+        RButton_Pressed := 1
         SetGuiPosition(XGui7, YGui7, "M", -Radius, -Radius)
         Gui, circle: Show, x%XGui7% y%YGui7% w%Diameter% h%Diameter% NA
     }
 Return
 
 ~*Rbutton Up::
+    If !RButton_Pressed
+        Return
     Gui, circle: Show, Hide
+    RButton_Pressed := 0
 Return
 
 ~*NumpadAdd:: ;按级别压枪
-    RCL_Down := Mod(RCL_Down + 1, 4)
+    If GetKeyState("NumpadAdd", "P")
+        RCL_Down := Mod(RCL_Down + 1, 4)
 Return
 
 #If (WinActive("ahk_class CrossFire") && RCL_Service_On && CF_Now.GetStatus() && CF_Now.GetHuman()) ;以下的热键需要相应条件才能激活
 
 ~*Numpad0::
+    If !GetKeyState("Numpad0", "P")
+        Return
     GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
     UpdateText("gun_sel", "ModeGun", "暂未选枪械", XGui6, YGui6)
     Gun_Chosen := -1, Current_Gun := -1
 Return
 
 ~*NumpadDot::
+    If !GetKeyState("NumpadDot", "P")
+        Return
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "通用压点射", XGui6, YGui6)
     Gun_Chosen := 0 , Current_Gun := 0
 Return
 
 ~*1::
+    If !GetKeyState("1", "P")
+        Return
     If Current_Gun != -1
     {
         GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
@@ -157,23 +184,31 @@ Return
 ~*2::
 ~*3::
 ~*4::
+    If !(GetKeyState("2", "P") || GetKeyState("3", "P") || GetKeyState("4", "P"))
+        Return
     GuiControl, gun_sel: +c00FF00 +Redraw, ModeGun ;#00FF00
     Gun_Chosen := -1
 Return
 
 ~*Numpad1::
+    If !GetKeyState("Numpad1", "P")
+        Return
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "AK47-B 系", XGui6, YGui6)
     Gun_Chosen := 1, Ammo_Delay := 100, Current_Gun := 1
 Return
 
 ~*Numpad2::
+    If !GetKeyState("Numpad2", "P")
+        Return
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "M4A1-S系", XGui6, YGui6)
     Gun_Chosen := 2, Ammo_Delay := 87.6, Current_Gun := 2
 Return
 
 ~*Numpad3::
+    If !GetKeyState("Numpad3", "P")
+        Return
     GuiControl, gun_sel: +c00FFFF +Redraw, ModeGun ;#00FFFF
     UpdateText("gun_sel", "ModeGun", "HK417- 系", XGui6, YGui6)
     Gun_Chosen := 3, Ammo_Delay := 116, Current_Gun := 3
@@ -192,9 +227,9 @@ Recoilless(Gun_Chosen, RCL_Down, Ammo_Delay := 100)
         Case 0: ;通用啥都压系列
             Ammo_Count := EndTime // Ammo_Delay ;确保每一发都压到
             If !GetKeyState("LButton")
-                Send, {Blind}{LButton Down}
+                mouse_down()
             HyperSleep(10)
-            Send, {Blind}{LButton Up}
+            mouse_up()
             HyperSleep(Ammo_Delay - 10)
             If RCL_Down && Ammo_Count < 10
                 mouseXY(0, RCL_Down)

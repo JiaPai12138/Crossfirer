@@ -44,7 +44,10 @@ If WinExist("ahk_class CrossFire")
     Return
 }
 ;==================================================================================
-~*-::ExitApp
+~*-::
+    If !GetKeyState("-", "P")
+        Return
+ExitApp
 
 #If C4H_Service_On ;以下的热键需要相应条件才能激活
 
@@ -64,6 +67,8 @@ If WinExist("ahk_class CrossFire")
         Gui, Human_Hero: Show, Hide
         Gui, C4: Show, Hide
     }
+    If GetKeyState("Capslock", "T")
+        Send, {CapsLock}
 Return
 
 #If WinActive("ahk_class CrossFire") && C4H_Service_On ;以下的热键需要相应条件才能激活
@@ -76,6 +81,8 @@ Return
 Return
 
 ~*RAlt::
+    If !GetKeyState("RAlt", "P")
+        Return
     Suspend, Off ;恢复热键,双保险
     Suspended()
     SetGuiPosition(XGuiC, YGuiC, "M", -P3W // 2, He // 8 - P3H // 2)
@@ -91,6 +98,8 @@ Return
 #If (WinActive("ahk_class CrossFire") && C4H_Service_On && CF_Now.GetStatus()) ;以下的热键需要相应条件才能激活
 
 ~*=::
+    If !GetKeyState("=", "P")
+        Return
     Be_Hero := !Be_Hero
 
     If Be_Hero
@@ -109,6 +118,8 @@ Return
 Return
 
 ~C & ~4::
+    If !(GetKeyState("c", "P") || GetKeyState("4", "P"))
+        Return
     Be_Hero := False
     C4_On := True
     C4_Count.Start()
@@ -118,6 +129,8 @@ Return
 Return
 
 ~C & ~5::
+    If !(GetKeyState("c", "P") || GetKeyState("5", "P"))
+        Return
     C4_On := False
     C4_Count.Stop()
     Gui, C4: Show, Hide
@@ -217,7 +230,7 @@ class C4Timer
             If this.IsDefusing()
             {
                 If !GetKeyState("e")
-                    Send, {Blind}{e Down}
+                    key_down("e")
                 this.Defusing := 1
             }
             Else
@@ -225,12 +238,12 @@ class C4Timer
                 If this.Defusing > 0 && this.Defusing <= 3
                 {
                     If !GetKeyState("e")
-                        Send, {Blind}{e Down}
+                        key_down("e")
                     this.Defusing += 1
                 }
                 If this.Defusing > 3
                 {
-                    Send, {Blind}{e Up}
+                    key_up("e")
                     this.Defusing := 0
                 }
             }
@@ -339,7 +352,7 @@ class E_Hero
             PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - this.W // 10, this.Y + this.H // 4, this.X + this.W // 2 + this.W // 10, this.Y + this.H // 3, 0xB7780B, 0, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
             If !ErrorLevel
             {
-                Send, {Blind}{e Down}
+                key_down("e")
                 GuiControl, Human_Hero: +c00FFFF +Redraw, IMHero ;#00FFFF
                 UpdateText("Human_Hero", "IMHero", "弹|▁|▁|药", XGui8, YGui8)
                 this.IsReloading += 1
@@ -351,14 +364,14 @@ class E_Hero
                 UpdateText("Human_Hero", "IMHero", "猎|▁|▁|手", XGui8, YGui8)
                 this.IsReloading := 0
                 If GetKeyState("e") && !GetKeyState("e", "P")
-					Send, {Blind}{e Up}
+					key_up("e")
             }
 
             PixelSearch, IsX, IsY, this.X + this.W // 2 - this.W // 8, this.Y + this.H // 1.25, this.X + this.W // 2 + this.W // 8, this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 补充弹药进度或者吸血进度
             If !ErrorLevel
             {
                 If !GetKeyState("e")
-                    Send, {Blind}{e Down}
+                    key_down("e")
                 this.IsEating := 1
             }
             Else
@@ -366,12 +379,12 @@ class E_Hero
                 If this.IsEating > 0 && this.IsEating <= 3
                 {
                     If !GetKeyState("e")
-                        Send, {Blind}{e Down}
+                        key_down("e")
                     this.IsEating += 1
                 }
                 If this.IsReloading > 2 || this.IsEating > 3
                 {
-                    Send, {Blind}{e Up}
+                    key_up("e")
                     this.IsReloading := 0
                     this.IsEating := 0
                 }

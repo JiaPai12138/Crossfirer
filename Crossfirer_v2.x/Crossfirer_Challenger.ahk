@@ -30,7 +30,10 @@ If WinExist("ahk_class CrossFire")
     Return
 }
 ;==================================================================================
-~*-::ExitApp
+~*-::
+    If !GetKeyState("-", "P")
+        Return
+ExitApp
 
 #If CLG_Service_On ;以下的热键需要相应条件才能激活
 
@@ -40,6 +43,8 @@ If WinExist("ahk_class CrossFire")
         Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
     Else
         Gui, challen_mode: Show, Hide
+    If GetKeyState("Capslock", "T")
+        Send, {CapsLock}
 Return
 
 #If WinActive("ahk_class CrossFire") && CLG_Service_On ;以下的热键需要相应条件才能激活
@@ -52,6 +57,8 @@ Return
 Return
 
 ~*RAlt::
+    If !GetKeyState("RAlt", "P")
+        Return
     Suspend, Off ;恢复热键,双保险
     Suspended()
     SetGuiPosition(XGui10, YGui10, "H", -P10W // 2, Hj // 18 - P10H // 2)
@@ -59,6 +66,8 @@ Return
 Return
 
 ~*F8::
+    If !GetKeyState("F8", "P")
+        Return
     PostBack(110005) ;无尽中
     GuiControl, challen_mode: +c00FFFF +Redraw, ModeChallen ;#00FFFF
     UpdateText("challen_mode", "ModeChallen", "开始无尽挂机" . Show_Sel_Level, XGui10, YGui10)
@@ -82,6 +91,8 @@ Return
 Return
 
 ~*Left::
+    If !GetKeyState("Left", "P")
+        Return
     Sel_Level -= 1
     If Sel_Level < 1
         Sel_Level := 1
@@ -93,6 +104,8 @@ Return
 Return
 
 ~*Right::
+    If !GetKeyState("Right", "P")
+        Return
     Sel_Level += 1
     If Sel_Level > 10
         Sel_Level := 10
@@ -104,6 +117,8 @@ Return
 Return
 
 ~*Esc::
+    If !GetKeyState("Esc", "P")
+        Return
     挂机 := False
     准备 := False
     UpdateText("challen_mode", "ModeChallen", "无尽挂机准备" . Show_Sel_Level, XGui10, YGui10)
@@ -169,7 +184,7 @@ Exit ;退出当前线程
             If !ErrorLevel
                 Boss_Come := 2
 
-            Send, {Blind}{LAlt Up} ;偶发按键影响
+            key_up("LAlt") ;偶发按键影响
 
             PixelSearch, 佣兵管理x, 佣兵管理y, Xj + Wj // 2 - Wj // 32, Yj + Hj // 5, Xj + Wj // 2 + Wj // 32, Yj + Hj // 4, 0xFFF9D8, 0, Fast ;#D8F9FF #FFF9D8 佣兵管理
             If !ErrorLevel
@@ -194,7 +209,7 @@ Exit ;退出当前线程
             {
                 ToolTip, , , , 17
                 If GetKeyState("LButton")
-                    Send, {Blind}{LButton Up}
+                    mouse_up()
 
                 PixelSearch, Bossa, Bossb, Xj + Round(Wj * 0.442), Yj + Round(Hj * 0.13), Xj + Wj // 2, Yj + Round(Hj * 0.15), 0xFFFFFF, 0, Fast ;#FFFFFF Boss级别怪物
                 If !ErrorLevel
@@ -205,7 +220,7 @@ Exit ;退出当前线程
                         枪口上 := True
                     }
                     press_key("e", 10, 10) ;佣兵觉醒
-                    Send, {Blind}{s Down}
+                    key_down("s")
                     后退 := True
                 }
                 Else
@@ -216,7 +231,7 @@ Exit ;退出当前线程
                         枪口上 := False
                     }
                     If 后退
-                        Send, {Blind}{s Up}
+                        key_up("s")
                 }
 
                 If !枪口上
@@ -235,14 +250,14 @@ Exit ;退出当前线程
             Else If !Char_Dead && Boss_Come
             {
                 If !GetKeyState("LButton")
-                    Send, {Blind}{LButton Down}
+                    mouse_down()
                 press_key("e", 10, 10) ;佣兵觉醒
                 LRMoveX := 0, LRMoveY := 0
 
                 If Boss_Come := 1
-                    ImageSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, *4 HBITMAP:*%Load_FFFF14% ;#FFFF14
+                    ImageSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, *5 HBITMAP:*%Load_FFFF14% ;#FFFF14
                 Else If Boss_Come := 2
-                    ImageSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, *4 HBITMAP:*%Load_FAFA00% ;#FAFA00
+                    ImageSearch, Boss_x1, Boss_y1, Xj, Yj, Xj + Wj, Yj + Hj, *5 HBITMAP:*%Load_FAFA00% ;#FAFA00
                 If !ErrorLevel
                 {
                     Lose_Boss := 0
@@ -270,7 +285,7 @@ Exit ;退出当前线程
                 Loop, 9
                 {
                     If !GetKeyState("LButton")
-                        Send, {Blind}{LButton Down}
+                        mouse_down()
                     HyperSleep(100)
                 }
                 ToolTip, 立地成佛, , Yj, 19
@@ -304,7 +319,7 @@ Exit ;退出当前线程
         ToolTip, 本局完毕, , , 19
         ToolTip, , , , 18
         ToolTip, , , , 17
-        Send, {Blind}{LButton Up}
+        mouse_up()
 
         If Time_Minute > 18 && !(确认成绩x > 0 && 确认成绩y > 0 && 确认成绩a > 0 && 确认成绩b > 0) && !JumpLoop() && CF_Now.GetStatus() != 0 ;超时无法通关则降低等级
         {

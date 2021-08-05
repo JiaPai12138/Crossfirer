@@ -10,19 +10,16 @@
 * AHK_H多线程(我正在设法将脚本合一，并想保留脚本运行时状态的及时更新)
 * 图像识别(基于神经网络，使用PyTorch或者Darknet)
 * 使用Nuitka打包(能提升python代码编译成exe后运行效率)
-* 使用Cython重构
 
 ## 使用说明 📄📄📄
 * 请先[安装ahk](https://www.autohotkey.com/download/ahk-install.exe)；这里是[安装教程](https://seujxh.wordpress.com/2018/09/11/ahk%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E6%B5%81%E7%A8%8B/)；穿越火线<font style="background: #FFFF00">**窗口化**</font>并且分辨率为<font style="background: #FFFF00">**1600*900**</font>；(需要压枪或自瞄的话)鼠标灵敏值设为32(1200 DPI)或24(1600 DPI)
-* 如果客户端界面位置发生变化请按靠右边的Alt键对准，一次不行多按几次(发行版的exe可能一次无法完全调整对准)，~~启动脚本后请等待三秒左右不然可能遇到警告~~
+* 如果客户端界面位置发生变化请<font style="background: #FFFF00">**长按**</font>靠右边的Alt键对准，一次不行多按几次(发行版的exe可能一次无法完全调整对准)，~~启动脚本后请等待三秒左右不然可能遇到警告~~
 * ~~以管理员模式运行脚本或者右键选择"Run with UI Access"~~ ~~直接双击，按提示选择管理员或者UI Access~~ 直接打开Crossfirer_v2.x文件夹中的bat文件然后选择你想打开的功能再运行游戏![image](PDF_Images/直接打开bat.png)![image](PDF_Images/选择脚本.png)或者以管理员权限打开发行版里的低调使用.exe![image](PDF_Images/发行版所有文件.png)
 * 按下"-"键重新加载脚本(实际是退出等待cmd界面重新选择运行脚本)
 * 运行脚本时将获得即时状态提示，一般黄色![黄色](PDF_Images/黄色.png)为<font style="color: #FFFF00">暂停状态</font>，绿色![绿色](PDF_Images/绿色.png)为<font style="color: #00FF00">就绪状态</font>，青色![青色](PDF_Images/青色.png)为<font style="color: #00FFFF">正在运行</font>，红色![红色](PDF_Images/红色.png)为<font style="color: #FF0000">警报</font>(仅自动开火和C4计时部分)，按靠右的Ctrl键将获得简易键位提示![image](PDF_Images/做好变猎手准备.png)
 * 游戏中按下回车键可暂停/恢复一切按键触发函数，或者按右边的Alt恢复按键触发，避免打字时错乱
 * 按下"?"可开启/关闭游戏内随机动作，避免不活跃被系统踢出房间
 * 按下方向上/下键增加/减少挂机时间，默认为4小时
-* 608截图器启动需要管理员权限，使需要被截图的窗口成为(当前)活动窗口，并在确认游戏窗口标题后点击"Yes"；之后按截图键"PrtSc"，听到声音提示并看到游戏窗口左上角的弹出式提示框即表明截图程序正在工作
-* 当不需要608截图器工作时，直接退出游戏或者按一下截图键"PrtSc"直到左上角的弹出式提示框消失，之后去托盘图标处右键点击Exit退出截图程序
 
 ### <u>自动开火部分</u>
 * 按下"LCtrl"和"~"键开启、关闭脚本自瞄动开火部分
@@ -80,9 +77,9 @@
 * 按"f"恢复自瞄模式
 * 按"p"键重启程序
 * 按"END"结束程序
-* 自瞄只截屏识别准星附近区域，对于16:9的CF游戏窗口识别区域大小为(高=游戏窗口高*3/5，宽=高*4/3)
+* 自瞄只截屏识别准星附近区域，对于16:9的CF游戏窗口识别区域大小为(高=游戏窗口高*1/2，宽=高*4/3)
 * 本程序使用python语言以及自源码编译的opencv-cuda加速库
-* 本程序使用yolov4-tiny模型，只因其快(目前使用b站大佬[VeniVediVeci](https://space.bilibili.com/196421117)训练的权值)
+* 本程序目前使用yolov4-tiny模型，只因其快(目前使用b站大佬[VeniVediVeci](https://space.bilibili.com/196421117)训练的权值)
 * 本程序<font style="background: #FFFF00">**很吃性能**</font>，使用前请先确认您的电脑配置: [GPU天梯1](http://cdn.malu.me/gpu/)，[GPU天梯2](https://topic.expreview.com/GPU/)或[参考知乎](https://zhuanlan.zhihu.com/p/133845310)
 
 ## 额外说明 📃📃📃

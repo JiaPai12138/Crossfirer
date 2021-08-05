@@ -32,7 +32,10 @@ If WinExist("ahk_class CrossFire")
     Return
 }
 ;==================================================================================
-~*-::ExitApp
+~*-::
+    If !GetKeyState("-", "P")
+        Return
+ExitApp
 
 #If CLK_Service_On ;以下的热键需要相应条件才能激活
 
@@ -42,6 +45,8 @@ If WinExist("ahk_class CrossFire")
         Gui, click_mode: Show, x%XGui3% y%YGui3% NA
     Else
         Gui, click_mode: Show, Hide
+    If GetKeyState("Capslock", "T")
+        Send, {CapsLock}
 Return
 
 #If WinActive("ahk_class CrossFire") && CLK_Service_On ;以下的热键需要相应条件才能激活
@@ -54,6 +59,8 @@ Return
 Return
 
 ~*RAlt::
+    If !GetKeyState("RAlt", "P")
+        Return
     Suspend, Off ;恢复热键,双保险
     Suspended()
     SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, He // 3.6 - P5H // 2)
@@ -61,10 +68,14 @@ Return
 Return
 
 ~*F9::
+    If !GetKeyState("F9", "P")
+        Return
     AccRem := 2.0 / AccRem
 Return
 
 ~*MButton:: ;爆裂者轰炸
+    If !GetKeyState("MButton", "P")
+        Return
     CLKStatus := 1
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "右键速点", XGui3, YGui3)
@@ -75,11 +86,13 @@ Return
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
-    Send, {Blind}{RButton Up}
+    mouse_up("RButton")
     CLKStatus := 0
 Return
 
 ~*XButton2:: ;炼狱连刺
+    If !GetKeyState("XButton2", "P")
+        Return
     CLKStatus := 2
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "炼狱连刺", XGui3, YGui3)
@@ -97,6 +110,8 @@ Return
 
 ~*T:: ;防止鼠标不符合要求
 ~*XButton1:: ;半自动速点,适合加特林速点,适合USP
+    If !(GetKeyState("XButton1", "P") || GetKeyState("t", "P"))
+        Return
     CLKStatus := 3, GetE := 0, estart := SystemTime(), stime := 0
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "左键速点", XGui3, YGui3)
@@ -119,12 +134,14 @@ Return
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
-    Send, {Blind}{LButton Up}
+    mouse_up()
     CLKStatus := 0
 Return
 
 ~*":: ;大宝剑二段连击
 ~*'::
+    If !GetKeyState("'", "P")
+        Return
     CLKStatus := 4
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "二段连击", XGui3, YGui3)
@@ -141,25 +158,29 @@ Return
 
 ~*|:: ;左键直射
 ~*\::
+    If GetKeyState("\", "P")
+        Return
     CLKStatus := 5
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "左键不放", XGui3, YGui3)
-    Send, {Blind}{LButton Up}
-    Send, {LButton Down}
+    mouse_up()
+    mouse_down()
     While, StayLoop("RButton") && CLKStatus = 5
     {
         If !GetKeyState("LButton")
-            Send, {LButton Down}
+            mouse_down()
         HyperSleep(100)
     }
     GuiControl, click_mode: +c00FF00 +Redraw, ModeClick ;#00FF00
     UpdateText("click_mode", "ModeClick", "连点准备", XGui3, YGui3)
-    Send, {Blind}{LButton Up}
+    mouse_up()
     CLKStatus := 0
 Return
 
 ~*::: ;炼狱热管
 ~*;::
+    If GetKeyState(";", "P")
+        Return
     CLKStatus := 6
     GuiControl, click_mode: +c00FFFF +Redraw, ModeClick ;#00FFFF
     UpdateText("click_mode", "ModeClick", "炼狱热管", XGui3, YGui3)
