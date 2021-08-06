@@ -10,9 +10,12 @@ Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
 from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
+from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
+from yolox.data.data_augment import preproc as preprocess
+from yolox.utils import multiclass_nms, demo_postprocess
 from sys import exit, executable, platform
 from math import sqrt, pow, ceil
 from collections import deque
@@ -20,16 +23,80 @@ from statistics import median
 from time import sleep, time
 from platform import release
 from random import uniform
-from ctypes import windll
 from numba import jit
 import numpy as np
+import onnxruntime
 import pywintypes
-import nvidia_smi
 import win32gui
 import win32ui
+import pynvml
 import queue
+import mss
 import cv2
 import os
+
+
+# ↓↓↓↓↓↓↓↓↓ 简易鼠标行为模拟,使用SendInput函数 ↓↓↓↓↓↓↓↓↓
+LONG = c_long
+DWORD = c_ulong
+ULONG_PTR = POINTER(DWORD)
+
+
+class MOUSEINPUT(Structure):
+    _fields_ = (('dx', LONG),
+                ('dy', LONG),
+                ('mouseData', DWORD),
+                ('dwFlags', DWORD),
+                ('time', DWORD),
+                ('dwExtraInfo', ULONG_PTR))
+
+
+class _INPUTunion(Union):
+    _fields_ = (('mi', MOUSEINPUT), ('mi', MOUSEINPUT))
+
+
+class INPUT(Structure):
+    _fields_ = (('type', DWORD),
+                ('union', _INPUTunion))
+
+
+def SendInput(*inputs):
+    nInputs = len(inputs)
+    LPINPUT = INPUT * nInputs
+    pInputs = LPINPUT(*inputs)
+    cbSize = c_int(sizeof(INPUT))
+    return windll.user32.SendInput(nInputs, pInputs, cbSize)
+
+
+def Input(structure):
+    return INPUT(0, _INPUTunion(mi=structure))
+
+
+def MouseInput(flags, x, y, data):
+    return MOUSEINPUT(x, y, data, flags, 0, None)
+
+
+def Mouse(flags, x=0, y=0, data=0):
+    return Input(MouseInput(flags, x, y, data))
+
+
+def sp_mouse_xy(x, y):
+    return SendInput(Mouse(0x0001, x, y))
+
+
+def sp_mouse_down(key = 'LButton'):
+    if key == 'LButton':
+        return SendInput(Mouse(0x0002))
+    elif key == 'RButton':
+        return SendInput(Mouse(0x0008))
+
+
+def sp_mouse_up(key = 'LButton'):
+    if key == 'LButton':
+        return SendInput(Mouse(0x0004))
+    elif key == 'RButton':
+        return SendInput(Mouse(0x0010))
+# ↑↑↑↑↑↑↑↑↑ 简易鼠标行为模拟,使用SendInput函数 ↑↑↑↑↑↑↑↑↑
 
 
 # 截图类
@@ -49,18 +116,13 @@ class WindowCapture:
     sct = ''
 
     # 构造函数
-    def __init__(self, window_class, window_hwnd):
+    def __init__(self, window_class):
         self.windows_class = window_class
-        try:
-            self.hwnd = win32gui.FindWindow(window_class, None)
-        except pywintypes.error:
-            self.hwnd = window_hwnd
+        self.hwnd = win32gui.FindWindow(window_class, None)
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
         self.update_window_info()
-        if platform != 'win32':
-            import mss
-            self.sct = mss.mss()  # 初始化mss截图
+        self.sct = mss.mss()  # 初始化mss截图
 
     def update_window_info(self):
         # 获取窗口数据
@@ -74,7 +136,7 @@ class WindowCapture:
         self.cut_h = self.total_h // 2
         self.cut_w = self.cut_h
         if self.windows_class == 'CrossFire':  # 画面实际4:3简单拉平
-            self.cut_w = int(self.cut_w * (self.total_w / self.total_h) * 3 / 4)
+            self.cut_w = self.cut_w * (self.total_w / self.total_h) * 3 // 4
         self.offset_x = (self.total_w - self.cut_w) // 2 + self.left_corner[0] - window_rect[0]
         self.offset_y = (self.total_h - self.cut_h) // 2 + self.left_corner[1] - window_rect[1]
         self.actual_x = window_rect[0] + self.offset_x
@@ -133,15 +195,16 @@ class WindowCapture:
 # 分析类
 class FrameDetection:
     # 类属性
-    side_length = 416  # 输入尺寸
     std_confidence = 0  # 置信度阀值
-    conf_thd = 0.4  # 置信度阀值
     nms_thd = 0.3  # 非极大值抑制
     win_class_name = ''  # 窗口类名
-    CONFIG_FILE = ['./']
-    WEIGHT_FILE = ['./']
-    net = ''  # 建立网络
-    ln = ''
+    class_names = ''  # 检测类名
+    COLORS = []
+    input_shape = tuple(map(int, ['224', '192']))  # 输入尺寸
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
+    EP_list = ['CUDAExecutionProvider', 'CPUExecutionProvider']  # CUDA执行提供程序优先于CPU执行提供程序
+    session = ''
 
     # 构造函数
     def __init__(self, hwnd_value, gpu_level):
@@ -150,26 +213,28 @@ class FrameDetection:
             'Valve001': 0.45,
             'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
+        self.session = onnxruntime.InferenceSession('yolox_nano.onnx', providers=self.EP_list)  # 推理构造
 
-        load_file('yolov4-tiny', self.CONFIG_FILE, self.WEIGHT_FILE)
-        self.net = cv2.dnn.readNet(self.CONFIG_FILE[0], self.WEIGHT_FILE[0])  # 读取权重与配置文件
+        try:
+            with open('classes.txt', 'r') as f:
+                self.class_names = [cname.strip() for cname in f.readlines()]
+        except FileNotFoundError:
+            self.class_names = ['live-body', 'dead-body']
+        for i in range(len(self.class_names)):
+            self.COLORS.append(tuple(np.random.randint(256, size=3).tolist()))
 
-        # 读取YOLO神经网络内容
-        self.ln = self.net.getLayerNames()
-        self.ln = [self.ln[i[0] - 1] for i in self.net.getUnconnectedOutLayers()]
-
-        # 检测并设置在GPU上运行图像识别
-        if cv2.cuda.getCudaEnabledDeviceCount():
-            self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+        # 检测是否在GPU上运行图像识别
+        if onnxruntime.get_device() == 'GPU':
             gpu_eval = check_gpu(gpu_level)
             if gpu_eval == 2:
-                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
+                print('小伙电脑顶呱呱啊')
             else:
-                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+                print('战斗完全木得问题')
             if gpu_eval == 0:
                 print('您的显卡配置不够')
         else:
-            print('您没有可识别的N卡')
+            print('中央处理器烧起来')
+            print('PS:注意是否安装CUDA')
 
     def detect(self, frame):
         try:
@@ -193,93 +258,89 @@ class FrameDetection:
             cv2.rectangle(frames, (int(frame_width*3/4), int(frame_height*3/5)), (frame_width, frame_height), (127, 127, 127), cv2.FILLED)
             cv2.rectangle(frames, (0, int(frame_height*3/5)), (int(frame_width*1/4), frame_height), (127, 127, 127), cv2.FILLED)
 
-        # 检测
-        blob = cv2.dnn.blobFromImage(frames, 1 / 255.0, (self.side_length, self.side_length), swapRB=False, crop=False)  # 转换为二进制大型对象
-        self.net.setInput(blob)
-        layerOutputs = np.vstack(self.net.forward(self.ln))  # 前向传播
-        boxes, confidences = analyze(layerOutputs, self.std_confidence, frame_width, frame_height)
-
         # 初始化返回数值
         x0, y0, fire_range, fire_pos, fire_close, fire_ok = 0, 0, 0, 0, 0, 0
 
-        # 移除重复
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, self.conf_thd, self.nms_thd)
+        # 预处理
+        img, ratio = preprocess(frames, self.input_shape, self.mean, self.std)
 
-        # 画框,计算距离框中心距离最小的威胁目标
-        max_var = 0
-        max_at = 0
-        if len(indices) > 0:
-            for j in indices.flatten():
-                (x, y) = (boxes[j][0], boxes[j][1])
-                (w, h) = (boxes[j][2], boxes[j][3])
-                cv2.rectangle(frames, (int(x - w / 2), int(y - h / 2)), (int(x + w / 2), int(y + h / 2)), (0, 36, 255), 2)
-                cv2.putText(frames, str(round(confidences[j], 3)), (x - 4*len(str(round(confidences[j], 3))), y - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2, cv2.LINE_AA)
+        # 检测
+        ort_inputs = {self.session.get_inputs()[0].name: img[None, :, :, :]}
+        output = self.session.run(None, ort_inputs)
+        predictions = demo_postprocess(output[0], self.input_shape)[0]
+
+        boxes_xyxy, scores = analyze(predictions, ratio)
+        dets = multiclass_nms(boxes_xyxy, scores, self.nms_thd, self.std_confidence)
+
+        # 画框
+        threat_list = []
+        if not (dets is None):
+            final_boxes, final_scores, final_cls_inds = dets[:, :4], dets[:, 4], dets[:, 5]
+            for (box, final_score, final_cls_ind) in zip(final_boxes, final_scores, final_cls_inds):
+                cv2.rectangle(frames, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), self.COLORS[0], 2)
+                label = str(round(final_score, 3))
+                x, y, w, h = box[0], box[1], box[2] - box[0], box[3] - box[1]
+                cv2.putText(frames, label, (int(x + w/2 - 4*len(label)), int(y + h/2 - 8)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 2)
 
                 # 计算威胁指数(正面画框面积的平方根除以鼠标移动到目标距离)
-                h_factor = (0.3125 if h > w else 0)
-                dist = sqrt(pow(frame_width / 2 - x, 2) + pow(frame_height / 2 - y + h * h_factor, 2))
+                h_factor = (0.1875 if h > w else 0.5)
+                dist = sqrt(pow(frame_width / 2 - (x + w / 2), 2) + pow(frame_height / 2 - (y + h * h_factor), 2))
+                threat_var = -(pow(w * h, 1/2) / dist if dist else 999)
+                threat_list.append([threat_var, [x, y, w, h]])
 
-                if dist:
-                    threat_var = pow(boxes[j][2] * boxes[j][3], 1/2) / dist
-                    if threat_var > max_var:
-                        max_var = threat_var
-                        max_at = j
-                else:
-                    max_at = j
-                    break
+        if len(threat_list):
+            threat_list.sort(key=lambda x1: x1[0])
+            x_tht, y_tht, w_tht, h_tht = threat_list[0][1]
 
             # 指向距离最近威胁的位移
-            x0 = boxes[max_at][0] - frame_width / 2
-            if boxes[max_at][3] > boxes[max_at][2]:
-                y1 = boxes[max_at][1] - boxes[max_at][3] * 3 / 8 - frame_height / 2  # 爆头优先
-                y2 = boxes[max_at][1] - boxes[max_at][3] / 4 - frame_height / 2  # 击中优先
-                fire_close = (1 if frame_width / boxes[max_at][2] <= 8 else 0)
+            x0 = x_tht + (w_tht - frame_width) / 2
+            if h_tht > w_tht:
+                y1 = y_tht + h_tht / 8 - frame_height / 2  # 爆头优先
+                y2 = y_tht + h_tht / 4 - frame_height / 2  # 击中优先
+                fire_close = (1 if frame_width / w_tht <= 8 else 0)
                 if abs(y1) <= abs(y2) or fire_close:
                     y0 = y1
-                    fire_range = boxes[max_at][2] / 8
+                    fire_range = w_tht / 8
                     fire_pos = 1
                 else:
                     y0 = y2
-                    fire_range = boxes[max_at][2] / 4
+                    fire_range = w_tht / 4
                     fire_pos = 2
             else:
-                y0 = boxes[max_at][1] - frame_height / 2
-                fire_range = min(boxes[max_at][2], boxes[max_at][3]) / 2
+                y0 = y_tht + (h_tht - frame_height) / 2
+                fire_range = min(w_tht, h_tht) / 2
                 fire_pos = 0
 
             # 查看是否已经指向目标
-            if 1/4 * boxes[max_at][2] > abs(frame_width / 2 - boxes[max_at][0]) and 2/5 * boxes[max_at][3] > abs(frame_height / 2 - boxes[max_at][1]):
+            if 1/4 * w_tht > abs(frame_width / 2 - x_tht - w_tht / 2) and 2/5 * h_tht > abs(frame_height / 2 - y_tht - h_tht / 2):
                 fire_ok = 1
 
-        return len(indices), int(x0), int(y0), int(ceil(fire_range)), fire_pos, fire_close, fire_ok, frames
+        return len(threat_list), int(x0), int(y0), int(ceil(fire_range)), fire_pos, fire_close, fire_ok, frames
 
 
 # 分析预测数据
 @jit(nopython=True)
-def analyze(layerOutputs, std_confidence, frame_width, frame_height):
-    boxes = []
-    confidences = []
+def analyze(predictions, ratio):
+    boxes = predictions[:, :4]
+    scores = predictions[:, 4:5] * predictions[:, 5:]
 
-    # 检测目标,计算框内目标到框中心距离
-    for outputs in layerOutputs:
-        scores = outputs[5:]
-        classID = np.argmax(scores)
-        confidence = scores[classID]
-        if confidence > std_confidence and classID == 0:  # 人类/body为0
-            X, Y, W, H = outputs[:4] * np.array([frame_width, frame_height, frame_width, frame_height])
-            boxes.append([int(X), int(Y), int(W), int(H)])
-            confidences.append(float(confidence))
+    boxes_xyxy = np.ones_like(boxes)
+    boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2
+    boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2
+    boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2
+    boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2
+    boxes_xyxy /= ratio
 
-    return boxes, confidences
+    return boxes_xyxy, scores
 
 
 # 简单检查gpu是否够格
 def check_gpu(level):
-    nvidia_smi.nvmlInit()
-    handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
-    gpu_name = nvidia_smi.nvmlDeviceGetName(handle)
-    momory_info = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-    nvidia_smi.nvmlShutdown()
+    pynvml.nvmlInit()
+    handle = pynvml.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
+    gpu_name = pynvml.nvmlDeviceGetName(handle)
+    momory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+    pynvml.nvmlShutdown()
     if b'RTX' in gpu_name:
         return 2
     memory_total = momory_info.total / 1024 / 1024
@@ -316,11 +377,7 @@ def get_window_info():
         if class_name not in (supported_games + test_window):
             print('请使支持的游戏/程序窗口成为活动窗口...')
         else:
-            try:
-                hwnd_var = win32gui.FindWindow(class_name, None)
-            except pywintypes.error:
-                print('您正使用沙盒')
-                hwnd_var = hwnd_active
+            hwnd_var = win32gui.FindWindow(class_name, None)
             print('已找到窗口')
             if class_name in test_window:
                 testing_purpose = True
@@ -342,21 +399,11 @@ def close():
         detect2_proc.terminate()
 
 
-# 加载配置与权重文件
-def load_file(file, config_filename, weight_filename):
-    cfg_filename = file + '.cfg'
-    weights_filename = file + '.weights'
-    config_filename[0] += cfg_filename
-    weight_filename[0] += weights_filename
-    return
-
-
 # 检测是否存在配置与权重文件
 def check_file(file):
-    cfg_file = file + '.cfg'
-    weights_file = file + '.weights'
-    if not (os.path.isfile(cfg_file) and os.path.isfile(weights_file)):
-        print(f'请下载{file}相关文件!!!')
+    file_name = file + '.oonx'
+    if not os.path.isfile(file_name):
+        print(f'请下载{file_name}相关文件!!!')
         sleep(3)
         exit(0)
 
@@ -379,7 +426,7 @@ def clear():
 def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move_ry):
     recoil_control = 0
     move_range = sqrt(pow(a, 2) + pow(b, 2))
-    DPI_Var = windll.user32.GetDpiForWindow(window_hwnd_name) / 96
+    DPI_Var = windll.user32.GetDpiForWindow(window_hwnd) / 96
     enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, [0, 0, 0], 0)
@@ -408,28 +455,27 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
         move_rx, x0 = track_opt(move_rx, a, x0)
         move_ry, y0 = track_opt(move_ry, b, y0)
 
-        windll.user32.mouse_event(0x0001, int(round(x0)), int(round(y0)), 0, 0)
+        sp_mouse_xy(int(round(x0)), int(round(y0)))
 
     # 不分敌友射击
     if win_class != 'CrossFire':
         if (go_fire or move_range < ranges) and arr[11]:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
-                    windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
+                    sp_mouse_down()
                     press_time[0] = int(time() * 1000)
                 if arr[12] == 1 or arr[14]:  # 简易压枪
-                    windll.user32.mouse_event(0x0001, 0, recoil_control, 0, 0)
+                    sp_mouse_xy(0, recoil_control)
 
         if GetAsyncKeyState(VK_LBUTTON):
             if (time() * 1000 - press_time[0]) > 30.6 or not arr[11]:
-                windll.user32.mouse_event(0x0004, 0, 0, 0, 0)
+                sp_mouse_up()
                 up_time[0] = int(time() * 1000)
 
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, enhanced_holdback, 0)
     if mouse_speed != 10:
         win32gui.SystemParametersInfo(SPI_SETMOUSESPEED, mouse_speed, 0)
-
 
     return move_rx, move_ry
 
@@ -586,9 +632,6 @@ if __name__ == '__main__':
     move_record_x = []
     move_record_y = []
 
-    # 如果文件不存在则退出
-    check_file('yolov4-tiny')
-
     # 分享数据以及展示新进程
     arr = Array('i', range(21))
     '''
@@ -634,20 +677,20 @@ if __name__ == '__main__':
         detect2_proc = Process(target=detection2, args=(queue, arr,))
 
     # 寻找读取游戏窗口类型并确认截取位置
-    window_class_name, window_hwnd_name, test_win[0] = get_window_info()
-    arr[0] = window_hwnd_name
+    window_class_name, window_hwnd, test_win[0] = get_window_info()
+    arr[0] = window_hwnd
 
     # 等待游戏画面完整出现(拥有大于0的长宽)
     window_ready = 0
     while not window_ready:
         sleep(1)
-        win_client_rect = win32gui.GetClientRect(window_hwnd_name)
+        win_client_rect = win32gui.GetClientRect(window_hwnd)
         if win_client_rect[2] - win_client_rect[0] > 0 and win_client_rect[3] - win_client_rect[1] > 0:
             window_ready = 1
     client_ratio = (win_client_rect[2] - win_client_rect[0]) / (win_client_rect[3] - win_client_rect[1])
 
     # 初始化截图类
-    win_cap = WindowCapture(window_class_name, window_hwnd_name)
+    win_cap = WindowCapture(window_class_name)
 
     # 开始分析进程
     detect1_proc.start()
@@ -655,7 +698,7 @@ if __name__ == '__main__':
         detect2_proc.start()
 
     # 等待分析类初始化
-    while not arr[1] and arr[2]:
+    while not (arr[1] and arr[2]):
         if MP_setting:
             arr[2] = 1
         sleep(3)
@@ -681,7 +724,7 @@ if __name__ == '__main__':
         if exit_program:
             break
 
-        if win32gui.GetForegroundWindow() == window_hwnd_name and not test_win[0]:
+        if win32gui.GetForegroundWindow() == window_hwnd and not test_win[0]:
             if arr[4]:
                 if arr[15] == 1:
                     arr[13] = (944 if arr[14] or arr[12] != 1 else 1694)

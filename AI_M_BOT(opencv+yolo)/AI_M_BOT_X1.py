@@ -152,7 +152,7 @@ class WindowCapture:
 # 分析类
 class FrameDetection:
     # 类属性
-    side_length = 0  # 输入尺寸
+    side_length = 416  # 输入尺寸
     std_confidence = 0  # 置信度阀值
     conf_thd = 0.4  # 置信度阀值
     nms_thd = 0.3  # 非极大值抑制
@@ -165,12 +165,7 @@ class FrameDetection:
     net = ''  # 建立网络
 
     # 构造函数
-    def __init__(self, aim0mode, hwnd_value, gpu_level):
-        self.side_length = {
-            1: 416,  # 高速自瞄
-            2: 416,  # 高精自瞄
-        }.get(aim0mode)
-
+    def __init__(self, hwnd_value, gpu_level):
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         self.std_confidence = {
             'Valve001': 0.45,
@@ -391,7 +386,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
     if mouse_speed != 10:
         win32gui.SystemParametersInfo(SPI_SETMOUSESPEED, 10, 0)
 
-    if fps_var and arr[17]:
+    if fps_var and arr[17] and arr[11]:
         if move_range > 5 * ranges:
             b = uniform(0.7 * b, 1.3 * b)
         a /= DPI_Var
@@ -416,7 +411,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 
     # 不分敌友射击
     if win_class != 'CrossFire':
-        if go_fire or move_range < ranges:
+        if (go_fire or move_range < ranges) and arr[11]:
             if (time() * 1000 - up_time[0]) > rate:
                 if not GetAsyncKeyState(VK_LBUTTON):
                     sp_mouse_down()
@@ -518,7 +513,7 @@ def show_frames(output_pipe, array):
 
 # 第一分析进程(主)
 def detection1(que, array, frame_in):
-    Analysis1 = FrameDetection(array[10], array[0], 2)
+    Analysis1 = FrameDetection(array[0], array[10])
     array[1] = 1
     while True:
         if not que.empty():
@@ -535,7 +530,7 @@ def detection1(que, array, frame_in):
 
 # 第二分析进程(备)
 def detection2(que, array):
-    Analysis2 = FrameDetection(array[10], array[0], 2)
+    Analysis2 = FrameDetection(array[0], array[10])
     array[2] = 1
     while True:
         if array[1] == 2 and not que.empty():
@@ -563,15 +558,6 @@ if __name__ == '__main__':
 
     # 设置工作路径
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
-    # 选择YOLO模型(YOLOv4-tiny或YOLOv5m)
-    aim_mode = -1
-    while not (2 >= aim_mode >= 1):
-        user_input = input('你想要的自瞄模型是?(1:高速, 2:高精): ')
-        try:
-            aim_mode = int(user_input)
-        except ValueError:
-            print('呵呵...请重新输入')
 
     # 选择是否需要双检测进程
     MP_setting = -1
@@ -614,7 +600,7 @@ if __name__ == '__main__':
     7  鼠标移动x
     8  鼠标移动y
     9  鼠标开火r
-    10 自瞄模式
+    10 推理进程数量
     11 敌人数量
     12 瞄准位置
     13 射击速度
@@ -633,7 +619,7 @@ if __name__ == '__main__':
     arr[7] = 0  # 鼠标移动x
     arr[8] = 0  # 鼠标移动r
     arr[9] = 0  # 鼠标开火r
-    arr[10] = aim_mode  # 自瞄模型
+    arr[10] = 1 if MP_setting else 2  # 推理进程数量
     arr[11] = 0  # 敌人数量
     arr[12] = 0  # 瞄准位置(0中1头2胸)
     arr[13] = 944  # 射击速度
@@ -670,7 +656,7 @@ if __name__ == '__main__':
     while not (arr[1] and arr[2]):
         if MP_setting:
             arr[2] = 1
-        sleep(1)
+        sleep(3)
 
     # 清空命令指示符面板
     clear()
@@ -694,7 +680,7 @@ if __name__ == '__main__':
             break
 
         if win32gui.GetForegroundWindow() == window_hwnd_name and not test_win[0]:
-            if arr[11] and arr[4]:
+            if arr[4]:
                 if arr[15] == 1:
                     arr[13] = (944 if arr[14] or arr[12] != 1 else 1694)
                 elif arr[15] == 2:
