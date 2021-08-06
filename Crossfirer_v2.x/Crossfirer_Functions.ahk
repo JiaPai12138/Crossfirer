@@ -532,6 +532,11 @@ SPI_SETMOUSE(accel, low := "", high := "", fWinIni := 0)
 ;键位按下
 key_down(key_name)
 {
+    If StrLen(key_name) == 1
+    {
+        If (Ord(key_name) > 64 && Ord(key_name) < 91)
+            DllCall("keybd_event", "Int", 16, "Int", 42, "Int", 0, "Int", 0) ;Shift
+    }
     VirtualKey := GetKeyVK(key_name)
     ScanCode := GetKeySC(key_name)
     DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 0, "Int", 0)
@@ -540,6 +545,11 @@ key_down(key_name)
 ;键位弹起
 key_up(key_name)
 {
+    If StrLen(key_name) == 1
+    {
+        If (Ord(key_name) > 64 && Ord(key_name) < 91)
+            DllCall("keybd_event", "Int", 16, "Int", 42, "Int", 2, "Int", 0) ;Shift
+    }
     VirtualKey := GetKeyVK(key_name)
     ScanCode := GetKeySC(key_name)
     DllCall("keybd_event", "Int", VirtualKey, "Int", ScanCode, "Int", 2, "Int", 0)
