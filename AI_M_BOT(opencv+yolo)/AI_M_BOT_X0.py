@@ -1,8 +1,8 @@
 '''
-Detection code modified from project AIMBOT-YOLO
-Detection code Author: monokim
-Detection project website: https://github.com/monokim/AIMBOT-YOLO
-Detection project video: https://www.youtube.com/watch?v=vQlb0tK1DH0
+New Detection method(onnxruntime) modified from Project YOLOX
+YOLOX Project Authors: Zheng Ge, Songtao Liu, Feng Wang, Zeming Li, Jian Sun
+YOLOX Project website: https://github.com/Megvii-BaseDetection/YOLOX
+New Detection method(onnxruntime) cooperator: Barry
 Screenshot method from: https://www.youtube.com/watch?v=WymCpVUPWQ4
 Screenshot method code modified from project: opencv_tutorials
 Screenshot method code Author: Ben Johnson (learncodebygaming)
@@ -14,8 +14,6 @@ from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, si
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
-from yolox.data.data_augment import preproc as preprocess
-from yolox.utils import multiclass_nms, demo_postprocess
 from sys import exit, executable, platform
 from math import sqrt, pow, ceil
 from collections import deque
@@ -133,8 +131,9 @@ class WindowCapture:
         # 确认截图相关数据
         self.total_w = client_rect[2] - client_rect[0]
         self.total_h = client_rect[3] - client_rect[1]
-        self.cut_h = self.total_h // 2
-        self.cut_w = self.cut_h
+        cut_factor = int(self.total_h / 2 / 192)
+        self.cut_h = 192 * cut_factor
+        self.cut_w = 224 * cut_factor
         if self.windows_class == 'CrossFire':  # 画面实际4:3简单拉平
             self.cut_w = self.cut_w * (self.total_w / self.total_h) * 3 // 4
         self.offset_x = (self.total_w - self.cut_w) // 2 + self.left_corner[0] - window_rect[0]
@@ -334,6 +333,117 @@ def analyze(predictions, ratio):
     return boxes_xyxy, scores
 
 
+# 从yolox复制的预处理函数
+def preprocess(image, input_size, mean, std, swap=(2, 0, 1)):
+    if len(image.shape) == 3:
+        padded_img = np.ones((input_size[0], input_size[1], 3)) * 114.0
+    else:
+        padded_img = np.ones(input_size) * 114.0
+    img = image
+    r = min(input_size[0] / img.shape[0], input_size[1] / img.shape[1])
+    resized_img = cv2.resize(
+        img,
+        (int(img.shape[1] * r), int(img.shape[0] * r)),
+        interpolation=cv2.INTER_LINEAR,
+    ).astype(np.float32)
+    padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
+
+    padded_img = padded_img[:, :, ::-1]
+    padded_img /= 255.0
+    if mean is not None:
+        padded_img -= mean
+    if std is not None:
+        padded_img /= std
+    padded_img = padded_img.transpose(swap)
+    padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
+    return padded_img, r
+
+
+# 从yolox复制的单类非极大值抑制函数
+@jit(nopython=True)
+def nms(boxes, scores, nms_thr):
+    """Single class NMS implemented in Numpy."""
+    x1 = boxes[:, 0]
+    y1 = boxes[:, 1]
+    x2 = boxes[:, 2]
+    y2 = boxes[:, 3]
+
+    areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+    order = scores.argsort()[::-1]
+
+    keep = []
+    while order.size > 0:
+        i = order[0]
+        keep.append(i)
+        xx1 = np.maximum(x1[i], x1[order[1:]])
+        yy1 = np.maximum(y1[i], y1[order[1:]])
+        xx2 = np.minimum(x2[i], x2[order[1:]])
+        yy2 = np.minimum(y2[i], y2[order[1:]])
+
+        w = np.maximum(0.0, xx2 - xx1 + 1)
+        h = np.maximum(0.0, yy2 - yy1 + 1)
+        inter = w * h
+        ovr = inter / (areas[i] + areas[order[1:]] - inter)
+
+        inds = np.where(ovr <= nms_thr)[0]
+        order = order[inds + 1]
+
+    return keep
+
+
+# 从yolox复制的多类非极大值抑制函数
+def multiclass_nms(boxes, scores, nms_thr, score_thr):
+    """Multiclass NMS implemented in Numpy"""
+    final_dets = []
+    num_classes = scores.shape[1]
+    for cls_ind in range(num_classes):
+        cls_scores = scores[:, cls_ind]
+        valid_score_mask = cls_scores > score_thr
+        if valid_score_mask.sum() == 0:
+            continue
+        else:
+            valid_scores = cls_scores[valid_score_mask]
+            valid_boxes = boxes[valid_score_mask]
+            keep = nms(valid_boxes, valid_scores, nms_thr)
+            if len(keep) > 0:
+                cls_inds = np.ones((len(keep), 1)) * cls_ind
+                dets = np.concatenate(
+                    [valid_boxes[keep], valid_scores[keep, None], cls_inds], 1
+                )
+                final_dets.append(dets)
+    if len(final_dets) == 0:
+        return None
+    return np.concatenate(final_dets, 0)
+
+
+# 从yolox复制的后置处理函数
+def demo_postprocess(outputs, img_size, p6=False):
+    grids = []
+    expanded_strides = []
+
+    if not p6:
+        strides = [8, 16, 32]
+    else:
+        strides = [8, 16, 32, 64]
+
+    hsizes = [img_size[0] // stride for stride in strides]
+    wsizes = [img_size[1] // stride for stride in strides]
+
+    for hsize, wsize, stride in zip(hsizes, wsizes, strides):
+        xv, yv = np.meshgrid(np.arange(wsize), np.arange(hsize))
+        grid = np.stack((xv, yv), 2).reshape(1, -1, 2)
+        grids.append(grid)
+        shape = grid.shape[:2]
+        expanded_strides.append(np.full((*shape, 1), stride))
+
+    grids = np.concatenate(grids, 1)
+    expanded_strides = np.concatenate(expanded_strides, 1)
+    outputs[..., :2] = (outputs[..., :2] + grids) * expanded_strides
+    outputs[..., 2:4] = np.exp(outputs[..., 2:4]) * expanded_strides
+
+    return outputs
+
+
 # 简单检查gpu是否够格
 def check_gpu(level):
     pynvml.nvmlInit()
@@ -401,7 +511,7 @@ def close():
 
 # 检测是否存在配置与权重文件
 def check_file(file):
-    file_name = file + '.oonx'
+    file_name = file + '.onnx'
     if not os.path.isfile(file_name):
         print(f'请下载{file_name}相关文件!!!')
         sleep(3)
@@ -483,7 +593,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 # 追踪优化
 def track_opt(record_list, range_m, move):
     if len(record_list):
-        if abs(median(record_list) - range_m) <= 15 and range_m <= 80:
+        if abs(median(record_list) - range_m) <= 12 and range_m <= 60:
             record_list.append(range_m)
         else:
             record_list.clear()
@@ -545,9 +655,9 @@ def show_frames(output_pipe, array):
             show_str3 = 'Fire rate is at ' + str('{:02.0f}'.format((10000 / (array[13] + 306)))) + ' RPS'
             show_str4 = 'Please enjoy coding ^_^' if array[17] else 'Please enjoy coding @_@'
             if show_img.any():
-                show_img = cv2.resize(show_img, (array[5], array[5]))
+                show_img = cv2.resize(show_img, (array[5], int(array[5] * 6 / 7)))
                 img_ex = cv2.resize(img_ex, (array[5], int(array[5] / 2)))
-                cv2.putText(show_img, show_str0, (int(array[5] / 25), int(array[5] / 12)), font, array[5] / 600, (127, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(show_img, show_str0, (int(array[5] / 25), int(array[5] * 6 / 7 / 12)), font, array[5] / 600, (127, 255, 0), 2, cv2.LINE_AA)
                 cv2.putText(img_ex, show_str1, (10, int(array[5] / 9)), font, array[5] / 450, show_color, 1, cv2.LINE_AA)
                 cv2.putText(img_ex, show_str2, (10, int(array[5] / 9) * 2), font, array[5] / 450, show_color, 1, cv2.LINE_AA)
                 cv2.putText(img_ex, show_str3, (10, int(array[5] / 9) * 3), font, array[5] / 450, show_color, 1, cv2.LINE_AA)
@@ -631,6 +741,9 @@ if __name__ == '__main__':
     test_win = [False]
     move_record_x = []
     move_record_y = []
+
+    # 如果文件不存在则退出
+    check_file('yolox_nano')
 
     # 分享数据以及展示新进程
     arr = Array('i', range(21))
