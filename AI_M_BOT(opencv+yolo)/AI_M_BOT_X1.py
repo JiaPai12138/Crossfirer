@@ -31,7 +31,7 @@ import cv2
 import os
 
 
-######### 简易鼠标行为模拟,使用SendInput函数 ↓↓↓↓↓↓↓↓↓
+# ↓↓↓↓↓↓↓↓↓ 简易鼠标行为模拟,使用SendInput函数 ↓↓↓↓↓↓↓↓↓
 LONG = c_long
 DWORD = c_ulong
 ULONG_PTR = POINTER(DWORD)
@@ -81,7 +81,7 @@ def sp_mouse_up(key = 'LButton'):
         return SendInput(Mouse(0x0004))
     elif key == 'RButton':
         return SendInput(Mouse(0x0010))
-######### 简易鼠标行为模拟,使用SendInput函数 ↑↑↑↑↑↑↑↑↑
+# ↑↑↑↑↑↑↑↑↑ 简易鼠标行为模拟,使用SendInput函数 ↑↑↑↑↑↑↑↑↑
 
 
 # 截图类
@@ -197,9 +197,8 @@ class FrameDetection:
         else:
             print('您没有可识别的N卡')
 
-    def detect(self, frame):
+    def detect(self, frames):
         try:
-            frames = np.array(frame)  # 从队列中读取帧
             if frames.any():
                 frame_height, frame_width = frames.shape[:2]
             frame_height += 0
@@ -656,7 +655,7 @@ if __name__ == '__main__':
     while not (arr[1] and arr[2]):
         if MP_setting:
             arr[2] = 1
-        sleep(3)
+        sleep(5)
 
     # 清空命令指示符面板
     clear()

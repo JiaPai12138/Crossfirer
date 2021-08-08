@@ -9,7 +9,7 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from win32con import SRCCOPY, VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
+from win32con import VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
 from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
@@ -21,12 +21,11 @@ from statistics import median
 from time import sleep, time
 from platform import release
 from random import uniform
-from numba import jit
+from numba import njit
 import numpy as np
 import onnxruntime
 import pywintypes
 import win32gui
-import win32ui
 import pynvml
 import queue
 import mss
@@ -141,37 +140,6 @@ class WindowCapture:
         self.actual_x = window_rect[0] + self.offset_x
         self.actual_y = window_rect[1] + self.offset_y
 
-    def get_screenshot(self):  # 只能在windows上使用
-        # 获取截图相关
-        try:
-            wDC = win32gui.GetWindowDC(self.hwnd)
-            dcObj = win32ui.CreateDCFromHandle(wDC)
-            cDC = dcObj.CreateCompatibleDC()
-            dataBitMap = win32ui.CreateBitmap()
-            dataBitMap.CreateCompatibleBitmap(dcObj, self.cut_w, self.cut_h)
-            cDC.SelectObject(dataBitMap)
-            cDC.BitBlt((0, 0), (self.cut_w, self.cut_h), dcObj, (self.offset_x, self.offset_y), SRCCOPY)
-
-            # 转换使得opencv可读
-            signedIntsArray = dataBitMap.GetBitmapBits(True)
-            cut_img = np.frombuffer(signedIntsArray, dtype='uint8')
-            cut_img.shape = (self.cut_h, self.cut_w, 4)
-
-            # 释放资源
-            dcObj.DeleteDC()
-            cDC.DeleteDC()
-            win32gui.ReleaseDC(self.hwnd, wDC)
-            win32gui.DeleteObject(dataBitMap.GetHandle())
-
-            # 去除alpha
-            cut_img = cut_img[..., :3]
-
-            # 转换减少错误
-            cut_img = np.ascontiguousarray(cut_img)
-            return cut_img
-        except (pywintypes.error, win32ui.error, ValueError):
-            return None
-
     def get_cut_info(self):
         return self.cut_w, self.cut_h
 
@@ -209,7 +177,7 @@ class FrameDetection:
     def __init__(self, hwnd_value, gpu_level):
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         self.std_confidence = {
-            'Valve001': 0.45,
+            'Valve001': 0.40,
             'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
         self.session = onnxruntime.InferenceSession('yolox_nano.onnx', providers=self.EP_list)  # 推理构造
@@ -235,9 +203,8 @@ class FrameDetection:
             print('中央处理器烧起来')
             print('PS:注意是否安装CUDA')
 
-    def detect(self, frame):
+    def detect(self, frames):
         try:
-            frames = np.array(frame)  # 从队列中读取帧
             if frames.any():
                 frame_height, frame_width = frames.shape[:2]
             frame_height += 0
@@ -318,7 +285,7 @@ class FrameDetection:
 
 
 # 分析预测数据
-@jit(nopython=True)
+@njit(fastmath=True)
 def analyze(predictions, ratio):
     boxes = predictions[:, :4]
     scores = predictions[:, 4:5] * predictions[:, 5:]
@@ -360,9 +327,9 @@ def preprocess(image, input_size, mean, std, swap=(2, 0, 1)):
 
 
 # 从yolox复制的单类非极大值抑制函数
-@jit(nopython=True)
+@njit(fastmath=True)
 def nms(boxes, scores, nms_thr):
-    """Single class NMS implemented in Numpy."""
+    '''Single class NMS implemented in Numpy.'''
     x1 = boxes[:, 0]
     y1 = boxes[:, 1]
     x2 = boxes[:, 2]
@@ -393,7 +360,7 @@ def nms(boxes, scores, nms_thr):
 
 # 从yolox复制的多类非极大值抑制函数
 def multiclass_nms(boxes, scores, nms_thr, score_thr):
-    """Multiclass NMS implemented in Numpy"""
+    '''Multiclass NMS implemented in Numpy'''
     final_dets = []
     num_classes = scores.shape[1]
     for cls_ind in range(num_classes):
@@ -623,7 +590,7 @@ def check_status(exit0, mouse):
         arr[17] = 1
     if GetAsyncKeyState(0x4A):  # J
         arr[17] = 0
-    if GetAsyncKeyState(VK_MENU) and platform != 'win32':  # Alt
+    if GetAsyncKeyState(VK_MENU):  # Alt
         win_cap.update_window_info()
     if GetAsyncKeyState(0x50):  # P
         close()
@@ -814,7 +781,7 @@ if __name__ == '__main__':
     while not (arr[1] and arr[2]):
         if MP_setting:
             arr[2] = 1
-        sleep(3)
+        sleep(5)
 
     # 清空命令指示符面板
     clear()
@@ -822,8 +789,7 @@ if __name__ == '__main__':
     ini_sct_time = 0  # 初始化计时
 
     while True:
-        # 选择截图方式
-        screenshot = (win_cap.get_screenshot() if platform == 'win32' else win_cap.grab_screenshot())
+        screenshot = win_cap.grab_screenshot()
 
         try:
             screenshot.any()
