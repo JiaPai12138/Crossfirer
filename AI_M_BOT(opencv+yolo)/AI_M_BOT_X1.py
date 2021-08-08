@@ -192,9 +192,14 @@ class FrameDetection:
                 self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
             else:
                 self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
-            if gpu_eval == 0:
-                print('您的显卡配置不够')
+            gpu_message = {
+                2: '小伙电脑顶呱呱啊',
+                1: '战斗完全木得问题',
+            }.get(gpu_eval, '您的显卡配置不够')
+            print(gpu_message)
         else:
+            self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCL)
+            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_OPENCL)
             print('您没有可识别的N卡')
 
     def detect(self, frames):

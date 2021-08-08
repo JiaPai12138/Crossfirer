@@ -193,12 +193,11 @@ class FrameDetection:
         # 检测是否在GPU上运行图像识别
         if onnxruntime.get_device() == 'GPU':
             gpu_eval = check_gpu(gpu_level)
-            if gpu_eval == 2:
-                print('小伙电脑顶呱呱啊')
-            else:
-                print('战斗完全木得问题')
-            if gpu_eval == 0:
-                print('您的显卡配置不够')
+            gpu_message = {
+                2: '小伙电脑顶呱呱啊',
+                1: '战斗完全木得问题',
+            }.get(gpu_eval, '您的显卡配置不够')
+            print(gpu_message)
         else:
             print('中央处理器烧起来')
             print('PS:注意是否安装CUDA')
