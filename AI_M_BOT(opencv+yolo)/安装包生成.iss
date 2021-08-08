@@ -5,11 +5,11 @@
 #define MyAppName "神经自瞄"
 #define MyAppName_std "神经自瞄标准版"
 #define MyAppName_ex "神经自瞄备用版"
-#define MyAppVersion "2.5.5"
+#define MyAppVersion "2.5.6"
 #define MyAppPublisher "名侦探柯南战队"
 #define MyAppURL "https://space.bilibili.com/637136569"
-#define MyAppExeName1 "AI_M_BOT_X1.exe"
-#define MyAppExeName2 "AI_M_BOT_X2.exe"
+#define MyAppExeName1 "标准自瞄.exe"
+#define MyAppExeName2 "备用自瞄.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -28,8 +28,8 @@ ArchitecturesInstallIn64BitMode=x64
 DefaultDirName=D:\Program Files\AI-M-BOT
 DisableProgramGroupPage=yes
 DisableDirPage=auto
-LicenseFile=.\Neurotic AImbot\LICENSE.txt
-InfoAfterFile=.\Neurotic AImbot\使用说明.rtf
+LicenseFile=.\AImbot_X\LICENSE.txt
+InfoAfterFile=.\AImbot_X\使用说明.rtf
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 OutputDir=.
@@ -50,9 +50,9 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: ".\Neurotic AImbot\{#MyAppExeName1}"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\Neurotic AImbot\{#MyAppExeName2}"; DestDir: "{app}"; Flags: ignoreversion
-Source: ".\Neurotic AImbot\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: ".\AImbot_X\{#MyAppExeName1}"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\AImbot_X\{#MyAppExeName2}"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\AImbot_X\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -60,3 +60,24 @@ Name: "{autoprograms}\{#MyAppName_std}"; Filename: "{app}\{#MyAppExeName1}"; Wor
 Name: "{autoprograms}\{#MyAppName_ex}"; Filename: "{app}\{#MyAppExeName2}"; WorkingDir: "{app}"
 Name: "{autodesktop}\{#MyAppName_std}"; Filename: "{app}\{#MyAppExeName1}"; Tasks: desktopicon; WorkingDir: "{app}"
 Name: "{autodesktop}\{#MyAppName_ex}"; Filename: "{app}\{#MyAppExeName2}"; Tasks: desktopicon; WorkingDir: "{app}"
+
+[Code]
+function IsAppInstalled(): boolean;
+begin
+    result := RegValueExists(HKEY_LOCAL_MACHINE,'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppID}_is1', 'DisplayVersion');
+end;
+
+function InitializeSetup(): boolean;
+begin
+    if IsAppInstalled() then
+    begin
+        result := MsgBox('你确认更新吗?', mbConfirmation, MB_YESNO) = idYes
+        if result = False then
+            MsgBox('你好, 再见.', mbInformation, MB_OK);
+    end else
+    begin
+        result := MsgBox('你确认安装吗?', mbConfirmation, MB_YESNO) = idYes
+        if result = False then
+            MsgBox('你好, 再见.', mbInformation, MB_OK);
+    end;
+end;
