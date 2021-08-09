@@ -11,6 +11,7 @@ Temp_Mode := Temp_Run := ""
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
 game_title :=
 global GamePing := 45 ;默认45,涵盖至少85%以上我所常见的国服游戏延迟
+global CapsLock_pressed := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -71,7 +72,14 @@ ExitApp
 
 #If SHT_Service_On ;以下的热键需要相应条件才能激活
 
+~*CapsLock::
+    If GetKeyState("CapsLock", "P")
+        CapsLock_pressed := 1
+Return
+
 ~*CapsLock Up:: ;最小最大化窗口
+    If !CapsLock_pressed
+        Return
     HyperSleep(100)
     If WinActive("ahk_class CrossFire")
     {
@@ -85,8 +93,9 @@ ExitApp
         Gui, fcn_status: Show, Hide
         Gui, cross_hair: Show, Hide
     }
+    CapsLock_pressed := 0
     If GetKeyState("Capslock", "T")
-        Send, {CapsLock}
+        press_key("Capslock", 50, 50)
 Return
 
 #If WinActive("ahk_class CrossFire") && SHT_Service_On ;以下的热键需要相应条件才能激活

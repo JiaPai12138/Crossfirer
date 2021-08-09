@@ -7,6 +7,7 @@ DetectHiddenWindows, On
 SetTitleMatchMode, Regex
 ;==================================================================================
 global Net_On := True
+global CapsLock_pressed := 0
 Net_Start := 0
 nb_block := False
 nb_allow := False
@@ -73,7 +74,14 @@ ExitApp
 
 #If NBK_Service_On ;以下的热键需要相应条件才能激活
 
+~*CapsLock::
+    If GetKeyState("CapsLock", "P")
+        CapsLock_pressed := 1
+Return
+
 ~*CapsLock Up:: ;最小最大化窗口
+    If !CapsLock_pressed
+        Return
     HyperSleep(100)
     If WinActive("ahk_class CrossFire")
     {
@@ -84,8 +92,9 @@ ExitApp
     }
     Else
         Gui, net_status: Show, Hide
+    CapsLock_pressed := 0
     If GetKeyState("Capslock", "T")
-        Send, {CapsLock}
+        press_key("Capslock", 50, 50)
 Return
 
 #If WinActive("ahk_class CrossFire") && NBK_Service_On ;以下的热键需要相应条件才能激活

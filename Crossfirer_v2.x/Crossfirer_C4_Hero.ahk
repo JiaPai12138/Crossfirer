@@ -7,6 +7,7 @@ C4_Time := 40
 C4_Start := 0
 global Be_Hero := False
 global C4_On := False
+global CapsLock_pressed := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -51,7 +52,14 @@ ExitApp
 
 #If C4H_Service_On ;以下的热键需要相应条件才能激活
 
+~*CapsLock::
+    If GetKeyState("CapsLock", "P")
+        CapsLock_pressed := 1
+Return
+
 ~*CapsLock Up:: ;最小最大化窗口
+    If !CapsLock_pressed
+        Return
     HyperSleep(100)
     If WinActive("ahk_class CrossFire")
     {
@@ -67,8 +75,9 @@ ExitApp
         Gui, Human_Hero: Show, Hide
         Gui, C4: Show, Hide
     }
+    CapsLock_pressed := 0
     If GetKeyState("Capslock", "T")
-        Send, {CapsLock}
+        press_key("Capslock", 50, 50)
 Return
 
 #If WinActive("ahk_class CrossFire") && C4H_Service_On ;以下的热键需要相应条件才能激活

@@ -9,6 +9,7 @@ global 准备 := False
 global Xj := 0, Yj := 0, Wj := 1600, Hj := 900
 global Sel_Level := 6
 global Show_Sel_Level := SubStr("00" . Sel_Level, -1)
+global CapsLock_pressed := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -37,14 +38,22 @@ ExitApp
 
 #If CLG_Service_On ;以下的热键需要相应条件才能激活
 
+~*CapsLock::
+    If GetKeyState("CapsLock", "P")
+        CapsLock_pressed := 1
+Return
+
 ~*CapsLock Up:: ;最小最大化窗口
+    If !CapsLock_pressed
+        Return
     HyperSleep(100)
     If WinActive("ahk_class CrossFire")
         Gui, challen_mode: Show, x%XGui10% y%YGui10% NA
     Else
         Gui, challen_mode: Show, Hide
+    CapsLock_pressed := 0
     If GetKeyState("Capslock", "T")
-        Send, {CapsLock}
+        press_key("Capslock", 50, 50)
 Return
 
 #If WinActive("ahk_class CrossFire") && CLG_Service_On ;以下的热键需要相应条件才能激活

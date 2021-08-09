@@ -3,6 +3,7 @@ global RCL_Service_On := False
 Preset("压")
 CheckPermission("基础压枪")
 ;==================================================================================
+global CapsLock_pressed := 0
 Gun_Chosen := -1, Current_Gun := -1, RCL_Down := 0
 LButton_Pressed := 0, RButton_Pressed := 0
 XGui5 := 0, YGui5 := 0, XGui6 := 0, YGui6 := 0, XGui7 := 0, YGui7 := 0
@@ -67,7 +68,14 @@ ExitApp
 
 #If RCL_Service_On ;以下的热键需要相应条件才能激活
 
+~*CapsLock::
+    If GetKeyState("CapsLock", "P")
+        CapsLock_pressed := 1
+Return
+
 ~*CapsLock Up:: ;最小最大化窗口
+    If !CapsLock_pressed
+        Return
     HyperSleep(100)
     If WinActive("ahk_class CrossFire")
     {
@@ -79,8 +87,9 @@ ExitApp
         Gui, recoil_mode: Show, Hide
         Gui, gun_sel: Show, Hide
     }
+    CapsLock_pressed := 0
     If GetKeyState("Capslock", "T")
-        Send, {CapsLock}
+        press_key("Capslock", 50, 50)
 Return
 
 #If WinActive("ahk_class CrossFire") && RCL_Service_On ;以下的热键需要相应条件才能激活

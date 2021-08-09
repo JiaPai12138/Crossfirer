@@ -13,6 +13,7 @@ global Ex_End_Hour := (Game_Begin_Hour + Allowed_Hour) > 23 ? (Game_Begin_Hour +
 global Hour_Left := (Ex_End_Hour - Game_Begin_Hour) >= 0 ? (Ex_End_Hour - Game_Begin_Hour) : (Ex_End_Hour + 24 - Game_Begin_Hour)
 global Minute_Left := 00, Second_Left := 00
 global Key_Pressed := ""
+global CapsLock_pressed := 0
 
 If WinExist("ahk_class CrossFire")
 {
@@ -96,7 +97,14 @@ ExitApp
 
 #If CTL_Service_On
 
+~*CapsLock::
+    If GetKeyState("CapsLock", "P")
+        CapsLock_pressed := 1
+Return
+
 ~*CapsLock Up:: ;最小最大化窗口
+    If !CapsLock_pressed
+        Return
     If WinActive("ahk_class CrossFire")
     {
         WinMinimize, ahk_class CrossFire
@@ -114,8 +122,9 @@ ExitApp
         ShowHelp(Need_Help, XGui9, YGui9, "Helper", XGui10, YGui10, "Hint", 0)
         Gui, T_Hour: Show, x%XGui12% y%YGui12% NA
     }
+    CapsLock_pressed := 0
     If GetKeyState("Capslock", "T")
-        Send, {CapsLock}
+        press_key("Capslock", 50, 50)
 Return
 
 #If WinActive("ahk_class CrossFire") && CTL_Service_On ;以下的热键需要相应条件才能激活
