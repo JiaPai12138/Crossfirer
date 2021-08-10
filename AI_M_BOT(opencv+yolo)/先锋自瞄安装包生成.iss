@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 #define MyAppID "5F536EE5-8705-4C0E-8420-43CCDACC177A"
 #define MyAppName "先锋自瞄"
-#define MyAppName_std "神经自瞄先锋版"
-#define MyAppVersion "1.0.0"
+#define MyAppName_std "神经自瞄先锋版N"
+#define MyAppVersion "1.0.1"
 #define MyAppPublisher "名侦探柯南战队"
 #define MyAppURL "https://space.bilibili.com/637136569"
-#define MyAppExeName "先锋自瞄.exe"
+#define MyAppExeName "先锋自瞄N.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -62,12 +62,29 @@ begin
 end;
 
 function InitializeSetup(): boolean;
+var
+    uninstaller: String;
+    ErrorCode: Integer;
 begin
     if IsAppInstalled() then
     begin
         result := MsgBox('你确认更新吗?', mbConfirmation, MB_YESNO) = idYes
         if result = False then
+        begin
             MsgBox('你好, 再见.', mbInformation, MB_OK);
+        end else
+        begin
+            RegQueryStringValue(HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{#MyAppID}_is1','UninstallString', uninstaller);
+            ShellExec('runas', uninstaller, '/SILENT', '', SW_HIDE, ewWaitUntilTerminated, ErrorCode);
+            if (ErrorCode <> 0) then
+            begin
+                MsgBox( 'Failed to uninstall previous version. Please restart Windows and run setup again.', mbError, MB_OK);
+                Result := False;
+            end else
+            begin
+                Result := True;
+            end;
+        end;
     end else
     begin
         result := MsgBox('你确认安装吗?', mbConfirmation, MB_YESNO) = idYes
