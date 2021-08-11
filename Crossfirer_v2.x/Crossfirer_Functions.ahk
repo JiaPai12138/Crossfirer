@@ -432,8 +432,13 @@ mouse_sendinput_xy(x2, y2, Absolute := False)
 }
 ;==================================================================================
 ;鼠标左右键按下
-mouse_down(key_name := "LButton")
+mouse_down(key_name := "LButton", sendinput_method := True)
 {
+    If sendinput_method
+    {
+        mouse_sendinput_down(key_name)
+        Return
+    }
     If !Instr(key_name, "Button")
         Return False
     Switch key_name
@@ -444,8 +449,13 @@ mouse_down(key_name := "LButton")
 }
 ;==================================================================================
 ;鼠标左右键抬起
-mouse_up(key_name := "LButton")
+mouse_up(key_name := "LButton", sendinput_method := True)
 {
+    If sendinput_method
+    {
+        mouse_sendinput_up(key_name)
+        Return
+    }
     If !Instr(key_name, "Button")
         Return False
     Switch key_name
@@ -456,8 +466,13 @@ mouse_up(key_name := "LButton")
 }
 ;==================================================================================
 ;控制鼠标尽量精确上下左右相对/绝对移动,减少大幅度纵横直线移动的几率以避免16-2
-mouseXY(x1, y1, Absolute := False)
+mouseXY(x1, y1, Absolute := False, sendinput_method := True)
 {
+    If sendinput_method
+    {
+        mouse_sendinput_xy(x1, y1, Absolute)
+        Return
+    }
     global Mon_Width, Mon_Hight
     ;绝对坐标从0~65535,所以我们要转换到像素坐标
     static SysX, SysY
@@ -566,8 +581,13 @@ key_sendinput_up(key_name)
 }
 ;==================================================================================
 ;键位按下
-key_down(key_name)
+key_down(key_name, sendinput_method := True)
 {
+    If sendinput_method
+    {
+        key_sendinput_down(key_name)
+        Return
+    }
     If StrLen(key_name) == 1
     {
         If (Ord(key_name) > 64 && Ord(key_name) < 91)
@@ -579,8 +599,13 @@ key_down(key_name)
 }
 ;==================================================================================
 ;键位弹起
-key_up(key_name)
+key_up(key_name, sendinput_method := True)
 {
+    If sendinput_method
+    {
+        key_sendinput_up(key_name)
+        Return
+    }
     If StrLen(key_name) == 1
     {
         If (Ord(key_name) > 64 && Ord(key_name) < 91)
@@ -592,7 +617,7 @@ key_up(key_name)
 }
 ;==================================================================================
 ;按键函数,鉴于Input模式下单纯的send速度不合要求而开发
-press_key(key_name, press_time, sleep_time)
+press_key(key_name, press_time, sleep_time, sendinput_method := True)
 {
     ;本机鼠标延迟测试,包括按下弹起
     If InStr(key_name, "Button")
@@ -603,18 +628,18 @@ press_key(key_name, press_time, sleep_time)
     If !GetKeyState(key_name)
     {
         If InStr(key_name, "Button")
-            mouse_down(key_name)
+            sendinput_method ? mouse_sendinput_down(key_name) : mouse_down(key_name)
         Else
-            key_down(key_name)
+            sendinput_method ? key_sendinput_down(key_name) : key_down(key_name)
     }
     HyperSleep(press_time)
 
     If !GetKeyState(key_name, "P")
     {
         If InStr(key_name, "Button")
-            mouse_up(key_name)
+            sendinput_method ? mouse_sendinput_up(key_name) : mouse_up(key_name)
         Else
-            key_up(key_name)
+            sendinput_method ? key_sendinput_up(key_name) : key_up(key_name)
     }
     HyperSleep(sleep_time)
 }

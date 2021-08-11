@@ -68,8 +68,6 @@ Return
 Return
 
 ~*RAlt::
-    If !GetKeyState("RAlt", "P")
-        Return
     Suspend, Off ;恢复热键,双保险
     Suspended()
     SetGuiPosition(XGui3, YGui3, "M", -P5W // 2, He // 3.6 - P5H // 2)

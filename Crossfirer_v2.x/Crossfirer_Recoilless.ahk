@@ -102,8 +102,6 @@ Return
 Return
 
 ~*RAlt::
-    If !GetKeyState("RAlt", "P")
-        Return
     Suspend, Off ;双保险
     Suspended()
     SetGuiPosition(XGui5, YGui5, "M", Wrs // 10 - P6W // 2, Hrs // 9 - P6H // 2)
