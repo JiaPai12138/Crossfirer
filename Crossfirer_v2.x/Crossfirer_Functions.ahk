@@ -390,8 +390,7 @@ mouse_sendinput_xy(x2, y2, Absolute := False)
     static SysX, SysY
     SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
     static INPUT_MOUSE := 0, MOUSEEVENTF_MOVE := 0x0001, MOUSEEVENTF_ABSOLUTEMOVE := 0x8001
-    Origin_Status := SPI_GETMOUSE()
-    PrevSpeed := SPI_GETMOUSESPEED()
+    Origin_Status := SPI_GETMOUSE(), PrevSpeed := SPI_GETMOUSESPEED()
     StructSize := A_PtrSize + 4*4 + A_PtrSize*2
     VarSetCapacity(MouseInput_Move, StructSize)
     NumPut(INPUT_MOUSE, MouseInput_Move, "UInt")
@@ -424,6 +423,7 @@ mouse_sendinput_xy(x2, y2, Absolute := False)
         SPI_SETMOUSESPEED()
 
     DllCall("SendInput", "UInt", 1, "Ptr", &MouseInput_Move, "Int", StructSize)
+    VarSetCapacity(MouseInput_Move, 0) ;释放内存
 
     If Origin_Status
         SPI_SETMOUSE(1)
@@ -527,6 +527,42 @@ SPI_SETMOUSE(accel, low := "", high := "", fWinIni := 0)
     , NumPut(high != "" ? high : accel ? 10 : 0
     , NumPut(low != "" ? low : accel ? 6 : 0, SpeedValue)))
     Return 0 != DllCall("SystemParametersInfo", "Uint", 4, "Uint", 0, "Uint", &SpeedValue, "Uint", 0)
+}
+;==================================================================================
+;键位按下(SendInput方式)
+key_sendinput_down(key_name)
+{
+    static INPUT_KEYBOARD := 1, KEYEVENTF_KEYUP := 2, KEYEVENTF_SCANCODE := 8, InputSize := 16 + A_PtrSize*3
+    Input_Index := (StrLen(key_name) == 1 && Ord(key_name) > 64 && Ord(key_name) < 91) ? 2 : 1
+    VarSetCapacity(INPUTS, InputSize*Input_Index, 0)
+    addr := &INPUTS, Scancode := GetKeySC(key_name)
+    If Input_Index = 2
+        addr := NumPut(0 | KEYEVENTF_SCANCODE | 0
+                , NumPut(0x2A & 0xFF
+                , NumPut(INPUT_KEYBOARD, addr + 0) + 2, "UShort"), "UInt" ) + 8 + A_PtrSize*2
+    addr := NumPut(0 | KEYEVENTF_SCANCODE | 0
+            , NumPut(Scancode & 0xFF
+            , NumPut(INPUT_KEYBOARD, addr + 0) + 2, "UShort"), "UInt" ) + 8 + A_PtrSize*2
+    DllCall("SendInput", "UInt", Input_Index, "Ptr", &INPUTS, "Int", InputSize)
+    VarSetCapacity(INPUTS, 0) ;释放内存
+}
+;==================================================================================
+;键位弹起(SendInput方式)
+key_sendinput_up(key_name)
+{
+    static INPUT_KEYBOARD := 1, KEYEVENTF_KEYUP := 2, KEYEVENTF_SCANCODE := 8, InputSize := 16 + A_PtrSize*3
+    Input_Index := (StrLen(key_name) == 1 && Ord(key_name) > 64 && Ord(key_name) < 91) ? 2 : 1
+    VarSetCapacity(INPUTS, InputSize*Input_Index, 0)
+    addr := &INPUTS, Scancode := GetKeySC(key_name)
+    If Input_Index = 2
+        addr := NumPut(2 | KEYEVENTF_SCANCODE | 0
+                , NumPut(0x2A & 0xFF
+                , NumPut(INPUT_KEYBOARD, addr + 0) + 2, "UShort"), "UInt" ) + 8 + A_PtrSize*2
+    addr := NumPut(2 | KEYEVENTF_SCANCODE | 0
+            , NumPut(Scancode & 0xFF
+            , NumPut(INPUT_KEYBOARD, addr + 0) + 2, "UShort"), "UInt" ) + 8 + A_PtrSize*2
+    DllCall("SendInput", "UInt", Input_Index, "Ptr", &INPUTS, "Int", InputSize)
+    VarSetCapacity(INPUTS, 0) ;释放内存
 }
 ;==================================================================================
 ;键位按下
