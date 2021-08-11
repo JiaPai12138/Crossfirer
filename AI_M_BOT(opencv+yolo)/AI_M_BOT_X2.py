@@ -396,18 +396,19 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
             b = uniform(0.7 * b, 1.3 * b)
         a /= DPI_Var
         b /= DPI_Var
+        fps_factor = pow(fps_var/5, 1/3)
         (x0, recoil_control) = {
-            'CrossFire': (a / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3), 2), # 32
-            'Valve001': (a * 1.92 / pow(fps_var, 1/3), 2),  # 2.5 + mouse acceleration
-            'LaunchCombatUWindowsClient': (a * 1.52 / pow(fps_var, 1/3), 2),  # 10.0
-            'LaunchUnrealUWindowsClient': (a / 2.22 / pow(fps_var, 1/3), 5), # 20
-        }.get(win_class, (a / pow(fps_var, 1/3), 2))
+            'CrossFire': (a / 2.36 * (client_ratio / (4/3)) / fps_factor, 2), # 32
+            'Valve001': (a * 1.92 / fps_factor, 2),  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': (a * 1.52 / fps_factor, 2),  # 10.0
+            'LaunchUnrealUWindowsClient': (a / 2.22 / fps_factor, 5), # 20
+        }.get(win_class, (a / fps_factor, 2))
         (y0, recoil_control) = {
-            'CrossFire': (b / 2.36 * (client_ratio / (4/3)) / pow(fps_var, 1/3), 2),  # 32
-            'Valve001': (b * 1.92 / pow(fps_var, 1/3), 2),  # 2.5 + mouse acceleration
-            'LaunchCombatUWindowsClient': (b * 1.52 / pow(fps_var, 1/3), 2), # 10.0
-            'LaunchUnrealUWindowsClient': (b / 2.22 / pow(fps_var, 1/3), 5), # 20
-        }.get(win_class, (b / pow(fps_var, 1/3), 2))
+            'CrossFire': (b / 2.36 * (client_ratio / (4/3)) / fps_factor, 2),  # 32
+            'Valve001': (b * 1.92 / fps_factor, 2),  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': (b * 1.52 / fps_factor, 2), # 10.0
+            'LaunchUnrealUWindowsClient': (b / 2.22 / fps_factor, 5), # 20
+        }.get(win_class, (b / fps_factor, 2))
 
         move_rx, x0 = track_opt(move_rx, a, x0)
         move_ry, y0 = track_opt(move_ry, b, y0)
