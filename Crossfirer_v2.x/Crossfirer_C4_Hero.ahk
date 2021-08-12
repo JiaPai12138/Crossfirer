@@ -356,7 +356,7 @@ class E_Hero
 				}
             }
 
-            PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - this.W // 10, this.Y + this.H // 4, this.X + this.W // 2 + this.W // 10, this.Y + this.H // 3, 0xB7780B, 0, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
+            PixelSearch, ReloadX1, ReloadY1, this.X + this.W // 2 - this.W // 10, this.Y + this.H // 4, this.X + this.W // 2 + this.W // 10, this.Y + this.H // 3, 0xB7780B, 1, Fast ;#0B78B7 #B7780B #2E81B1 #B1812E 补充弹药
             If !ErrorLevel
             {
                 key_down("e")
@@ -374,7 +374,7 @@ class E_Hero
 					key_up("e")
             }
 
-            PixelSearch, IsX, IsY, this.X + this.W // 2 - this.W // 8, this.Y + this.H // 1.25, this.X + this.W // 2 + this.W // 8, this.Y + this.H, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 补充弹药进度或者吸血进度
+            PixelSearch, IsX, IsY, this.X + this.W // 2 - this.W // 6.4, this.Y + this.H // 1.15, this.X + this.W // 2 + this.W // 6.4, this.Y + this.H // 1.08, 0xA09C8B, 0, Fast ;#8B9CA0 #A09C8B 补充弹药进度或者吸血进度
             If !ErrorLevel
             {
                 If !GetKeyState("e")
