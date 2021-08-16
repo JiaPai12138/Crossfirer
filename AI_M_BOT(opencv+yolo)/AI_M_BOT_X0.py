@@ -10,9 +10,9 @@ Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
 from win32con import VK_LBUTTON, VK_END, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
+from win32api import GetAsyncKeyState, GetKeyState, GetCurrentProcessId, OpenProcess
 from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
-from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
 from sys import exit, executable, platform
 from math import sqrt, pow, ceil
@@ -554,7 +554,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
     if win_class != 'CrossFire':
         if (go_fire or move_range < ranges) and arr[11]:
             if (time() * 1000 - up_time[0]) > rate:
-                if not GetAsyncKeyState(VK_LBUTTON):
+                if not (GetAsyncKeyState(VK_LBUTTON) < 0 or GetKeyState(VK_LBUTTON) < 0):
                     sp_mouse_down()
                     press_time[0] = int(time() * 1000)
                     if (time() * 1000 - up_time[0]) <= 175:
@@ -562,7 +562,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                         if shoot_times[0] > 10:
                             shoot_times[0] = 10
 
-        if GetAsyncKeyState(VK_LBUTTON):
+        if (GetAsyncKeyState(VK_LBUTTON) < 0 or GetKeyState(VK_LBUTTON) < 0):
             if (time() * 1000 - press_time[0]) > 30.6 or not arr[11]:
                 sp_mouse_up()
                 up_time[0] = int(time() * 1000)
@@ -581,7 +581,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 # 追踪优化
 def track_opt(record_list, range_m, move):
     if len(record_list):
-        if abs(median(record_list) - range_m) <= 12 and range_m <= 60:
+        if abs(median(record_list) - range_m) <= 15 and range_m <= 80:
             record_list.append(range_m)
         else:
             record_list.clear()
@@ -596,22 +596,22 @@ def track_opt(record_list, range_m, move):
 
 # 转变状态
 def check_status(exit0, mouse):
-    if GetAsyncKeyState(VK_END):  # End
+    if GetAsyncKeyState(VK_END) < 0:  # End
         exit0 = True
-    if GetAsyncKeyState(0x31):  # 1
+    if GetAsyncKeyState(0x31) < 0:  # 1
         mouse = 1
         arr[15] = 1
-    if GetAsyncKeyState(0x32):  # 2
+    if GetAsyncKeyState(0x32) < 0:  # 2
         mouse = 2
         arr[15] = 2
-    if GetAsyncKeyState(0x33) or GetAsyncKeyState(0x34):  # 3,4
+    if GetAsyncKeyState(0x33) < 0 or GetAsyncKeyState(0x34) < 0:  # 3,4
         mouse = 0
         arr[15] = 0
-    if GetAsyncKeyState(0x46):  # F
+    if GetAsyncKeyState(0x46) < 0:  # F
         arr[17] = 1
-    if GetAsyncKeyState(0x4A):  # J
+    if GetAsyncKeyState(0x4A) < 0:  # J
         arr[17] = 0
-    if GetAsyncKeyState(0x50):  # P
+    if GetAsyncKeyState(0x50) < 0:  # P
         close()
         restart()
 
