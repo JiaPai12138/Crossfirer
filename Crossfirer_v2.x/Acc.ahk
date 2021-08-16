@@ -149,7 +149,7 @@ class ACC_STATE {
     static    PRESSED                 :=    0x8
     static    CHECKED                 :=    0x10
     static    MIXED                   :=    0x20
-    static    INDETERMINATE           :=    this.MIXED
+    static    INDETERMINATE           :=    0x20
     static    READONLY                :=    0x40
     static    HOTTRACKED              :=    0x80
     static    DEFAULT                 :=    0x100
