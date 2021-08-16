@@ -9,7 +9,7 @@ Screenshot method code Author: Ben Johnson (learncodebygaming)
 Screenshot method website: https://github.com/learncodebygaming/opencv_tutorials
 '''
 
-from win32con import VK_LBUTTON, VK_END, VK_MENU, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
+from win32con import VK_LBUTTON, VK_END, PROCESS_ALL_ACCESS, SPI_GETMOUSE, SPI_SETMOUSE, SPI_GETMOUSESPEED, SPI_SETMOUSESPEED
 from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32api import GetAsyncKeyState, GetCurrentProcessId, OpenProcess
@@ -99,33 +99,34 @@ def sp_mouse_up(key = 'LButton'):
 # 截图类
 class WindowCapture:
     # 类属性
+    hwnd = ''  # 窗口句柄
     windows_class = ''  # 窗口类名
-    total_w = 0  # 窗口内宽
-    total_h = 0  # 窗口内高
-    cut_w = 0  # 截取宽
-    cut_h = 0  # 截取高
-    hwnd = None  # 窗口句柄
-    offset_x = 0  # 窗口内偏移x
-    offset_y = 0  # 窗口内偏移y
-    actual_x = 0  # 截图左上角屏幕位置x
-    actual_y = 0  # 截图左上角屏幕位置y
+    total_w, total_h = 0, 0  # 窗口内宽高
+    cut_w, cut_h = 0, 0  # 截取宽高
+    offset_x, offset_y = 0, 0  # 窗口内偏移x,y
+    actual_x, actual_y = 0, 0  # 截图左上角屏幕位置x,y
     left_corner = [0, 0]  # 窗口左上角屏幕位置
-    sct = ''
+    sct = mss.mss()  # 初始化mss截图
 
     # 构造函数
-    def __init__(self, window_class):
+    def __init__(self, window_class, window_hwnd):
         self.windows_class = window_class
-        self.hwnd = win32gui.FindWindow(window_class, None)
+        try:
+            self.hwnd = win32gui.FindWindow(window_class, None)
+        except pywintypes.error:
+            self.hwnd = window_hwnd
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
         self.update_window_info()
-        self.sct = mss.mss()  # 初始化mss截图
 
     def update_window_info(self):
-        # 获取窗口数据
-        window_rect = win32gui.GetWindowRect(self.hwnd)
-        client_rect = win32gui.GetClientRect(self.hwnd)
-        self.left_corner = win32gui.ClientToScreen(self.hwnd, (0, 0))
+        try:
+            # 获取窗口数据
+            window_rect = win32gui.GetWindowRect(self.hwnd)
+            client_rect = win32gui.GetClientRect(self.hwnd)
+            self.left_corner = win32gui.ClientToScreen(self.hwnd, (0, 0))
+        except pywintypes.error:
+            pass
 
         # 确认截图相关数据
         self.total_w = client_rect[2] - client_rect[0]
@@ -150,10 +151,8 @@ class WindowCapture:
         return win32gui.GetWindowRect(self.hwnd)[0]
 
     def get_region(self):
-        if self.cut_w and self.cut_h:
-            return {'top': self.actual_y, 'left': self.actual_x, 'width': self.cut_w, 'height': self.cut_h}
-        else:
-            return {'top': 400, 'left': 400, 'width': 400, 'height': 400}
+        self.update_window_info()
+        return (self.actual_x, self.actual_y, self.actual_x + self.cut_w, self.actual_y + self.cut_h)
 
     def grab_screenshot(self):
         return cv2.cvtColor(np.array(self.sct.grab(self.get_region())), cv2.COLOR_RGBA2RGB)
@@ -170,17 +169,20 @@ class FrameDetection:
     input_shape = tuple(map(int, ['224', '192']))  # 输入尺寸
     mean = (0.485, 0.456, 0.406)
     std = (0.229, 0.224, 0.225)
-    EP_list = ['CUDAExecutionProvider', 'CPUExecutionProvider']  # CUDA执行提供程序优先于CPU执行提供程序
+    EP_list = ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']  # Tensorrt优先于CUDA优先于CPU执行提供程序
     session = ''
+    io_binding = ''
+    device_name = ''
 
     # 构造函数
-    def __init__(self, hwnd_value, gpu_level):
+    def __init__(self, hwnd_value):
         self.win_class_name = win32gui.GetClassName(hwnd_value)
         self.std_confidence = {
-            'Valve001': 0.40,
+            'Valve001': 0.45,
             'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
-        self.session = onnxruntime.InferenceSession('yolox_nano.onnx', providers=self.EP_list)  # 推理构造
+        self.session = onnxruntime.InferenceSession('yolox_nano.onnx', None)  # 推理构造
+        self.io_binding = self.session.io_binding()
 
         try:
             with open('classes.txt', 'r') as f:
@@ -191,8 +193,9 @@ class FrameDetection:
             self.COLORS.append(tuple(np.random.randint(256, size=3).tolist()))
 
         # 检测是否在GPU上运行图像识别
-        if onnxruntime.get_device() == 'GPU':
-            gpu_eval = check_gpu(gpu_level)
+        self.device_name = onnxruntime.get_device()
+        if self.device_name == 'GPU':
+            gpu_eval = check_gpu()
             gpu_message = {
                 2: '小伙电脑顶呱呱啊',
                 1: '战斗完全木得问题',
@@ -230,10 +233,17 @@ class FrameDetection:
         img, ratio = preprocess(frames, self.input_shape, self.mean, self.std)
 
         # 检测
-        ort_inputs = {self.session.get_inputs()[0].name: img[None, :, :, :]}
-        output = self.session.run(None, ort_inputs)
-        predictions = demo_postprocess(output[0], self.input_shape)[0]
+        if self.device_name == 'GPU':
+            ortvalue = onnxruntime.OrtValue.ortvalue_from_numpy(img[None, :, :, :], 'cuda', 0)
+            self.io_binding.bind_input(name=self.session.get_inputs()[0].name, device_type=ortvalue.device_name(), device_id=0, element_type=np.float32, shape=ortvalue.shape(), buffer_ptr=ortvalue.data_ptr())
+            self.io_binding.bind_output('output')
+            self.session.run_with_iobinding(self.io_binding)
+            output = self.io_binding.copy_outputs_to_cpu()[0]
+        else:
+            ort_inputs = {self.session.get_inputs()[0].name: img[None, :, :, :]}
+            output = self.session.run(None, ort_inputs)[0]
 
+        predictions = demo_postprocess(output, self.input_shape)[0]
         boxes_xyxy, scores = analyze(predictions, ratio)
         dets = multiclass_nms(boxes_xyxy, scores, self.nms_thd, self.std_confidence)
 
@@ -275,6 +285,10 @@ class FrameDetection:
                 y0 = y_tht + (h_tht - frame_height) / 2
                 fire_range = min(w_tht, h_tht) / 2
                 fire_pos = 0
+
+            xpos = x0 + frame_width / 2
+            ypos = y0 + frame_height / 2
+            cv2.line(frames, (frame_width // 2, frame_height // 2), (int(xpos), int(ypos)), (0, 0, 255), 2)
 
             # 查看是否已经指向目标
             if 1/4 * w_tht > abs(frame_width / 2 - x_tht - w_tht / 2) and 2/5 * h_tht > abs(frame_height / 2 - y_tht - h_tht / 2):
@@ -411,16 +425,16 @@ def demo_postprocess(outputs, img_size, p6=False):
 
 
 # 简单检查gpu是否够格
-def check_gpu(level):
+def check_gpu():
     pynvml.nvmlInit()
-    handle = pynvml.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
-    gpu_name = pynvml.nvmlDeviceGetName(handle)
-    momory_info = pynvml.nvmlDeviceGetMemoryInfo(handle)
+    gpu_handle = pynvml.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
+    gpu_name = pynvml.nvmlDeviceGetName(gpu_handle)
+    memory_info = pynvml.nvmlDeviceGetMemoryInfo(gpu_handle)
     pynvml.nvmlShutdown()
     if b'RTX' in gpu_name:
         return 2
-    memory_total = momory_info.total / 1024 / 1024
-    if (memory_total / level) > 3000:
+    memory_total = memory_info.total / 1024 / 1024
+    if memory_total > 3000:
         return 1
     return 0
 
@@ -470,9 +484,7 @@ def restart():
 # 退出脚本
 def close():
     show_proc.terminate()
-    detect1_proc.terminate()
-    if not MP_setting:
-        detect2_proc.terminate()
+    detect_proc.terminate()
 
 
 # 检测是否存在配置与权重文件
@@ -502,7 +514,7 @@ def clear():
 def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move_ry):
     recoil_control = 0
     move_range = sqrt(pow(a, 2) + pow(b, 2))
-    DPI_Var = windll.user32.GetDpiForWindow(window_hwnd) / 96
+    DPI_Var = windll.user32.GetDpiForWindow(window_hwnd_name) / 96
     enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, [0, 0, 0], 0)
@@ -511,26 +523,30 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
         win32gui.SystemParametersInfo(SPI_SETMOUSESPEED, 10, 0)
 
     if fps_var and arr[17] and arr[11]:
-        if move_range > 5 * ranges:
-            b = uniform(0.7 * b, 1.3 * b)
+        if move_range > 6 * ranges:
+            a = uniform(0.9 * a, 1.1 * a)
+            b = uniform(0.9 * b, 1.1 * b)
         a /= DPI_Var
         b /= DPI_Var
-        fps_factor = pow(fps_var/5, 1/3)
-        (x0, recoil_control) = {
-            'CrossFire': (a / 2.36 * (client_ratio / (4/3)) / fps_factor, 2), # 32
-            'Valve001': (a * 1.92 / fps_factor, 2),  # 2.5 + mouse acceleration
-            'LaunchCombatUWindowsClient': (a * 1.52 / fps_factor, 2),  # 10.0
-            'LaunchUnrealUWindowsClient': (a / 2.22 / fps_factor, 5), # 20
-        }.get(win_class, (a / fps_factor, 2))
+        fps_factor = pow(fps_var/3, 1/3)
+        x0 = {
+            'CrossFire': a / 2.719 * (client_ratio / (4/3)) / fps_factor,  # 32
+            'Valve001': a * 1.667 / fps_factor,  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': a * 1.319 / fps_factor,  # 10.0
+            'LaunchUnrealUWindowsClient': a / 2.557 / fps_factor,  # 20
+        }.get(win_class, a / fps_factor)
         (y0, recoil_control) = {
-            'CrossFire': (b / 2.36 * (client_ratio / (4/3)) / fps_factor, 2),  # 32
-            'Valve001': (b * 1.92 / fps_factor, 2),  # 2.5 + mouse acceleration
-            'LaunchCombatUWindowsClient': (b * 1.52 / fps_factor, 2), # 10.0
-            'LaunchUnrealUWindowsClient': (b / 2.22 / fps_factor, 5), # 20
+            'CrossFire': (b / 2.719 * (client_ratio / (4/3)) / fps_factor, 2),  # 32
+            'Valve001': (b * 1.667 / fps_factor, 2),  # 2.5 + mouse acceleration
+            'LaunchCombatUWindowsClient': (b * 1.319 / fps_factor, 2),  # 10.0
+            'LaunchUnrealUWindowsClient': (b / 2.557 / fps_factor, 5),  # 20
         }.get(win_class, (b / fps_factor, 2))
 
         move_rx, x0 = track_opt(move_rx, a, x0)
         move_ry, y0 = track_opt(move_ry, b, y0)
+
+        if arr[12] == 1 or arr[14]:
+            y0 += (recoil_control * shoot_times[0])  # 简易压枪
 
         sp_mouse_xy(int(round(x0)), int(round(y0)))
 
@@ -541,13 +557,18 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                 if not GetAsyncKeyState(VK_LBUTTON):
                     sp_mouse_down()
                     press_time[0] = int(time() * 1000)
-                if arr[12] == 1 or arr[14]:  # 简易压枪
-                    sp_mouse_xy(0, recoil_control)
+                    if (time() * 1000 - up_time[0]) <= 175:
+                        shoot_times[0] += 1
+                        if shoot_times[0] > 10:
+                            shoot_times[0] = 10
 
         if GetAsyncKeyState(VK_LBUTTON):
             if (time() * 1000 - press_time[0]) > 30.6 or not arr[11]:
                 sp_mouse_up()
                 up_time[0] = int(time() * 1000)
+
+    if (time() * 1000 - up_time[0]) > 175:
+        shoot_times[0] = 0
 
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, enhanced_holdback, 0)
@@ -564,8 +585,8 @@ def track_opt(record_list, range_m, move):
             record_list.append(range_m)
         else:
             record_list.clear()
-        if len(record_list) > 5:
-            move *= 4.0
+        if len(record_list) > show_fps[0] / 10 and arr[4]:
+            move *= (show_fps[0] // 20)
             record_list.clear()
     else:
         record_list.append(range_m)
@@ -590,8 +611,6 @@ def check_status(exit0, mouse):
         arr[17] = 1
     if GetAsyncKeyState(0x4A):  # J
         arr[17] = 0
-    if GetAsyncKeyState(VK_MENU):  # Alt
-        win_cap.update_window_info()
     if GetAsyncKeyState(0x50):  # P
         close()
         restart()
@@ -636,37 +655,22 @@ def show_frames(output_pipe, array):
             cv2.destroyAllWindows()
 
 
-# 第一分析进程(主)
-def detection1(que, array, frame_in):
-    Analysis1 = FrameDetection(array[0], array[10])
+# 分析进程
+def detection(que, array, frame_in):
+    Analysis = FrameDetection(array[0])
     array[1] = 1
     while True:
         if not que.empty():
             try:
-                frame1 = que.get_nowait()
+                frame = que.get_nowait()
                 que.task_done()
                 array[1] = 2
-                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis1.detect(frame1)
+                if array[10]:
+                    array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis.detect(frame)
                 frame_in.send(frame)
             except (queue.Empty, TypeError):
                 continue
         array[1] = 1
-
-
-# 第二分析进程(备)
-def detection2(que, array):
-    Analysis2 = FrameDetection(array[0], array[10])
-    array[2] = 1
-    while True:
-        if array[1] == 2 and not que.empty():
-            try:
-                frame2 = que.get_nowait()
-                que.task_done()
-                array[2] = 2
-                array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis2.detect(frame2)
-            except (queue.Empty, TypeError):
-                continue
-        array[2] = 1
 
 
 # 主程序
@@ -684,14 +688,17 @@ if __name__ == '__main__':
     # 设置工作路径
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    # 选择是否需要双检测进程
-    MP_setting = -1
-    while not (2 >= MP_setting >= 0):
-        user_choice = input('你需要第二检测进程吗?(1:不要, 2:要个头, 0:要): ')
+    # 滑稽
+    Conan = -1
+    while not (2 >= Conan >= 0):
+        user_choice = input('柯南能在本程序作者有生之年完结吗?(1:能, 2:能, 0:不能): ')
         try:
-            MP_setting = int(user_choice)
+            Conan = int(user_choice)
         except ValueError:
-            print('呵呵...请重新选择')
+            print('呵呵...请重新输入')
+        else:
+            if not (2 >= Conan >= 0):
+                print('请在给定范围选择')
 
     # 初始化变量以及提升进程优先级
     if platform == 'win32':
@@ -708,6 +715,7 @@ if __name__ == '__main__':
     test_win = [False]
     move_record_x = []
     move_record_y = []
+    shoot_times = [0]
 
     # 如果文件不存在则退出
     check_file('yolox_nano')
@@ -716,8 +724,8 @@ if __name__ == '__main__':
     arr = Array('i', range(21))
     '''
     0  窗口句柄
-    1  第一分析进程状态
-    2  第二分析进程状态
+    1  分析进程状态
+    2  缺省
     3  截图FPS整数值
     4  控制鼠标
     5  左侧距离除数
@@ -725,7 +733,7 @@ if __name__ == '__main__':
     7  鼠标移动x
     8  鼠标移动y
     9  鼠标开火r
-    10 推理进程数量
+    10 柯南
     11 敌人数量
     12 瞄准位置
     13 射击速度
@@ -737,14 +745,14 @@ if __name__ == '__main__':
 
     show_proc = Process(target=show_frames, args=(frame_output, arr,))
     show_proc.start()
-    arr[1] = 0  # 第一分析进程状态
-    arr[2] = 0  # 第二分析进程状态
+    arr[1] = 0  # 分析进程状态
+    arr[2] = 0  # 缺省
     arr[3] = 0  # FPS值
     arr[4] = 0  # 控制鼠标
     arr[7] = 0  # 鼠标移动x
     arr[8] = 0  # 鼠标移动r
     arr[9] = 0  # 鼠标开火r
-    arr[10] = 1 if MP_setting else 2  # 推理进程数量
+    arr[10] = Conan  # 柯南
     arr[11] = 0  # 敌人数量
     arr[12] = 0  # 瞄准位置(0中1头2胸)
     arr[13] = 944  # 射击速度
@@ -752,49 +760,46 @@ if __name__ == '__main__':
     arr[15] = 0  # 所持武器(0无1主2副)
     arr[16] = 0  # 指向身体
     arr[17] = 1  # 自瞄/自火
-    detect1_proc = Process(target=detection1, args=(queue, arr, frame_input,))
-    if not MP_setting:
-        detect2_proc = Process(target=detection2, args=(queue, arr,))
+    detect_proc = Process(target=detection, args=(queue, arr, frame_input,))
 
     # 寻找读取游戏窗口类型并确认截取位置
-    window_class_name, window_hwnd, test_win[0] = get_window_info()
-    arr[0] = window_hwnd
+    window_class_name, window_hwnd_name, test_win[0] = get_window_info()
+    arr[0] = window_hwnd_name
 
     # 等待游戏画面完整出现(拥有大于0的长宽)
     window_ready = 0
     while not window_ready:
         sleep(1)
-        win_client_rect = win32gui.GetClientRect(window_hwnd)
+        win_client_rect = win32gui.GetClientRect(window_hwnd_name)
         if win_client_rect[2] - win_client_rect[0] > 0 and win_client_rect[3] - win_client_rect[1] > 0:
             window_ready = 1
     client_ratio = (win_client_rect[2] - win_client_rect[0]) / (win_client_rect[3] - win_client_rect[1])
 
     # 初始化截图类
-    win_cap = WindowCapture(window_class_name)
+    win_cap = WindowCapture(window_class_name, window_hwnd_name)
 
     # 开始分析进程
-    detect1_proc.start()
-    if not MP_setting:
-        detect2_proc.start()
+    detect_proc.start()
 
     # 等待分析类初始化
-    while not (arr[1] and arr[2]):
-        if MP_setting:
-            arr[2] = 1
-        sleep(5)
+    while not arr[1]:
+        sleep(4)
 
     # 清空命令指示符面板
     clear()
 
     ini_sct_time = 0  # 初始化计时
+    small_float = np.finfo(np.float64).eps  # 初始化一个尽可能小却小得不过分的数
 
     while True:
         screenshot = win_cap.grab_screenshot()
 
         try:
             screenshot.any()
-        except AttributeError:
+            arr[5] = (150 if win_cap.get_window_left() - 10 < 150 else win_cap.get_window_left() - 10)
+        except (AttributeError, pywintypes.error):
             break
+
         queue.put_nowait(screenshot)
         queue.join()
 
@@ -803,31 +808,23 @@ if __name__ == '__main__':
         if exit_program:
             break
 
-        if win32gui.GetForegroundWindow() == window_hwnd and not test_win[0]:
-            if arr[4]:
-                if arr[15] == 1:
+        if win32gui.GetForegroundWindow() == window_hwnd_name and not test_win[0]:
+            if arr[4]:  # 是否需要控制鼠标
+                if arr[15] == 1:  # 主武器
                     arr[13] = (944 if arr[14] or arr[12] != 1 else 1694)
-                elif arr[15] == 2:
+                elif arr[15] == 2:  # 副武器
                     arr[13] = (694 if arr[14] or arr[12] != 1 else 944)
                 move_record_x, move_record_y = control_mouse(arr[7], arr[8], show_fps[0], arr[9], arr[13] / 10, arr[16], window_class_name, move_record_x, move_record_y)
 
-        try:
-            if window_class_name == 'CrossFire' and screenshot.shape[0] / screenshot.shape[1] > 1.7:
-                screenshot.shape[0] *= 3/4
-            arr[5] = (150 if win_cap.get_window_left() - 10 < 150 else win_cap.get_window_left() - 10)
-        except pywintypes.error:
-            break
-
         time_used = time() - ini_sct_time
         ini_sct_time = time()
-        if time_used:  # 防止被0除
-            current_fps = 1 / time_used
-            process_time.append(current_fps)
-            if len(process_time) > 119:
-                process_time.popleft()
+        current_fps = 1 / (time_used + small_float)
+        process_time.append(current_fps)
+        if len(process_time) > 119:
+            process_time.popleft()
 
-            show_fps[0] = median(process_time)  # 计算fps
-            arr[3] = int(show_fps[0])
+        show_fps[0] = median(process_time)  # 计算fps
+        arr[3] = int(show_fps[0])
 
     close()
     exit(0)
