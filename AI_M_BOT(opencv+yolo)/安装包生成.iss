@@ -5,11 +5,13 @@
 #define MyAppName "神经自瞄"
 #define MyAppName_std "神经自瞄标准版"
 #define MyAppName_ex "神经自瞄备用版"
-#define MyAppVersion "2.5.6"
-#define MyAppPublisher "名侦探柯南战队"
+#define MyAppName_ad "神经自瞄先锋版"
+#define MyAppVersion "2.5.7"
+#define MyAppPublisher "名蒸蛋柯南之疗养院战队"
 #define MyAppURL "https://space.bilibili.com/637136569"
 #define MyAppExeName1 "标准自瞄.exe"
 #define MyAppExeName2 "备用自瞄.exe"
+#define MyAppExeName3 "先锋自瞄.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -35,7 +37,7 @@ InfoAfterFile=.\AImbot_X\使用说明.rtf
 OutputDir=.
 OutputBaseFilename=神经自瞄安装{#MyAppVersion}
 SetupIconFile=.\Logo\AI-M-BOT1.ico
-Password=名侦探柯南战队出品
+Password=名蒸蛋柯南之疗养院战队
 Encryption=yes
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -52,14 +54,17 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: ".\AImbot_X\{#MyAppExeName1}"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\AImbot_X\{#MyAppExeName2}"; DestDir: "{app}"; Flags: ignoreversion
+Source: ".\AImbot_X\{#MyAppExeName3}"; DestDir: "{app}"; Flags: ignoreversion
 Source: ".\AImbot_X\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName_std}"; Filename: "{app}\{#MyAppExeName1}"; WorkingDir: "{app}"
 Name: "{autoprograms}\{#MyAppName_ex}"; Filename: "{app}\{#MyAppExeName2}"; WorkingDir: "{app}"
+Name: "{autoprograms}\{#MyAppName_ad}"; Filename: "{app}\{#MyAppExeName3}"; WorkingDir: "{app}"
 Name: "{autodesktop}\{#MyAppName_std}"; Filename: "{app}\{#MyAppExeName1}"; Tasks: desktopicon; WorkingDir: "{app}"
 Name: "{autodesktop}\{#MyAppName_ex}"; Filename: "{app}\{#MyAppExeName2}"; Tasks: desktopicon; WorkingDir: "{app}"
+Name: "{autodesktop}\{#MyAppName_ad}"; Filename: "{app}\{#MyAppExeName3}"; Tasks: desktopicon; WorkingDir: "{app}"
 
 [Code]
 function IsAppInstalled(): boolean;
