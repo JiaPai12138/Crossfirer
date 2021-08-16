@@ -4,7 +4,7 @@
 #define MyAppName "先锋自瞄"
 #define MyAppName_std "神经自瞄先锋版N"
 #define MyAppVersion "1.0.1"
-#define MyAppPublisher "名侦探柯南战队"
+#define MyAppPublisher "名蒸蛋柯南之疗养院战队"
 #define MyAppURL "https://space.bilibili.com/637136569"
 #define MyAppExeName "先锋自瞄N.exe"
 
@@ -32,7 +32,7 @@ InfoAfterFile=.\AI_M_BOT-Nuitka\使用说明.rtf
 OutputDir=.
 OutputBaseFilename=先锋自瞄安装{#MyAppVersion}
 SetupIconFile=.\Logo\AI-M-BOT1.ico
-Password=名侦探柯南战队出品
+Password=名蒸蛋柯南之疗养院战队
 Encryption=yes
 Compression=lzma2/ultra64
 SolidCompression=yes
