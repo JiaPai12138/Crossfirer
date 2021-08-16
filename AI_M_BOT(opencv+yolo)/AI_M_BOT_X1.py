@@ -194,7 +194,7 @@ class FrameDetection:
             }.get(gpu_eval, '您的显卡配置不够')
             print(gpu_message)
         else:
-            self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCL)
+            self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
             self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_OPENCL)
             print('您没有可识别的N卡')
 
