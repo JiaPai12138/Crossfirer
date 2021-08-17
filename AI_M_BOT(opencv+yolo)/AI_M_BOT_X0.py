@@ -450,6 +450,16 @@ def set_dpi():
         exit(0)
 
 
+# 检测是否全屏
+def is_full_screen(hWnd):
+    try:
+        full_screen_rect = (0, 0, windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1))
+        window_rect = win32gui.GetWindowRect(hWnd)
+        return window_rect == full_screen_rect
+    except:
+        return False
+
+
 # 确认窗口句柄与类名
 def get_window_info():
     supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient'
@@ -667,7 +677,8 @@ def detection(que, array, frame_in):
                 array[1] = 2
                 if array[10]:
                     array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis.detect(frame)
-                frame_in.send(frame)
+                if not array[2]:
+                    frame_in.send(frame)
             except (queue.Empty, TypeError):
                 continue
         array[1] = 1
@@ -707,6 +718,7 @@ if __name__ == '__main__':
         SetPriorityClass(handle, ABOVE_NORMAL_PRIORITY_CLASS)
     else:
         os.nice(1)
+
     queue = JoinableQueue()  # 初始化队列
     frame_output, frame_input = Pipe(False)  # 初始化管道(receiving,sending)
     press_time, up_time, show_fps = [0], [0], [1]
@@ -726,7 +738,7 @@ if __name__ == '__main__':
     '''
     0  窗口句柄
     1  分析进程状态
-    2  缺省
+    2  是否全屏
     3  截图FPS整数值
     4  控制鼠标
     5  左侧距离除数
@@ -743,11 +755,8 @@ if __name__ == '__main__':
     16 指向身体
     17 自瞄自火
     '''
-
-    show_proc = Process(target=show_frames, args=(frame_output, arr,))
-    show_proc.start()
     arr[1] = 0  # 分析进程状态
-    arr[2] = 0  # 缺省
+    arr[2] = 0  # 是否全屏
     arr[3] = 0  # FPS值
     arr[4] = 0  # 控制鼠标
     arr[7] = 0  # 鼠标移动x
@@ -766,6 +775,12 @@ if __name__ == '__main__':
     # 寻找读取游戏窗口类型并确认截取位置
     window_class_name, window_hwnd_name, test_win[0] = get_window_info()
     arr[0] = window_hwnd_name
+
+    # 如果非全屏则展示效果
+    arr[2] = is_full_screen(window_hwnd_name)
+    if not arr[2]:
+        show_proc = Process(target=show_frames, args=(frame_output, arr,))
+        show_proc.start()
 
     # 等待游戏画面完整出现(拥有大于0的长宽)
     window_ready = 0
