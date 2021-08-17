@@ -526,8 +526,8 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
         if move_range > 6 * ranges:
             a = uniform(0.9 * a, 1.1 * a)
             b = uniform(0.9 * b, 1.1 * b)
-        a /= DPI_Var
-        b /= DPI_Var
+        a = a / DPI_Var * move_factor[0]
+        b = b / DPI_Var * move_factor[1]
         fps_factor = pow(fps_var/3, 1/3)
         x0 = {
             'CrossFire': a / 2.719 * (client_ratio / (4/3)) / fps_factor,  # 32
@@ -716,6 +716,7 @@ if __name__ == '__main__':
     move_record_x = []
     move_record_y = []
     shoot_times = [0]
+    move_factor = [1, 1]
 
     # 如果文件不存在则退出
     check_file('yolox_nano')
@@ -795,12 +796,15 @@ if __name__ == '__main__':
         screenshot = win_cap.grab_screenshot()
 
         try:
-            screenshot.any()
+            if screenshot.any():
+                resized_screenshot = cv2.resize(screenshot, (224, 192))
             arr[5] = (150 if win_cap.get_window_left() - 10 < 150 else win_cap.get_window_left() - 10)
         except (AttributeError, pywintypes.error):
             break
 
-        queue.put_nowait(screenshot)
+        move_factor[0] = screenshot.shape[0] / resized_screenshot.shape[0]
+        move_factor[1] = screenshot.shape[1] / resized_screenshot.shape[1]
+        queue.put_nowait(resized_screenshot)
         queue.join()
 
         exit_program, arr[4] = check_status(exit_program, arr[4])
