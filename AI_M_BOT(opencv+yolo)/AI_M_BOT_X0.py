@@ -14,8 +14,8 @@ from win32api import GetAsyncKeyState, GetKeyState, GetCurrentProcessId, OpenPro
 from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
+from math import sqrt, pow, ceil, atan, cos, pi
 from sys import exit, executable, platform
-from math import sqrt, pow, ceil
 from collections import deque
 from statistics import median
 from time import sleep, time
@@ -150,6 +150,9 @@ class WindowCapture:
     def get_window_left(self):
         return win32gui.GetWindowRect(self.hwnd)[0]
 
+    def get_side_len(self):
+        return int(self.total_h / (2/3))
+
     def get_region(self):
         self.update_window_info()
         return (self.actual_x, self.actual_y, self.actual_x + self.cut_w, self.actual_y + self.cut_h)
@@ -169,7 +172,7 @@ class FrameDetection:
     input_shape = tuple(map(int, ['224', '192']))  # 输入尺寸
     mean = (0.485, 0.456, 0.406)
     std = (0.229, 0.224, 0.225)
-    EP_list = ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider']  # Tensorrt优先于CUDA优先于CPU执行提供程序
+    EP_list = onnxruntime.get_available_providers()  # ['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider'] Tensorrt优先于CUDA优先于CPU执行提供程序
     session = ''
     io_binding = ''
     device_name = ''
@@ -181,7 +184,10 @@ class FrameDetection:
             'Valve001': 0.45,
             'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
-        self.session = onnxruntime.InferenceSession('yolox_nano.onnx', None)  # 推理构造
+        try:
+            self.session = onnxruntime.InferenceSession('yolox_nano.onnx', providers=self.EP_list)  # 推理构造
+        except RuntimeError:
+            self.session.set_providers(self.EP_list[len(self.EP_list)-1])
         self.io_binding = self.session.io_binding()
 
         try:
@@ -321,11 +327,7 @@ def preprocess(image, input_size, mean, std, swap=(2, 0, 1)):
         padded_img = np.ones(input_size) * 114.0
     img = image
     r = min(input_size[0] / img.shape[0], input_size[1] / img.shape[1])
-    resized_img = cv2.resize(
-        img,
-        (int(img.shape[1] * r), int(img.shape[0] * r)),
-        interpolation=cv2.INTER_LINEAR,
-    ).astype(np.float32)
+    resized_img = cv2.resize(img, (int(img.shape[1] * r), int(img.shape[0] * r)), interpolation=cv2.INTER_LINEAR).astype(np.float32)
     padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
 
     padded_img = padded_img[:, :, ::-1]
@@ -533,21 +535,21 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
         win32gui.SystemParametersInfo(SPI_SETMOUSESPEED, 10, 0)
 
     if fps_var and arr[17] and arr[11]:
+        a = cos((pi - atan(a/arr[18])) / 2) * (2*arr[18]) / DPI_Var
+        b = cos((pi - atan(b/arr[18])) / 2) * (2*arr[18]) / DPI_Var
         if move_range > 6 * ranges:
-            a = uniform(0.9 * a, 1.1 * a)
-            b = uniform(0.9 * b, 1.1 * b)
-        a = a / DPI_Var * move_factor[0]
-        b = b / DPI_Var * move_factor[1]
+            a *= uniform(0.9, 1.1)
+            b *= uniform(0.9, 1.1)
         fps_factor = pow(fps_var/3, 1/3)
         x0 = {
             'CrossFire': a / 2.719 * (client_ratio / (4/3)) / fps_factor,  # 32
-            'Valve001': a * 1.667 / fps_factor,  # 2.5 + mouse acceleration
+            'Valve001': a * 1.667 / fps_factor,  # 2.5
             'LaunchCombatUWindowsClient': a * 1.319 / fps_factor,  # 10.0
             'LaunchUnrealUWindowsClient': a / 2.557 / fps_factor,  # 20
         }.get(win_class, a / fps_factor)
         (y0, recoil_control) = {
             'CrossFire': (b / 2.719 * (client_ratio / (4/3)) / fps_factor, 2),  # 32
-            'Valve001': (b * 1.667 / fps_factor, 2),  # 2.5 + mouse acceleration
+            'Valve001': (b * 1.667 / fps_factor, 2),  # 2.5
             'LaunchCombatUWindowsClient': (b * 1.319 / fps_factor, 2),  # 10.0
             'LaunchUnrealUWindowsClient': (b / 2.557 / fps_factor, 5),  # 20
         }.get(win_class, (b / fps_factor, 2))
@@ -728,7 +730,6 @@ if __name__ == '__main__':
     move_record_x = []
     move_record_y = []
     shoot_times = [0]
-    move_factor = [1, 1]
 
     # 如果文件不存在则退出
     check_file('yolox_nano')
@@ -754,6 +755,7 @@ if __name__ == '__main__':
     15 所持武器
     16 指向身体
     17 自瞄自火
+    18 基础边长
     '''
     arr[1] = 0  # 分析进程状态
     arr[2] = 0  # 是否全屏
@@ -770,6 +772,7 @@ if __name__ == '__main__':
     arr[15] = 0  # 所持武器(0无1主2副)
     arr[16] = 0  # 指向身体
     arr[17] = 1  # 自瞄/自火
+    arr[18] = 0  # 基础边长
     detect_proc = Process(target=detection, args=(queue, arr, frame_input,))
 
     # 寻找读取游戏窗口类型并确认截取位置
@@ -777,7 +780,7 @@ if __name__ == '__main__':
     arr[0] = window_hwnd_name
 
     # 如果非全屏则展示效果
-    arr[2] = is_full_screen(window_hwnd_name)
+    arr[2] = 1 if is_full_screen(window_hwnd_name) else 0
     if not arr[2]:
         show_proc = Process(target=show_frames, args=(frame_output, arr,))
         show_proc.start()
@@ -793,6 +796,9 @@ if __name__ == '__main__':
 
     # 初始化截图类
     win_cap = WindowCapture(window_class_name, window_hwnd_name)
+
+    # 计算基础边长
+    arr[18] = win_cap.get_side_len()
 
     # 开始分析进程
     detect_proc.start()
@@ -811,15 +817,12 @@ if __name__ == '__main__':
         screenshot = win_cap.grab_screenshot()
 
         try:
-            if screenshot.any():
-                resized_screenshot = cv2.resize(screenshot, (224, 192), interpolation=cv2.INTER_AREA)
+            screenshot.any()
             arr[5] = (150 if win_cap.get_window_left() - 10 < 150 else win_cap.get_window_left() - 10)
         except (AttributeError, pywintypes.error):
             break
 
-        move_factor[0] = screenshot.shape[0] / resized_screenshot.shape[0]
-        move_factor[1] = screenshot.shape[1] / resized_screenshot.shape[1]
-        queue.put_nowait(resized_screenshot)
+        queue.put_nowait(screenshot)
         queue.join()
 
         exit_program, arr[4] = check_status(exit_program, arr[4])

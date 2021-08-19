@@ -14,8 +14,8 @@ from win32api import GetAsyncKeyState, GetKeyState, GetCurrentProcessId, OpenPro
 from ctypes import windll, c_long, c_ulong, Structure, Union, c_int, POINTER, sizeof
 from multiprocessing import Process, Array, Pipe, freeze_support, JoinableQueue
 from win32process import SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS
+from math import sqrt, pow, ceil, atan, cos, pi
 from sys import exit, executable, platform
-from math import sqrt, pow, ceil
 from collections import deque
 from statistics import median
 from time import sleep, time
@@ -136,6 +136,9 @@ class WindowCapture:
 
     def get_window_left(self):
         return win32gui.GetWindowRect(self.hwnd)[0]
+
+    def get_side_len(self):
+        return int(self.total_h / (2/3))
 
     def get_region(self):
         self.update_window_info()
@@ -302,6 +305,16 @@ def set_dpi():
         exit(0)
 
 
+# 检测是否全屏
+def is_full_screen(hWnd):
+    try:
+        full_screen_rect = (0, 0, windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1))
+        window_rect = win32gui.GetWindowRect(hWnd)
+        return window_rect == full_screen_rect
+    except:
+        return False
+
+
 # 确认窗口句柄与类名
 def get_window_info():
     supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient'
@@ -389,21 +402,21 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
         win32gui.SystemParametersInfo(SPI_SETMOUSESPEED, 10, 0)
 
     if fps_var and arr[17] and arr[11]:
+        a = cos((pi - atan(a/arr[18])) / 2) * (2*arr[18]) / DPI_Var
+        b = cos((pi - atan(b/arr[18])) / 2) * (2*arr[18]) / DPI_Var
         if move_range > 6 * ranges:
-            a = uniform(0.9 * a, 1.1 * a)
-            b = uniform(0.9 * b, 1.1 * b)
-        a /= DPI_Var
-        b /= DPI_Var
+            a *= uniform(0.9, 1.1)
+            b *= uniform(0.9, 1.1)
         fps_factor = pow(fps_var/3, 1/3)
         x0 = {
             'CrossFire': a / 2.719 * (client_ratio / (4/3)) / fps_factor,  # 32
-            'Valve001': a * 1.667 / fps_factor,  # 2.5 + mouse acceleration
+            'Valve001': a * 1.667 / fps_factor,  # 2.5
             'LaunchCombatUWindowsClient': a * 1.319 / fps_factor,  # 10.0
             'LaunchUnrealUWindowsClient': a / 2.557 / fps_factor,  # 20
         }.get(win_class, a / fps_factor)
         (y0, recoil_control) = {
             'CrossFire': (b / 2.719 * (client_ratio / (4/3)) / fps_factor, 2),  # 32
-            'Valve001': (b * 1.667 / fps_factor, 2),  # 2.5 + mouse acceleration
+            'Valve001': (b * 1.667 / fps_factor, 2),  # 2.5
             'LaunchCombatUWindowsClient': (b * 1.319 / fps_factor, 2),  # 10.0
             'LaunchUnrealUWindowsClient': (b / 2.557 / fps_factor, 5),  # 20
         }.get(win_class, (b / fps_factor, 2))
@@ -533,7 +546,8 @@ def detection(que, array, frame_in):
                 array[1] = 2
                 if array[10]:
                     array[11], array[7], array[8], array[9], array[12], array[14], array[16], frame = Analysis.detect(frame)
-                frame_in.send(frame)
+                if not array[2]:
+                    frame_in.send(frame)
             except (queue.Empty, TypeError):
                 continue
         array[1] = 1
@@ -573,6 +587,7 @@ if __name__ == '__main__':
         SetPriorityClass(handle, ABOVE_NORMAL_PRIORITY_CLASS)
     else:
         os.nice(1)
+
     queue = JoinableQueue()  # 初始化队列
     frame_output, frame_input = Pipe(False)  # 初始化管道(receiving,sending)
     press_time, up_time, show_fps = [0], [0], [1]
@@ -591,7 +606,7 @@ if __name__ == '__main__':
     '''
     0  窗口句柄
     1  分析进程状态
-    2  缺省
+    2  是否全屏
     3  截图FPS整数值
     4  控制鼠标
     5  左侧距离除数
@@ -607,12 +622,10 @@ if __name__ == '__main__':
     15 所持武器
     16 指向身体
     17 自瞄自火
+    18 基础边长
     '''
-
-    show_proc = Process(target=show_frames, args=(frame_output, arr,))
-    show_proc.start()
     arr[1] = 0  # 分析进程状态
-    arr[2] = 0  # 缺省
+    arr[2] = 0  # 是否全屏
     arr[3] = 0  # FPS值
     arr[4] = 0  # 控制鼠标
     arr[7] = 0  # 鼠标移动x
@@ -626,11 +639,18 @@ if __name__ == '__main__':
     arr[15] = 0  # 所持武器(0无1主2副)
     arr[16] = 0  # 指向身体
     arr[17] = 1  # 自瞄/自火
+    arr[18] = 0  # 基础边长
     detect_proc = Process(target=detection, args=(queue, arr, frame_input,))
 
     # 寻找读取游戏窗口类型并确认截取位置
     window_class_name, window_hwnd_name, test_win[0] = get_window_info()
     arr[0] = window_hwnd_name
+
+    # 如果非全屏则展示效果
+    arr[2] = 1 if is_full_screen(window_hwnd_name) else 0
+    if not arr[2]:
+        show_proc = Process(target=show_frames, args=(frame_output, arr,))
+        show_proc.start()
 
     # 等待游戏画面完整出现(拥有大于0的长宽)
     window_ready = 0
@@ -643,6 +663,9 @@ if __name__ == '__main__':
 
     # 初始化截图类
     win_cap = WindowCapture(window_class_name, window_hwnd_name)
+
+    # 计算基础边长
+    arr[18] = win_cap.get_side_len()
 
     # 开始分析进程
     detect_proc.start()
