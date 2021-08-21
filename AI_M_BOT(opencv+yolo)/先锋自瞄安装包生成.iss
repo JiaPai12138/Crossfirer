@@ -3,7 +3,7 @@
 #define MyAppID "5F536EE5-8705-4C0E-8420-43CCDACC177A"
 #define MyAppName "先锋自瞄"
 #define MyAppName_std "神经自瞄先锋版N"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "名蒸蛋柯南之疗养院战队"
 #define MyAppURL "https://space.bilibili.com/637136569"
 #define MyAppExeName "先锋自瞄N.exe"
