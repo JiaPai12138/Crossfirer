@@ -285,7 +285,7 @@ ChangeMode(ByRef AutoMode, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
         GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
         GuiControl, fcn_status: +c00FF00 +Redraw, StatusOfFcn ;#00FF00
         UpdateText("fcn_mode", "ModeOfFcn", "加载模式中", XGui1, YGui1)
-        UpdateText("fcn_status", "StatusOfFcn", "自火暂停中", XGui2, YGui2)
+        UpdateText("fcn_status", "StatusOfFcn", "自火待命中", XGui2, YGui2)
         Gui, cross_hair: Color, 00FF00 ;#00FF00
         Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
     }
@@ -323,7 +323,7 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
             If ExitMode()
             {
                 GuiControl, fcn_status: +c00FF00 +Redraw, StatusOfFcn ;#00FF00
-                UpdateText("fcn_status", "StatusOfFcn", "自火暂停中", XGui2, YGui2)
+                UpdateText("fcn_status", "StatusOfFcn", "自火待命中", XGui2, YGui2)
                 GuiControl, fcn_mode: +c00FF00 +Redraw, ModeOfFcn ;#00FF00
                 UpdateText("fcn_mode", "ModeOfFcn", "加载模式中", XGui1, YGui1)
                 Gui, cross_hair: Color, 00FF00 ;#00FF00
