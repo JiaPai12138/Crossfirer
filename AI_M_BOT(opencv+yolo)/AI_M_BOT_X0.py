@@ -464,7 +464,7 @@ def is_full_screen(hWnd):
 
 # 确认窗口句柄与类名
 def get_window_info():
-    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient'
+    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient UnrealWindow'
     test_window = 'Notepad3 PX_WINDOW_CLASS Notepad Notepad++'
     class_name = ''
     hwnd_var = ''

@@ -153,10 +153,8 @@ class FrameDetection:
         if cv2.cuda.getCudaEnabledDeviceCount():
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
             gpu_eval = check_gpu()
-            if gpu_eval == 2:
-                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
-            else:
-                self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+            # self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA_FP16)
+            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
             gpu_message = {
                 2: '小伙电脑顶呱呱啊',
                 1: '战斗完全木得问题',
@@ -164,7 +162,7 @@ class FrameDetection:
             print(gpu_message)
         else:
             self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
-            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_OPENCL)
+            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)  # OPENCL
             print('您没有可识别的N卡')
 
     def detect(self, frames):
@@ -310,7 +308,7 @@ def is_full_screen(hWnd):
 
 # 确认窗口句柄与类名
 def get_window_info():
-    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient'
+    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient UnrealWindow'
     test_window = 'Notepad3 PX_WINDOW_CLASS Notepad Notepad++'
     class_name = ''
     hwnd_var = ''
