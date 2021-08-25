@@ -705,7 +705,8 @@ if __name__ == '__main__':
         try:
             screenshot.any()
             arr[5] = (150 if win_cap.get_window_left() - 10 < 150 else win_cap.get_window_left() - 10)
-        except (AttributeError, pywintypes.error):
+        except (AttributeError, pywintypes.error) as e:
+            print('窗口已关闭\n' + str(e))
             break
 
         queue.put_nowait(screenshot)
