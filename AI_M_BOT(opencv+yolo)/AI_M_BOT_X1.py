@@ -104,7 +104,7 @@ class WindowCapture:
         try:
             self.hwnd = win32gui.FindWindow(window_class, None)
         except pywintypes.error as e:
-            print('找窗口错误\n' + e)
+            print('找窗口错误\n' + str(e))
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
         self.update_window_info()
@@ -129,7 +129,7 @@ class WindowCapture:
             self.actual_y = window_rect[1] + self.offset_y
         except pywintypes.error as e:
             if self.errors < 2:
-                print('获取窗口数据错误\n' + e)
+                print('获取窗口数据错误\n' + str(e))
                 self.errors += 1
             pass
 
@@ -213,7 +213,7 @@ class FrameDetection:
             frame_width += 0
         except (cv2.error, AttributeError, UnboundLocalError) as e:
             if self.errors < 2:
-                print(e)
+                print(str(e))
                 self.errors += 1
             return 0, 0, 0, 0, 0, 0, 0, frames
 
@@ -295,7 +295,7 @@ def check_gpu():
         memory_info = pynvml.nvmlDeviceGetMemoryInfo(gpu_handle)
         pynvml.nvmlShutdown()
     except (FileNotFoundError, pynvml.nvml.NVML_ERROR_LIBRARY_NOT_FOUND) as e:
-        print(e)
+        print(str(e))
         nvidia_smi.nvmlInit()
         gpu_handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
         gpu_name = nvidia_smi.nvmlDeviceGetName(gpu_handle)
@@ -327,7 +327,7 @@ def is_full_screen(hWnd):
         window_rect = win32gui.GetWindowRect(hWnd)
         return window_rect == full_screen_rect
     except pywintypes.error as e:
-        print('全屏检测错误\n' + e)
+        print('全屏检测错误\n' + str(e))
         return False
 
 
