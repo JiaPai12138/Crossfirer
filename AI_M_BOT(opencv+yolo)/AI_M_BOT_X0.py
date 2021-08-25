@@ -24,6 +24,7 @@ from random import uniform
 from numba import njit
 import numpy as np
 import onnxruntime
+import nvidia_smi
 import pywintypes
 import win32gui
 import pynvml
@@ -107,13 +108,15 @@ class WindowCapture:
     actual_x, actual_y = 0, 0  # 截图左上角屏幕位置x,y
     left_corner = [0, 0]  # 窗口左上角屏幕位置
     sct = mss.mss()  # 初始化mss截图
+    errors = 0  # 仅仅显示一次错误
 
     # 构造函数
     def __init__(self, window_class, window_hwnd):
         self.windows_class = window_class
         try:
             self.hwnd = win32gui.FindWindow(window_class, None)
-        except pywintypes.error:
+        except pywintypes.error as e:
+            print('找窗口错误\n' + e)
             self.hwnd = window_hwnd
         if not self.hwnd:
             raise Exception(f'\033[1;31;40m窗口类名未找到: {window_class}')
@@ -125,21 +128,24 @@ class WindowCapture:
             window_rect = win32gui.GetWindowRect(self.hwnd)
             client_rect = win32gui.GetClientRect(self.hwnd)
             self.left_corner = win32gui.ClientToScreen(self.hwnd, (0, 0))
-        except pywintypes.error:
-            pass
 
-        # 确认截图相关数据
-        self.total_w = client_rect[2] - client_rect[0]
-        self.total_h = client_rect[3] - client_rect[1]
-        cut_factor = int(self.total_h / 2 / 192)
-        self.cut_h = 192 * cut_factor
-        self.cut_w = 224 * cut_factor
-        if self.windows_class == 'CrossFire':  # 画面实际4:3简单拉平
-            self.cut_w = int(self.cut_w * (self.total_w / self.total_h) * 3 / 4)
-        self.offset_x = (self.total_w - self.cut_w) // 2 + self.left_corner[0] - window_rect[0]
-        self.offset_y = (self.total_h - self.cut_h) // 2 + self.left_corner[1] - window_rect[1]
-        self.actual_x = window_rect[0] + self.offset_x
-        self.actual_y = window_rect[1] + self.offset_y
+            # 确认截图相关数据
+            self.total_w = client_rect[2] - client_rect[0]
+            self.total_h = client_rect[3] - client_rect[1]
+            cut_factor = int(self.total_h / 2 / 192)
+            self.cut_h = 192 * cut_factor
+            self.cut_w = 224 * cut_factor
+            if self.windows_class == 'CrossFire':  # 画面实际4:3简单拉平
+                self.cut_w = int(self.cut_w * (self.total_w / self.total_h) * 3 / 4)
+            self.offset_x = (self.total_w - self.cut_w) // 2 + self.left_corner[0] - window_rect[0]
+            self.offset_y = (self.total_h - self.cut_h) // 2 + self.left_corner[1] - window_rect[1]
+            self.actual_x = window_rect[0] + self.offset_x
+            self.actual_y = window_rect[1] + self.offset_y
+        except pywintypes.error as e:
+            if self.errors < 2:
+                print('获取窗口数据错误\n' + e)
+                self.errors += 1
+            pass
 
     def get_cut_info(self):
         return self.cut_w, self.cut_h
@@ -176,6 +182,7 @@ class FrameDetection:
     session = ''
     io_binding = ''
     device_name = ''
+    errors = 0  # 仅仅显示一次错误
 
     # 构造函数
     def __init__(self, hwnd_value):
@@ -184,22 +191,14 @@ class FrameDetection:
             'Valve001': 0.45,
             'CrossFire': 0.45,
         }.get(self.win_class_name, 0.5)
+
+        # 检测是否在GPU上运行图像识别
+        self.device_name = onnxruntime.get_device()
         try:
             self.session = onnxruntime.InferenceSession('yolox_nano.onnx', providers=self.EP_list)  # 推理构造
         except RuntimeError:
             self.session.set_providers(self.EP_list[len(self.EP_list)-1])
-        self.io_binding = self.session.io_binding()
-
-        try:
-            with open('classes.txt', 'r') as f:
-                self.class_names = [cname.strip() for cname in f.readlines()]
-        except FileNotFoundError:
-            self.class_names = ['live-body', 'dead-body']
-        for i in range(len(self.class_names)):
-            self.COLORS.append(tuple(np.random.randint(256, size=3).tolist()))
-
-        # 检测是否在GPU上运行图像识别
-        self.device_name = onnxruntime.get_device()
+            self.device_name = 'CPU'
         if self.device_name == 'GPU':
             gpu_eval = check_gpu()
             gpu_message = {
@@ -211,14 +210,27 @@ class FrameDetection:
             print('中央处理器烧起来')
             print('PS:注意是否安装CUDA')
 
+        self.io_binding = self.session.io_binding()
+
+        try:
+            with open('classes.txt', 'r') as f:
+                self.class_names = [cname.strip() for cname in f.readlines()]
+        except FileNotFoundError:
+            self.class_names = ['human-head', 'human-body']
+        for i in range(len(self.class_names)):
+            self.COLORS.append(tuple(np.random.randint(256, size=3).tolist()))
+
     def detect(self, frames):
         try:
             if frames.any():
                 frame_height, frame_width = frames.shape[:2]
             frame_height += 0
             frame_width += 0
-        except (cv2.error, AttributeError, UnboundLocalError):
-            return
+        except (cv2.error, AttributeError, UnboundLocalError) as e:
+            if self.errors < 2:
+                print(e)
+                self.errors += 1
+            return 0, 0, 0, 0, 0, 0, 0, frames
 
         # 画实心框避免错误检测武器与手
         if self.win_class_name == 'CrossFire':
@@ -428,11 +440,19 @@ def demo_postprocess(outputs, img_size, p6=False):
 
 # 简单检查gpu是否够格
 def check_gpu():
-    pynvml.nvmlInit()
-    gpu_handle = pynvml.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
-    gpu_name = pynvml.nvmlDeviceGetName(gpu_handle)
-    memory_info = pynvml.nvmlDeviceGetMemoryInfo(gpu_handle)
-    pynvml.nvmlShutdown()
+    try:
+        pynvml.nvmlInit()
+        gpu_handle = pynvml.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
+        gpu_name = pynvml.nvmlDeviceGetName(gpu_handle)
+        memory_info = pynvml.nvmlDeviceGetMemoryInfo(gpu_handle)
+        pynvml.nvmlShutdown()
+    except (FileNotFoundError, pynvml.nvml.NVML_ERROR_LIBRARY_NOT_FOUND) as e:
+        print(e)
+        nvidia_smi.nvmlInit()
+        gpu_handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)  # 默认卡1
+        gpu_name = nvidia_smi.nvmlDeviceGetName(gpu_handle)
+        memory_info = nvidia_smi.nvmlDeviceGetMemoryInfo(gpu_handle)
+        nvidia_smi.nvmlShutdown()
     if b'RTX' in gpu_name:
         return 2
     memory_total = memory_info.total / 1024 / 1024
@@ -446,7 +466,7 @@ def set_dpi():
     if int(release()) >= 7:
         try:
             windll.shcore.SetProcessDpiAwareness(1)
-        except:
+        except AttributeError:
             windll.user32.SetProcessDPIAware()
     else:
         exit(0)
@@ -458,13 +478,14 @@ def is_full_screen(hWnd):
         full_screen_rect = (0, 0, windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1))
         window_rect = win32gui.GetWindowRect(hWnd)
         return window_rect == full_screen_rect
-    except:
+    except pywintypes.error as e:
+        print('全屏检测错误\n' + e)
         return False
 
 
 # 确认窗口句柄与类名
 def get_window_info():
-    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient UnrealWindow'
+    supported_games = 'Valve001 CrossFire LaunchUnrealUWindowsClient LaunchCombatUWindowsClient UnrealWindow UnityWndClass'
     test_window = 'Notepad3 PX_WINDOW_CLASS Notepad Notepad++'
     class_name = ''
     hwnd_var = ''
@@ -495,7 +516,8 @@ def restart():
 
 # 退出脚本
 def close():
-    show_proc.terminate()
+    if not arr[2]:
+        show_proc.terminate()
     detect_proc.terminate()
 
 
@@ -784,6 +806,8 @@ if __name__ == '__main__':
     if not arr[2]:
         show_proc = Process(target=show_frames, args=(frame_output, arr,))
         show_proc.start()
+    else:
+        print('全屏模式下不会有小窗口...')
 
     # 等待游戏画面完整出现(拥有大于0的长宽)
     window_ready = 0
@@ -808,7 +832,7 @@ if __name__ == '__main__':
         sleep(4)
 
     # 清空命令指示符面板
-    clear()
+    # clear()
 
     ini_sct_time = 0  # 初始化计时
     small_float = np.finfo(np.float64).eps  # 初始化一个尽可能小却小得不过分的数
