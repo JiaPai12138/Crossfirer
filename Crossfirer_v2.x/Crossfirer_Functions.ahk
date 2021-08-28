@@ -12,6 +12,9 @@ global cfy := 0
 global cfw := 1600
 global cfh := 900
 global CF_Now := New CF_Game_Status ;初始化显示游戏状态
+GhubHandle := DllCall("LoadLibrary", "Str", "ghub_mouse.dll", "Ptr")
+gmok := DllCall("ghub_mouse.dll\mouse_open")
+OnExit("Release_Ghub")
 
 ;加载真正的屏幕大小,即使在UHD放大情况下
 VarSetCapacity(Screen_Info, 156)
@@ -351,23 +354,29 @@ GetColorStatus(X, Y, color_lib)
 ;鼠标左右键按下(SendInput方式)
 mouse_sendinput_down(key_name := "LButton")
 {
+    global GhubHandle, gmok
     If !Instr(key_name, "Button")
         Return False
     StructSize := A_PtrSize + 4*4 + A_PtrSize*2
     WhichDown := Instr(key_name, "L") ? 0x0002 : 0x0008
+    Gkey := Instr(key_name, "L") ? 1 : 2
     ;MOUSEEVENTF_LEFTDOWN := 0x0002, MOUSEEVENTF_RIGHTDOWN := 0x0008
     VarSetCapacity(Key_Down, StructSize)
     NumPut(0, Key_Down, "UInt") ;4 bit
     NumPut(0, Key_Down, A_PtrSize, "UInt")
     NumPut(0, Key_Down, A_PtrSize + 4, "UInt")
     NumPut(WhichDown, Key_Down, A_PtrSize + 4*3, "UInt")
-    DllCall("SendInput", "UInt", 1, "Ptr", &Key_Down, "Int", StructSize)
+    If GhubHandle && gmok
+        DllCall("ghub_mouse.dll\press", "Char", Gkey)
+    Else
+        DllCall("SendInput", "UInt", 1, "Ptr", &Key_Down, "Int", StructSize)
     VarSetCapacity(Key_Down, 0) ;释放内存
 }
 ;==================================================================================
 ;鼠标左右键抬起(SendInput方式)
 mouse_sendinput_up(key_name := "LButton")
 {
+    global GhubHandle, gmok
     If !Instr(key_name, "Button")
         Return False
     StructSize := A_PtrSize + 4*4 + A_PtrSize*2
@@ -378,14 +387,17 @@ mouse_sendinput_up(key_name := "LButton")
     NumPut(0, Key_Up, A_PtrSize, "UInt")
     NumPut(0, Key_Up, A_PtrSize + 4, "UInt")
     NumPut(WhichDown, Key_Up, A_PtrSize + 4*3, "UInt")
-    DllCall("SendInput", "UInt", 1, "Ptr", &Key_Up, "Int", StructSize)
+    If GhubHandle && gmok
+        DllCall("ghub_mouse.dll\release")
+    Else
+        DllCall("SendInput", "UInt", 1, "Ptr", &Key_Up, "Int", StructSize)
     VarSetCapacity(Key_Up, 0) ;释放内存
 }
 ;==================================================================================
 ;鼠标相对移动(SendInput方式)
 mouse_sendinput_xy(x2, y2, Absolute := False)
 {
-    global Mon_Width, Mon_Hight
+    global Mon_Width, Mon_Hight, GhubHandle, gmok
     ;绝对坐标从0~65535,所以我们要转换到像素坐标
     static SysX, SysY
     SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
@@ -405,7 +417,7 @@ mouse_sendinput_xy(x2, y2, Absolute := False)
 
         Random, RandXY, -1, 1
         If (x2 = 0) && (y2 > 2)
-            x1 := RandXY
+            x2 := RandXY
         Else If (y2 = 0) && (x2 > 2)
             y2 := RandXY
     }
@@ -422,7 +434,10 @@ mouse_sendinput_xy(x2, y2, Absolute := False)
     If PrevSpeed != 10
         SPI_SETMOUSESPEED()
 
-    DllCall("SendInput", "UInt", 1, "Ptr", &MouseInput_Move, "Int", StructSize)
+    If GhubHandle && gmok && !Absolute
+        DllCall("ghub_mouse.dll\moveR", "Char", x2, "Char", y2)
+    Else
+        DllCall("SendInput", "UInt", 1, "Ptr", &MouseInput_Move, "Int", StructSize)
     VarSetCapacity(MouseInput_Move, 0) ;释放内存
 
     If Origin_Status
@@ -642,6 +657,17 @@ press_key(key_name, press_time, sleep_time, sendinput_method := True)
             sendinput_method ? key_sendinput_up(key_name) : key_up(key_name)
     }
     HyperSleep(sleep_time)
+}
+;==================================================================================
+;释放加载Ghub鼠标动态链接库的句柄
+Release_Ghub()
+{
+    global GhubHandle
+    If GhubHandle
+    {
+        DllCall("ghub_mouse.dll\mouse_close")
+        DllCall("FreeLibrary", "Ptr", GhubHandle)
+    }
 }
 ;==================================================================================
 ;设置图形界面位置
