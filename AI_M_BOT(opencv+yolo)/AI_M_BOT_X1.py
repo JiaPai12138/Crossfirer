@@ -411,6 +411,8 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
     recoil_control = 0
     move_range = sqrt(pow(a, 2) + pow(b, 2))
     DPI_Var = windll.user32.GetDpiForWindow(window_hwnd_name) / 96
+    move_rx, a = track_opt(move_rx, a, DPI_Var)
+    move_ry, b = track_opt(move_ry, b, DPI_Var)
     enhanced_holdback = win32gui.SystemParametersInfo(SPI_GETMOUSE)
     if enhanced_holdback[1]:
         win32gui.SystemParametersInfo(SPI_SETMOUSE, [0, 0, 0], 0)
@@ -437,9 +439,6 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
             'LaunchCombatUWindowsClient': (b * 1.319 / fps_factor, 2),  # 10.0
             'LaunchUnrealUWindowsClient': (b / 2.557 / fps_factor, 5),  # 20
         }.get(win_class, (b / fps_factor, 2))
-
-        move_rx, x0 = track_opt(move_rx, a, x0)
-        move_ry, y0 = track_opt(move_ry, b, y0)
 
         if arr[12] == 1 or arr[14]:
             y0 += (recoil_control * shoot_times[0])  # 简易压枪
@@ -475,19 +474,19 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
 
 
 # 追踪优化
-def track_opt(record_list, range_m, move):
+def track_opt(record_list, range_m, vDPI):
     if len(record_list):
-        if abs(median(record_list) - range_m) <= 15 and range_m <= 80:
+        if abs(median(record_list) - range_m) <= 10*vDPI and abs(range_m) <= 100*vDPI:
             record_list.append(range_m)
         else:
             record_list.clear()
-        if len(record_list) > show_fps[0] / 10 and arr[4]:
-            move *= (show_fps[0] // 20)
+        if len(record_list) > sqrt(show_fps[0]) and arr[4]:
+            range_m *= pow(show_fps[0]/2, 1/3)
             record_list.clear()
     else:
         record_list.append(range_m)
 
-    return record_list, move
+    return record_list, range_m
 
 
 # 转变状态
