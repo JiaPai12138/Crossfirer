@@ -438,7 +438,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                     # windll.user32.mouse_event(0x0002, 0, 0, 0, 0)
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0)
                     press_time[0] = int(time() * 1000)
-                    if (time() * 1000 - up_time[0]) <= 175:
+                    if (time() * 1000 - up_time[0]) <= 219.4:
                         shoot_times[0] += 1
                         if shoot_times[0] > 10:
                             shoot_times[0] = 10
@@ -449,7 +449,7 @@ def control_mouse(a, b, fps_var, ranges, rate, go_fire, win_class, move_rx, move
                 mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0)
                 up_time[0] = int(time() * 1000)
 
-    if (time() * 1000 - up_time[0]) > 175:
+    if (time() * 1000 - up_time[0]) > 219.4:
         shoot_times[0] = 0
 
     if enhanced_holdback[1]:
