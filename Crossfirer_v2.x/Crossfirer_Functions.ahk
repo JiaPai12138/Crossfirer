@@ -13,7 +13,8 @@ global cfw := 1600
 global cfh := 900
 global CF_Now := New CF_Game_Status ;初始化显示游戏状态
 GhubHandle := DllCall("LoadLibrary", "Str", "ghub_mouse.dll", "Ptr")
-gmok := DllCall("ghub_mouse.dll\mouse_open")
+gmok := DllCall("ghub_mouse.dll\Agulll")
+gmdown := 0
 OnExit("Release_Ghub")
 
 ;加载真正的屏幕大小,即使在UHD放大情况下
@@ -36,6 +37,7 @@ Preset(Script_Icon)
     #KeyHistory, 0                   ;禁用按键历史
     #InstallMouseHook                ;强制无条件安装鼠标钩子
     #InstallKeybdHook                ;强制无条件安装键盘钩子
+    #UseHook                         ;强制使用钩子实现全部或部分键盘热键
     ListLines, Off                   ;不显示最近执行的脚本行
     SendMode, Input                  ;使用更速度和可靠方式发送键鼠点击
     SetWorkingDir, %A_ScriptDir%     ;保证一致的脚本起始工作目录
@@ -354,31 +356,38 @@ GetColorStatus(X, Y, color_lib)
 ;鼠标左右键按下(SendInput方式)
 mouse_sendinput_down(key_name := "LButton")
 {
-    global GhubHandle, gmok
+    global gmok, gmdown
     If !Instr(key_name, "Button")
         Return False
+    Gkey := Instr(key_name, "L") ? 1 : 2
+    If gmok
+    {
+        gmdown := 1
+        Return DllCall("ghub_mouse.dll\Leo_Kick", "Char", Gkey)
+    }
     StructSize := A_PtrSize + 4*4 + A_PtrSize*2
     WhichDown := Instr(key_name, "L") ? 0x0002 : 0x0008
-    Gkey := Instr(key_name, "L") ? 1 : 2
     ;MOUSEEVENTF_LEFTDOWN := 0x0002, MOUSEEVENTF_RIGHTDOWN := 0x0008
     VarSetCapacity(Key_Down, StructSize)
     NumPut(0, Key_Down, "UInt") ;4 bit
     NumPut(0, Key_Down, A_PtrSize, "UInt")
     NumPut(0, Key_Down, A_PtrSize + 4, "UInt")
     NumPut(WhichDown, Key_Down, A_PtrSize + 4*3, "UInt")
-    If GhubHandle && gmok
-        DllCall("ghub_mouse.dll\press", "Char", Gkey)
-    Else
-        DllCall("SendInput", "UInt", 1, "Ptr", &Key_Down, "Int", StructSize)
+    DllCall("SendInput", "UInt", 1, "Ptr", &Key_Down, "Int", StructSize)
     VarSetCapacity(Key_Down, 0) ;释放内存
 }
 ;==================================================================================
 ;鼠标左右键抬起(SendInput方式)
 mouse_sendinput_up(key_name := "LButton")
 {
-    global GhubHandle, gmok
+    global gmok, gmdown
     If !Instr(key_name, "Button")
         Return False
+    If gmok
+    {
+        gmdown := 0
+        Return DllCall("ghub_mouse.dll\Niman_Years", "Char", 0)
+    }
     StructSize := A_PtrSize + 4*4 + A_PtrSize*2
     WhichDown := Instr(key_name, "L") ? 0x0004 : 0x0010
     ;MOUSEEVENTF_LEFTUP := 0x0004, MOUSEEVENTF_RIGHTUP := 0x0010
@@ -387,17 +396,14 @@ mouse_sendinput_up(key_name := "LButton")
     NumPut(0, Key_Up, A_PtrSize, "UInt")
     NumPut(0, Key_Up, A_PtrSize + 4, "UInt")
     NumPut(WhichDown, Key_Up, A_PtrSize + 4*3, "UInt")
-    If GhubHandle && gmok
-        DllCall("ghub_mouse.dll\release")
-    Else
-        DllCall("SendInput", "UInt", 1, "Ptr", &Key_Up, "Int", StructSize)
+    DllCall("SendInput", "UInt", 1, "Ptr", &Key_Up, "Int", StructSize)
     VarSetCapacity(Key_Up, 0) ;释放内存
 }
 ;==================================================================================
 ;鼠标相对移动(SendInput方式)
 mouse_sendinput_xy(x2, y2, Absolute := False)
 {
-    global Mon_Width, Mon_Hight, GhubHandle, gmok
+    global Mon_Width, Mon_Hight, gmok
     ;绝对坐标从0~65535,所以我们要转换到像素坐标
     static SysX, SysY
     SysX := 65535 // Mon_Width, SysY := 65535 // Mon_Hight
@@ -434,8 +440,8 @@ mouse_sendinput_xy(x2, y2, Absolute := False)
     If PrevSpeed != 10
         SPI_SETMOUSESPEED()
 
-    If GhubHandle && gmok && !Absolute
-        DllCall("ghub_mouse.dll\moveR", "Char", x2, "Char", y2)
+    If gmok
+        DllCall("ghub_mouse.dll\Mach_Move", "Char", x2, "Char", y2, "Int", 0)
     Else
         DllCall("SendInput", "UInt", 1, "Ptr", &MouseInput_Move, "Int", StructSize)
     VarSetCapacity(MouseInput_Move, 0) ;释放内存
@@ -634,6 +640,7 @@ key_up(key_name, sendinput_method := True)
 ;按键函数,鉴于Input模式下单纯的send速度不合要求而开发
 press_key(key_name, press_time, sleep_time, sendinput_method := True)
 {
+    global gmok, gmdown
     ;本机鼠标延迟测试,包括按下弹起
     If InStr(key_name, "Button")
         press_time -= 0.56, sleep_time -= 0.56
@@ -649,7 +656,7 @@ press_key(key_name, press_time, sleep_time, sendinput_method := True)
     }
     HyperSleep(press_time)
 
-    If !GetKeyState(key_name, "P")
+    If !GetKeyState(key_name, "P") || gmdown
     {
         If InStr(key_name, "Button")
             sendinput_method ? mouse_sendinput_up(key_name) : mouse_up(key_name)
@@ -665,7 +672,7 @@ Release_Ghub()
     global GhubHandle
     If GhubHandle
     {
-        DllCall("ghub_mouse.dll\mouse_close")
+        DllCall("ghub_mouse.dll\Shwaji")
         DllCall("FreeLibrary", "Ptr", GhubHandle)
     }
 }
