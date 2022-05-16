@@ -406,7 +406,7 @@ Shoot_Time(X, Y, W, H, Var, game_title)
         Return !ErrorLevel
     }
     Else If game_title = 穿越火线
-        Return GetColorStatus(X + Var, Y + H // 2 + H // 15, PosColor_red) ;图形界面一半+到红名的距离, 510 对应 1600*900
+        Return GetColorStatus(X + Var, Y + H // 2 + H // 18, PosColor_red) ;图形界面一半+到红名的距离, 510 对应 1600*900
 }
 ;==================================================================================
 ;检测是否退出模式,由按键触发
