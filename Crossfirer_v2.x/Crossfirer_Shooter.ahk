@@ -5,6 +5,7 @@ CheckPermission("自动开火")
 ;==================================================================================
 global AutoMode := False
 global mo_shi := -1
+global fire_chance := 0
 XGui1 := YGui1 := XGui2 := YGui2 := Xch := Ych := 0
 Temp_Mode := Temp_Run := ""
 1_pressed := 2_pressed := k_pressed := j_pressed := l_pressed := 0
@@ -304,17 +305,14 @@ ChangeMode(ByRef AutoMode, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
 AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
 {
     CheckPosition(X1, Y1, W1, H1, "CrossFire")
-    If game_title = 穿越火线
-        default_shooter := 3.1
-    Else
-        default_shooter := 3.5
     static Color_Delay := 10 ;本机i5-10300H测试结果,使用color_speed_test.ahk测试
     Gui, cross_hair: Color, 00FFFF ;#00FFFF
     Gui, cross_hair: Show, x%Xch% y%Ych% w66 h66 NA
     While, CF_Now.GetStatus() && AutoMode
     {
-        Random, rand, 59.0, 61.0 ;设定随机值减少被检测概率
-        small_rand := rand / 2
+        Random, rand, 56.0, 64.0 ;设定随机值减少被检测概率
+        Random, rand2, 56.0, 64.0 ;设定随机值减少被检测概率
+        small_rand := rand2 / 2
         Var := W1 // 2 - 15 ;788
         GuiControl, fcn_status: +c00FFFF +Redraw, StatusOfFcn ;#00FFFF
         UpdateText("fcn_status", "StatusOfFcn", "搜寻敌人中", XGui2, YGui2)
@@ -333,6 +331,7 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
 
             If Shoot_Time(X1, Y1, W1, H1, Var, game_title) ;当红名被扫描到时射击
             {
+                fire_chance += 1
                 GuiControl, fcn_mode: +c00FFFF +Redraw, ModeOfFcn ;#00FFFF
                 GuiControl, fcn_status: +cFF0000 +Redraw, StatusOfFcn ;#FF0000
                 UpdateText("fcn_status", "StatusOfFcn", "正对准敌人", XGui2, YGui2)
@@ -340,18 +339,22 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                 {
                     Case 2:
                         UpdateText("fcn_mode", "ModeOfFcn", "手枪模式中", XGui1, YGui1)
-                        press_key("LButton", small_rand * 1.5, small_rand * 2.5 - Color_Delay) ;控制USP射速
+                        press_key("LButton", rand, small_rand * 2.5 - Color_Delay) ;控制USP射速
                         mouseXY(0, 1)
 
                     Case 8:
                         UpdateText("fcn_mode", "ModeOfFcn", "瞬狙模式中", XGui1, YGui1)
                         If !CheckSnipe(X1, Y1, W1, H1)
                         {
-                            press_key("RButton", small_rand * 1.5, small_rand)
-                            press_key("LButton", small_rand * 1.5 - Color_Delay, small_rand - Color_Delay)
+                            press_key("RButton", rand, small_rand)
+                            if fire_chance > 2
+                                press_key("LButton", rand - Color_Delay, small_rand - Color_Delay)
                         }
                         Else
-                            press_key("LButton", small_rand * 1.5 - Color_Delay, small_rand - Color_Delay)
+                        {
+                            if fire_chance > 2
+                                press_key("LButton", rand - Color_Delay, small_rand - Color_Delay)
+                        }
                         ;开镜瞬狙或连狙
 
                         If (GamePing <= 250) ;允许切枪减少换弹时间
@@ -364,27 +367,30 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                             press_cnt := 0
                             Loop ;确保及时退出循环
                             {
-                                press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
+                                press_key("RButton", rand, small_rand * 1.5 - Color_Delay)
                                 press_cnt += 1
                             } Until, (CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher() || press_cnt >= 30)
 
                             Loop
                             {
-                                press_key("RButton", small_rand * 1.5, small_rand - Color_Delay)
+                                press_key("RButton", rand, small_rand * 1.5 - Color_Delay)
                             } Until, (!CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher())
                         }
 
                     Case 111:
                         UpdateText("fcn_mode", "ModeOfFcn", "连发速点中", XGui1, YGui1)
-                        press_key("LButton", 3 * rand, small_rand - Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
+                        press_key("LButton", 3 * rand, small_rand * 2 - Color_Delay) ;针对霰弹枪,冲锋枪和连狙,不压枪
 
                     Default: ;通用模式不适合射速高的冲锋枪
                         UpdateText("fcn_mode", "ModeOfFcn", "通用模式中", XGui1, YGui1)
-                        press_key("LButton", small_rand * 1.2, small_rand * (default_shooter - 1.2) - Color_Delay) ;3.5*30=105
-                        Random, rand_down, 1, 2
+                        press_key("LButton", rand * 2, small_rand * 2.3) ;120 80
+                        Random, rand_down, 2, 3
                         mouseXY(0, rand_down) ;小小随机压枪
                 }
             }
+            Else
+                fire_chance := 0
+
             Var += 1
         } Until, Var > (W1 // 2 + 15) ;文字受缩放率影响不大，因此用定值
     }
