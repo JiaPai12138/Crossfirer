@@ -11,7 +11,7 @@ Temp_Mode := Temp_Run := ""
 1_pressed := 2_pressed := k_pressed := j_pressed := l_pressed := 0
 crosshair = 34-35 2-35 2-36 34-36 34-60 35-60 35-36 67-36 67-35 35-35 ;35-11 34-11 ;For "T" type crosshair
 game_title :=
-global GamePing := 45 ;默认45,涵盖至少85%以上我所常见的国服游戏延迟
+global GamePing := 50 ;默认45,涵盖至少85%以上我所常见的国服游戏延迟
 global CapsLock_pressed := 0
 
 If WinExist("ahk_class CrossFire")
@@ -343,17 +343,15 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                         mouseXY(0, 1)
 
                     Case 8:
-                        UpdateText("fcn_mode", "ModeOfFcn", "瞬狙模式中", XGui1, YGui1)
+                        UpdateText("fcn_mode", "ModeOfFcn", "蹲点瞬狙中", XGui1, YGui1)
                         If !CheckSnipe(X1, Y1, W1, H1)
                         {
                             press_key("RButton", rand, small_rand)
-                            if fire_chance > 2
-                                press_key("LButton", rand - Color_Delay, small_rand - Color_Delay)
+                            press_key("LButton", rand - Color_Delay, small_rand - Color_Delay)
                         }
                         Else
                         {
-                            if fire_chance > 2
-                                press_key("LButton", rand - Color_Delay, small_rand - Color_Delay)
+                            press_key("LButton", rand - Color_Delay, small_rand - Color_Delay)
                         }
                         ;开镜瞬狙或连狙
 
@@ -361,15 +359,16 @@ AutoFire(game_title, XGui1, YGui1, XGui2, YGui2, Xch, Ych)
                         {
                             GuiControl, fcn_status: +c00FF00 +Redraw, StatusOfFcn ;#00FF00
                             UpdateText("fcn_status", "StatusOfFcn", "双切换弹中", XGui2, YGui2)
-                            press_key("3", GamePing, 100)
-                            press_key("1", 25, 25)
+                            press_key("3", rand, small_rand)
+                            press_key("1", rand, small_rand)
 
                             press_cnt := 0
                             Loop ;确保及时退出循环
                             {
+                                press_key("1", rand, small_rand - Color_Delay)
                                 press_key("RButton", rand, small_rand * 1.5 - Color_Delay)
                                 press_cnt += 1
-                            } Until, (CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher() || press_cnt >= 30)
+                            } Until, (CheckSnipe(X1, Y1, W1, H1) || ExitSwitcher() || press_cnt >= 20)
 
                             Loop
                             {
@@ -433,7 +432,7 @@ CheckSnipe(Xvar, Yvar, Wvar, Hvar)
     global Snipe_000000
     If Wvar >= 1280
     {
-        ImageSearch, sp_x, sp_y, Xvar + Wvar // 2 - 3, Yvar + Hvar // 2, Xvar + Wvar // 2 + 3, Yvar + Hvar // 2 + Hvar // 4.5, *1 HBITMAP:*%Snipe_000000% ;检测狙击镜准心 #000000
+        ImageSearch, sp_x, sp_y, Xvar + Wvar // 2 - 3, Yvar + Hvar // 2, Xvar + Wvar // 2 + 3, Yvar + Hvar // 2 + Hvar // 4.5, *2 HBITMAP:*%Snipe_000000% ;检测狙击镜准心 #000000
         Return !ErrorLevel
     }
     Else
