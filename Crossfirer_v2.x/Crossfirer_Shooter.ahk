@@ -405,13 +405,16 @@ Shoot_Time(X, Y, W, H, Var, game_title)
     static PosColor_NA_red := "0x174AF2" ;0xF24A17
     ;show color in editor: #F24A17 #174AF2
     ;HyperSleep(1) ;减小平均cpu占用
-    If game_title = CROSSFIRE ;检测客户端标题来确定检测位置和颜色库
+    If game_title = 穿越火线 ;修复 By https://github.com/scarletkc 2022/11/30
+    {
+        PixelSearch, ColorX, ColorY, X + W // 2 - W // 20, Y + H // 2, X + W // 2 + W // 20, Y + H // 2 + H // 7.5, PosColor_red, 0, Fast
+        Return !ErrorLevel
+    }
+    Else If game_title = CrossFire
     {
         PixelSearch, ColorX, ColorY, X + W // 2 - W // 20, Y + H // 2, X + W // 2 + W // 20, Y + H // 2 + H // 7.5, %PosColor_NA_red%, 0, Fast
         Return !ErrorLevel
     }
-    Else If game_title = 穿越火线
-        Return GetColorStatus(X + Var, Y + H // 2 + H // 18, PosColor_red) ;图形界面一半+到红名的距离, 510 对应 1600*900
 }
 ;==================================================================================
 ;检测是否退出模式,由按键触发
