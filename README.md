@@ -4,6 +4,10 @@
 
 [![img](https://img.shields.io/github/stars/JiaPai12138/Crossfirer?label=点赞)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/forks/JiaPai12138/Crossfirer?label=克隆)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/last-commit/JiaPai12138/Crossfirer?label=最近提交)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/release/JiaPai12138/Crossfirer?label=最新版本)](https://github.com/JiaPai12138/Crossfirer/releases)  [![img](https://img.shields.io/github/license/JiaPai12138/Crossfirer?label=许可证)](https://github.com/JiaPai12138/Crossfirer/blob/main/LICENSE)  [![img](https://img.shields.io/badge/URL-帮助文档-blue)](https://github.com/JiaPai12138/Crossfirer/blob/main/README.pdf)
 
+## 广告 UN HUNTER
+![image](PDF_Images/UN_DARK.png)
+![image](PDF_Images/UN_LIGHT.png)
+
 ## 介绍(~~不会有英文介绍的~~[ENG](README_EN.md)) 📖📖📖
 ### 国内 YOLO 交流群 778907895
 火线娱乐辅助，拥有红名自动开火、鼠标连点、跳蹲、扫射压枪、C4计时、秒变猎手、无尽挂机、神经自瞄等功能。适用于Win7+系统。适合手残党以及高手挂机。建议<font style="background: #FFFF00">**窗口化**</font>运行。这是个<font style="background: #FFFF00">**学习性质娱乐用途**</font>脚本，恳请在以下方面提供意见与帮助:
@@ -126,11 +130,11 @@
 * ~~增加其他一些常用枪械的压枪(请有人看的话建议下什么枪需要压)~~*(已放弃)*
 * 增强战术性的压枪，即尽可能将前5到7发子弹压到一个点上，而放宽对扫射压枪的要求
 * ~~读取游戏内存？哈哈哈母鸡~~(读取内存太累了而且失效快主要是**我目前不会搞驱动对抗**，况且我一个初级编程学者远远比不上国内产业链一条龙服务)
-* 适配更多的分辨率，包括适配全屏(初步完成，但全屏/窗口转换时会出问题)
+* ~~适配更多的分辨率，包括适配全屏(初步完成，但全屏/窗口转换时会出问题)~~*(已完成)*
 * ~~增加新版界面的自动刷无尽挑战(暗黑营地)~~*(已完成)*
 * 使用多线程，未来的发行版中将只有一个exe文件
 * ~~使用图像识别将鼠标短时间内指向目标(自瞄)，并持续进行类似FPS游戏通用化适配~~*(基本完成)*
 * ~~自瞄中使用多个预测进程~~*(已完成)*
-* 自己训练模型
+* ~~自己训练模型~~*(已完成)*
 
 ## <font style="background: #FFFF00">请用小号！请用小号！！请用小号！！！</font>
