@@ -4,9 +4,13 @@
 
 [![img](https://img.shields.io/github/stars/JiaPai12138/Crossfirer?label=点赞)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/forks/JiaPai12138/Crossfirer?label=克隆)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/last-commit/JiaPai12138/Crossfirer?label=最近提交)](https://github.com/JiaPai12138/Crossfirer)  [![img](https://img.shields.io/github/release/JiaPai12138/Crossfirer?label=最新版本)](https://github.com/JiaPai12138/Crossfirer/releases)  [![img](https://img.shields.io/github/license/JiaPai12138/Crossfirer?label=许可证)](https://github.com/JiaPai12138/Crossfirer/blob/main/LICENSE)  [![img](https://img.shields.io/badge/URL-帮助文档-blue)](https://github.com/JiaPai12138/Crossfirer/blob/main/README.pdf)
 
-## 广告 UN HUNTER
-![image](PDF_Images/UN_DARK.png)
-![image](PDF_Images/UN_LIGHT.png)
+## 广告 OFFICIAL CHIVII
+居然有人假冒UN也是醉了...
+![image](PDF_Images/CHIVII_d1.png)
+![image](PDF_Images/CHIVII_d2.png)
+![image](PDF_Images/CHIVII_d3.png)
+![image](PDF_Images/CHIVII_d4.png)
+![image](PDF_Images/CHIVII_d5.png)
 
 ## 介绍(~~不会有英文介绍的~~[ENG](README_EN.md)) 📖📖📖
 ### 国内 YOLO 交流群 778907895
